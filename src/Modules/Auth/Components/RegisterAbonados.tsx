@@ -1,5 +1,6 @@
 import { useForm } from '@tanstack/react-form'
-import { UserInitialState } from '../../models/User'
+import { UserInitialState } from '../Models/User'
+
 
 
 const RegisterAbonados = () => {
