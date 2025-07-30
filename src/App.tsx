@@ -1,20 +1,32 @@
-import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { routeTree } from './routes' // ajusta si está en otra carpeta
+import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { routeTree } from './routes';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+
+
+const queryClient = new QueryClient();
+
 
 const router = createRouter({
-  routeTree
-})
+  routeTree,
+  context: {
+    queryClient, 
+  },
+});
+
 
 declare module '@tanstack/react-router' {
   interface Register {
-    router: typeof router
+    router: typeof router;
   }
 }
 
 function App() {
   return (
-    <RouterProvider router={router} />
-  )
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
 }
 
-export default App
+export default App;

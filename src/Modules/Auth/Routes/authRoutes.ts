@@ -1,9 +1,10 @@
 
 import { createRoute } from "@tanstack/react-router";
-import RegisterAbonados from "../Components/RegisterAbonados";
+
 import AuthLayout from "../Layouts/AuthLayout";
 import { rootRoute } from "../../../routes";
-import RegisterUser from "../Components/RegisterUser";
+
+import RegisterPrueba from "../Components/RegisterPrueba";
 
 
 export const authRoute = createRoute({
@@ -16,11 +17,11 @@ export const authRoute = createRoute({
 export const registerAbonadoRoute = createRoute({
   getParentRoute: () => authRoute,
   path: "register-abonado", 
-  component: RegisterAbonados,
+  component: RegisterPrueba,
 });
 // /auth/register-user
-export const registerUserRoute = createRoute({
-  getParentRoute: () => authRoute,
-  path: "register-user", 
-  component: RegisterUser,
-});
+// export const registerUserRoute = createRoute({
+//   getParentRoute: () => authRoute,
+//   path: "register-user", 
+//   component: RegisterUser,
+// });

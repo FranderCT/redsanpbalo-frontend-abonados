@@ -10,14 +10,14 @@ export interface User{
     confirmPassword:string
 }
 
-export const UserInitialState = {
-    name:'',
-    apellidos:'',
-    cedula:'',
-    nis:'',
-    email:'',
-    telefono:'',
-    fechaNacimiento:'',
-    password:'',
-    confirmpassword:''
+export const UserInitialState: User = {
+  nombre: '',
+  apellidos: '',
+  cedula: '',
+  nis: '',
+  email: '',
+  telefono: '',
+  fechaNacimiento: new Date(),
+  password: '',
+  confirmPassword: '',
 }
