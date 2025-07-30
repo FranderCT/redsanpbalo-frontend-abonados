@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createUser } from "../Services/AuthServices";
+import { createUser, Login } from "../Services/AuthServices";
 
 
 export const useCreateUser = () => {
@@ -12,5 +12,16 @@ export const useCreateUser = () => {
         },
     });
 
+    return mutation;
+}
+
+export const useLogin = () => {
+    const mutation = useMutation({
+        mutationFn: Login,
+        onSuccess: (res) =>{
+            localStorage.setItem('token', res.token);
+            console.log("Login successful, token stored:", res.token);
+        }
+    })
     return mutation;
 }
