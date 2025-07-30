@@ -82,7 +82,7 @@ const LoginPrueba = () => {
                     <div className="flex justify-end">
                     <button
                         type="submit"
-                        className="w-1/3 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition"
+                        className="w-1/3 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition cursor-pointer"
                         disabled={!canSubmit}
                     >
                         {isSubmitting ? '...' : 'Iniciar sesión'}
@@ -95,7 +95,7 @@ const LoginPrueba = () => {
 
             <p className="mt-6 text-sm md:text-lg text-[#3A7CA5] text-center">
             ¿Ya tenés una cuenta?{' '}
-            <a href="/auth/register" className="underline font-medium hover:text-[#091540]">
+            <a href="/auth/register-abonado" className="underline font-medium hover:text-[#091540] cursor-pointer">
                 Registrate aquí
             </a>
             </p>
