@@ -1,24 +1,22 @@
+import axios from "axios";
 
+const apiAxios = axios.create({
+  baseURL: 'http://localhost:3000',
+  timeout: 5000,
+  headers: {'Authorization': ''}
+});
 
-import axios from 'axios'
-
-const BASE_URL = 'http://localhost:3000'
-
-export const api = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-})
-
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers = config.headers || {} 
-      config.headers.Authorization = `Bearer ${token}`
+apiAxios.interceptors.request.use(
+  config => {
+    if (!config.headers) {
+      config.headers = {}; 
     }
-    return config
+    config.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+    return config;
   },
-  (error) => Promise.reject(error)
-)
+  error => {
+    return Promise.reject(error);
+  }
+);
+
+export default apiAxios;

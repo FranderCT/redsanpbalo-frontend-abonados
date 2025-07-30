@@ -1,31 +1,23 @@
-import { formOptions, useForm } from "@tanstack/react-form"
-import { UserInitialState } from "../Models/User"
-import { createUser } from "../Services/AuthServices"
+import { useForm } from "@tanstack/react-form";
 import { useCreateUser } from "../Hooks/AuthHooks";
-
-
+import { UserInitialState } from "../Models/User";
 
 const RegisterPrueba = () => {
+  const createUserMutation = useCreateUser();
 
-    const createUser = useCreateUser();
+  const form = useForm({
+    defaultValues: UserInitialState,
+    onSubmit: async ({ value }) => {
+      await createUserMutation.mutateAsync(value);
+      console.log("Usuario creado:", value);
+    },
+  });
 
-    const formOpts = formOptions({
-        defaultValues: UserInitialState,
-    })
-
-    const form = useForm({
-        ...formOpts,
-        onSubmit : async ({value}) => {
-            await createUser.mutateAsync(value);
-        }
-    })
-        
-
-   return (
-    <div className="min-h-screen w-full bg-[#D9DCD6] flex items-center justify-center px-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center text-[#2F6690]">Registro</h2>
-        <div className="h-1 bg-[#81C3D7] my-4 rounded"></div>
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#D9DCD6] px-4">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-8">
+        <h2 className="text-3xl font-bold text-[#16425B] mb-2 text-center">Cuenta Nueva</h2>
+        <div className="h-1 w-16 bg-[#2F6690] mx-auto mb-6 rounded"></div>
 
         <form
           onSubmit={(e) => {
@@ -36,127 +28,108 @@ const RegisterPrueba = () => {
         >
           <form.Field name="nombre">
             {(field) => (
-              <div>
-                <label className="block text-[#16425B] font-medium mb-1">Nombre</label>
+              <>
+                <label className="block text-sm font-medium text-[#2F6690]">Nombre *</label>
                 <input
-                  className="w-full border border-[#3A7CA5] rounded-lg p-2 text-[#16425B]"
-                  type="text"
+                  className="w-full px-4 py-2 border border-[#2F6690] rounded-md text-sm text-[#16425B]"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-              </div>
+              </>
             )}
           </form.Field>
 
           <form.Field name="apellidos">
             {(field) => (
-              <div>
-                <label className="block text-[#16425B] font-medium mb-1">Apellidos</label>
+              <>
+                <label className="block text-sm font-medium text-[#2F6690]">Apellidos *</label>
                 <input
-                  className="w-full border border-[#3A7CA5] rounded-lg p-2 text-[#16425B]"
-                  type="text"
+                  className="w-full px-4 py-2 border border-[#2F6690] rounded-md text-sm text-[#16425B]"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-              </div>
+              </>
             )}
           </form.Field>
 
           <form.Field name="cedula">
             {(field) => (
-              <div>
-                <label className="block text-[#16425B] font-medium mb-1">Cédula</label>
+              <>
+                <label className="block text-sm font-medium text-[#2F6690]">Cédula *</label>
                 <input
-                  className="w-full border border-[#3A7CA5] rounded-lg p-2 text-[#16425B]"
-                  type="text"
+                  className="w-full px-4 py-2 border border-[#2F6690] rounded-md text-sm text-[#16425B]"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-              </div>
+              </>
             )}
           </form.Field>
 
           <form.Field name="nis">
             {(field) => (
-              <div>
-                <label className="block text-[#16425B] font-medium mb-1">NIS</label>
+              <>
+                <label className="block text-sm font-medium text-[#2F6690]">NIS *</label>
                 <input
-                  className="w-full border border-[#3A7CA5] rounded-lg p-2 text-[#16425B]"
-                  type="text"
+                  className="w-full px-4 py-2 border border-[#2F6690] rounded-md text-sm text-[#16425B]"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-              </div>
+              </>
             )}
           </form.Field>
 
           <form.Field name="email">
             {(field) => (
-              <div>
-                <label className="block text-[#16425B] font-medium mb-1">Correo electrónico</label>
+              <>
+                <label className="block text-sm font-medium text-[#2F6690]">Correo *</label>
                 <input
-                  className="w-full border border-[#3A7CA5] rounded-lg p-2 text-[#16425B]"
                   type="email"
+                  className="w-full px-4 py-2 border border-[#2F6690] rounded-md text-sm text-[#16425B]"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-              </div>
+              </>
             )}
           </form.Field>
 
           <form.Field name="telefono">
             {(field) => (
-              <div>
-                <label className="block text-[#16425B] font-medium mb-1">Teléfono</label>
+              <>
+                <label className="block text-sm font-medium text-[#2F6690]">Teléfono *</label>
                 <input
-                  className="w-full border border-[#3A7CA5] rounded-lg p-2 text-[#16425B]"
-                  type="tel"
+                  className="w-full px-4 py-2 border border-[#2F6690] rounded-md text-sm text-[#16425B]"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-              </div>
-            )}
-          </form.Field>
-
-          <form.Field name="fechaNacimiento">
-            {(field) => (
-                <div>
-                <label className="block text-[#16425B] font-medium mb-1">Fecha de nacimiento</label>
-                <input
-                    className="w-full border border-[#3A7CA5] rounded-lg p-2 text-[#16425B]"
-                    type="date"
-                    value={field.state.value.toISOString().split('T')[0]} // para mostrar en input
-                    onChange={(e) => field.handleChange(new Date(e.target.value))}
-                />
-                </div>
+              </>
             )}
           </form.Field>
 
           <form.Field name="password">
             {(field) => (
-              <div>
-                <label className="block text-[#16425B] font-medium mb-1">Contraseña</label>
+              <>
+                <label className="block text-sm font-medium text-[#2F6690]">Contraseña *</label>
                 <input
-                  className="w-full border border-[#3A7CA5] rounded-lg p-2 text-[#16425B]"
                   type="password"
+                  className="w-full px-4 py-2 border border-[#2F6690] rounded-md text-sm text-[#16425B]"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-              </div>
+              </>
             )}
           </form.Field>
 
           <form.Field name="confirmPassword">
             {(field) => (
-              <div>
-                <label className="block text-[#16425B] font-medium mb-1">Confirmar contraseña</label>
+              <>
+                <label className="block text-sm font-medium text-[#2F6690]">Confirmar Contraseña *</label>
                 <input
-                  className="w-full border border-[#3A7CA5] rounded-lg p-2 text-[#16425B]"
                   type="password"
+                  className="w-full px-4 py-2 border border-[#2F6690] rounded-md text-sm text-[#16425B]"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
-              </div>
+              </>
             )}
           </form.Field>
 
@@ -164,24 +137,26 @@ const RegisterPrueba = () => {
             {([canSubmit, isSubmitting]) => (
               <button
                 type="submit"
-                className="w-full bg-[#3A7CA5] text-white py-2 rounded-lg font-semibold hover:bg-[#2F6690] transition"
                 disabled={!canSubmit}
+                className="w-full py-3 text-white bg-[#3A7CA5] hover:bg-[#2F6690] transition rounded-md font-semibold"
               >
-                {isSubmitting ? 'Registrando...' : 'Registrarse'}
+                {isSubmitting ? "Registrando..." : "Registrarse"}
               </button>
             )}
           </form.Subscribe>
         </form>
 
-        <div className="text-center text-sm text-[#16425B] mt-6">
-          ¿Ya tenés una cuenta?{' '}
-          <button className="text-[#2F6690] underline hover:text-[#16425B]">
+        <p className="text-center mt-6 text-sm text-[#16425B]">
+          ¿Ya tenés una cuenta?{" "}
+          <a
+            className="text-[#2F6690] hover:underline font-medium cursor-pointer"
+          >
             Iniciá sesión
-          </button>
-        </div>
+          </a>
+        </p>
       </div>
     </div>
   );
 };
 
-export default RegisterPrueba
+export default RegisterPrueba;
