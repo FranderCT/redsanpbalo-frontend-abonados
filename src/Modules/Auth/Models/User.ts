@@ -1,25 +1,23 @@
 export interface User{
-    id?:string,
-    name:string,
-    surname1:string,
-    surname2:string,
+    nombre:string,
+    apellidos : string,
+    cedula : string,
     nis:string,
     email:string,
-    phonenumber:string,
-    dateofbirth:string,
+    telefono:string,
+    fechaNacimiento:Date,
     password:string,
-    confirmpassword:string
+    confirmPassword:string
 }
 
 export const UserInitialState = {
-    id:'',
     name:'',
-    surname1:'',
-    surname2:'',
+    apellidos:'',
+    cedula:'',
     nis:'',
     email:'',
-    phonenumber:'',
-    dateofbirth:'',
+    telefono:'',
+    fechaNacimiento:'',
     password:'',
     confirmpassword:''
 }
