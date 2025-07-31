@@ -1,4 +1,4 @@
-import Servicios from "./servicios"
+
 
 const HeroPage = () => {
 
@@ -6,7 +6,7 @@ const HeroPage = () => {
     <div>
         <h1>hola mundo</h1>
         <a href="/auth/login" > teoca para seguir </a>
-        <Servicios />
+  
     </div>
   )
 }
