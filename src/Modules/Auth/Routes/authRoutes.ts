@@ -3,8 +3,8 @@ import { createRoute } from "@tanstack/react-router";
 
 import AuthLayout from "../Layouts/AuthLayout";
 import { rootRoute } from "../../../routes";
-import RegisterAbonados from "../Components/RegisterAbonados";
-import LoginUser from "../Components/LoginUser";
+import RegisterAbonados from "../Pages/RegisterAbonados";
+import LoginUser from "../Pages/LoginUser";
 
 
 export const authRoute = createRoute({
