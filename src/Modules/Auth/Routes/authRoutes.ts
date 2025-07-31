@@ -3,9 +3,8 @@ import { createRoute } from "@tanstack/react-router";
 
 import AuthLayout from "../Layouts/AuthLayout";
 import { rootRoute } from "../../../routes";
-
-import RegisterPrueba from "../Components/RegisterPrueba";
-import LoginPrueba from "../Components/Login";
+import RegisterAbonados from "../Pages/RegisterAbonados";
+import LoginUser from "../Pages/LoginUser";
 
 
 export const authRoute = createRoute({
@@ -18,13 +17,13 @@ export const authRoute = createRoute({
 export const registerAbonadoRoute = createRoute({
   getParentRoute: () => authRoute,
   path: "register-abonado", 
-  component: RegisterPrueba,
+  component: RegisterAbonados,
 });
 
 export const loginRoute = createRoute({
    getParentRoute: () => authRoute,
    path: "login",
-   component: LoginPrueba,
+   component: LoginUser,
 })
 
 // /auth/register-user

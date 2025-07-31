@@ -1,6 +1,7 @@
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { routeTree } from './routes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ToastContainer } from 'react-toastify';
 
 
 
@@ -25,6 +26,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <ToastContainer /> 
     </QueryClientProvider>
   );
 }
