@@ -145,27 +145,32 @@ const RegisterAbonados = () => {
                 )}
               </form.Field>
   
-              {/* Fecha de nacimiento */}
+              Fecha de nacimiento
               <form.Field name="fechaNacimiento">
                 {(field) => (
                   <input
                     type="text"
                     placeholder="Fecha de nacimiento"
-                    onFocus={(e) => (e.target.type = "date")}
-                    onBlur={(e) => {
-                        if (!e.target.value) e.target.type = "text"
-                    }}
-                    className="w-full px-3 py-2 bg-gray-100 text-[#091540]"
                     id={field.name}
                     name={field.name}
                     value={field.state.value}
+                    onFocus={(e) => (e.target.type = 'date')}
+                    onBlur={(e) => {
+                      if (!e.target.value) e.target.type = 'text';
+                    }}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    />
+                    className={`
+                      w-full px-3 py-2 rounded-md bg-gray-100 text-[#091540] border 
+                      ${field.state.meta.errors.length > 0 ? 'border-red-500' : 'border-transparent'}
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all
+                    `}
+                  />
+
                 )}
               </form.Field>
   
               {/* Contraseña */}
-              <form.Field name="password">
+              <form.Field name="Password">
                 {(field) => (
                   <input
                     type="password"
