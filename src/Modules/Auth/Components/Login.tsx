@@ -56,7 +56,7 @@ const LoginPrueba = () => {
                 <form.Field name="email">
                 {(field) => (
                     <input
-                    className="w-full px-4 py-2 border border-[#2F6690] rounded-md text-sm text-[#16425B] shadow-md"
+                    className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
                     value={field.state.value}
                     placeholder="Escriba su Correo Electrónico"
                     type="email"
@@ -68,7 +68,7 @@ const LoginPrueba = () => {
                 <form.Field name="password">
                 {(field) => (
                     <input
-                    className="w-full px-4 py-2 border border-[#2F6690] rounded-md text-sm text-[#16425B] shadow-md"
+                    className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
                     placeholder="Escriba su Contraseña"
                     value={field.state.value}
                     type="password"
