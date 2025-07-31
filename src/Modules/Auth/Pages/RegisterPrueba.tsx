@@ -105,7 +105,7 @@ const RegisterPrueba = () => {
             )}
           </form.Field>
 
-          <form.Field name="password">
+          <form.Field name="Password">
             {(field) => (
               <>
                 <label className="block text-sm font-medium text-[#2F6690]">Contraseña *</label>
