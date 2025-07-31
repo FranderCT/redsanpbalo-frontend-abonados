@@ -6,6 +6,7 @@ import { rootRoute } from "../../../routes";
 
 import RegisterPrueba from "../Components/RegisterPrueba";
 import LoginPrueba from "../Components/Login";
+import RegisterAbonados from "../Components/RegisterAbonados";
 
 
 export const authRoute = createRoute({
@@ -18,7 +19,7 @@ export const authRoute = createRoute({
 export const registerAbonadoRoute = createRoute({
   getParentRoute: () => authRoute,
   path: "register-abonado", 
-  component: RegisterPrueba,
+  component: RegisterAbonados,
 });
 
 export const loginRoute = createRoute({

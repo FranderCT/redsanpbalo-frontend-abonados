@@ -5,7 +5,7 @@ export interface User{
     nis:string,
     email:string,
     telefono:string,
-    // fechaNacimiento:Date,
+    fechaNacimiento:Date,
     password:string,
     confirmPassword:string
 }
@@ -17,7 +17,7 @@ export const UserInitialState: User = {
   nis: '',
   email: '',
   telefono: '',
-  // fechaNacimiento: new Date(),
+  fechaNacimiento: new Date(),
   password: '',
   confirmPassword: '',
 }
