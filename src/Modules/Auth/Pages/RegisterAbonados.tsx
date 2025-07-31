@@ -1,12 +1,16 @@
 import { useForm } from '@tanstack/react-form';
 import { UserInitialState } from '../Models/User';
 import { useCreateUser } from '../Hooks/AuthHooks';
+import { RegisterSchema } from '../schemas/RegisterSchemas';
 
 const RegisterAbonados = () => {
     const createUserMutation = useCreateUser();
 
     const form = useForm({
       defaultValues: UserInitialState,
+      validators: {
+          onChange: RegisterSchema,
+      },
       onSubmit: async ({ value }) => {
         if (value.Password !== value.confirmPassword) {
           alert('Las contraseñas no coinciden');
@@ -58,23 +62,39 @@ const RegisterAbonados = () => {
               <div className="flex gap-2">
                 <form.Field name="nombre">
                   {(field) => (
-                    <input
-                      className="w-1/2 px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                      placeholder="Nombre"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
+                    <>
+                      <input
+                        className="w-1/2 px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                        placeholder="Nombre"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                              {(field.state.meta.errors[0] as any)?.message ??
+                              String(field.state.meta.errors[0])}
+                          </p>
+                      )}
+                    </>
                   )}
                 </form.Field>
 
                 <form.Field name="apellidos">
                   {(field) => (
-                    <input
-                      className="w-1/2 px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                      placeholder="Apellidos"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
+                    <>
+                      <input
+                        className="w-1/2 px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                        placeholder="Apellidos"
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                              {(field.state.meta.errors[0] as any)?.message ??
+                              String(field.state.meta.errors[0])}
+                          </p>
+                      )}
+                    </>
                   )}
                 </form.Field>
               </div>
@@ -82,92 +102,148 @@ const RegisterAbonados = () => {
               {/* Cédula */}
               <form.Field name="cedula">
                 {(field) => (
-                  <input
-                    className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                    placeholder="Cédula"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
+                  <>
+                    <input
+                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      placeholder="Cédula"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                              {(field.state.meta.errors[0] as any)?.message ??
+                              String(field.state.meta.errors[0])}
+                          </p>
+                    )}
+                  </>
                 )}
               </form.Field>
 
               {/* NIS */}
               <form.Field name="nis">
                 {(field) => (
-                  <input
-                    className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                    placeholder="NIS"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
+                  <>
+                    <input
+                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      placeholder="NIS"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                              {(field.state.meta.errors[0] as any)?.message ??
+                              String(field.state.meta.errors[0])}
+                          </p>
+                    )}
+                  </>
                 )}
               </form.Field>
 
               {/* Email */}
               <form.Field name="email">
                 {(field) => (
-                  <input
-                    className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                    placeholder="Correo electrónico"
-                    type="email"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
+                  <>
+                    <input
+                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      placeholder="Correo electrónico"
+                      type="email"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                              {(field.state.meta.errors[0] as any)?.message ??
+                              String(field.state.meta.errors[0])}
+                          </p>
+                    )}
+                  </>
                 )}
               </form.Field>
 
               {/* Teléfono */}
               <form.Field name="telefono">
                 {(field) => (
-                  <input
-                    className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                    placeholder="Número telefónico"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
+                  <>
+                    <input
+                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      placeholder="Número telefónico"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                              {(field.state.meta.errors[0] as any)?.message ??
+                              String(field.state.meta.errors[0])}
+                          </p>
+                    )}
+                  </>
                 )}
               </form.Field>
 
               {/* Fecha de nacimiento */}
               <form.Field name="fechaNacimiento">
                 {(field) => (
-                  <input
-                    type="text"
-                    placeholder="Fecha de nacimiento"
-                    value={field.state.value}
-                    onFocus={(e) => (e.target.type = 'date')}
-                    onBlur={(e) => {
-                      if (!e.target.value) e.target.type = 'text';
-                    }}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                  />
+                  <>
+                    <input
+                      type="text"
+                      placeholder="Fecha de nacimiento"
+                      value={field.state.value}
+                      onFocus={(e) => (e.target.type = 'date')}
+                      onBlur={(e) => {
+                        if (!e.target.value) e.target.type = 'text';
+                      }}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ??
+                            String(field.state.meta.errors[0])}
+                        </p>
+                    )}
+                  </>
                 )}
               </form.Field>
 
               {/* Contraseña */}
               <form.Field name="Password">
                 {(field) => (
-                  <input
-                    className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                    placeholder="Contraseña"
-                    type="password"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
+                  <>
+                    <input
+                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      placeholder="Contraseña"
+                      type="password"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                              {(field.state.meta.errors[0] as any)?.message ??
+                              String(field.state.meta.errors[0])}
+                          </p>
+                    )}
+                  </>
                 )}
               </form.Field>
 
               {/* Confirmar Contraseña */}
               <form.Field name="confirmPassword">
                 {(field) => (
-                  <input
-                    className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                    placeholder="Confirmar contraseña"
-                    type="password"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
+                  <>
+                    <input
+                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      placeholder="Confirmar contraseña"
+                      type="password"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                              {(field.state.meta.errors[0] as any)?.message ??
+                              String(field.state.meta.errors[0])}
+                          </p>
+                    )}
+                  </>
                 )}
               </form.Field>
 
