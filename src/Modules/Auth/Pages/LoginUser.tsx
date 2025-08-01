@@ -26,7 +26,8 @@ const LoginUser = () => {
     }); 
 
   return (
-    <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg p-6 flex flex-col md:flex-row gap-6 h-auto md:h-[600px] mx-auto">
+    <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg p-6 flex flex-col md:flex-row gap-6 min-h-screen md:min-h-0 md:h-[600px] mx-auto overflow-y-auto">
+
 
         {/* Título para mobile */}
         <div className="md:hidden flex flex-col items-center justify-center mb-4">
