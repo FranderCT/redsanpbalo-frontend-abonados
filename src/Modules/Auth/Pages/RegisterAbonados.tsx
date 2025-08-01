@@ -2,8 +2,10 @@ import { useForm } from '@tanstack/react-form';
 import { UserInitialState } from '../Models/User';
 import { useCreateUser } from '../Hooks/AuthHooks';
 import { RegisterSchema } from '../schemas/RegisterSchemas';
+import { useNavigate } from '@tanstack/react-router';
 
 const RegisterAbonados = () => {
+    const navigate = useNavigate();
     const createUserMutation = useCreateUser();
 
     const form = useForm({
@@ -271,10 +273,15 @@ const RegisterAbonados = () => {
 
           <p className="mt-4 text-sm md:text-lg text-[#3A7CA5] text-center">
             ¿Ya tenés una cuenta?{' '}
-            <a href="/auth/login" className="underline font-medium hover:text-[#091540] cursor-pointer">
-              Inicia sesión aquí
-            </a>
+              <button
+                onClick={() => navigate({ to: '/auth/login' })}
+                className="underline font-medium hover:text-[#091540] cursor-pointer bg-transparent p-0 border-none"
+                type="button"
+              >
+                Inicia sesión aquí
+              </button>
           </p>
+
         </div>
       </div>
     );
