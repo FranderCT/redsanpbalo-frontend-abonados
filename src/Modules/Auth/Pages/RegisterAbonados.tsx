@@ -60,43 +60,47 @@ const RegisterAbonados = () => {
             >
               {/* Nombre y Apellidos */}
               <div className="flex gap-2">
-                <form.Field name="nombre">
-                  {(field) => (
-                    <>
-                      <input
-                        className="w-1/2 px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                        placeholder="Nombre"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                      />
-                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                              {(field.state.meta.errors[0] as any)?.message ??
-                              String(field.state.meta.errors[0])}
-                          </p>
-                      )}
-                    </>
-                  )}
-                </form.Field>
+                <div className="flex flex-col w-1/2">
+                  <form.Field name="nombre">
+                    {(field) => (
+                      <>
+                        <input
+                          className="px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                          placeholder="Nombre"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                                {(field.state.meta.errors[0] as any)?.message ??
+                                String(field.state.meta.errors[0])}
+                            </p>
+                        )}
+                      </>
+                    )}
+                  </form.Field>
+                </div>
 
-                <form.Field name="apellidos">
-                  {(field) => (
-                    <>
-                      <input
-                        className="w-1/2 px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                        placeholder="Apellidos"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                      />
-                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                              {(field.state.meta.errors[0] as any)?.message ??
-                              String(field.state.meta.errors[0])}
-                          </p>
-                      )}
-                    </>
-                  )}
-                </form.Field>
+                <div className="flex flex-col w-1/2">
+                  <form.Field name="apellidos">
+                    {(field) => (
+                      <>
+                        <input
+                          className="px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                          placeholder="Apellidos"
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                                {(field.state.meta.errors[0] as any)?.message ??
+                                String(field.state.meta.errors[0])}
+                            </p>
+                        )}
+                      </>
+                    )}
+                  </form.Field>
+                </div>
               </div>
 
               {/* Cédula */}
