@@ -26,7 +26,8 @@ const LoginUser = () => {
     }); 
 
   return (
-    <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg p-6 flex flex-col md:flex-row gap-6 h-auto md:h-[600px] mx-auto">
+    <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 mx-auto min-h-screen md:min-h-fit overflow-y-auto">
+
 
         {/* Título para mobile */}
         <div className="md:hidden flex flex-col items-center justify-center mb-4">
@@ -52,7 +53,7 @@ const LoginUser = () => {
         </div>
 
         {/* Formulario */}
-        <div className="w-full md:w-1/2 flex flex-col justify-between items-center h-full">
+        <div className="w-full md:w-1/2 flex flex-col justify-between items-center h-full overflow-y-auto px-2">
             <div className="flex flex-col justify-center items-center flex-grow w-full">
             <h2 className="text-3xl md:text-5xl font-bold text-[#091540] mb-6 text-center drop-shadow-lg">Iniciar Sesión</h2>
 
