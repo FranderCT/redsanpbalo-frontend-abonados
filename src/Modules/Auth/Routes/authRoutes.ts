@@ -17,7 +17,7 @@ export const authRoute = createRoute({
 // /auth/register-abonado
 export const registerAbonadoRoute = createRoute({
   getParentRoute: () => authRoute,
-  path: "register-abonado", 
+  path: "register", 
   component: RegisterAbonados,
 });
 
