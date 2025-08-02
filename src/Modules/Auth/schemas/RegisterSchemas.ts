@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const RegisterSchema = z.object({
     nombre: z.string()
-    .min(1, "Debe tener al menos 2 caracteres"),
+    .min(2, "Debe tener al menos 2 caracteres"),
 
     apellidos: z.string()
     .min(2, "Debe tener al menos 2 caracteres"),
