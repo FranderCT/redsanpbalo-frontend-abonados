@@ -3,10 +3,17 @@ import { AuthInitialState } from '../Models/Auth';
 import { useLogin } from '../Hooks/AuthHooks';
 import { AuthSchema } from '../schemas/AuthSchemas';
 import { toast } from 'react-toastify';
+import { useNavigate } from '@tanstack/react-router';
 
 
 const LoginUser = () => {
     const loginMutation = useLogin();
+
+    const navigate = useNavigate()
+    
+      const goRegister = () => {
+        navigate({ to: '/auth/register' }) // Navega a la ruta raíz
+      }
 
     const form = useForm({
        defaultValues : AuthInitialState,
@@ -109,7 +116,7 @@ const LoginUser = () => {
                 <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                 {([canSubmit, isSubmitting]) => (
                     <div className="flex flex-row justify-between items-end">
-                    <a /*href="/auth/register-abonado"*/ className="underline text-[#091540] font-medium hover:text-[#1789FC] cursor-pointer">
+                    <a href="/auth/forgotPassword" className="underline text-[#091540] font-medium hover:text-[#1789FC] cursor-pointer">
                         ¿Olvidó su contraseña?
                     </a>
                     <button
@@ -127,9 +134,9 @@ const LoginUser = () => {
 
             <p className="mt-6 text-sm md:text-lg text-[#3A7CA5] text-center">
             ¿Ya tenés una cuenta?{' '}
-            <a href="/auth/register-abonado" className="underline font-medium hover:text-[#091540] cursor-pointer">
+            <button onClick={goRegister} className="underline font-medium hover:text-[#091540] cursor-pointer">
                 Registrate aquí
-            </a>
+            </button>
             </p>
         </div>
     </div>

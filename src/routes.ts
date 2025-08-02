@@ -1,5 +1,5 @@
 import { createRootRoute, createRoute } from "@tanstack/react-router";
-import { authRoute, loginRoute, registerAbonadoRoute,  } from "./Modules/Auth/Routes/authRoutes";
+import { authRoute, forgotPasswordRoute, loginRoute, registerAbonadoRoute,  } from "./Modules/Auth/Routes/authRoutes";
 import HeroPage from "./Modules/Lading/HeroPage";
 
 export const rootRoute = createRootRoute();
@@ -14,6 +14,7 @@ export const routeTree = rootRoute.addChildren([
   indexRoute,
   authRoute.addChildren([
     registerAbonadoRoute,
-    loginRoute
+    loginRoute,
+    forgotPasswordRoute
   ]),
 ]);

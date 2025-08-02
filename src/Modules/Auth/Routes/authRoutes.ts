@@ -5,6 +5,7 @@ import AuthLayout from "../Layouts/AuthLayout";
 import { rootRoute } from "../../../routes";
 import RegisterAbonados from "../Pages/RegisterAbonados";
 import LoginUser from "../Pages/LoginUser";
+import ForgotPassword from "../Pages/ForgotPassword";
 
 
 export const authRoute = createRoute({
@@ -16,7 +17,7 @@ export const authRoute = createRoute({
 // /auth/register-abonado
 export const registerAbonadoRoute = createRoute({
   getParentRoute: () => authRoute,
-  path: "register-abonado", 
+  path: "register", 
   component: RegisterAbonados,
 });
 
@@ -32,3 +33,9 @@ export const loginRoute = createRoute({
 //   path: "register-user", 
 //   component: RegisterUser,
 // });
+
+export const forgotPasswordRoute = createRoute({
+   getParentRoute: () => authRoute,
+   path: "forgotPassword",
+   component: ForgotPassword,
+})
