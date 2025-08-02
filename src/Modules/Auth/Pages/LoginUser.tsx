@@ -109,7 +109,7 @@ const LoginUser = () => {
                 <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                 {([canSubmit, isSubmitting]) => (
                     <div className="flex flex-row justify-between items-end">
-                    <a /*href="/auth/register-abonado"*/ className="underline text-[#091540] font-medium hover:text-[#1789FC] cursor-pointer">
+                    <a href="/auth/forgotPassword" className="underline text-[#091540] font-medium hover:text-[#1789FC] cursor-pointer">
                         ¿Olvidó su contraseña?
                     </a>
                     <button
