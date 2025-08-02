@@ -1,14 +1,14 @@
 
 import { useForm } from '@tanstack/react-form';
-import { AuthInitialState } from '../Models/Auth';
-import { AuthSchema } from '../schemas/AuthSchemas';
-import { toast } from 'react-toastify';
-import { useCreateUser, useLogin } from '../Hooks/AuthHooks';
+// import { AuthInitialState } from '../Models/Auth';
+// import { AuthSchema } from '../schemas/AuthSchemas';
+// import { toast } from 'react-toastify';
+// import { useCreateUser, useLogin } from '../Hooks/AuthHooks';
 import { UserInitialState } from '../Models/User';
 import { RegisterSchema } from '../schemas/RegisterSchemas';
 
 const ForgotPassword = () => {
-    const createUserMutation = useCreateUser();
+    // const createUserMutation = useCreateUser();
     const form = useForm({
            defaultValues: UserInitialState,
                  validators: {
@@ -19,7 +19,7 @@ const ForgotPassword = () => {
                      alert('Las contraseñas no coinciden');
                      return;
                    }
-                   await createUserMutation.mutateAsync(value);
+                //    await createUserMutation.mutateAsync(value);
                    console.log('...', value);
                  },
         }); 
