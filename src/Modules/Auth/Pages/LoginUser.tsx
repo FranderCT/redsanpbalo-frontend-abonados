@@ -91,7 +91,7 @@ const LoginUser = () => {
                     <>
                         <input
                             className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                            placeholder="Escriba su Contraseña"
+                            placeholder="Escriba su contraseña"
                             value={field.state.value}
                             type="password"
                             onChange={(e) => field.handleChange(e.target.value)}
@@ -108,7 +108,10 @@ const LoginUser = () => {
 
                 <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                 {([canSubmit, isSubmitting]) => (
-                    <div className="flex justify-end">
+                    <div className="flex flex-row justify-between items-end">
+                    <a /*href="/auth/register-abonado"*/ className="underline text-[#091540] font-medium hover:text-[#1789FC] cursor-pointer">
+                        ¿Olvidó su contraseña?
+                    </a>
                     <button
                         type="submit"
                         className="w-1/3 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition cursor-pointer"
