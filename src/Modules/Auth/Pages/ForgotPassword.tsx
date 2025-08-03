@@ -25,26 +25,17 @@ const ForgotPassword = () => {
         }); 
     
       return (
-        <div className="bg-white w-full max-w-4xl shadow-lg p-6 flex flex-col md:flex-row gap-6 min-h-screen md:min-h-0 md:h-[600px] mx-auto overflow-y-auto">
-    
-    
-            {/* Título para mobile */}
-            <div className="md:hidden flex flex-col items-center justify-center mb-4">
-                <h1 className="text-4xl font-extrabold text-[#091540]">ASADA</h1>
-                <h2 className="text-2xl font-semibold text-[#2F6690]">San Pablo</h2>
-            </div>
-    
+        <div className="w-full max-w-md bg-white rounded-sm shadow-lg border-t-20 border-[#091540] px-8 py-10">
             {/* Formulario */}
-            <div className="w-full flex flex-col justify-between items-center">
-                <div className="flex flex-col justify-center items-center flex-grow w-full">
-                <h2 className="text-3xl md:text-5xl font-bold text-[#091540] mb-6 text-center drop-shadow-lg">Olvidó su contraseña</h2>
+            <div className="flex flex-col justify-center items-center flex-grow w-full gap-4">
+                <h2 className="md:text-3xl font-bold text-[#091540] text-center drop-shadow-lg gap-4">Olvidó su contraseña</h2>
     
                 <form
                     onSubmit={(e) => {
                     e.preventDefault();
                     form.handleSubmit();
                     }}
-                    className="w-full max-w-md p-2 flex flex-col gap-4"
+                    className="w-full max-w-md p-2 flex flex-col gap-6"
                 >
                     <form.Field name="cedula">
                         {(field) => (
@@ -93,7 +84,7 @@ const ForgotPassword = () => {
                         <div className="flex flex-row justify-end items-end">
                         <button
                             type="submit"
-                            className="w-1/3 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition cursor-pointer"
+                            className="w-1/3 px-4 py-2 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition cursor-pointer"
                             disabled={!canSubmit}
                         >
                             {isSubmitting ? '...' : 'Enviar'}
@@ -110,9 +101,7 @@ const ForgotPassword = () => {
                     Iniciar sesión
                 </a>
                 </p>
-            </div>
         </div>
-    
     
     )
 }
