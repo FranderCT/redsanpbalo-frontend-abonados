@@ -22,7 +22,7 @@ const RegisterAbonados = () => {
     });
 
     return (
-      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg p-4 flex flex-col md:flex-row gap-4 mx-auto min-h-screen md:min-h-fit border ">
+      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg p-4 flex flex-col md:flex-row gap-4 mx-auto min-h-screen md:min-h-fit">
 
 
         {/* Título para mobile */}
