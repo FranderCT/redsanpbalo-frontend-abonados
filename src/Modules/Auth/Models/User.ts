@@ -1,6 +1,7 @@
 export interface User{
     nombre:string,
-    apellidos : string,
+    surname1 : string,
+    surname2 : string,
     cedula : string,
     nis:string,
     email:string,
@@ -12,7 +13,8 @@ export interface User{
 
 export const UserInitialState: User = {
   nombre: '',
-  apellidos: '',
+  surname1: '',
+  surname2: '',
   cedula: '',
   nis: '',
   email: '',

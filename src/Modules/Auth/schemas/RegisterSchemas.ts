@@ -4,7 +4,10 @@ export const RegisterSchema = z.object({
     nombre: z.string()
     .min(2, "Debe tener al menos 2 caracteres"),
 
-    apellidos: z.string()
+    surname1: z.string()
+    .min(2, "Debe tener al menos 2 caracteres"),
+
+    surname2: z.string()
     .min(2, "Debe tener al menos 2 caracteres"),
 
     cedula: z.string()
@@ -44,3 +47,4 @@ export const RegisterSchema = z.object({
     message: "Las contraseñas no coinciden",
     path: ["confirmPassword"]
 })
+
