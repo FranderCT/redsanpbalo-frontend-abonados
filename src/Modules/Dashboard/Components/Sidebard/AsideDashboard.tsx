@@ -14,7 +14,7 @@ const AsideDashboard = () => {
       
       {/* Branding o logo */}
       <div>
-        <h1 className="text-2xl font-bold mb-10">NexaVerse</h1>
+        <h1 className="text-2xl font-bold mb-10">RedSanpablo</h1>
 
         {/* Navegación */}
         <nav className="flex flex-col gap-4 text-sm text-gray-700">
