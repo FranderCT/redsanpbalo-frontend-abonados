@@ -1,22 +1,23 @@
 import { z } from 'zod'
 
 export const RegisterSchema = z.object({
-    nombre: z.string()
-    .min(2, "Debe tener al menos 2 caracteres"),
+    nombre: z.string().refine(val => val.length === 0 || val.length >= 2, {
+    message: 'Debe tener al menos 2 caracteres si se proporciona',}),
 
-    surname1: z.string()
-    .min(2, "Debe tener al menos 2 caracteres"),
+    surname1: z.string().refine(val => val.length === 0 || val.length >= 2, {
+    message: 'Debe tener al menos 2 caracteres si se proporciona',}),
 
-    surname2: z.string()
-    .min(2, "Debe tener al menos 2 caracteres"),
+    surname2: z.string().refine(val => val.length === 0 || val.length >= 2, {
+    message: 'Debe tener al menos 2 caracteres si se proporciona',}),
 
     cedula: z.string()
     .min(9, "La cédula debe tener al menos 9 dígitos")
     .max(12, "Máximo 12 dígitos"),
 
     nis: z.string()
-    .max(600, "Debe tener maximo 60 caracteres")
-    .regex(/^\d{10}$/, "Solo números"),
+    .min(1, "El NIS es requerido")
+    .max(10, "Debe tener máximo 10 dígitos")
+    .regex(/^\d+$/, "Solo se permiten números"),
 
     email: z.string()
     .email('Debe ser un correo electrónico válido.')
