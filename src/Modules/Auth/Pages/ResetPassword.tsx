@@ -28,7 +28,7 @@ const ForgotPassword = () => {
         <div className="w-full max-w-md bg-white rounded-sm shadow-lg border-t-20 border-[#091540] px-8 py-10">
             {/* Formulario */}
             <div className="flex flex-col justify-center items-center flex-grow w-full gap-4">
-                <h2 className="md:text-3xl font-bold text-[#091540] text-center drop-shadow-lg gap-4">Olvidó su contraseña</h2>
+                <h2 className="md:text-3xl font-bold text-[#091540] text-center drop-shadow-lg gap-4">Restablecer contraseña</h2>
     
                 <form
                     onSubmit={(e) => {
@@ -37,15 +37,15 @@ const ForgotPassword = () => {
                     }}
                     className="w-full max-w-md p-2 flex flex-col gap-6"
                 >
-                    <form.Field name="cedula">
+                    <form.Field name="Password">
                         {(field) => (
                             <>
                             <input
-                                type="text"
+                                type="password"
                                 value={field.state.value}
                                 onBlur={field.handleBlur}
                                 onChange={(e) => field.handleChange(e.target.value)}
-                                placeholder="Cédula"
+                                placeholder="Contraseña"
                                 className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
                             />
                             {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
@@ -59,14 +59,14 @@ const ForgotPassword = () => {
                     </form.Field>
     
     
-                    <form.Field name="email">
+                    <form.Field name="confirmPassword">
                     {(field) => (
                         <>
                             <input
                                 className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                                placeholder="Correo electrónico"
+                                placeholder="Confirmar contraseña"
                                 value={field.state.value}
-                                type="email"
+                                type="password"
                                 onChange={(e) => field.handleChange(e.target.value)}
                             />
                             {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
@@ -78,29 +78,29 @@ const ForgotPassword = () => {
                         </>
                     )}
                     </form.Field>
-    
+                    
+                    <div className='flex justify-center gap-4 '>
                     <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                     {([canSubmit, isSubmitting]) => (
-                        <div className="flex flex-row justify-end items-end">
                         <button
                             type="submit"
-                            className="w-1/3 px-4 py-2 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition cursor-pointer"
+                            className="bg-[#68D89B] hover:bg-green-600 text-white text-shadow-lg/30 font-semibold w-1/3 rounded"
                             disabled={!canSubmit}
                         >
-                            {isSubmitting ? '...' : 'Enviar'}
+                            {isSubmitting ? '...' : 'Restablecer'}
                         </button>
-                        </div>
                     )}
                     </form.Subscribe>
+                    <button
+                    type="button"
+                    //onClick={() => navigate('/auth/login')}
+                    className="bg-[#F6132D] hover:bg-red-700 text-white text-shadow-lg/30 font-semibold w-1/3 px-6 py-2 rounded"
+                    >
+                    Cancelar
+                    </button>
+                    </div>
                 </form>
                 </div>
-    
-                <p className="mt-6 text-sm md:text-lg text-[#3A7CA5] text-center">
-                Regresar a {' '}
-                <a href="/auth/login" className="underline font-medium hover:text-[#091540] cursor-pointer">
-                    Iniciar sesión
-                </a>
-                </p>
         </div>
     
     )
