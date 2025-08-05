@@ -51,8 +51,6 @@ const RegisterAbonados = () => {
         <div className="w-full md:w-1/2 flex flex-col items-center justify-center px-2 py-4 md:py-6">
         <h2 className="text-3xl md:text-5xl font-bold text-[#091540] mb-3 text-center drop-shadow-lg">Crear cuenta</h2>
           <div className="flex flex-col justify-center items-center flex-grow w-full">
-            
-
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -60,16 +58,84 @@ const RegisterAbonados = () => {
               }}
               className="w-full max-w-md p-2 flex flex-col gap-3"
             >
-              {/* Nombre y Apellidos */}
-              <div className="flex gap-2">
-                <div className="flex flex-col w-1/2">
-                  <form.Field name="nombre">
+              {/* Cédula */}
+              <form.Field name="cedula">
+                {(field) => (
+                  <>
+                    <input
+                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      placeholder="Cédula"
+                      value={field.state.value}
+                      onChange={async (e) => {
+                        const cedula = e.target.value;
+                        field.handleChange(cedula);
+
+                        if (cedula.length >= 9) {
+                          try {
+                            const res = await fetch(`https://apis.gometa.org/cedulas/${cedula}`);
+                            if (!res.ok) throw new Error('No se encontró este numero de cédula');
+                            const data = await res.json();
+
+                            if (data?.nombre) {
+                              const partes = data.nombre.trim().split(/\s+/);
+                              const apellido2 = partes.pop() || '';
+                              const apellido1 = partes.pop() || '';
+                              const nombre = partes.join(' '); // El resto es el nombre
+
+                              form.setFieldValue('nombre', nombre);
+                              form.setFieldValue('surname1', apellido1);
+                              form.setFieldValue('surname2', apellido2);
+                            }
+                          } catch (error) {
+                            console.warn('Error buscando cédula:', error);
+                            form.setFieldValue('nombre', '',);
+                            form.setFieldValue('surname1', '');
+                            form.setFieldValue('surname2', '');
+                          }
+                        }
+                      }}
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </>
+                )}
+              </form.Field>
+
+              {/* Nombre*/}
+              <form.Field name="nombre">
                     {(field) => (
                       <>
                         <input
                           className="px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
                           placeholder="Nombre"
                           value={field.state.value}
+                          disabled
+                          onChange={(e) => field.handleChange(e.target.value)}
+                        />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                                {(field.state.meta.errors[0] as any)?.message ??
+                                String(field.state.meta.errors[0])}
+                            </p>
+                        )}
+                      </>
+                    )}
+                  </form.Field>
+
+              {/*Apellidos*/}
+              <div className="flex gap-2">
+                <div className="flex flex-col w-1/2">
+                  <form.Field name="surname1">
+                    {(field) => (
+                      <>
+                        <input
+                          className="px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                          placeholder="Apellido1"
+                          value={field.state.value}
+                          disabled
                           onChange={(e) => field.handleChange(e.target.value)}
                         />
                         {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
@@ -84,13 +150,14 @@ const RegisterAbonados = () => {
                 </div>
 
                 <div className="flex flex-col w-1/2">
-                  <form.Field name="apellidos">
+                  <form.Field name="surname2">
                     {(field) => (
                       <>
                         <input
                           className="px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                          placeholder="Apellidos"
+                          placeholder="Apellido2"
                           value={field.state.value}
+                          disabled
                           onChange={(e) => field.handleChange(e.target.value)}
                         />
                         {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
@@ -104,26 +171,6 @@ const RegisterAbonados = () => {
                   </form.Field>
                 </div>
               </div>
-
-              {/* Cédula */}
-              <form.Field name="cedula">
-                {(field) => (
-                  <>
-                    <input
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                      placeholder="Cédula"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                              {(field.state.meta.errors[0] as any)?.message ??
-                              String(field.state.meta.errors[0])}
-                          </p>
-                    )}
-                  </>
-                )}
-              </form.Field>
 
               {/* NIS */}
               <form.Field name="nis">
@@ -191,7 +238,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      type="text"
+                      type="date"
                       placeholder="Fecha de nacimiento"
                       value={field.state.value}
                       onFocus={(e) => (e.target.type = 'date')}
