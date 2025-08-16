@@ -7,6 +7,7 @@ export interface User{
     email:string,
     telefono:string,
     fechaNacimiento:string,
+    Address: string,
     Password:string,
     confirmPassword:string
 }
@@ -20,6 +21,7 @@ export const UserInitialState: User = {
   email: '',
   telefono: '',
   fechaNacimiento: '',
+  Address: '',
   Password: '',
   confirmPassword: '',
 }

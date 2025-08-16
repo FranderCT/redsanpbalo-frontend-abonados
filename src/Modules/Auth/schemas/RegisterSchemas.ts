@@ -42,6 +42,10 @@ export const RegisterSchema = z.object({
     .regex(/[0-9]/, 'La contraseña debe contener al menos un número')
     .regex(/[^A-Za-z0-9]/, 'La contraseña debe contener al menos un carácter especial'),
 
+    Address: z.string()
+    .min(10, "La dirección debe tener al menos 10 caracteres." )
+    .max(120, "La dirección no puede superar 120 caracteres."),
+
     confirmPassword: z.string()
     })
     .refine(data => data.Password === data.confirmPassword, {
