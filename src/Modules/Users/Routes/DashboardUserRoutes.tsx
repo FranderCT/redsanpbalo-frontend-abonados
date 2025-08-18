@@ -1,6 +1,6 @@
 import { createRoute } from "@tanstack/react-router"
 import { rootRoute } from "../../../routes"
-import Profile from "../Components/Profile"
+import Profile from "../Components/ProfileUser/Profile"
 import EditProfile from "../Components/EditProfile"
 import DashboardUserLayout from "../Layouts/DashboardUserLayout"
 
