@@ -1,19 +1,19 @@
 import { createRoute } from "@tanstack/react-router"
 import { rootRoute } from "../../../routes"
-import Profile from "../Components/ProfileUser/Profile"
-import EditProfile from "../Components/EditProfile"
-import DashboardUserLayout from "../Layouts/DashboardUserLayout"
+import DashboardLayout from "../../Dashboard/Layouts/DashboardLayout"
+import EditProfile from "../Components/ProfileUser/EditProfile"
+import UserProfile from "../Pages/UserProfile/UserProfile"
 
 export const dashboardUserRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: 'dashboardUser',
-    component: DashboardUserLayout
+    component: DashboardLayout
 })
 
 export const profileRoute = createRoute({
     getParentRoute: () => rootRoute,
     path: 'profile',
-    component: Profile
+    component: UserProfile
 })
 
 export const editProfileRoute = createRoute({

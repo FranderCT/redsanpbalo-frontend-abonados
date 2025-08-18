@@ -1,7 +1,7 @@
 import { Menu, X } from "lucide-react";
 import ProfileUserMenu from "./ProfileUserMenu";
 
-const HeaderDashboardUser = ({
+const HeaderDashboard = ({
   menuOpen,
   setMenuOpen,
   profileOpen,
@@ -13,7 +13,7 @@ const HeaderDashboardUser = ({
   setProfileOpen: (val: boolean) => void;
 }) => {
   return (
-    <header className="h-16 bg-white shadow px-6 flex items-center justify-between sticky top-0 z-30">
+    <header className="h-16 bg-[#F9F5FF] shadow px-6 flex items-center justify-between sticky top-0 z-30">
 
       {/* Botón hamburguesa mobile */}
       <button
@@ -34,4 +34,4 @@ const HeaderDashboardUser = ({
   );
 };
 
-export default HeaderDashboardUser;
+export default HeaderDashboard;

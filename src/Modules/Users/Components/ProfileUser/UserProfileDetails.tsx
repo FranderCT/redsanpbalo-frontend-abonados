@@ -1,44 +1,6 @@
-
-
-const Profile = () => {
+const UserProfileDetails = () => {
   return (
-    <main className="flex flex-col content-center w-full h-dvh max-w-6xl mx-auto px-4 md:px-25 pt-24 pb-20 bg-[#F9F5FF]">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-[#091540]">Perfil</h1>
-          <p className="text-[#091540]/70 text-md">
-            Observe todos los detalles de su perfil aquí
-          </p>
-        </div>
-        <button 
-          type="button"
-          className="flex items-center gap-2 text-[#F6132D] text-xl px-3 py-1 rounded-sm border-solid border-3 border-[#F6132D] hover:bg-red-200 mt-3 md:mt-0"
-        >
-          {/* ícono lápiz */}
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25z" stroke="#F6132D" />
-            <path d="M14.06 5.19l3.75 3.75" stroke="#F6132D" />
-          </svg>
-          Editar
-        </button>
-      </div>
-      <div className="border-b border-dashed border-gray-300 mb-8 mt-6"></div>
-      {/* Cards */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Foto de perfil */}
-        <article className="bg-[#F9F5FF] border border-gray-200 gap-4 shadow-xl rounded-sm p-6 flex flex-col items-center text-center gap-5">
-          <h3 className="font-semibold text-[#091540] mb-4">
-            Frander Carrillo Torres
-          </h3>
-          <img
-            src="/Image02.png"
-            className="w-40 h-40 rounded-full object-cover border border-gray-200"
-          />
-        </article>
-
-        {/* Información del usuario */}
-        <article className="md:col-span-2 bg-[#F9F5FF] border border-gray-200 gap-4 shadow-xl rounded-sm p-6">
+    <article className="md:col-span-2 bg-[#F9F5FF] border border-gray-200 gap-4 shadow-xl rounded-sm p-6">
           <h3 className="text-center font-semibold text-[#091540] mb-4">
             Su información
           </h3>
@@ -83,11 +45,9 @@ const Profile = () => {
                 200 metros al este de carnicería La Unión
               </span>
             </div>
-          </div>
-        </article>
-      </section>
-    </main>
+        </div>
+    </article>
   )
 }
 
-export default Profile
+export default UserProfileDetails

@@ -8,14 +8,14 @@ import {
   Bell,
 } from "lucide-react";
 
-const AsideDashboardUser = () => {
+const AsideDashboard = () => {
   return (
-    <div className="flex flex-col h-dvh justify-between p-4">
+    <div className="bg-[#F9F5FF] flex flex-col w-50 h-dvh justify-between p-4">
       
       {/* Branding o logo */}
       <div className="flex flex-col justify-center h-1/4">
         <img></img>
-        <h1 className="text-2xl font-bold mb-10 ">RedSanpablo</h1>
+        <h1 className="text-2xl text-[#091540] font-bold mb-10 ">RedSanPablo</h1>
       </div>
             {/* Navegación */}
       
@@ -45,7 +45,7 @@ const AsideDashboardUser = () => {
       <div>
         <a
           href="#"
-          className="flex items-center gap-3 text-sm text-red-600 hover:text-red-800"
+          className="flex items-center gap-3 text-sm text-[#F6132D] hover:text-red-800"
         >
           <LogOut size={23} /> Cerrar sesión
         </a>
@@ -54,4 +54,4 @@ const AsideDashboardUser = () => {
   );
 };
 
-export default AsideDashboardUser;
+export default AsideDashboard;
