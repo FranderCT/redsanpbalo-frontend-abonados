@@ -7,7 +7,7 @@ import { useForm } from '@tanstack/react-form';
 import { RegisterUserInitialState} from '../Models/RegisterUser';
 import { RegisterSchema } from '../schemas/RegisterSchemas';
 
-const ForgotPassword = () => {
+const ResetPassword = () => {
     // const createUserMutation = useCreateUser();
     const form = useForm({
            defaultValues: RegisterUserInitialState,
@@ -106,4 +106,4 @@ const ForgotPassword = () => {
     )
 }
 
-export default ForgotPassword
+export default ResetPassword

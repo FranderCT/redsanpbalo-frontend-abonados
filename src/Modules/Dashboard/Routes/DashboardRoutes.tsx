@@ -1,4 +1,4 @@
-import { createRoute } from "@tanstack/react-router";
+import { createRoute, redirect } from "@tanstack/react-router";
 import { rootRoute } from "../../../Routes";
 import DashboardLayout from "../Layouts/DashboardLayout";
 

@@ -71,7 +71,7 @@ const LoginUser = () => {
                 }}
                 className="w-full max-w-md p-2 flex flex-col gap-4"
             >
-                <form.Field name="email">
+                <form.Field name="Email">
                     {(field) => (
                         <>
                         <input
@@ -93,7 +93,7 @@ const LoginUser = () => {
                 </form.Field>
 
 
-                <form.Field name="password">
+                <form.Field name="Password">
                 {(field) => (
                     <>
                         <input
