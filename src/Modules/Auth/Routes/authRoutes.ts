@@ -2,7 +2,7 @@
 import { createRoute } from "@tanstack/react-router";
 
 import AuthLayout from "../Layouts/AuthLayout";
-import { rootRoute } from "../../../routes";
+import { rootRoute } from "../../../Routes";
 import RegisterAbonados from "../Pages/RegisterAbonados";
 import LoginUser from "../Pages/LoginUser";
 import ForgotPassword from "../Pages/ForgotPassword";

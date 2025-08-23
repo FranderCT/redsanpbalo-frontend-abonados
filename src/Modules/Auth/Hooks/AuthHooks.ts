@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createUser, Login } from "../Services/AuthServices";
+import { useNavigate } from "@tanstack/react-router";
 
 
 export const useCreateUser = () => {
@@ -24,4 +25,15 @@ export const useLogin = () => {
         }
     })
     return mutation;
+}
+
+export function useLogout() {
+  const navigate = useNavigate();
+
+  return () => {
+    if (localStorage.getItem("token")) {
+      localStorage.removeItem("token");
+      navigate({ to: "/auth/login" }); 
+    }
+  };
 }

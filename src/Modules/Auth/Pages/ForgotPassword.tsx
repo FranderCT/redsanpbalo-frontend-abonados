@@ -4,18 +4,18 @@ import { useForm } from '@tanstack/react-form';
 // import { AuthSchema } from '../schemas/AuthSchemas';
 // import { toast } from 'react-toastify';
 // import { useCreateUser, useLogin } from '../Hooks/AuthHooks';
-import { UserInitialState } from '../Models/User';
+import { RegisterUserInitialState} from '../Models/RegisterUser';
 import { RegisterSchema } from '../schemas/RegisterSchemas';
 
 const ForgotPassword = () => {
     // const createUserMutation = useCreateUser();
     const form = useForm({
-           defaultValues: UserInitialState,
+           defaultValues: RegisterUserInitialState,
                  validators: {
                      onChange: RegisterSchema,
                  },
                  onSubmit: async ({ value }) => {
-                   if (value.Password !== value.confirmPassword) {
+                   if (value.Password !== value.ConfirmPassword) {
                      alert('Las contraseñas no coinciden');
                      return;
                    }
@@ -37,7 +37,7 @@ const ForgotPassword = () => {
                     }}
                     className="w-full max-w-md p-2 flex flex-col gap-6"
                 >
-                    <form.Field name="cedula">
+                    <form.Field name="Idcard">
                         {(field) => (
                             <>
                             <input
@@ -59,7 +59,7 @@ const ForgotPassword = () => {
                     </form.Field>
     
     
-                    <form.Field name="email">
+                    <form.Field name="Email">
                     {(field) => (
                         <>
                             <input

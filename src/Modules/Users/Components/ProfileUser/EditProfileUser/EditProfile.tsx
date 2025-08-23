@@ -1,18 +1,27 @@
 import { useForm } from "@tanstack/react-form";
-import { UserInitialState } from "../../../Auth/Models/User";
-import { RegisterSchema } from "../../../Auth/schemas/RegisterSchemas";
+import { EditUserInitialState } from "../../../Models/EditUser";
+import { useUpdateUserProfile } from "../../../Hooks/UsersHooks";
+import type { UserProfile } from "../../../Models/User";
 
-const EditProfile = () => {
-  //const createUserMutation = useCreateUser();
+type Props = {
+  User? : UserProfile
+}
+
+const EditProfile = ({User} : Props) => {
+    const useUpdateProfile = useUpdateUserProfile();
+    
     const form = useForm({
-           defaultValues: UserInitialState,
-                 validators: {
-                     onChange: RegisterSchema,
-                    },
-                      onSubmit: async ({ value }) => {
-                      console.log('...', value);
-                    },
-        }); 
+          defaultValues: EditUserInitialState,
+          onSubmit: async ({ value }) => {
+          try {
+            await useUpdateProfile.mutateAsync(value);
+            console.log("Actualizacion exitosa");
+            
+          } catch {
+            console.log("error al actualizar el usuario");
+          }
+        },
+      }); 
       return (
         <div className="bg-[#F9F5FF] flex flex-col content-center w-full max-w-6xl mx-auto px-4 md:px-25 pt-24 pb-20 gap-8">
             <div>
@@ -22,7 +31,7 @@ const EditProfile = () => {
             </div>
             {/* Formulario */}
             <div className="w-full max-w-md mx-auto flex flex-col items-center border border-gray-200 gap-4 shadow-xl rounded-sm bg-[#F9F5FF] p-6">
-                <h2 className="md:text-2xl font-bold text-[#091540] text-center gap-4">Frander Carrillo Torres</h2>
+                <h2 className="md:text-2xl font-bold text-[#091540] text-center gap-4">{User?.Name} {User?.Surname1} {User?.Surname2}</h2>
                 <img
                 src="/Image02.png"
                 className="w-40 h-40 rounded-full object-cover border border-gray-200"/>
@@ -34,7 +43,7 @@ const EditProfile = () => {
                     }}
                     className="w-full max-w-md p-2 flex flex-col gap-6"
                 >
-                    <form.Field name="fechaNacimiento">
+                    <form.Field name="BirthDate">
                       {(field) => (
                         <>
                           <input
@@ -59,7 +68,7 @@ const EditProfile = () => {
                     </form.Field>
     
     
-                    <form.Field name="telefono">
+                    <form.Field name="PhoneNumber">
                       {(field) => (
                         <>
                           <input

@@ -1,15 +1,14 @@
 import { createRootRoute, createRoute } from "@tanstack/react-router";
 import { authRoute, forgotPasswordRoute, loginRoute, registerAbonadoRoute,  } from "./Modules/Auth/Routes/authRoutes";
-import HeroPage from "./Modules/Lading/HeroPage";
-import { dashboardRoute } from "./Modules/Dashboard/Routes/DashboardRoutes";
-import { dashboardUserRoute, editProfileRoute, profileRoute } from "./Modules/Users/Routes/DashboardUserRoutes";
+import { dashboardIndexRoute, dashboardRoute } from "./Modules/Dashboard/Routes/DashboardRoutes";
+import { userProfileEditRoute, userProfileRoute, userProfileShowRoute, usersIndexRoute, usersRoute } from "./Modules/Users/Routes/UsersRoutes";
 
 export const rootRoute = createRootRoute();
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: HeroPage
+  //component: HeroPage
 })
 
 export const routeTree = rootRoute.addChildren([
@@ -19,11 +18,13 @@ export const routeTree = rootRoute.addChildren([
     loginRoute,
     forgotPasswordRoute
   ]),
-  dashboardRoute.addChildren({
-    
-  }),
-  dashboardUserRoute.addChildren({
-    profileRoute,
-    editProfileRoute
-  })
+  dashboardRoute.addChildren([
+    usersRoute.addChildren([
+      usersIndexRoute,
+      userProfileRoute,
+      userProfileEditRoute,
+      userProfileShowRoute
+    ]),
+    dashboardIndexRoute,
+  ]),
 ]);

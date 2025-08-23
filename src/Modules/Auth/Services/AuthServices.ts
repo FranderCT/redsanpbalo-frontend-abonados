@@ -1,7 +1,7 @@
 import apiAxios from "../../../api/apiConfig";
 import type { auth } from "../Models/Auth";
 import type { AuthResponse } from "../Models/AuthResponse";
-import type { User } from "../Models/User";
+import type { User } from "../Models/RegisterUser";
 
 
 export async function createUser(user: User): Promise<User> {

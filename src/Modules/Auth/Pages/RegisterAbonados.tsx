@@ -1,5 +1,5 @@
 import { useForm } from '@tanstack/react-form';
-import { UserInitialState } from '../Models/User';
+import { RegisterUserInitialState} from '../Models/RegisterUser';
 import { useCreateUser } from '../Hooks/AuthHooks';
 import { RegisterSchema } from '../schemas/RegisterSchemas';
 
@@ -7,12 +7,12 @@ const RegisterAbonados = () => {
     const createUserMutation = useCreateUser();
 
     const form = useForm({
-      defaultValues: UserInitialState,
+      defaultValues: RegisterUserInitialState,
       validators: {
           onChange: RegisterSchema,
       },
       onSubmit: async ({ value }) => {
-        if (value.Password !== value.confirmPassword) {
+        if (value.Password !== value.ConfirmPassword) {
           alert('Las contraseñas no coinciden');
           return;
         }
@@ -59,7 +59,7 @@ const RegisterAbonados = () => {
               className="w-full max-w-md p-2 flex flex-col gap-3"
             >
               {/* Cédula */}
-              <form.Field name="cedula">
+              <form.Field name="Idcard">
                 {(field) => (
                   <>
                     <input
@@ -82,15 +82,15 @@ const RegisterAbonados = () => {
                               const apellido1 = partes.pop() || '';
                               const nombre = partes.join(' '); // El resto es el nombre
 
-                              form.setFieldValue('nombre', nombre);
-                              form.setFieldValue('surname1', apellido1);
-                              form.setFieldValue('surname2', apellido2);
+                              form.setFieldValue('Name', nombre);
+                              form.setFieldValue('Surname1', apellido1);
+                              form.setFieldValue('Surname2', apellido2);
                             }
                           } catch (error) {
                             console.warn('Error buscando cédula:', error);
-                            form.setFieldValue('nombre', '',);
-                            form.setFieldValue('surname1', '');
-                            form.setFieldValue('surname2', '');
+                            form.setFieldValue('Name', '',);
+                            form.setFieldValue('Surname1', '');
+                            form.setFieldValue('Surname2', '');
                           }
                         }
                       }}
@@ -105,7 +105,7 @@ const RegisterAbonados = () => {
               </form.Field>
 
               {/* Nombre*/}
-              <form.Field name="nombre">
+              <form.Field name="Name">
                     {(field) => (
                       <>
                         <input
@@ -128,7 +128,7 @@ const RegisterAbonados = () => {
               {/*Apellidos*/}
               <div className="flex gap-2">
                 <div className="flex flex-col w-1/2">
-                  <form.Field name="surname1">
+                  <form.Field name="Surname1">
                     {(field) => (
                       <>
                         <input
@@ -150,7 +150,7 @@ const RegisterAbonados = () => {
                 </div>
 
                 <div className="flex flex-col w-1/2">
-                  <form.Field name="surname2">
+                  <form.Field name="Surname2">
                     {(field) => (
                       <>
                         <input
@@ -173,7 +173,7 @@ const RegisterAbonados = () => {
               </div>
 
               {/* NIS */}
-              <form.Field name="nis">
+              <form.Field name="Nis">
                 {(field) => (
                   <>
                     <input
@@ -193,7 +193,7 @@ const RegisterAbonados = () => {
               </form.Field>
 
               {/* Email */}
-              <form.Field name="email">
+              <form.Field name="Email">
                 {(field) => (
                   <>
                     <input
@@ -214,7 +214,7 @@ const RegisterAbonados = () => {
               </form.Field>
 
               {/* Teléfono */}
-              <form.Field name="telefono">
+              <form.Field name="PhoneNumber">
                 {(field) => (
                   <>
                     <input
@@ -234,25 +234,26 @@ const RegisterAbonados = () => {
               </form.Field>
 
               {/* Fecha de nacimiento */}
-              <form.Field name="fechaNacimiento">
+              <form.Field name="BirthDate">
                 {(field) => (
                   <>
                     <input
                       type="date"
-                      placeholder="Fecha de nacimiento"
-                      value={field.state.value}
-                      onFocus={(e) => (e.target.type = 'date')}
-                      onBlur={(e) => {
-                        if (!e.target.value) e.target.type = 'text';
+                      value={
+                        field.state.value instanceof Date
+                          ? field.state.value.toISOString().split("T")[0] // Date → string YYYY-MM-DD
+                          : ""
+                      }
+                      onChange={(e) => {
+                        field.handleChange(new Date(e.target.value)) // string → Date
                       }}
-                      onChange={(e) => field.handleChange(e.target.value)}
                       className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                            {(field.state.meta.errors[0] as any)?.message ??
-                            String(field.state.meta.errors[0])}
-                        </p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ??
+                          String(field.state.meta.errors[0])}
+                      </p>
                     )}
                   </>
                 )}
@@ -280,7 +281,7 @@ const RegisterAbonados = () => {
               </form.Field>
 
               {/* Confirmar Contraseña */}
-              <form.Field name="confirmPassword">
+              <form.Field name="ConfirmPassword">
                 {(field) => (
                   <>
                     <input

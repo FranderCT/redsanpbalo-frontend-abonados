@@ -1,7 +1,7 @@
 import { useState } from "react";
 import AsideDashboard from "../../Dashboard/Components/Sidebar/AsideDashboard";
 import HeaderDashboard from "../../Dashboard/Components/Header/HeaderDashboard";
-import UserProfile from "../../Users/Pages/UserProfile/UserProfile";
+import { Outlet } from "@tanstack/react-router";
 
 const DashboardLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -42,7 +42,7 @@ const DashboardLayout = () => {
           setProfileOpen={setProfileOpen}
         />
         <main className="flex-1 p-6 overflow-y-auto">
-          <UserProfile/>
+          <Outlet/>
         </main>
       </div>
     </div>

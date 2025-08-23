@@ -1,4 +1,10 @@
+import { useNavigate } from "@tanstack/react-router";
+
+
 const HeaderUserProfile = () => {
+
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
         <div>
@@ -10,6 +16,7 @@ const HeaderUserProfile = () => {
         <button 
           type="button"
           className="flex items-center gap-2 text-[#F6132D] text-xl px-3 py-1 rounded-sm border-solid border-3 border-[#F6132D] hover:bg-red-200 mt-3 md:mt-0"
+          onClick={() => navigate({ to: "/dashboard/users/profile/edit" })}
         >
           {/* ícono lápiz */}
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
