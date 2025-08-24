@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createUser, Login } from "../Services/AuthServices";
+import { createUser, Login, ResetPasswd } from "../Services/AuthServices";
 import { useNavigate } from "@tanstack/react-router";
+
 
 
 export const useCreateUser = () => {
@@ -29,11 +30,23 @@ export const useLogin = () => {
 
 export function useLogout() {
   const navigate = useNavigate();
-
   return () => {
     if (localStorage.getItem("token")) {
       localStorage.removeItem("token");
       navigate({ to: "/auth/login" }); 
     }
   };
+}
+
+export function useResetPassword () {
+  const navigate = useNavigate();
+  
+  const mutation = useMutation({
+    mutationFn : ResetPasswd,
+    onSuccess: () =>{
+      console.log('contrasena cambiada')
+      navigate({ to: "/auth/login" }); 
+    }
+  })
+  return mutation;
 }

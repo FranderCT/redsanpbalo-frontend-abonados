@@ -4,25 +4,26 @@ import { useForm } from '@tanstack/react-form';
 // import { AuthSchema } from '../schemas/AuthSchemas';
 // import { toast } from 'react-toastify';
 // import { useCreateUser, useLogin } from '../Hooks/AuthHooks';
-import { RegisterUserInitialState} from '../Models/RegisterUser';
-import { RegisterSchema } from '../schemas/RegisterSchemas';
+import { useNavigate } from '@tanstack/react-router';
+import { ResetPasswordInitialState } from '../Models/ResetPassword';
+import { useResetPassword } from '../Hooks/AuthHooks';
 
 const ResetPassword = () => {
-    // const createUserMutation = useCreateUser();
+    const navigate = useNavigate();
+    const resetPasswdMutation = useResetPassword();
+
     const form = useForm({
-           defaultValues: RegisterUserInitialState,
-                 validators: {
-                     onChange: RegisterSchema,
-                 },
-                 onSubmit: async ({ value }) => {
-                   if (value.Password !== value.ConfirmPassword) {
-                     alert('Las contraseñas no coinciden');
-                     return;
-                   }
-                //    await createUserMutation.mutateAsync(value);
-                   console.log('...', value);
-                 },
-        }); 
+        defaultValues: ResetPasswordInitialState,
+                onSubmit: async ({ value }) => {
+            if (value.NewPassword !== value.ConfirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+            await resetPasswdMutation.mutateAsync(value);
+            console.log('...', value);
+            navigate({ to: "/auth/login" });
+        },
+    }); 
     
       return (
         <div className="w-full max-w-md bg-white rounded-sm shadow-lg border-t-20 border-[#091540] px-8 py-10">
@@ -37,7 +38,7 @@ const ResetPassword = () => {
                     }}
                     className="w-full max-w-md p-2 flex flex-col gap-6"
                 >
-                    <form.Field name="Password">
+                    <form.Field name="NewPassword">
                         {(field) => (
                             <>
                             <input
@@ -93,8 +94,8 @@ const ResetPassword = () => {
                     </form.Subscribe>
                     <button
                     type="button"
-                    //onClick={() => navigate('/auth/login')}
                     className="bg-[#F6132D] hover:bg-red-700 text-white text-shadow-lg/30 font-semibold w-1/3 px-6 py-2 rounded"
+                    onClick={() => navigate({ to: "/auth/login" })}
                     >
                     Cancelar
                     </button>
