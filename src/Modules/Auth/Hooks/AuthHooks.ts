@@ -40,7 +40,6 @@ export function useLogout() {
 
 export function useResetPassword () {
   const navigate = useNavigate();
-  
   const mutation = useMutation({
     mutationFn : ResetPasswd,
     onSuccess: () =>{

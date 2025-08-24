@@ -84,7 +84,7 @@ const ForgotPassword = () => {
                         <div className="flex flex-row justify-end items-end">
                         <button
                             type="submit"
-                            className="w-1/3 px-4 py-2 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition cursor-pointer"
+                            className="w-1/3 px-4 py-2 bg-[#091540] shadow-xl text-white  rounded-md font-semibold hover:bg-[#1789FC] transition cursor-pointer"
                             disabled={!canSubmit}
                         >
                             {isSubmitting ? '...' : 'Enviar'}
