@@ -1,5 +1,5 @@
 
-import { createRoute, Outlet } from "@tanstack/react-router";
+import { createRoute } from "@tanstack/react-router";
 import { rootRoute } from "../../../Routes";
 import RegisterAbonados from "../Pages/RegisterAbonados";
 import LoginUser from "../Pages/LoginUser";
@@ -42,7 +42,7 @@ export const loginRoute = createRoute({
 
 export const forgotPasswordRoute = createRoute({
    getParentRoute: () => authRoute,
-   path: "forgotPassword",
+   path: "forgot-password",
    component: ForgotPassword,
 })
 

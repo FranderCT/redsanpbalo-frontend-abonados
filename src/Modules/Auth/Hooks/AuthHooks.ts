@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createUser, Login, ResetPasswd } from "../Services/AuthServices";
+import { createUser, ForgotPasswd, Login, ResetPasswd } from "../Services/AuthServices";
 import { useNavigate } from "@tanstack/react-router";
 import type { ResetPassword } from "../Models/ResetPassword";
 
@@ -42,13 +42,24 @@ export function useLogout() {
 type ResetArgs = { payload: ResetPassword; token: string };
 
 export const useResetPassword = () => {
-  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: ({ payload, token }: ResetArgs) => ResetPasswd(payload, token),
     onSuccess: () => {
       console.log("Contraseña cambiada");
-      navigate({ to: "/auth/login" });
     },
   });
 };
+
+export const useForgotPasswd = () => {
+    const mutation = useMutation({
+        mutationFn: ForgotPasswd,
+        onSuccess: () =>{
+            console.log('Correo enviado')
+        },
+        onError: () =>{
+          console.log('error')
+        }
+    })
+    return mutation;
+}

@@ -15,6 +15,10 @@ const LoginUser = () => {
         navigate({ to: '/auth/register' }) // Navega a la ruta raíz
       }
 
+      const goForgotPsswrd = () => {
+        navigate({ to: '/auth/forgot-password' }) // Navega a la ruta raíz
+      }
+
     const form = useForm({
        defaultValues : AuthInitialState,
         validators: {
@@ -116,9 +120,11 @@ const LoginUser = () => {
                 <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                 {([canSubmit, isSubmitting]) => (
                     <div className="flex flex-row justify-between items-end">
-                    <a href="/auth/forgotPassword" className="underline text-[#091540] font-medium hover:text-[#1789FC] cursor-pointer">
+                    <button className="underline text-[#091540] font-medium hover:text-[#1789FC] cursor-pointer"
+                    onClick={goForgotPsswrd}
+                    >
                         ¿Olvidó su contraseña?
-                    </a>
+                    </button>
                     <button
                         type="submit"
                         className="w-1/3 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition cursor-pointer"

@@ -1,30 +1,28 @@
+import { useForm } from "@tanstack/react-form";
+import { changePasswordInitialState } from "../Models/changePassword";
 
-import { useForm } from '@tanstack/react-form';
-import { ForgotPasswordInitialState } from '../Models/ForgotPassword';
-import { useForgotPasswd } from '../Hooks/AuthHooks';
-
-
-const ForgotPassword = () => {
-
-
-
-    const useForgotPasswdMutation = useForgotPasswd();
+const ChangePassword  = () => {
+    // const createUserMutation = useCreateUser();
     const form = useForm({
-            defaultValues: ForgotPasswordInitialState,
-        //          validators: {
-        //              onChange: RegisterSchema,
-        //          },
+           defaultValues: changePasswordInitialState,
+                //  validators: {
+                //      onChange: RegisterSchema,
+                //  },
                  onSubmit: async ({ value }) => {
-                    await useForgotPasswdMutation.mutateAsync(value)
-                    console.log('exito')
+                   if (value.NewPassword !== value.ConfirmPassword) {
+                     alert('Las contraseñas no coinciden');
+                     return;
+                   }
+                //    await createUserMutation.mutateAsync(value);
+                   console.log('...', value);
                  },
         }); 
     
-      return (
+return (
         <div className="w-full max-w-md bg-white rounded-sm shadow-lg border-t-20 border-[#091540] px-8 py-10">
             {/* Formulario */}
             <div className="flex flex-col justify-center items-center flex-grow w-full gap-4">
-                <h2 className="md:text-3xl font-bold text-[#091540] text-center drop-shadow-lg gap-4">Olvidó su contraseña</h2>
+                <h2 className="md:text-3xl font-bold text-[#091540] text-center drop-shadow-lg gap-4">Cambiar su contraseña</h2>
     
                 <form
                     onSubmit={(e) => {
@@ -33,15 +31,15 @@ const ForgotPassword = () => {
                     }}
                     className="w-full max-w-md p-2 flex flex-col gap-6"
                 >
-                    <form.Field name="IDcard">
+                    <form.Field name="OldPassword">
                         {(field) => (
                             <>
                             <input
-                                type="text"
+                                type="password"
                                 value={field.state.value}
                                 onBlur={field.handleBlur}
                                 onChange={(e) => field.handleChange(e.target.value)}
-                                placeholder="Cédula"
+                                placeholder="Ingrese su contraseña acutal"
                                 className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
                             />
                             {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
@@ -55,14 +53,34 @@ const ForgotPassword = () => {
                     </form.Field>
     
     
-                    <form.Field name="Email">
+                    <form.Field name="NewPassword">
                     {(field) => (
                         <>
                             <input
                                 className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                                placeholder="Correo electrónico"
+                                placeholder="Ingrese su nueva contraseña"
                                 value={field.state.value}
-                                type="email"
+                                type="password"
+                                onChange={(e) => field.handleChange(e.target.value)}
+                            />
+                            {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                                <p className="text-sm text-red-500 mt-1">
+                                    {(field.state.meta.errors[0] as any)?.message ??
+                                    String(field.state.meta.errors[0])}
+                                </p>
+                            )}
+                        </>
+                    )}
+                    </form.Field>
+
+                    <form.Field name="ConfirmPassword">
+                    {(field) => (
+                        <>
+                            <input
+                                className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                                placeholder="Confirme su nueva contraseña"
+                                value={field.state.value}
+                                type="password"
                                 onChange={(e) => field.handleChange(e.target.value)}
                             />
                             {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
@@ -90,16 +108,10 @@ const ForgotPassword = () => {
                     </form.Subscribe>
                 </form>
                 </div>
-    
-                <p className="mt-6 text-sm md:text-lg text-[#3A7CA5] text-center">
-                Regresar a {' '}
-                <a href="/auth/login" className="underline font-medium hover:text-[#091540] cursor-pointer">
-                    Iniciar sesión
-                </a>
-                </p>
+
         </div>
     
     )
 }
 
-export default ForgotPassword
+export default ChangePassword
