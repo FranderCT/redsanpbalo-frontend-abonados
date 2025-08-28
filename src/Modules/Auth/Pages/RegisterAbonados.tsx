@@ -17,6 +17,8 @@ const RegisterAbonados = () => {
           return;
         }
         await createUserMutation.mutateAsync(value);
+        // Mostrar tostofy de éxito
+        // Resertar formulario
         console.log('Usuario creado:', value);
       },
     });
@@ -59,7 +61,7 @@ const RegisterAbonados = () => {
               className="w-full max-w-md p-2 flex flex-col gap-3"
             >
               {/* Cédula */}
-              <form.Field name="Idcard">
+              <form.Field name="IDcard">
                 {(field) => (
                   <>
                     <input
@@ -234,7 +236,7 @@ const RegisterAbonados = () => {
               </form.Field>
 
               {/* Fecha de nacimiento */}
-              <form.Field name="BirthDate">
+              <form.Field name="Birthdate">
                 {(field) => (
                   <>
                     <input
@@ -254,6 +256,26 @@ const RegisterAbonados = () => {
                         {(field.state.meta.errors[0] as any)?.message ??
                           String(field.state.meta.errors[0])}
                       </p>
+                    )}
+                  </>
+                )}
+              </form.Field>
+
+              <form.Field name="Address">
+                {(field) => (
+                  <>
+                    <input
+                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      placeholder="Adress"
+                      type="text"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                              {(field.state.meta.errors[0] as any)?.message ??
+                              String(field.state.meta.errors[0])}
+                          </p>
                     )}
                   </>
                 )}

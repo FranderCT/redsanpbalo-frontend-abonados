@@ -3,7 +3,7 @@ import { AuthInitialState } from '../Models/Auth';
 import { useLogin } from '../Hooks/AuthHooks';
 import { AuthSchema } from '../schemas/AuthSchemas';
 import { toast } from 'react-toastify';
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 
 
 const LoginUser = () => {
@@ -29,6 +29,7 @@ const LoginUser = () => {
             await loginMutation.mutateAsync(value);
             console.log('Inicio de Sesión Exitoso');
             toast.success('¡Acceso exitoso!', { position: "top-right", autoClose: 3000 });
+            navigate({ to: '/dashboard' }) // Navega a la ruta raíz
         }catch (error: any){
             console.log('error')
             toast.error('¡Acceso Denegado!', { position: "top-right", autoClose: 3000 });
@@ -140,9 +141,15 @@ const LoginUser = () => {
 
             <p className="mt-6 text-sm md:text-lg text-[#3A7CA5] text-center">
             ¿Ya tenés una cuenta?{' '}
-            <button onClick={goRegister} className="underline font-medium hover:text-[#091540] cursor-pointer">
+            {/* <button onClick={goRegister} className="underline font-medium hover:text-[#091540] cursor-pointer">
                 Registrate aquí
-            </button>
+            </button> */}
+            <Link
+                to="/auth/register"
+                className="underline font-medium hover:text-[#091540] cursor-pointer"
+                >
+                Registrate aquí
+            </Link>
             </p>
         </div>
     </div>

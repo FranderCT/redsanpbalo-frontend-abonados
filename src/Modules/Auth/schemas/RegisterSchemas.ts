@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const RegisterSchema = z.object({
-    Idcard: z.string()
+    IDcard: z.string()
     .min(9, "La cédula debe tener al menos 9 dígitos")
     .max(12, "Máximo 12 dígitos"),
 
@@ -26,7 +26,7 @@ export const RegisterSchema = z.object({
     PhoneNumber: z.string()
     .regex(/^[678]\d{7}$/, "Teléfono inválido. Debe tener 8 dígitos y empezar en 6, 7 u 8"),
     
-    BirthDate: z.coerce.date().refine((val) => {
+    Birthdate: z.coerce.date().refine((val) => {
     const age = new Date(Date.now() - val.getTime()).getUTCFullYear() - 1970;
     return age >= 18;
     }, {

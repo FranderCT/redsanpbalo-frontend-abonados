@@ -1,26 +1,26 @@
 export interface RegisterUser{
-    Idcard:string;
+    IDcard:string;
     Name : string;
     Surname1 : string;
     Surname2 : string;
     Nis: string;
     Email: string;
     PhoneNumber: string;
-    BirthDate: Date;
+    Birthdate: Date;
     Address: string;
     Password: string;
     ConfirmPassword: string;
 }
 
 export const RegisterUserInitialState: RegisterUser = {
-  Idcard: '',
+  IDcard: '',
   Name: '',
   Surname1: '',
   Surname2: '',
   Nis: '',
   Email: '',
   PhoneNumber: '',
-  BirthDate: new Date,
+  Birthdate: new Date,
   Address: '',
   Password: '',
   ConfirmPassword: '',

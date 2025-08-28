@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { User, Settings, LogOut } from "lucide-react";
 
 const ProfileUserMenu = ({
@@ -24,9 +25,12 @@ const ProfileUserMenu = ({
       >
         <ul className="text-sm text-gray-700">
           <li>
-            <a href="#" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100">
+            <Link
+              to="/dashboard/users/profile"
+              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
+            >
               <User size={16} /> Mi perfil
-            </a>
+            </Link>
           </li>
           <li>
             <a href="#" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100">
