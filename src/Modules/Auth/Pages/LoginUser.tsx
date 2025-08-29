@@ -11,13 +11,13 @@ const LoginUser = () => {
 
     const navigate = useNavigate()
     
-      const goRegister = () => {
+     /* const goRegister = () => {
         navigate({ to: '/auth/register' }) // Navega a la ruta raíz
-      }
+      }*/
 
-      const goForgotPsswrd = () => {
+     /* const goForgotPsswrd = () => {
         navigate({ to: '/auth/forgot-password' }) // Navega a la ruta raíz
-      }
+      }*/
 
     const form = useForm({
        defaultValues : AuthInitialState,
@@ -29,10 +29,12 @@ const LoginUser = () => {
             await loginMutation.mutateAsync(value);
             console.log('Inicio de Sesión Exitoso');
             toast.success('¡Acceso exitoso!', { position: "top-right", autoClose: 3000 });
-            navigate({ to: '/dashboard' }) // Navega a la ruta raíz
+            navigate({ to: '/dashboard' })
+            form.reset(); // Navega a la ruta raíz
         }catch (error: any){
             console.log('error')
             toast.error('¡Acceso Denegado!', { position: "top-right", autoClose: 3000 });
+            form.reset();
         }
        } 
     }); 
@@ -121,11 +123,12 @@ const LoginUser = () => {
                 <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                 {([canSubmit, isSubmitting]) => (
                     <div className="flex flex-row justify-between items-end">
-                    <button className="underline text-[#091540] font-medium hover:text-[#1789FC] cursor-pointer"
-                    onClick={goForgotPsswrd}
+                    <Link
+                        to="/auth/forgot-password"
+                        className="underline font-medium hover:text-[#091540] cursor-pointer"
                     >
                         ¿Olvidó su contraseña?
-                    </button>
+                    </Link>
                     <button
                         type="submit"
                         className="w-1/3 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition cursor-pointer"

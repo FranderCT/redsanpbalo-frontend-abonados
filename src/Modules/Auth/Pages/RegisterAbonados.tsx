@@ -2,10 +2,13 @@ import { useForm } from '@tanstack/react-form';
 import { RegisterUserInitialState} from '../Models/RegisterUser';
 import { useCreateUser } from '../Hooks/AuthHooks';
 import { RegisterSchema } from '../schemas/RegisterSchemas';
+import { toast } from 'react-toastify';
+import { Link, useNavigate } from '@tanstack/react-router';
 
 const RegisterAbonados = () => {
     const createUserMutation = useCreateUser();
-
+    const navigate=useNavigate();
+    
     const form = useForm({
       defaultValues: RegisterUserInitialState,
       validators: {
@@ -16,10 +19,23 @@ const RegisterAbonados = () => {
           alert('Las contraseñas no coinciden');
           return;
         }
-        await createUserMutation.mutateAsync(value);
-        // Mostrar tostofy de éxito
-        // Resertar formulario
-        console.log('Usuario creado:', value);
+        try{
+          await createUserMutation.mutateAsync(value);
+          console.log('Registro Exitoso');
+          toast.success('¡Registro exitoso!', { 
+            position: "top-right", 
+            autoClose: 3000 
+          });
+          navigate({ to: '/auth/login' });
+          form.reset();
+          }catch (error: any){
+            console.log('error')
+            toast.error('¡Registro denegado!', { 
+            position: "top-right", 
+            autoClose: 3000 
+          });
+          form.reset();
+          }
       },
     });
 
@@ -266,7 +282,7 @@ const RegisterAbonados = () => {
                   <>
                     <input
                       className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                      placeholder="Adress"
+                      placeholder="Dirección"
                       type="text"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -342,9 +358,9 @@ const RegisterAbonados = () => {
 
           <p className="mt-4 text-sm md:text-lg text-[#3A7CA5] text-center">
             ¿Ya tenés una cuenta?{' '}
-            <a href="/auth/login" className="underline font-medium hover:text-[#091540] cursor-pointer">
+            <Link to="/auth/login" className="underline font-medium hover:text-[#091540] cursor-pointer">
               Inicia sesión aquí
-            </a>
+            </Link>
           </p>
         </div>
       </div>

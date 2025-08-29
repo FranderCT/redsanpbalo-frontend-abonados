@@ -59,7 +59,7 @@ const RegisterAbonados = () => {
               className="w-full max-w-md p-2 flex flex-col gap-3"
             >
               {/* Cédula */}
-              <form.Field name="Idcard">
+              <form.Field name="IDcard">
                 {(field) => (
                   <>
                     <input
@@ -214,7 +214,7 @@ const RegisterAbonados = () => {
               </form.Field>
 
               {/* Fecha de nacimiento */}
-              <form.Field name="BirthDate">
+              <form.Field name="Birthdate">
                 {(field) => (
                   <>
                     <input
