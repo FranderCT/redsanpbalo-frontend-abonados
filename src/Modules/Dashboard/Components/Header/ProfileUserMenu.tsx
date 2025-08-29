@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "@tanstack/react-router";
 import { User, Settings, LogOut } from "lucide-react";
-import { useLogout } from "../../../Auth/Hooks/AuthHooks";
+//import { useLogout } from "../../../Auth/Hooks/AuthHooks";
 
 type Props = {
   profileOpen: boolean;
@@ -11,7 +11,7 @@ type Props = {
 
 export default function ProfileMenu({ profileOpen, setProfileOpen }: Props) {
   const navigate = useNavigate();
-  const logout = useLogout();
+  //const logout = useLogout();
   const btnRef = useRef<HTMLButtonElement>(null);
   const [pos, setPos] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
 
