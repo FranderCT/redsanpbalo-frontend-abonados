@@ -6,6 +6,7 @@ import LoginUser from "../Pages/LoginUser";
 import ForgotPassword from "../Pages/ForgotPassword";
 import ResetPassword from "../Pages/ResetPassword";
 import AuthLayout from "../Layouts/AuthLayout";
+import ChangePassword from "../Pages/ChangePassword";
 
 
 export const authRoute = createRoute({
@@ -41,13 +42,19 @@ export const loginRoute = createRoute({
 // });
 
 export const forgotPasswordRoute = createRoute({
-   getParentRoute: () => authRoute,
-   path: "forgot-password",
-   component: ForgotPassword,
+  getParentRoute: () => authRoute,
+  path: "forgot-password",
+  component: ForgotPassword,
 })
 
 export const resetPasswordRoute = createRoute({
   getParentRoute: () => authRoute,
   path : 'reset-password',
   component: ResetPassword
+})
+
+export const changePasswordRoute = createRoute({
+  getParentRoute: () => authRoute,
+  path : 'change-password',
+  component: ChangePassword
 })

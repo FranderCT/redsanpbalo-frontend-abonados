@@ -39,7 +39,7 @@ return (
                                 value={field.state.value}
                                 onBlur={field.handleBlur}
                                 onChange={(e) => field.handleChange(e.target.value)}
-                                placeholder="Ingrese su contraseña acutal"
+                                placeholder="Ingrese su contraseña actual"
                                 className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
                             />
                             {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (

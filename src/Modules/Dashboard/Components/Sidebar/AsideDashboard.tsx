@@ -1,33 +1,25 @@
 import { useNavigate } from "@tanstack/react-router";
-import g28 from '../../../Auth/Assets/g28.png';
-import {
-  Home,
-  OctagonAlert,
-  Settings,
-  LogOut,
-  FileText,
-  Hammer,
-  Bell,
-} from "lucide-react";
+import g28 from "../../../Auth/Assets/g28.png";
+import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell } from "lucide-react";
 
 const AsideDashboard = () => {
   const navigate = useNavigate();
+  const goLogin = () => navigate({ to: "/auth/login" });
 
-  const goLogin = () => {
-        navigate({ to: '/auth/login' }) // Navega a la ruta raíz
-  }
   return (
-    <div className="bg-[#F9F5FF] flex flex-col w-50 h-dvh justify-around">
-      
-      {/* Branding o logo */}
-      <div className="flex flex-col items-center justify-center h-1/3 p-6">
-        <img src={g28} alt="Logo ASADA" className="w-13 mb-3" />
-        <h1 className="text-2xl text-[#091540] font-bold mb-10">RedSanPablo</h1>
+    <aside className="bg-[#F9F5FF] w-56 h-dvh flex flex-col">
+      {/* Branding */}
+      <div className="flex items-center gap-3 px-4 pt-6 pb-4 flex-col">
+        <img src={g28} alt="Logo ASADA" className="w-20 h-20 object-contain" />
+        <h1 className="text-3xl text-[#091540] font-bold leading-tight">RedSanPablo</h1>
       </div>
-            {/* Navegación */}
-      
-        <nav className="flex flex-col justify-around h-1/2 text-sm text-gray-700">
-          <button
+
+      {/* Línea separadora */}
+      <div className="h-px bg-black/10 mx-4 mb-2" />
+
+      {/* Navegación (ocupa el espacio central) */}
+      <nav className="flex-1 px-2 py-2 flex flex-col gap-2">
+        <button
             type="button"
             className="
               group relative z-10
@@ -111,33 +103,20 @@ const AsideDashboard = () => {
             <Settings className="size-[23px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Ajustes</span>
           </button>
-        </nav>
-    
+      </nav>
 
-      {/* Opción de cerrar sesión abajo */}
-      <div>
-        <button onClick={goLogin}
-            type="button"
-            className="
-              group relative z-10
-              flex w-full items-center gap-3
-              px-4 py-2
-              transition-all
-              hover:bg-[#F6132D] hover:text-white
-              hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40
-            "
-          >
-            <LogOut className="size-[23px] text-[#F6132D] transition-colors group-hover:text-white" />
-            <span className="transition-colors text-[#F6132D] group-hover:text-white">Cerrar sesión</span>
-          </button>
-        {/*<a
-          href="#"
-          className="flex items-center gap-3 text-sm text-[#F6132D] hover:text-red-800"
+      {/* Cerrar sesión pegado abajo */}
+      <div className="px-2 pb-4 pt-2">
+        <button
+          onClick={goLogin}
+          type="button"
+          className="group flex w-full items-center gap-3 px-4 py-2 rounded-sm transition-all hover:bg-[#F6132D] hover:text-white"
         >
-          <LogOut size={23} /> Cerrar sesión
-        </a>*/}
+          <LogOut className="size-[22px] text-[#F6132D] group-hover:text-white" />
+          <span className="text-[#F6132D] group-hover:text-white">Cerrar sesión</span>
+        </button>
       </div>
-    </div>
+    </aside>
   );
 };
 
