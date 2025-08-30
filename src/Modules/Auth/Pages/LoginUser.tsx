@@ -69,7 +69,7 @@ const LoginUser = () => {
         {/* Formulario */}
         <div className="w-full md:w-1/2 flex flex-col justify-between items-center h-full">
             <div className="flex flex-col justify-center items-center flex-grow w-full">
-            <h2 className="text-3xl md:text-5xl font-bold text-[#091540] mb-6 text-center drop-shadow-lg">Iniciar Sesión</h2>
+            <h2 className="text-3xl md:text-5xl font-montserrat font-bold text-[#091540] mb-6 text-center drop-shadow-lg">Iniciar Sesión</h2>
 
             <form
                 onSubmit={(e) => {
