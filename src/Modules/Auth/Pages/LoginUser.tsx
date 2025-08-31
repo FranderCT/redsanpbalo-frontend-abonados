@@ -113,7 +113,7 @@ const LoginUser = () => {
                         <Link
                             to="/auth/forgot-password"
                             className="
-                            underline font-medium cursor-pointer
+                            underline font-medium cursor-pointer text-[#1789FC]
                             text-center md:text-left
                             "
                         >
@@ -139,9 +139,9 @@ const LoginUser = () => {
             </form>
           </div>
 
-          <p className="mt-6 text-sm md:text-lg text-[#3A7CA5] text-center">
+          <p className="mt-6 text-sm md:text-lg text-[#091540] text-center">
             ¿Ya tenés una cuenta?{' '}
-            <Link to="/register" className="underline font-medium hover:text-[#091540] cursor-pointer">
+            <Link to="/register" className="underline font-medium text-[#1789FC] cursor-pointer">
               Registrate aquí
             </Link>
           </p>

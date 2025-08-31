@@ -1,7 +1,7 @@
 import { createRootRoute, createRoute } from "@tanstack/react-router";
 import { authRoute, changePasswordRoute, forgotPasswordRoute, loginRoute, registerAbonadoRoute, resetPasswordRoute,  } from "./Modules/Auth/Routes/authRoutes";
 import { dashboardIndexRoute, dashboardRoute } from "./Modules/Dashboard/Routes/DashboardRoutes";
-import { userProfilewRoute, usersRoute } from "./Modules/Users/Routes/UsersRoutes";
+import { userProfileEditRoute, userProfilewRoute, usersRoute } from "./Modules/Users/Routes/UsersRoutes";
 
 
 export const rootRoute = createRootRoute();
@@ -24,6 +24,7 @@ export const routeTree = rootRoute.addChildren([
   dashboardRoute.addChildren([
     usersRoute.addChildren([
       userProfilewRoute,
+      userProfileEditRoute
     ]),
     dashboardIndexRoute,
   ]),

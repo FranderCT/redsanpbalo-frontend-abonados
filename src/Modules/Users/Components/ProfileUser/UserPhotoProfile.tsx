@@ -10,7 +10,7 @@ const UserPhotoProfile = ({User} : Props) => {
         <h3 className="font-semibold text-[#091540] mb-4">
             {User?.Name} {User?.Surname1} {User?.Surname2}
         </h3>
-        <div className="size-40 lg:size-66 rounded-full overflow-hidden border-4 border-[#091540]/25">
+        <div className="size-40 lg:size-60 rounded-full overflow-hidden border-4 border-[#091540]/25">
           <img
             src="/Image02.png"
             className="w-full h-full object-cover border border-gray-200"

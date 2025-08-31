@@ -12,7 +12,11 @@ export interface RegisterUser{
     ConfirmPassword: string;
 }
 
-export const RegisterUserInitialState: RegisterUser = {
+export type RegisterUserForm = RegisterUser & {
+  IsAbonado: boolean;
+};
+
+export const RegisterUserInitialState: RegisterUserForm = {
   IDcard: '',
   Name: '',
   Surname1: '',
@@ -24,4 +28,5 @@ export const RegisterUserInitialState: RegisterUser = {
   Address: '',
   Password: '',
   ConfirmPassword: '',
+  IsAbonado: false,
 }

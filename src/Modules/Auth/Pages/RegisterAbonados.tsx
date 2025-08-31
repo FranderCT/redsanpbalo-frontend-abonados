@@ -19,8 +19,9 @@ const RegisterAbonados = () => {
           alert('Las contraseñas no coinciden');
           return;
         }
+        const { IsAbonado, ...userData } = value;
         try{
-          await createUserMutation.mutateAsync(value);
+          await createUserMutation.mutateAsync(userData);
           console.log('Registro Exitoso');
           toast.success('¡Registro exitoso!', { 
             position: "top-right", 
@@ -190,24 +191,68 @@ const RegisterAbonados = () => {
                 </div>
               </div>
 
-              {/* NIS */}
-              <form.Field name="Nis">
+               {/* Checkbox abonado */}
+              <form.Field name="IsAbonado">
                 {(field) => (
-                  <>
+                  <div className="flex items-center gap-2 mb-2">
                     <input
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                      placeholder="NIS"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
+                      type="checkbox"
+                      checked={field.state.value}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        field.handleChange(checked);
+                        // Si se desmarca, limpiar NIS
+                        if (!checked) {
+                          form.setFieldValue('Nis', '');
+                        }
+                      }}
                     />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                              {(field.state.meta.errors[0] as any)?.message ??
-                              String(field.state.meta.errors[0])}
-                          </p>
-                    )}
-                  </>
+                    <label className="text-sm text-[#091540]">Soy abonado</label>
+                  </div>
                 )}
+              </form.Field>
+
+              {/* Input NIS */}
+              <form.Field name="Nis">
+                {(field) => {
+                  const isAbonado = form.getFieldValue('IsAbonado');
+                  const disabled = !isAbonado;
+                  return (
+                    <>
+                      <input
+                        className={`w-full px-4 py-2 rounded-md text-sm ${
+                          isAbonado
+                            ? 'bg-gray-100 text-[#091540]'
+                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        }`}
+                        placeholder="NIS"
+                        value={field.state.value}
+                        inputMode="numeric"
+                        pattern="\d*"
+                        onChange={(e) => {
+                          // Solo dígitos
+                          const onlyDigits = e.target.value.replace(/\D/g, '');
+                          field.handleChange(onlyDigits);
+                        }}
+                        disabled={disabled}
+                        aria-disabled={disabled}
+                        aria-describedby="nis-help"
+                      />
+                      <p id="nis-help" className="text-xs text-gray-500 mt-1">
+                        {isAbonado
+                          ? 'Obligatorio: solo números (máx. 10 dígitos).'
+                          : 'Opcional: solo para abonados.'}
+                      </p>
+
+                      {/* Mostrar errores solo si está habilitado o si fue tocado manualmente */}
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && isAbonado && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                    </>
+                  );
+                }}
               </form.Field>
 
               {/* Email */}

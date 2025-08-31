@@ -20,6 +20,7 @@ export const editProfileRoute = createRoute({
 import { createRoute, Outlet } from "@tanstack/react-router";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
 import UserProfile from "../Pages/UserProfile/UserProfile";
+import EditProfile from "../Components/ProfileUser/EditProfileUser/EditProfile";
 
 
 export const usersRoute = createRoute({
@@ -35,8 +36,8 @@ export const userProfilewRoute = createRoute({
   component: UserProfile,
 });
 
-// export const userProfileEditRoute = createRoute({
-//   getParentRoute: () => userProfileRoute,
-//   path: "edit",
-//   component: EditProfile
-// });
+export const userProfileEditRoute = createRoute({
+  getParentRoute: () => usersRoute,
+  path: "edit",
+  component: EditProfile,
+});
