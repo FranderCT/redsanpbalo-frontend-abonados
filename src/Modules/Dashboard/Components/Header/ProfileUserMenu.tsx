@@ -55,7 +55,7 @@ export default function ProfileMenu({ profileOpen, setProfileOpen }: Props) {
               <ul className="py-1 text-sm text-gray-700">
                 <li>
                   <button
-                    onMouseDown={() => go("/dashboard/users/profile")}
+                    onMouseDown={() => go("users/profile")}
                     className="w-full text-left flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
                   >
                     <User size={16} /> Mi perfil
@@ -73,7 +73,7 @@ export default function ProfileMenu({ profileOpen, setProfileOpen }: Props) {
                   <button
                     onMouseDown={() => {
                       localStorage.removeItem('token')
-                      navigate({to: '/auth/login'})
+                      navigate({to: '/login'})
                       setProfileOpen(false);
                     }}
                     className="w-full text-left flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-red-500"

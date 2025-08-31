@@ -15,21 +15,15 @@ export const authRoute = createRoute({
   component: AuthLayout
 });
 
-export const indexAuthRoute = createRoute({
-  getParentRoute : () => authRoute,
-  path : '/',
-  component : () => <div>hola mundo</div>
-})
-
 // /auth/register-abonado
 export const registerAbonadoRoute = createRoute({
-  getParentRoute: () => authRoute,
+  getParentRoute: () => rootRoute,
   path: "register", 
   component: RegisterAbonados,
 });
 
 export const loginRoute = createRoute({
-   getParentRoute: () => authRoute,
+   getParentRoute: () => rootRoute,
    path: "login",
    component: LoginUser,
 })

@@ -140,7 +140,7 @@ const ForgotPassword = () => {
             <p className="text-[#091540] text-center">
               Revise su bandeja de entrada y siga las instrucciones.
             </p>
-            <Link to='/auth/login' className="mt-4 text-sm md:text-lg text-[#3A7CA5] underline font-medium hover:text-[#091540]">
+            <Link to='/login' className="mt-4 text-sm md:text-lg text-[#3A7CA5] underline font-medium hover:text-[#091540]">
                 Volver a Iniciar sesión
             </Link>
             {/* <a

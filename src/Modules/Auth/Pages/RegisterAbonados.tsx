@@ -26,7 +26,7 @@ const RegisterAbonados = () => {
             position: "top-right", 
             autoClose: 3000 
           });
-          navigate({ to: '/auth/login' });
+          navigate({ to: '/login' });
           form.reset();
           }catch (error: any){
             console.log('error')
@@ -358,7 +358,7 @@ const RegisterAbonados = () => {
 
           <p className="mt-4 text-sm md:text-lg text-[#3A7CA5] text-center">
             ¿Ya tenés una cuenta?{' '}
-            <Link to="/auth/login" className="underline font-medium hover:text-[#091540] cursor-pointer">
+            <Link to="/login" className="underline font-medium hover:text-[#091540] cursor-pointer">
               Inicia sesión aquí
             </Link>
           </p>
