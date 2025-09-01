@@ -8,7 +8,7 @@ export interface UserProfile{
     Nis: string;
     Email: string;
     PhoneNumber: string;
-    BirthDate: string;
+    Birthdate: string;
     Address: string;
     Roles : Role[]
 }

@@ -19,8 +19,8 @@ const RegisterAbonados = () => {
           alert('Las contraseñas no coinciden');
           return;
         }
-        const { IsAbonado, ...userData } = value;
         try{
+          const { IsAbonado, ...userData } = value;
           await createUserMutation.mutateAsync(userData);
           console.log('Registro Exitoso');
           toast.success('¡Registro exitoso!', { 

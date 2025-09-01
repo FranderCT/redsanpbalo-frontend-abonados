@@ -55,7 +55,7 @@ export default function ProfileMenu({ profileOpen, setProfileOpen }: Props) {
               <ul className="py-1 text-sm text-gray-700">
                 <li>
                   <button
-                    onMouseDown={() => go("users/profile")}
+                    onMouseDown={() => navigate({to: '/dashboard/users/profile'})}
                     className="w-full text-left flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
                   >
                     <User size={16} /> Mi perfil
