@@ -13,6 +13,7 @@ const EditProfile = ({User} : Props) => {
     const form = useForm({
           defaultValues: EditUserInitialState,
           onSubmit: async ({ value }) => {
+            console.log(value);
           try {
             await useUpdateProfile.mutateAsync(value);
             console.log("Actualizacion exitosa");
@@ -43,25 +44,26 @@ const EditProfile = ({User} : Props) => {
                     }}
                     className="w-full max-w-md p-2 flex flex-col gap-6"
                 >
-                    <form.Field name="BirthDate">
+                    <form.Field name="Birthdate">
                       {(field) => (
                         <>
                           <input
                             type="date"
-                            placeholder="Fecha de nacimiento"
-                            value={field.state.value}
-                            onFocus={(e) => (e.target.type = 'date')}
-                            onBlur={(e) => {
-                              if (!e.target.value) e.target.type = 'text';
+                            value={
+                              field.state.value instanceof Date
+                                ? field.state.value.toISOString().split("T")[0] // Date → string YYYY-MM-DD
+                                : ""
+                            }
+                            onChange={(e) => {
+                              field.handleChange(new Date(e.target.value)) // string → Date
                             }}
-                            onChange={(e) => field.handleChange(e.target.value)}
                             className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
                           />
                           {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                              <p className="text-sm text-red-500 mt-1">
-                                  {(field.state.meta.errors[0] as any)?.message ??
-                                  String(field.state.meta.errors[0])}
-                              </p>
+                            <p className="text-sm text-red-500 mt-1">
+                              {(field.state.meta.errors[0] as any)?.message ??
+                                String(field.state.meta.errors[0])}
+                            </p>
                           )}
                         </>
                       )}

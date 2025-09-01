@@ -8,7 +8,7 @@ export const dashboardRoute = createRoute({
     component: DashboardLayout,
     beforeLoad: () => {
     const token = localStorage.getItem('token');
-    if (!token) throw redirect({ to: '/auth/login' });
+    if (!token) throw redirect({ to: '/login' });
   },
 })
 

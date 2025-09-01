@@ -1,11 +1,11 @@
 export interface EditUser{
-    BirthDate: string;
-    PhoneNumber: string;
-    Address: string;
+    Birthdate?: Date;
+    PhoneNumber?: string;
+    Address?: string;
 }
 
 export const EditUserInitialState: EditUser = {
-    BirthDate : '',
+    Birthdate: undefined,
     PhoneNumber : '',
     Address : ''
 };
