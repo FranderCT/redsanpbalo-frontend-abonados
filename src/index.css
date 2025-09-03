@@ -3,3 +3,7 @@
 }
 
 @import "tailwindcss";
+
+.input-base {
+    @apply w-full px-4 py-2 text-[#091540] border border-[#091540] text-sm;
+}

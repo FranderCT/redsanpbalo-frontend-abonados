@@ -5,6 +5,7 @@ export interface UserProfile{
     Name : string;
     Surname1 : string;
     Surname2 : string;
+    ProfilePhoto?: string;
     Nis: string;
     Email: string;
     PhoneNumber: string;

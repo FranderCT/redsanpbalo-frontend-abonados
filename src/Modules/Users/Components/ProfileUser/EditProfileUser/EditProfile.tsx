@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { EditUserInitialState } from "../../../Models/EditUser";
 import { useUpdateUserProfile } from "../../../Hooks/UsersHooks";
 import type { UserProfile } from "../../../Models/User";
+import { useNavigate } from "@tanstack/react-router";
 
 type Props = {
   User? : UserProfile
@@ -9,6 +10,7 @@ type Props = {
 
 const EditProfile = ({User} : Props) => {
     const useUpdateProfile = useUpdateUserProfile();
+    const navigate = useNavigate();
     
     const form = useForm({
           defaultValues: EditUserInitialState,
@@ -44,6 +46,27 @@ const EditProfile = ({User} : Props) => {
                     }}
                     className="w-full max-w-md p-2 flex flex-col gap-6"
                 >
+                    <form.Field name="ProfilePhoto">
+                      {(field) => (
+                        <>
+                          <input
+                            type="file"
+                            className="input-base"
+                            placeholder="Foto de perfil"
+                            value={field.state.value}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                          />
+                          {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                                <p className="text-sm text-red-500 mt-1">
+                                    {(field.state.meta.errors[0] as any)?.message ??
+                                    String(field.state.meta.errors[0])}
+                                </p>
+                          )}
+                        </>
+                      )}
+                    </form.Field>
+
+
                     <form.Field name="Birthdate">
                       {(field) => (
                         <>
@@ -57,7 +80,7 @@ const EditProfile = ({User} : Props) => {
                             onChange={(e) => {
                               field.handleChange(new Date(e.target.value)) // string → Date
                             }}
-                            className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                            className="input-base"
                           />
                           {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                             <p className="text-sm text-red-500 mt-1">
@@ -74,7 +97,7 @@ const EditProfile = ({User} : Props) => {
                       {(field) => (
                         <>
                           <input
-                            className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                            className="input-base"
                             placeholder="Número telefónico"
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}
@@ -93,7 +116,7 @@ const EditProfile = ({User} : Props) => {
                       {(field) => (
                         <>
                           <input
-                            className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                            className="input-base"
                             placeholder="Dirección"
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}
@@ -109,21 +132,21 @@ const EditProfile = ({User} : Props) => {
                     </form.Field>
     
                     <div className='flex justify-end gap-4 '>
-                    <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-                    {([canSubmit, isSubmitting]) => (
+                    <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting, state.isDirty]}>
+                      {([canSubmit, isSubmitting, isDirty]) => (
                         <button
-                            type="submit"
-                            className="bg-[#091540] hover:bg-blue-600 text-white text-shadow-lg/30 font-semibold w-25 rounded"
-                            disabled={!canSubmit}
+                          type="submit"
+                          className="bg-[#091540] hover:bg-blue-600 text-white text-shadow-lg/30 font-bold w-25 rounded disabled:opacity-50"
+                          disabled={!canSubmit || !isDirty} // 🔑 ahora exige que haya cambios
                         >
-                            {isSubmitting ? '...' : 'Confirmar'}
+                          {isSubmitting ? '...' : 'Confirmar'}
                         </button>
-                    )}
+                      )}
                     </form.Subscribe>
                       <button
                       type="button"
-                      //onClick={() => navigate('/auth/login')}
-                      className="bg-[#F6132D] hover:bg-red-700 text-white text-shadow-lg/30 font-semibold w-25 p-2 rounded-sm"
+                      onClick={() => navigate({to: "/dashboard/users/profile"})}
+                      className="hover:bg-[#F6132D] text-[#F6132D] hover:text-white ring font-bold w-25 p-2 rounded-sm"
                       >
                       Cancelar
                       </button>
