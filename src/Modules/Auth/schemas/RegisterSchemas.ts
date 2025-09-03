@@ -54,7 +54,7 @@ export const RegisterSchema = z.object({
     message: 'Las contraseñas no coinciden',
     path: ['ConfirmPassword'],
   })
-  // 👇 Si es abonado, NIS obligatorio (1–10 dígitos)
+  // NIS obligatorio (1–10 dígitos)
   .superRefine((data, ctx) => {
     if (data.IsAbonado) {
       if (!/^\d{1,10}$/.test(data.Nis)) {
