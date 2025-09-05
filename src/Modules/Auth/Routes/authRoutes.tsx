@@ -7,6 +7,7 @@ import ForgotPassword from "../Pages/ForgotPassword";
 import ResetPassword from "../Pages/ResetPassword";
 import AuthLayout from "../Layouts/AuthLayout";
 import ChangePassword from "../Pages/ChangePassword";
+import EditEmailUser from "../../SettingsUser/Components/EditEmailUser";
 
 
 export const authRoute = createRoute({
@@ -52,3 +53,4 @@ export const changePasswordRoute = createRoute({
   path : 'change-password',
   component: ChangePassword
 })
+

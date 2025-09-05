@@ -22,6 +22,7 @@ import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
 import UserProfile from "../Pages/UserProfile/UserProfile";
 import EditProfile from "../Components/ProfileUser/EditProfileUser/EditProfile";
 import ListUsers from "../Pages/ListUsers";
+import EditEmailUser from "../../SettingsUser/Components/EditEmailUser";
 
 
 export const usersRoute = createRoute({
@@ -47,3 +48,9 @@ export const userProfileEditRoute = createRoute({
   path: "edit",
   component: EditProfile,
 });
+
+export const changeEmailRoute = createRoute({
+  getParentRoute: () => usersRoute,
+  path : 'change-email',
+  component: EditEmailUser,
+})
