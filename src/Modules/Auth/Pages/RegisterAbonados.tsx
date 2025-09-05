@@ -5,7 +5,7 @@ import { RegisterSchema } from '../schemas/RegisterSchemas';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from '@tanstack/react-router';
 
-const RegisterAbonados = () => {
+const   RegisterAbonados = () => {
     const createUserMutation = useCreateUser();
     const navigate=useNavigate();
     
@@ -42,7 +42,7 @@ const RegisterAbonados = () => {
 
     return (
       <div className="grid min-h-screen place-items-center bg-gray-100 p-4">
-        <div className="bg-white w-full max-w-4xl h-lvh max-h-[90vh] rounded-2xl shadow-lg p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 mx-auto">
+        <div className="bg-white w-full max-w-4xl h-lvh max-h-[55vh] rounded-2xl shadow-lg p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 mx-auto ">
           {/* Título para mobile */}
           <div className="md:hidden flex flex-col items-center justify-center mb-4">
             <h1 className="text-4xl font-extrabold text-[#091540]">ASADA</h1>
