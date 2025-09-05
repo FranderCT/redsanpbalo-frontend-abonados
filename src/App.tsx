@@ -2,6 +2,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { routeTree } from './Routes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ToastContainer } from 'react-toastify';
+import 'react-responsive-modal/styles.css';
 
 
 

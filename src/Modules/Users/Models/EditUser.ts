@@ -1,13 +1,13 @@
 export interface EditUser{
-    ProfilePhoto?: string;
+    // ProfilePhoto?: string;
     Birthdate?: Date;
     PhoneNumber?: string;
     Address?: string;
 }
 
 export const EditUserInitialState: EditUser = {
-    ProfilePhoto: '',
+    // ProfilePhoto: '',
     Birthdate: undefined,
-    PhoneNumber : '',
-    Address : ''
+    PhoneNumber : undefined,
+    Address : undefined
 };

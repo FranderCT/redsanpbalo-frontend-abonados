@@ -1,30 +1,60 @@
-import OpenModalButton from "../Modals/OpenModalButton";
+    import { Modal } from 'react-responsive-modal';
 
+    type Props = {
+    open: boolean;
+    onConfirm: () => void;
+    onCancel: () => void;
+    title?: string;
+    message?: string;
+    confirmText?: string;
+    cancelText?: string;
 
-    const  UpdateWarning = () => {
-        
+    };
+
+    const UpdateWarning = ({
+    open,
+    onConfirm,
+    onCancel,
+    title = "¿Confirmar cambios?",
+    message = "Esta acción actualizará tu perfil.",
+    confirmText = "Confirmar",
+    cancelText = "Cancelar",
+    }: Props) => {
     return (
-                <div className="w-full max-w-md bg-white rounded-sm shadow-lg border-t-20 border-[#091540] px-8 py-10">
-                <div className="flex flex-col items-center gap-4 text-center">
-                
-                <div className="text-[#091540] text-sm md:text-base">¿Está seguro de que quiere confirmar los cambios realizados en su perfil?</div>
-
-                <div className="mt-4 flex w-full justify-center gap-4">
-                    <button
-                    type="button"
-                    className="bg-[#F6132D] hover:bg-red-700 text-white font-semibold w-1/3 px-6 py-2 rounded"
-                    onClick={() => navigator({ to: "/login" })}
-                    className="bg-[#68D89B] hover:bg-green-600 text-white font-semibold w-1/3 py-2 rounded disabled:opacity-60">Aceptar</button>
-
-                    <button
-                    type="button"
-                    className="bg-[#F6132D] hover:bg-red-700 text-white font-semibold w-1/3 px-6 py-2 rounded"
-                    onClick={() => navigator({ to: "/login" })}
-                    >Cancelar</button>
-                </div>
+        <Modal
+        open={open}
+        onClose={onCancel}
+        center
+        blockScroll
+        focusTrapped
+        showCloseIcon={false}
+        classNames={{
+            root: "z-[10000]",
+            overlay: "bg-black/50",
+            modal: "rounded-2xl p-0 shadow-2xl ring-1 ring-gray-200",
+        }}
+        styles={{ modal: { padding: 0 } }}
+        >
+        <div className="p-6 max-w-md">
+            <h3 className="text-lg font-semibold text-[#091540] mb-2">{title}</h3>
+            <p className="text-sm text-[#091540]/80 mb-6">{message}</p>
+            <div className="flex justify-end gap-3">
+            <button
+                onClick={onCancel}
+                className="px-4 py-2 rounded border border-gray-300 text-[#091540]"
+            >
+                {cancelText}
+            </button>
+            <button
+                onClick={onConfirm}
+                className="px-4 py-2 rounded bg-[#091540] text-white"
+            >
+                {confirmText}
+            </button>
             </div>
-            </div>
-        )
-};
+        </div>
+        </Modal>
+    );
+    };
 
-export default UpdateWarning;
+    export default UpdateWarning;

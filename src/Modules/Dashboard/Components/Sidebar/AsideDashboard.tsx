@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import g28 from "../../../Auth/Assets/g28.png";
-import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, User2 } from "lucide-react";
+import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, UserCog } from "lucide-react";
+import { Can } from "../../../Auth/Components/Can";
 
 const listOptions = [
   { name: "Principal", to: "/dashboard", icon: Home },
@@ -31,24 +32,53 @@ const AsideDashboard = () => {
 
       {/* Navegación */}
       <nav className="flex-1 px-2 py-2 flex flex-col gap-2">
-        {listOptions.map(({ name, to, icon: Icon }) => (
-          <button
-            key={name}
-            type="button"
-            onClick={() => navigate({ to })}
-            className="
-              group relative z-10
-              flex w-full items-center gap-3
-              px-4 py-2
-              transition-all
-              hover:bg-[#091540] hover:text-white
-              hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40
-            "
-          >
-            <Icon className="size-[23px] transition-colors group-hover:text-white" />
-            <span className="transition-colors ">{name}</span>
-          </button>
-        ))}
+        {/* <Can rule={{ any: ['ADMIN', 'OFFICE'] }} fallback="No autorizado">
+          <PanelAdmin />
+        </Can> */}
+        <Can rule={{ any: ['ADMIN', "GUEST" , 'ABONADO'] }} >
+          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
+            <Home className="size-[23px] transition-colors group-hover:text-white"/>
+            <span className="transition-colors ">Principal</span>
+          </button>  
+        </Can>
+        <Can rule={{ any: ['ADMIN', "GUEST" , 'ABONADO'] }} >
+          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
+            <FileText className="size-[23px] transition-colors group-hover:text-white"/>
+            <span className="transition-colors ">Solicitudes</span>
+          </button>  
+        </Can>
+        <Can rule={{ all: ['ADMIN'] }} >
+          <button 
+          onClick={() => navigate({ to: "/users/table" })}
+          className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
+            <UserCog  className="size-[23px] transition-colors group-hover:text-white"/>
+            <span className="transition-colors ">Usuarios</span>
+          </button>  
+        </Can>
+        <Can rule={{ any: ['ADMIN', "GUEST", 'ABONADO'] }} >
+          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
+            <Bell className="size-[23px] transition-colors group-hover:text-white"/>
+            <span className="transition-colors ">Notificaciones</span>
+          </button>  
+        </Can>
+        <Can rule={{ none: ['ADMIN', 'ABONADO'] }} >
+          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
+            <OctagonAlert className="size-[23px] transition-colors group-hover:text-white"/>
+            <span className="transition-colors ">Reportes</span>
+          </button> 
+        </Can>
+        <Can rule={{ any: ['ADMIN', 'ABONADO'] }} >
+          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
+            <Hammer className="size-[23px] transition-colors group-hover:text-white"/>
+            <span className="transition-colors ">Proyectos</span>
+          </button>  
+        </Can>
+          <Can rule={{ any: ['ADMIN', "GUEST" , 'ABONADO'] }} >
+          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
+            <Settings className="size-[23px] transition-colors group-hover:text-white"/>
+            <span className="transition-colors ">Ajustes</span>
+          </button>  
+        </Can>
       </nav>
 
       {/* Cerrar sesión pegado abajo */}

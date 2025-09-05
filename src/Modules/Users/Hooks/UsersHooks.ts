@@ -23,6 +23,20 @@ export const useUpdateUserProfile = () => {
   });
 };
 
+export const useGetAllUsers = () => {
+  const { data: usersProfiles, isPending, error } = useQuery({
+    queryKey: ["users"],
+    queryFn: getAllUsers,
+  });
+  return { usersProfiles, isPending, error };
+};
 
-
-
+export function useDeleteUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: deleteUser,
+     onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+}
