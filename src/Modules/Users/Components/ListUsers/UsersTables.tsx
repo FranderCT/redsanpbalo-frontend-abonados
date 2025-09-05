@@ -65,7 +65,7 @@ const UsersTable = ({ data }: Props) => {
       {/* Tabla con bordes colapsados y footer con controles */}
       <div className="overflow-x-auto  shadow-xl">
         <table className="min-w-full border-collapse border border-gray-300">
-          <thead className="bg-[#e9e8e8]">
+          <thead className="">
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id}>
                 {hg.headers.map((header) => (
@@ -106,14 +106,14 @@ const UsersTable = ({ data }: Props) => {
             )}
           </tbody>
 
-          <tfoot className="bg-gray-50">
+          <tfoot className="">
             <tr>
               <td
                 colSpan={table.getVisibleLeafColumns().length}
                 className="px-4 py-3 border border-gray-300"
               >
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                  <div className="mx-auto">
+                {/* <div className="flex flex-wrap items-center justify-center gap-3">
+                  <div className="mx-auto"> */}
                     <PaginationControls
                       canPrev={table.getCanPreviousPage()}
                       canNext={table.getCanNextPage()}
@@ -127,8 +127,8 @@ const UsersTable = ({ data }: Props) => {
                       }
                       onGotoPage={(p) => table.setPageIndex(p)}
                     />
-                  </div>
-                </div>
+                  {/* </div>
+                </div> */}
               </td>
             </tr>
           </tfoot>

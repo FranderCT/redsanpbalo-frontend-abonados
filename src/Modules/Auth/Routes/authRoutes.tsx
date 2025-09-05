@@ -48,9 +48,9 @@ export const resetPasswordRoute = createRoute({
   component: ResetPassword
 })
 
-export const changePasswordRoute = createRoute({
-  getParentRoute: () => authRoute,
-  path : 'change-password',
-  component: ChangePassword
-})
+// export const changePasswordRoute = createRoute({
+//   getParentRoute: () => authRoute,
+//   path : 'change-password',
+//   component: ChangePassword
+// })
 

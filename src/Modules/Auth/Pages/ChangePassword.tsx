@@ -1,13 +1,15 @@
 import { useForm } from "@tanstack/react-form";
 import { changePasswordInitialState } from "../Models/changePassword";
+import { ChangePasswordSchema } from "../schemas/ChangePasswordSchema";
+import { useCreateUser } from "../Hooks/AuthHooks";
 
 const ChangePassword  = () => {
-    // const createUserMutation = useCreateUser();
+    const createUserMutation = useCreateUser();
     const form = useForm({
            defaultValues: changePasswordInitialState,
-                //  validators: {
-                //      onChange: RegisterSchema,
-                //  },
+                  validators: {
+                      onChange: ChangePasswordSchema,
+                  },
                  onSubmit: async ({ value }) => {
                    if (value.NewPassword !== value.ConfirmPassword) {
                      alert('Las contraseñas no coinciden');

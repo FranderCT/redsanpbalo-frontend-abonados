@@ -66,7 +66,7 @@ const MaterialTable = ({ data }: Props) => {
       {/* Tabla */}
       <div className="overflow-x-auto shadow-xl">
         <table className="min-w-full border-collapse border border-gray-300">
-          <thead className="bg-[#e9e8e8]">
+          <thead className="">
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id}>
                 {hg.headers.map((header) => (
@@ -107,7 +107,7 @@ const MaterialTable = ({ data }: Props) => {
             )}
           </tbody>
 
-          <tfoot className="bg-gray-50">
+          <tfoot className="">
             <tr>
               <td
                 colSpan={table.getVisibleLeafColumns().length}

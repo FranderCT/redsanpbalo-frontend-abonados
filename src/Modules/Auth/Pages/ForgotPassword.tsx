@@ -3,6 +3,7 @@ import { ForgotPasswordInitialState } from '../Models/ForgotPassword';
 import { useForgotPasswd } from '../Hooks/AuthHooks';
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
+import { ForgotPasswordSchema } from '../schemas/ForgotPasswordSchema';
 
 const ForgotPassword = () => {
   const useForgotPasswdMutation = useForgotPasswd();
@@ -10,6 +11,9 @@ const ForgotPassword = () => {
 
   const form = useForm({
     defaultValues: ForgotPasswordInitialState,
+    validators: {
+      onChange: ForgotPasswordSchema,
+    },
     onSubmit: async ({ value }) => {
       try {
         await useForgotPasswdMutation.mutateAsync(value);

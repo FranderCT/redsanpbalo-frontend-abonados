@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { ResetPasswordInitialState } from "../Models/ResetPassword";
 import { useResetPassword } from "../Hooks/AuthHooks";
 import { useState } from "react";
+import { ResetPasswordSchema } from "../schemas/ResetPasswordSchema";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -14,6 +15,9 @@ const ResetPassword = () => {
 
   const form = useForm({
     defaultValues: ResetPasswordInitialState,
+    validators: {
+      onChange: ResetPasswordSchema,
+    },
     onSubmit: async ({ value }) => {
       if (value.NewPassword !== value.ConfirmPassword) {
         alert("Las contraseñas no coinciden");
