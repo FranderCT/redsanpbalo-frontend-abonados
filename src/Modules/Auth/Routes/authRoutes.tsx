@@ -1,28 +1,29 @@
 
 import { createRoute } from "@tanstack/react-router";
-
-import AuthLayout from "../Layouts/AuthLayout";
-import { rootRoute } from "../../../routes";
+import { rootRoute } from "../../../Routes";
 import RegisterAbonados from "../Pages/RegisterAbonados";
 import LoginUser from "../Pages/LoginUser";
 import ForgotPassword from "../Pages/ForgotPassword";
+import ResetPassword from "../Pages/ResetPassword";
+import AuthLayout from "../Layouts/AuthLayout";
+import ChangePassword from "../Pages/ChangePassword";
 
 
 export const authRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "auth", 
-  component: AuthLayout,
+  component: AuthLayout
 });
 
 // /auth/register-abonado
 export const registerAbonadoRoute = createRoute({
-  getParentRoute: () => authRoute,
+  getParentRoute: () => rootRoute,
   path: "register", 
   component: RegisterAbonados,
 });
 
 export const loginRoute = createRoute({
-   getParentRoute: () => authRoute,
+   getParentRoute: () => rootRoute,
    path: "login",
    component: LoginUser,
 })
@@ -35,7 +36,19 @@ export const loginRoute = createRoute({
 // });
 
 export const forgotPasswordRoute = createRoute({
-   getParentRoute: () => authRoute,
-   path: "forgotPassword",
-   component: ForgotPassword,
+  getParentRoute: () => authRoute,
+  path: "forgot-password",
+  component: ForgotPassword,
+})
+
+export const resetPasswordRoute = createRoute({
+  getParentRoute: () => authRoute,
+  path : 'reset-password',
+  component: ResetPassword
+})
+
+export const changePasswordRoute = createRoute({
+  getParentRoute: () => authRoute,
+  path : 'change-password',
+  component: ChangePassword
 })
