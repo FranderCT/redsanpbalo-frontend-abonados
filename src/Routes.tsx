@@ -1,6 +1,8 @@
 import { createRootRoute, createRoute } from "@tanstack/react-router";
 import { authRoute, changePasswordRoute, forgotPasswordRoute, loginRoute, registerAbonadoRoute, resetPasswordRoute,  } from "./Modules/Auth/Routes/authRoutes";
 import { dashboardIndexRoute, dashboardRoute } from "./Modules/Dashboard/Routes/DashboardRoutes";
+import { materialRoute, createMaterialRoute, materialTableRoute } from "./Modules/Materials/Routes/MaterialsRoutes";
+import { usersRoute, userProfilewRoute, userProfileEditRoute, listUsersRoute, changeEmailRoute } from "./Modules/Users/Routes/UsersRoutes";
 
 
 
