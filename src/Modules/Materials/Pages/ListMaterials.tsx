@@ -20,18 +20,18 @@ const ListMaterials = () => {
     );
   }
 
-  if (!materials || materials.length === 0) {
-    return (
-      <div className="text-center text-gray-500 p-6">
-        No hay materiales registrados.
-      </div>
-    );
-  }
+  // if (!materials || materials.length === 0) {
+  //   return (
+  //     <div className="text-center text-gray-500 p-6">
+  //       No hay materiales registrados.
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="p-4 space-y-4">
       <h2 className="text-2xl font-bold text-[#091540]">Lista de Materiales</h2>
-      <MaterialTable data={materials} />
+      <MaterialTable data={materials ?? []} />
     </div>
   );
 };

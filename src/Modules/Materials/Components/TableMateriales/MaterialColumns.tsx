@@ -8,6 +8,7 @@ export const MaterialColumns = (
 ): ColumnDef<Material>[] => [
   { accessorKey: "Name", header: "Nombre del Material" },
   { accessorKey: "Description", header: "Descripción" },
+  { accessorKey: "Unit", header: "Unidad" },
   {
     accessorKey: "IsActive",
     header: "Estatus",

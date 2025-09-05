@@ -12,17 +12,17 @@ const CreateMaterialForm = ({ onSuccess }: Props) => {
 
 const form = useForm({
   defaultValues: MaterialInitialState,
-  onSubmit: async ({ value, formApi }) => {
+  onSubmit: async ({ value }) => {
     try {
-      const { Name, Description } = value; 
-      await createMaterialMutation.mutateAsync({ Name, Description });
+      const { Name, Description, Unit } = value; 
+      await createMaterialMutation.mutateAsync({ Name, Description, Unit });
 
       toast.success("¡Registro exitoso!", {
         position: "top-right",
         autoClose: 3000,
       });
 
-      formApi.reset();
+      form.reset();
       onSuccess?.(); // cierra modal si se provee
     } catch (err: any) {
       const msg =
@@ -81,6 +81,28 @@ const form = useForm({
               <input
                 type="text"
                 placeholder="Ingrese la descripción del material"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                className="px-3 py-2 border border-gray-300  shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1789FC] focus:border-[#1789FC] disabled:bg-gray-100 disabled:text-gray-500"
+              />
+              {field.state.meta.isTouched &&
+                field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ??
+                      String(field.state.meta.errors[0])}
+                  </p>
+                )}
+            </div>
+          )}
+        </form.Field>
+
+        <form.Field name="Unit">
+          {(field) => (
+            <div className="flex flex-col gap-1">
+              
+              <input
+                type="text"
+                placeholder="Ingrese la unidad del material"
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
                 className="px-3 py-2 border border-gray-300  shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1789FC] focus:border-[#1789FC] disabled:bg-gray-100 disabled:text-gray-500"

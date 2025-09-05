@@ -17,6 +17,7 @@ const form = useForm({
     Name: material.Name,
     Description: material.Description,
     IsActive: material.IsActive ?? true,
+    Unit: material.Unit
   },
   onSubmit: async ({ value, formApi }) => {
     try {
@@ -73,6 +74,19 @@ const form = useForm({
         </form.Field>
 
         <form.Field name="Description">
+          {(field) => (
+            <div className="flex flex-col gap-1">
+              <input
+                type="text"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+              />
+            </div>
+          )}
+        </form.Field>
+
+        <form.Field name="Unit">
           {(field) => (
             <div className="flex flex-col gap-1">
               <input
