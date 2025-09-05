@@ -9,10 +9,10 @@ import {
 import { usersColumns as makeUsersColumns } from "./Columns";
 import PageSizeSelect from "./Table/PageSizeSelect";
 import PaginationControls from "./Table/PaginationControls";
-import OpenModalButton from "../Modals/OpenModalButton";
+import OpenModalButton from "../ProfileUser/Modals/OpenModalButton";
 import AddUserModal from "./Table/AddUserModal";
-import { useDeleteUser } from "../../../Hooks/UsersHooks";
-import type { Users } from "../../../Models/Users";
+import { useDeleteUser } from "../../Hooks/UsersHooks";
+import type { Users } from "../../Models/Users";
 
 
 type Props = { data: Users[] };

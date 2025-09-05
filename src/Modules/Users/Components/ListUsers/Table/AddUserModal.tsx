@@ -1,6 +1,8 @@
 // ./Table/AddUserModal.tsx
-import { Modal } from 'react-responsive-modal';
-import RegisterAbonados from '../../../../Auth/Pages/RegisterAbonado';
+
+import Modal from "react-responsive-modal";
+import RegisterAbonados from "../../../../Auth/Pages/RegisterAbonados";
+
 
 type MyModalProps = {
   open: boolean;

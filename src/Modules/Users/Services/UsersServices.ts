@@ -14,13 +14,13 @@ export async function updateUserProfile(User: EditUser) : Promise<EditUser>{
   return res.data;
 }
 
+
 export async function getAllUsers(): Promise<Users[]> {
   const res = await apiAxios.get<Users[]>("/users");
   return res.data;
 }
 
-
-// export async function deleteUser(id: number): Promise<void> {
-//   const res = await apiAxios.delete(`/users/${id}`);
-//   return res.data;
-// }
+export async function deleteUser(id: number): Promise<any> {
+  const res = await apiAxios.delete(`/users/${id}`);
+  return res.data;
+}

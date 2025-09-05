@@ -1,4 +1,4 @@
-import UsersTable from "../Components/ProfileUser/ListUsers/UsersTables";
+import UsersTable from "../Components/ListUsers/UsersTables";
 import { useGetAllUsers } from "../Hooks/UsersHooks";
 
 const ListUsers = () => {
@@ -9,7 +9,7 @@ const ListUsers = () => {
 
   return (
     <div className="h-full w-full flex items-center justify-center">
-      <UsersTable data={usersProfiles ?? []} />
+      {usersProfiles && <UsersTable data={usersProfiles} />}
     </div>
   );
 };

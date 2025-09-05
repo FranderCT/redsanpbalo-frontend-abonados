@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getUserProfile, updateUserProfile } from "../Services/UsersServices";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { deleteUser, getAllUsers, getUserProfile, updateUserProfile } from "../Services/UsersServices";
 
 
 export const useGetUserProfile = () => {
