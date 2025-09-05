@@ -40,16 +40,16 @@
             <p className="text-sm text-[#091540]/80 mb-6">{message}</p>
             <div className="flex justify-end gap-3">
             <button
-                onClick={onCancel}
-                className="px-4 py-2 rounded border border-gray-300 text-[#091540]"
-            >
-                {cancelText}
-            </button>
-            <button
                 onClick={onConfirm}
                 className="px-4 py-2 rounded bg-[#091540] text-white"
             >
                 {confirmText}
+            </button>
+            <button
+                onClick={onCancel}
+                className="px-4 py-2 rounded border border-gray-300 text-[#091540]"
+            >
+                {cancelText}
             </button>
             </div>
         </div>

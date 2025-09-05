@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import g28 from "../../../Auth/Assets/g28.png";
-import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, UserCog } from "lucide-react";
+import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, UserCog, Forklift } from "lucide-react";
 import { Can } from "../../../Auth/Components/Can";
 
 const listOptions = [
@@ -49,10 +49,18 @@ const AsideDashboard = () => {
         </Can>
         <Can rule={{ all: ['ADMIN'] }} >
           <button 
-          onClick={() => navigate({ to: "/users/table" })}
+          onClick={() => navigate({ to: "/dashboard/users/table" })}
           className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
             <UserCog  className="size-[23px] transition-colors group-hover:text-white"/>
             <span className="transition-colors ">Usuarios</span>
+          </button>  
+        </Can>
+        <Can rule={{ all: ['ADMIN'] }} >
+          <button 
+          onClick={() => navigate({ to: "/dashboard/users/table" })}
+          className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
+            <Forklift  className="size-[23px] transition-colors group-hover:text-white"/>
+            <span className="transition-colors ">Materiales</span>
           </button>  
         </Can>
         <Can rule={{ any: ['ADMIN', "GUEST", 'ABONADO'] }} >

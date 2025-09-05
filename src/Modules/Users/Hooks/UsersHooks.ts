@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteUser, getAllUsers, getUserProfile, updateUserProfile } from "../Services/UsersServices";
+import { deleteUser, getAllUsers, getUserProfile, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
 
 
 export const useGetUserProfile = () => {
@@ -23,6 +23,17 @@ export const useUpdateUserProfile = () => {
   });
 };
 
+export const useUpdateUserEmail = () => {
+  const navigate = useNavigate();
+  return useMutation({
+    mutationFn: updateUserEmail,
+    onSuccess: () => {
+      console.log("Usuario Actualizado");
+      navigate({ to: "/dashboard/users/profile" });
+    },
+  });
+};
+
 export const useGetAllUsers = () => {
   const { data: usersProfiles, isPending, error } = useQuery({
     queryKey: ["users"],
@@ -35,7 +46,7 @@ export function useDeleteUser() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: deleteUser,
-     onSuccess: () => {
+      onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['users'] })
     },
   })
