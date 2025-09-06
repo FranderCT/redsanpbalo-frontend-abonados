@@ -9,8 +9,7 @@ import {
 import { usersColumns as makeUsersColumns } from "./Columns";
 import PageSizeSelect from "./Table/PageSizeSelect";
 import PaginationControls from "./Table/PaginationControls";
-import OpenModalButton from "../ProfileUser/Modals/OpenModalButton";
-import AddUserModal from "./Table/AddUserModal";
+
 import { useDeleteUser } from "../../Hooks/UsersHooks";
 import type { Users } from "../../Models/Users";
 
@@ -20,7 +19,7 @@ type Props = { data: Users[] };
 const UsersTable = ({ data }: Props) => {
   const deleteUserMutation = useDeleteUser();
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
-  const [open, setOpen] = useState(false);
+  
 
   // Handlers para acciones
   const handleEdit = (id: number) => {
@@ -55,7 +54,7 @@ const UsersTable = ({ data }: Props) => {
           onChange={(size) => table.setPageSize(size)}
         />
 
-        <OpenModalButton onOpen={() => setOpen(true)} label="Añadir un Nuevo Usuario" />
+        
 
         <span className="ml-auto text-sm text-gray-600">
           Total registros: <b>{data.length}</b>
@@ -135,7 +134,7 @@ const UsersTable = ({ data }: Props) => {
         </table>
       </div>
 
-      <AddUserModal open={open} onClose={() => setOpen(false)} />
+      
     </div>
   );
 };
