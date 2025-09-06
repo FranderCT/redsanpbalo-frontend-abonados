@@ -1,7 +1,8 @@
-import type { UserProfile } from "../../Models/User"
+
+import type { Users } from "../../Models/Users"
 
 type Props = {
-  User? : UserProfile
+  User? : Users
 }
 
 const UserPhotoProfile = ({User} : Props) => {
@@ -12,7 +13,7 @@ const UserPhotoProfile = ({User} : Props) => {
         </h3>
         <div className="size-40 lg:size-60 rounded-full overflow-hidden border-4 border-[#091540]/25">
           <img
-            src={User?.ProfilePhoto ?? "/Image02.png"}
+            src={"/Image02.png"}
             className="w-full h-full object-cover border border-gray-200"
           />
         </div>

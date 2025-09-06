@@ -4,12 +4,12 @@ import { deleteUser, getAllUsers, getUserProfile, updateUserEmail, updateUserPro
 
 
 export const useGetUserProfile = () => {
-    const {data: UserProfile, isLoading, error} = useQuery({
+    const {data: Users, isLoading, error} = useQuery({
         queryKey: ['userProfile'],
         queryFn: () => getUserProfile()
     });
 
-    return { UserProfile, isLoading, error };
+    return { Users, isLoading, error };
 }
 
 export const useUpdateUserProfile = () => {

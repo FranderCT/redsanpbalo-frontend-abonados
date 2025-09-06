@@ -5,7 +5,7 @@ import { useGetUserProfile } from "../../Hooks/UsersHooks";
 
 
 const Profile = () => {
-  const {UserProfile} = useGetUserProfile();
+  const {Users} = useGetUserProfile();
   return (
     <main className="flex flex-col justify-center min-h-full w-full bg-[#F9F5FF]">
       {/* Header */}
@@ -14,9 +14,9 @@ const Profile = () => {
       {/* Cards */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Foto de perfil */}
-        <UserPhotoProfile User={UserProfile}/>
+        <UserPhotoProfile User={Users}/>
         {/* Información del usuario */}
-        <UserProfileDetails User={UserProfile}/> 
+        <UserProfileDetails User={Users}/> 
       </section>
     </main>
   )

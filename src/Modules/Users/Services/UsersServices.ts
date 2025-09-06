@@ -2,11 +2,10 @@
 import apiAxios from "../../../api/apiConfig";
 import type { UpdateEmailUser } from "../../SettingsUser/Models/EmailUser";
 import type { EditUser } from "../Models/EditUser";
-import type { UserProfile } from "../Models/User";
 import type { Users } from "../Models/Users";
 
-export async function getUserProfile(): Promise<UserProfile> {
-  const response = await apiAxios.get<UserProfile>(`users/me`);
+export async function getUserProfile(): Promise<Users> {
+  const response = await apiAxios.get<Users>(`users/me`);
   return response.data;
 }
 

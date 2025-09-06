@@ -2,16 +2,15 @@ import type { Role } from "./Roles";
 
 
 export interface Users{
-    Id: number
-    IDcard : string;
+     IDcard : string;
     Name : string;
     Surname1 : string;
     Surname2 : string;
+    ProfilePhoto?: string;
     Nis: string;
     Email: string;
     PhoneNumber: string;
-    BirthDate: string;
+    Birthdate: string;
     Address: string;
-    IsActive : boolean
     Roles : Role[]
 }
