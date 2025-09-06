@@ -24,7 +24,6 @@
     "lucide-react": "^0.541.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-responsive-modal": "^7.0.0",
     "react-toastify": "^11.0.5",
     "tailwindcss": "^4.1.11",
     "zod": "^3.25.76"
