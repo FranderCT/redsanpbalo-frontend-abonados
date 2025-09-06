@@ -1,6 +1,7 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import type { Users } from "../../Models/Users";
 
+
 export const usersColumns = (
   onEdit: (id: number) => void,
   onDelete: (id: number) => void
@@ -54,3 +55,4 @@ export const usersColumns = (
     },
   },
 ];
+// se definen las columnas de la tabla para usuasrios 
