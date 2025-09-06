@@ -4,7 +4,7 @@ import { useGetUserProfile, useUpdateUserProfile } from "../../../Hooks/UsersHoo
 import type { UserProfile } from "../../../Models/User";
 import { useNavigate } from "@tanstack/react-router";
 import UpdateWarning from "./UpdateWarning";
-import { useRef, useState } from "react";
+import {  useState } from "react";
 import { EditProfileSchema } from "../../../schemas/EditProfileSchema";
 import { toast } from "react-toastify";
 import CancelEditWarning from "./UpdateCancelWarning";
