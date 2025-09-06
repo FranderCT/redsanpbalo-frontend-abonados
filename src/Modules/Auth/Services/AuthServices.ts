@@ -18,6 +18,7 @@ export async function Login (Auth: auth): Promise<AuthResponse> {
 }
 
 
+
 export async function ResetPasswd(payload: ResetPassword, token: string): Promise<void> {
   await apiAxios.put(`/auth/reset-password`, payload, {
     headers: { Authorization: `Bearer ${token}` },

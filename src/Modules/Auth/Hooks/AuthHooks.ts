@@ -1,21 +1,39 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { createUser, ForgotPasswd, Login, ResetPasswd } from "../Services/AuthServices";
 import { useNavigate } from "@tanstack/react-router";
 import type { ResetPassword } from "../Models/ResetPassword";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 
 
-export const useCreateUser = () => {
-    const queryClient = useQueryClient()
+// export const useCreateUser = () => {
+//     const queryClient = useQueryClient()
 
-    const mutation = useMutation({
-        mutationFn: createUser,
-        onSuccess: () => { 
-            queryClient.invalidateQueries({ queryKey: ['users'] });
-        },
-    });
+//     const mutation = useMutation({
+//         mutationFn: createUser,
+//         onSuccess: () => { 
+//             queryClient.invalidateQueries({ queryKey: ['users'] });
+//         },
+//     });
 
-    return mutation;
+//     return mutation;
+// }
+
+export const useCreateAbonado = () => {
+  const qc = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: createUser,
+    onSuccess:(res)=>{
+      console.log(res);
+      qc.invalidateQueries({ queryKey: ['abonados'] });
+    },
+    onError:(res)=>{
+      console.log("no se que pudo haber pasado", res)
+    }
+  })
+
+  return mutation;
 }
 
 export const useLogin = () => {

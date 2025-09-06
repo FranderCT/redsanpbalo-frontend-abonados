@@ -1,4 +1,4 @@
-import { createRoute, Outlet } from "@tanstack/react-router";
+import { createRoute } from "@tanstack/react-router";
 import ChangePassword from "../../Auth/Pages/ChangePassword";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
 import SettingsLayout from "../Layouts/SettingsLayout";

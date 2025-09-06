@@ -1,10 +1,8 @@
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "react-toastify";                                                
-import UpdateWarning from "../../Users/Components/ProfileUser/EditProfileUser/UpdateWarning";
+
 import type { UserProfile } from "../../Users/Models/User";
-import { useGetUserProfile, useUpdateUserEmail } from "../../Users/Hooks/UsersHooks";
+import {  useUpdateUserEmail } from "../../Users/Hooks/UsersHooks";
 import { EmailUserInitialState } from "../Models/EmailUser";
 import { EditEmailUserSchema } from "../schemas/EditEmailUserSchema";
 
@@ -12,43 +10,21 @@ type Props = { User?: UserProfile };
 type EditPayload = typeof EmailUserInitialState;
 
 const EditEmailUser = ({ User }: Props) => {
-  const {UserProfile} = useGetUserProfile();
+
   const updateProfile = useUpdateUserEmail();
   const navigate = useNavigate();
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [pendingValues, setPendingValues] = useState<EditPayload | null>(null);
-
+  
   const form = useForm({
     defaultValues: EmailUserInitialState,
     validators: {
           onChange: EditEmailUserSchema,
       },
     onSubmit: async ({ value }) => {
-      setPendingValues(value);
-      setConfirmOpen(true);
+      console.log(value)
     },
   });
 
-  const handleConfirm = async () => {
-    if (!pendingValues) return;
-    try {
-      console.log(pendingValues);
-      await updateProfile.mutateAsync(pendingValues);
-      toast.success('¡Actualización de email exitosa!', { position: 'top-right', autoClose: 3000 });
-      setConfirmOpen(false);
-      setPendingValues(null);
-      navigate({ to: "/dashboard/users/profile" });
-    } catch (e) {
-      console.log(pendingValues);
-      toast.error('¡Actualización de email denegada!', { position: 'top-right', autoClose: 3000 });
-      console.error("Error al actualizar el usuario", e);
-      setConfirmOpen(false);
-    }
-  };
 
-  const handleCancel = () => {
-    setConfirmOpen(false);
-  };
 
   return (
     <div className="bg-[#F9F5FF] flex flex-col content-center w-full max-w-6xl mx-auto px-4 md:px-25 pt-24 pb-20 gap-8">
@@ -139,15 +115,7 @@ const EditEmailUser = ({ User }: Props) => {
           
         </form>
         {/* Modal de confirmación */}
-        <UpdateWarning
-            open={confirmOpen}
-            onConfirm={handleConfirm}
-            onCancel={handleCancel}
-            title="Confirmar cambios"
-            message="¿Deseas aplicar los cambios a tu perfil?"
-            cancelText="No, volver"
-            confirmText="Sí, actualizar"
-          />
+        
       </div>
     </div>
   );

@@ -2,12 +2,10 @@ import { useForm } from "@tanstack/react-form";
 import { EditUserInitialState } from "../../../Models/EditUser";
 import { useGetUserProfile, useUpdateUserProfile } from "../../../Hooks/UsersHooks";
 import type { UserProfile } from "../../../Models/User";
-import { useNavigate } from "@tanstack/react-router";
-import UpdateWarning from "./UpdateWarning";
-import { useRef, useState } from "react";
+
 import { EditProfileSchema } from "../../../schemas/EditProfileSchema";
-import { toast } from "react-toastify";
-import CancelEditWarning from "./UpdateCancelWarning";
+
+
 
 
 type Props = { User?: UserProfile };
@@ -16,10 +14,6 @@ type EditPayload = typeof EditUserInitialState;
 const EditProfile = ({ User }: Props) => {
   const {UserProfile} = useGetUserProfile();
   const updateProfile = useUpdateUserProfile();
-  const navigate = useNavigate();
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [cancelOpen, setCancelOpen] = useState(false); 
-  const [pendingValues, setPendingValues] = useState<EditPayload | null>(null);
 
   const form = useForm({
     defaultValues: EditUserInitialState,
@@ -27,33 +21,11 @@ const EditProfile = ({ User }: Props) => {
           onChange: EditProfileSchema,
       },
     onSubmit: async ({ value }) => {
-      setPendingValues(value);
-      setConfirmOpen(true);
+      console.log(value)
     },
   });
 
-  const handleConfirm = async () => {
-    if (!pendingValues) return;
-    try {
-      console.log(pendingValues);
-      await updateProfile.mutateAsync(pendingValues);
-      toast.success('¡Actualización exitosa!', { position: 'top-right', autoClose: 3000 });
-      setConfirmOpen(false);
-      setPendingValues(null);
-      navigate({ to: "/dashboard/users/profile" });
-    } catch (e) {
-      console.log(pendingValues);
-      toast.error('¡Actualización denegada!', { position: 'top-right', autoClose: 3000 });
-      console.error("Error al actualizar el usuario", e);
-      setConfirmOpen(false);
-    }
-  };
 
-  const handleCancel = () => {
-    setConfirmOpen(false);
-    setPendingValues(null);
-    form.reset();
-  };
 
   return (
     <div className="bg-[#F9F5FF] flex flex-col content-center w-full max-w-6xl mx-auto px-4 md:px-25 pt-24 pb-20 gap-8">
@@ -197,36 +169,11 @@ const EditProfile = ({ User }: Props) => {
               )}
             </form.Subscribe>
 
-            <button
-              type="button"
-              onClick={() => setCancelOpen(true)}           // <- antes navegabas directo
-              className="hover:bg-[#F6132D] text-[#F6132D] hover:text-white ring font-bold w-25 p-2 rounded-sm"
-            >
-              Cancelar
-            </button>
+           
           </div>
           
         </form>
-        <CancelEditWarning
-        open={cancelOpen}
-        onStay={() => setCancelOpen(false)}           // seguir editando
-        onExit={() => {                               // salir sin guardar
-          form.reset();                               // vuelve a defaults
-          setPendingValues(null);
-          setCancelOpen(false);
-          navigate({ to: "/dashboard/users/profile" });
-        }}
-      />
-              {/* Modal de confirmación */}
-        <UpdateWarning
-            open={confirmOpen}
-            onConfirm={handleConfirm}
-            onCancel={handleCancel}
-            title="Confirmar cambios"
-            message="¿Deseas aplicar los cambios a tu perfil?"
-            confirmText="Sí, actualizar"
-            cancelText="No, volver"
-          />
+        
       </div>
     </div>
   );

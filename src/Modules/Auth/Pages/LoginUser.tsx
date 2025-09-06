@@ -111,7 +111,7 @@ const LoginUser = () => {
                         >
                         {/* Link: debajo del botón en mobile, a la izquierda en desktop */}
                         <Link
-                            to="/auth/forgot-password"
+                            to="/forgot-password"
                             className="
                             underline font-medium cursor-pointer text-[#1789FC]
                             text-center md:text-left
@@ -140,9 +140,9 @@ const LoginUser = () => {
           </div>
 
           <p className="mt-6 text-sm md:text-lg text-[#091540] text-center">
-            ¿Ya tenés una cuenta?{' '}
+            ¿Ya tienes una cuenta?{' '}
             <Link to="/register" className="underline font-medium text-[#1789FC] cursor-pointer">
-              Registrate aquí
+              Regístrate aquí
             </Link>
           </p>
         </div>

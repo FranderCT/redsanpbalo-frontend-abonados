@@ -1,12 +1,13 @@
 import { useForm } from '@tanstack/react-form';
 import { RegisterUserInitialState } from '../Models/RegisterUser';
-import { useCreateUser } from '../Hooks/AuthHooks';
+
 import { RegisterSchema } from '../schemas/RegisterSchemas';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from '@tanstack/react-router';
+import { useCreateAbonado } from '../Hooks/AuthHooks';
 
 const RegisterAbonados = () => {
-  const createUserMutation = useCreateUser();
+  const createUserMutation = useCreateAbonado();
   const navigate = useNavigate();
 
   const form = useForm({
