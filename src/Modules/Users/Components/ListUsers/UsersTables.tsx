@@ -9,7 +9,7 @@ import { usersColumns as makeUsersColumns } from "./usersColumns";
 import PaginationControls from "./Table/PaginationControls";
 import { useDeleteUser } from "../../Hooks/UsersHooks";
 import type { Users } from "../../Models/Users";
-import AddUserModal from "../CreateUserModal/AddUserModal";
+import AddUserModal from "../ListUsersModals/AddUserModal";
 
 
 type Props = { data: Users[] };
