@@ -1,7 +1,9 @@
 
 import apiAxios from "../../../api/apiConfig";
+import type { RegisterUser } from "../../Auth/Models/RegisterUser";
 import type { UpdateEmailUser } from "../../SettingsUser/Models/EmailUser";
 import type { EditUser } from "../Models/EditUser";
+import type { Roles } from "../Models/Roles";
 import type { UserProfile } from "../Models/User";
 import type { Users } from "../Models/Users";
 
@@ -21,11 +23,26 @@ export async function updateUserProfile(User: EditUser) : Promise<EditUser>{
 }
 
 export async function getAllUsers(): Promise<Users[]> {
-  const res = await apiAxios.get<Users[]>("/users");
+  const res = await apiAxios.get<Users[]>(`/users`);
   return res.data;
 }
 
 export async function deleteUser(id: number): Promise<any> {
   const res = await apiAxios.delete(`/users/${id}`);
   return res.data;
+}
+
+export async function createUserModal(user: Omit<RegisterUser, "ConfirmPassword"> & { RoleIds: number[] }) {
+  const { data } = await apiAxios.post("/users", user);
+  return data;
+}
+
+export async function getAllRoles(): Promise<Roles[]> {
+  try{
+   const { data } = await apiAxios.get<Roles[]>("/roles");
+    return data;
+  }catch(err){
+    console.log(err);
+    return Promise.reject(err);
+  }
 }

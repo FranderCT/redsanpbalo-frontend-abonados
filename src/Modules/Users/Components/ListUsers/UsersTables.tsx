@@ -9,6 +9,7 @@ import { usersColumns as makeUsersColumns } from "./usersColumns";
 import PaginationControls from "./Table/PaginationControls";
 import { useDeleteUser } from "../../Hooks/UsersHooks";
 import type { Users } from "../../Models/Users";
+import AddUserModal from "../CreateUserModal/AddUserModal";
 
 
 type Props = { data: Users[] };
@@ -42,7 +43,8 @@ const UsersTable = ({ data }: Props) => {
   return (
   <div className="space-y-4 w-full">
   
-
+  <AddUserModal />
+  
   {/* Card tabla */}
   <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
     <div className="overflow-auto max-h-[70vh]">

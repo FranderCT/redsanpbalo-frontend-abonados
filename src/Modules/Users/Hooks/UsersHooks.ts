@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteUser, getAllUsers, getUserProfile, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
+import { createUserModal, deleteUser, getAllRoles, getAllUsers, getUserProfile, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
+
 
 
 export const useGetUserProfile = () => {
@@ -35,9 +36,11 @@ export const useUpdateUserEmail = () => {
 };
 
 export const useGetAllUsers = () => {
+  
   const { data: usersProfiles, isPending, error } = useQuery({
     queryKey: ["users"],
     queryFn: getAllUsers,
+    
   });
   return { usersProfiles, isPending, error };
 };
@@ -51,3 +54,27 @@ export function useDeleteUser() {
     },
   })
 }
+
+export const useCreateUser = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: createUserModal,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: () =>{
+      console.error("error al crear un usuario");
+    }
+  });
+};
+
+
+
+export const useGetAllRoles = () => {
+  const {data: roles = [],isLoading,error,} = useQuery({
+    queryKey: ["roles"],
+    queryFn: getAllRoles,    
+  });
+
+  return { roles, isLoading, error };
+};
