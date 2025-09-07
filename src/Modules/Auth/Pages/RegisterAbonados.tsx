@@ -59,7 +59,7 @@ const RegisterAbonados = () => {
             basis-1/2 shrink-0
             bg-cover bg-center bg-no-repeat
             flex-col justify-between items-center
-            px-4 py-8 relative shadow-xl/30 rounded-xl
+            px-4 py-8 relative shadow-xl/30
           "
           style={{ backgroundImage: "url('/Image01.jpg')" }}
         >
@@ -322,12 +322,14 @@ const RegisterAbonados = () => {
               <form.Field name="Address">
                 {(field) => (
                   <>
-                    <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                    <textarea
+                      className="w-full max-w-full px-4 py-2 min-h-10 max-h-18 overflow-y-auto resize-y bg-gray-100 text-[#091540] rounded-md text-sm"
                       placeholder="Dirección"
-                      type="text"
-                      value={field.state.value}
+                      value={field.state.value ?? ""}
                       onChange={(e) => field.handleChange(e.target.value)}
+                      rows={3}
+                      autoComplete="street-address"
+                      spellCheck
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">

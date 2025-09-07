@@ -5,14 +5,16 @@ import {
   getPaginationRowModel,
   flexRender,
 } from "@tanstack/react-table";
-
 import { usersColumns as makeUsersColumns } from "./usersColumns";
 import PageSizeSelect from "./Table/PageSizeSelect";
 import PaginationControls from "./Table/PaginationControls";
 import { useDeleteUser } from "../../Hooks/UsersHooks";
 import type { Users } from "../../Models/Users";
-import ConfirmActionModal from "../../../../Components/Modals/ConfirmActionModal";
-
+import DeleteActionModal from "../../../../Components/Modals/DeleteActionModal";
+import CreateNewUser from "./Table/CreateNewUser";
+import { useQueryClient } from "@tanstack/react-query";
+import g28 from "../../../Auth/Assets/g28.png";
+import { toast } from "react-toastify";
 
 type Props = { data: Users[] };
 
@@ -20,14 +22,17 @@ const UsersTable = ({ data }: Props) => {
   const deleteUserMutation = useDeleteUser();
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
-  // Estado para el modal de confirmación
+  // estado para modal de crear usuario
+  const [openCreate, setOpenCreate] = useState(false);
+
+  // Estado para el modal de confirmación (eliminar)
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
 
-  // Handlers para acciones
+ const queryClient = useQueryClient(); 
+
   const handleEdit = (id: number) => {
     console.log("Editar usuario:", id);
-    // aquí abres tu modal de edición o navegas a /users/:id/edit
   };
 
   const handleDelete = (id: number) => {
@@ -40,6 +45,7 @@ const UsersTable = ({ data }: Props) => {
     try {
       await deleteUserMutation.mutateAsync(pendingDeleteId);
       console.log("usuario eliminado");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     } finally {
       setPendingDeleteId(null);
       setConfirmOpen(false);
@@ -47,8 +53,14 @@ const UsersTable = ({ data }: Props) => {
   };
 
   const onCancelDelete = () => {
-    setPendingDeleteId(null);
-    setConfirmOpen(false);
+  setPendingDeleteId(null);
+  setConfirmOpen(false);
+  toast.info("Acción cancelada", { position: "top-right", autoClose: 3000 });
+  };
+
+  const handleCloseCreate = () => {
+  setOpenCreate(false);
+  toast.info("Registro cancelado", { position: "top-right", autoClose: 3000 });
   };
 
   const table = useReactTable({
@@ -70,13 +82,19 @@ const UsersTable = ({ data }: Props) => {
           value={pageSize}
           onChange={(size) => table.setPageSize(size)}
         />
-        
+        <button
+          className="px-3 py-1 text-sm bg-[#091540] text-white hover:bg-[#1789FC] transition"
+          onClick={() => setOpenCreate(true)}
+        >
+          Añadir un nuevo usuario
+        </button>
+
         <span className="ml-auto text-sm text-gray-600">
           Total registros: <b>{data.length}</b>
         </span>
       </div>
 
-  
+      {/* Tabla */}
       <div className="overflow-x-auto shadow-xl">
         <table className="min-w-full border-collapse border border-gray-300">
           <thead>
@@ -145,6 +163,7 @@ const UsersTable = ({ data }: Props) => {
         </table>
       </div>
 
+      {/* Modal de ELIMINAR */}
       {confirmOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
@@ -152,15 +171,50 @@ const UsersTable = ({ data }: Props) => {
           onClick={onCancelDelete}
         >
           <div onClick={(e) => e.stopPropagation()}>
-            <ConfirmActionModal
-              title="¿Inhabilitar usuario?"
-              description="¿Está seguro de querer inhabilitar este usuario?"
-              confirmLabel={deleteUserMutation.isPending ? "Inhabilitando..." : "Inhabilitar"}
+            <DeleteActionModal
+              confirmLabel={deleteUserMutation.isPending ? "..." : "Inhabilitar"}
               cancelLabel="Cancelar"
               onConfirm={onConfirmDelete}
               onCancel={onCancelDelete}
               onClose={onCancelDelete}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Modal de CREAR USUARIO */}
+      {openCreate && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="presentation"
+          onClick={handleCloseCreate} 
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-3xl rounded-sm shadow-xl border border-gray-200 bg-[#F9F5FF]"
+          >
+            {/* Header modal */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-dashed border-gray-300">
+              <img src={g28} alt="Logo ASADA" className="w-15 h-15 object-contain" />
+              <button
+                type="button"
+                onClick={handleCloseCreate}
+                className="px-3 py-1 text-[#091540] border border-[#091540]/30 hover:bg-[#F6132D] hover:text-white transition"
+                aria-label="Cerrar modal"
+              >
+                Cerrar
+              </button>
+            </div>
+
+            {/* Body modal (scroll) */}
+            <div className="max-h-[75vh] overflow-y-auto px-5 py-6">
+              <CreateNewUser
+                onSuccess={() => {
+                  queryClient.invalidateQueries({ queryKey: ["users"] });
+                  setOpenCreate(false);
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
