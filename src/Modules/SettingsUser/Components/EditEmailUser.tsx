@@ -1,44 +1,73 @@
+import React from "react";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
-
-import type { UserProfile } from "../../Users/Models/User";
-import {  useUpdateUserEmail } from "../../Users/Hooks/UsersHooks";
+import { useUpdateUserEmail } from "../../Users/Hooks/UsersHooks";
 import { EmailUserInitialState } from "../Models/EmailUser";
 import { EditEmailUserSchema } from "../schemas/EditEmailUserSchema";
+import ConfirmActionModal from "../../../Components/Modals/ConfirmActionModal";
+import { toast } from "react-toastify";
 
-type Props = { User?: UserProfile };
 type EditPayload = typeof EmailUserInitialState;
 
-const EditEmailUser = ({ User }: Props) => {
-
+const EditEmailUser = () => {
   const updateProfile = useUpdateUserEmail();
   const navigate = useNavigate();
-  
+
+  // Estado para modal y payload pendiente
+  const [openConfirm, setOpenConfirm] = React.useState(false);
+  const pendingValuesRef = React.useRef<EditPayload | null>(null);
+
   const form = useForm({
     defaultValues: EmailUserInitialState,
-    validators: {
-          onChange: EditEmailUserSchema,
-      },
+    validators: { onChange: EditEmailUserSchema },
     onSubmit: async ({ value }) => {
-      console.log(value)
+      // Primero confirmamos con modal
+      pendingValuesRef.current = value as EditPayload;
+      setOpenConfirm(true);
     },
   });
 
+  const handleConfirmUpdate = async () => {
+  if (!pendingValuesRef.current) return;
+  try {
+    await updateProfile.mutateAsync(pendingValuesRef.current);
+    toast.success("¡Actualización exitosa!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+    navigate({ to: "/dashboard/users/profile" });
+  } catch (error) {
+    toast.error("¡Error al actualizar el correo!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  } finally {
+    setOpenConfirm(false);
+    pendingValuesRef.current = null;
+  }
+};
 
+const handleCancelUpdate = () => {
+  toast.info("¡Actualización cancelada!", {
+    position: "top-right",
+    autoClose: 3000,
+  });
+  setOpenConfirm(false);
+  pendingValuesRef.current = null;
+};
 
   return (
     <div className="bg-[#F9F5FF] flex flex-col content-center w-full max-w-6xl mx-auto px-4 md:px-25 pt-24 pb-20 gap-8">
       <div>
-        <h1 className="text-2xl font-bold text-[#091540]">Editar email de usuario</h1>
-        <h3 className="text-[#091540]/70 text-md">Modifique aquí los datos de su perfil</h3>
+        <h1 className="text-2xl font-bold text-[#091540]">Editar información de usuario</h1>
+        <h3 className="text-[#091540]/70 text-md">Modifique su correo electrónico</h3>
         <div className="border-b border-dashed border-gray-300 p-2"></div>
       </div>
 
-      <div className="w-full max-w-md mx-auto flex flex-col items-center border border-gray-200 gap-4 shadow-xl rounded-sm bg-[#F9F5FF] p-6" >
-        
+      <div className="w-full max-w-md mx-auto flex flex-col items-center border border-gray-200 gap-4 shadow-xl rounded-sm bg-[#F9F5FF] p-6">
         <div className="p-3">
           <h2 className="md:text-3xl font-bold text-[#091540] text-center gap-4">
-            Editar correo electronico
+            Editar correo electrónico
           </h2>
           <hr className="border-t-2 border-dashed border-[#091540] m-1" />
         </div>
@@ -50,7 +79,7 @@ const EditEmailUser = ({ User }: Props) => {
           }}
           className="w-full max-w-md p-2 flex flex-col gap-6"
         >
-          {/* Email */}
+          {/* Email actual */}
           <form.Field name="OldEmail">
             {(field) => (
               <>
@@ -70,7 +99,8 @@ const EditEmailUser = ({ User }: Props) => {
               </>
             )}
           </form.Field>
-          {/* Email */}
+
+          {/* Email nuevo */}
           <form.Field name="NewEmail">
             {(field) => (
               <>
@@ -96,27 +126,40 @@ const EditEmailUser = ({ User }: Props) => {
               {([canSubmit, isSubmitting, isDirty]) => (
                 <button
                   type="submit"
-                  className="bg-[#091540] hover:bg-blue-600 text-white flex justify-center items-center font-bold w-25 rounded disabled:opacity-50 px-4 py-2"
+                  className="bg-[#091540] hover:bg-blue-600 text-white flex justify-center items-center font-bold w-25 disabled:opacity-50 px-4 py-2"
                   disabled={!canSubmit || !isDirty || updateProfile.isPending}
                 >
                   {isSubmitting || updateProfile.isPending ? "..." : "Confirmar"}
                 </button>
               )}
             </form.Subscribe>
-
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/dashboard/users/profile" })}
-              className="hover:bg-[#F6132D] text-[#F6132D] hover:text-white ring font-bold w-25 p-2 rounded-sm"
-            >
-              Cancelar
-            </button>
           </div>
-          
         </form>
-        {/* Modal de confirmación */}
-        
       </div>
+
+      {/* Modal de confirmación (mismo patrón que en EditProfile) */}
+      {openConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="presentation"
+          onClick={handleCancelUpdate}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <ConfirmActionModal
+              description={
+                pendingValuesRef.current
+                  ? `Se actualizará tu correo de "${pendingValuesRef.current.OldEmail}" a "${pendingValuesRef.current.NewEmail}".`
+                  : "Se actualizará tu correo."
+              }
+              confirmLabel="Confirmar"
+              cancelLabel="Cancelar"
+              onConfirm={handleConfirmUpdate}
+              onCancel={handleCancelUpdate}
+              onClose={handleCancelUpdate}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

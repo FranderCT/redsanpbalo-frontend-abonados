@@ -1,20 +1,20 @@
     import { useState } from "react";
-    import { Outlet, Link, useNavigate } from "@tanstack/react-router";
-    import { User, Lock, Mail, Menu } from "lucide-react";
+    import { Outlet, Link} from "@tanstack/react-router";
+    import { User, Lock, Menu, Mail } from "lucide-react";
 
     const navItems = [
     { to: "/dashboard/users/profile", label: "Ver perfil", icon: <User className="h-4 w-4" /> },
     { to: "/dashboard/settings/change-password", label: "Cambiar contraseña", icon: <Lock className="h-4 w-4" /> },
-    //{ to: "/dashboard/settings/change-email", label: "Cambiar correo", icon: <Mail className="h-4 w-4" /> },
+    { to: "/dashboard/settings/change-email", label: "Cambiar correo", icon: <Mail className="h-4 w-4" /> },
     ];
 
     const NavLink = ({ to, label, icon }: { to: string; label: string; icon: React.ReactNode }) => (
     <Link
         to={to}
         activeOptions={{ exact: true }}
-        activeProps={{ className: "bg-[#F1EDFF] text-[#5531D6] border-[#5531D6]" }}
+        activeProps={{ className: "bg-[#091540] text-white border-[#5531D6]" }}
         inactiveProps={{ className: "text-gray-700 hover:bg-gray-50" }}
-        className="flex items-center gap-2 rounded-xl border border-transparent px-3 py-2 transition-colors"
+        className="flex items-center gap-2  border border-transparent px-3 py-2 transition-colors"
     >
         {icon}
         <span className="text-sm font-medium">{label}</span>
@@ -22,8 +22,7 @@
     );
 
     const SettingsLayout = () => {
-        const navigate = useNavigate();
-    const [open, setOpen] = useState(false);
+        const [open, setOpen] = useState(false);
 
     return (
         <div className="flex min-h-[calc(100vh-64px)] bg-[#F9F5FF]">
@@ -55,7 +54,7 @@
             }`}
         >
             <div className="p-4">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Configursación</h2>
+            <h2 className="text-sm font-semibold text-gray-900 mb-3">Configuración</h2>
             <nav className="flex flex-col gap-1">
                 {navItems.map((n) => (
                 <NavLink key={n.to} {...n} />
