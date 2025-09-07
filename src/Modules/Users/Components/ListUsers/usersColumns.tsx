@@ -3,7 +3,7 @@ import type { Users } from "../../Models/Users";
 
 
 export const usersColumns = (
-  onEdit: (id: number) => void,
+   onEdit: (user: Users) => void,   
   onDelete: (id: number) => void
 ): ColumnDef<Users>[] => [
   {
@@ -39,7 +39,7 @@ export const usersColumns = (
       return (
         <div className="flex gap-2">
           <button
-            onClick={() => onEdit(user.Id)}
+            onClick={() => onEdit(user)}
             className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Editar

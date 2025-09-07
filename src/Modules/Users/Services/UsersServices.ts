@@ -5,7 +5,8 @@ import type { UpdateEmailUser } from "../../SettingsUser/Models/EmailUser";
 import type { EditUser } from "../Models/EditUser";
 import type { Roles } from "../Models/Roles";
 import type { UserProfile } from "../Models/User";
-import type { Users } from "../Models/Users";
+import type { Users, UserUpdate } from "../Models/Users";
+
 
 export async function getUserProfile(): Promise<UserProfile> {
   const response = await apiAxios.get<UserProfile>(`users/me`);
@@ -41,6 +42,16 @@ export async function getAllRoles(): Promise<Roles[]> {
   try{
    const { data } = await apiAxios.get<Roles[]>("/roles");
     return data;
+  }catch(err){
+    console.log(err);
+    return Promise.reject(err);
+  }
+}
+
+export async function updateUser(id: number, payloads: UserUpdate) : Promise<Users>{
+  try{
+    const res = await apiAxios.put<Users>(`users/${id}`, payloads);
+    return res.data;
   }catch(err){
     console.log(err);
     return Promise.reject(err);

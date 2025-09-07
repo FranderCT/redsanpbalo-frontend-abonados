@@ -49,3 +49,13 @@ export const RegisterUserModalInitialState: RegisterUserForm = {
   ConfirmPassword: '',
   IsAbonado: false,
 }
+
+export interface UserUpdate {
+  PhoneNumber : string;
+  Address : string;
+}
+
+export const updateUserInitialState : UserUpdate = {
+  PhoneNumber : '',
+  Address : '',
+}

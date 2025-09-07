@@ -1,6 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createUserModal, deleteUser, getAllRoles, getAllUsers, getUserProfile, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
+import { createUserModal, deleteUser, getAllRoles, getAllUsers, getUserProfile, updateUser, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
+import type { Users, UserUpdate } from "../Models/Users";
 
 
 
@@ -77,4 +78,20 @@ export const useGetAllRoles = () => {
   });
 
   return { roles, isLoading, error };
+};
+
+
+export const useUpdateUser = () => {
+  const qc = useQueryClient();
+
+  return useMutation<Users, Error, { id: number; data: UserUpdate }>({
+    mutationFn: ({ id, data }) => updateUser(id, data),
+    onSuccess: () => {
+      // refresca la tabla
+      qc.invalidateQueries({ queryKey: ["users"] });
+    },
+    onError: (err) => {
+      console.error("Error al actualizar el usuario:", err);
+    },
+  });
 };

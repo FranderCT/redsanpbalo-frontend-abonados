@@ -5,8 +5,6 @@ import MaterialModal from "./MaterialModal";
 import EditMaterialForm from "../Pages/EditMaterialForm";
 
 
-
-
 const EditMaterialModal = ({
   selected,
   onClose,
@@ -25,3 +23,4 @@ const EditMaterialModal = ({
 };
 
 export default EditMaterialModal;
+  

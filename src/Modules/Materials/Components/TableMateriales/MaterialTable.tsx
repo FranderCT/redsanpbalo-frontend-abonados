@@ -131,7 +131,7 @@ const MaterialTable = ({ data }: Props) => {
       </div>
 
       {/* Modal de edición */}
-      <EditMaterialModal selected={selected} onClose={() => setSelected(null)} />
+      w
 
       {/* Modal de eliminación (solo id) */}
       <DeleteMaterialModal id={deleteId} onClose={() => setDeleteId(null)} />
