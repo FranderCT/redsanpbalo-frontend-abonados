@@ -60,14 +60,14 @@ const handleCancelUpdate = () => {
     <div className="bg-[#F9F5FF] flex flex-col content-center w-full max-w-6xl mx-auto px-4 md:px-25 pt-24 pb-20 gap-8">
       <div>
         <h1 className="text-2xl font-bold text-[#091540]">Editar información de usuario</h1>
-        <h3 className="text-[#091540]/70 text-md">Modifique su correo electrónico</h3>
+        <h3 className="text-[#091540]/70 text-md">Modifique aquí su correo electrónico</h3>
         <div className="border-b border-dashed border-gray-300 p-2"></div>
       </div>
 
       <div className="w-full max-w-md mx-auto flex flex-col items-center border border-gray-200 gap-4 shadow-xl rounded-sm bg-[#F9F5FF] p-6">
         <div className="p-3">
           <h2 className="md:text-3xl font-bold text-[#091540] text-center gap-4">
-            Editar correo electrónico
+            Cambiar correo electrónico
           </h2>
           <hr className="border-t-2 border-dashed border-[#091540] m-1" />
         </div>
