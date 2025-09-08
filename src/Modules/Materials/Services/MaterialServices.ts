@@ -1,27 +1,30 @@
+// Services/MaterialServices.ts
 import apiAxios from "../../../api/apiConfig";
-import type { Material, NewMaterial } from "../Models/Material";
+import type { Material } from "../Models/Material";
 
+const BASE = "/material"; 
 
-export async function createMaterial(payload: NewMaterial): Promise<Material> {
-  const res = await apiAxios.post<Material>("/material", payload);
+export async function getAllMaterials(): Promise<Material[]> {
+  const res = await apiAxios.get<Material[]>(BASE);
   return res.data;
 }
 
-
-export async function getAllMaterials () : Promise<Material[]>{
-    const res = await apiAxios.get<Material[]>(`/material`);
-    return res.data;
-}
-
-export async function updateMaterial(
-  id: number,
-  payload: NewMaterial
-): Promise<Material> {
-  const res = await apiAxios.put<Material>(`/material/${id}`, payload);
+export async function getMaterialById(id: number): Promise<Material> {
+  const res = await apiAxios.get<Material>(`${BASE}/${id}`);
   return res.data;
 }
 
+export async function createMaterial(payload: Material): Promise<Material> {
+  const res = await apiAxios.post<Material>(BASE, payload);
+  return res.data;
+}
+
+export async function updateMaterial(id: number, payload: Material): Promise<Material> {
+  // Usa PATCH si tu backend lo espera
+  const res = await apiAxios.patch<Material>(`${BASE}/${id}`, payload);
+  return res.data;
+}
 
 export async function deleteMaterial(id: number): Promise<void> {
-  await apiAxios.delete<void>(`/material/${id}`);
+  await apiAxios.delete(`${BASE}/${id}`);
 }

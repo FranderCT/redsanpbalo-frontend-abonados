@@ -10,7 +10,7 @@ type Props = {
   onClose?: () => void;
 };
 
-export default function ConfirmActionModal({
+export default function InhabilityActionModal({
   title = "¿Confirmar cambios?",
   description = "¿Está seguro de querer actualizar su información?",
   confirmLabel = "Confirmar",
@@ -57,7 +57,7 @@ export default function ConfirmActionModal({
          <button
           type="button"
           onClick={() => onConfirm?.()}
-          className="h-[35px] w-1/2 bg-[#68D89B] font-semibold text-white transition-colors hover:bg-[#57c58a] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-300"
+          className="h-[35px] w-1/2 bg-[#F6132D] font-semibold text-white transition-colors hover:bg-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-300"
         >
           {confirmLabel}
         </button>

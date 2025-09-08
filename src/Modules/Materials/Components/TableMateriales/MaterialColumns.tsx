@@ -1,14 +1,17 @@
-// Modules/Materials/MaterialColumns.tsx
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Material } from "../../Models/Material";
+import DeleteMaterialButton from "../../Modals/DeleteMaterialModal";
+
+// Tipo de fila extendido para la UI (NO cambia tu modelo base)
+export type RowMaterial = Material & {
+  Id: number;
+  IsActive?: boolean;
+};
 
 export const MaterialColumns = (
-  onEdit: (material: Material) => void,
-  onDelete: (id: number) => void
-): ColumnDef<Material>[] => [
+  onEdit: (material: RowMaterial) => void
+): ColumnDef<RowMaterial>[] => [
   { accessorKey: "Name", header: "Nombre del Material" },
-  { accessorKey: "Description", header: "Descripción" },
-  { accessorKey: "Unit", header: "Unidad" },
   {
     accessorKey: "IsActive",
     header: "Estatus",
@@ -22,17 +25,13 @@ export const MaterialColumns = (
       return (
         <div className="flex gap-2">
           <button
+            type="button"
             onClick={() => onEdit(material)}
-            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-3 py-1 text-sm bg-blue-500 text-white hover:bg-blue-600"
           >
             Editar
           </button>
-          <button
-            onClick={() => onDelete(material.Id)}
-            className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Eliminar
-          </button>
+          <DeleteMaterialButton material={material} />
         </div>
       );
     },
