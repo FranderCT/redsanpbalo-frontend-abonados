@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useCreateUnitMeasure } from "../Hooks/UnitMeasureHooks";
 import { useForm } from "@tanstack/react-form";
-import { unitInitialState } from "../Models/unit";
+
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../Components/Modals/ModalBase";
+import { NewUnitInitialState } from "../Models/unit";
 
 const CreateUnitMeasureModal = () => {
   const [open, setOpen] = useState(false);
   const createUnitMeasureMutation = useCreateUnitMeasure();
 
   const form = useForm({
-    defaultValues: unitInitialState,
+    defaultValues: NewUnitInitialState,
     onSubmit: async ({ value, formApi }) => {
       try {
         await createUnitMeasureMutation.mutateAsync(value);
