@@ -1,8 +1,10 @@
 :root {
   background-color: #fff;
+  color:#091540;
 }
-
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Oswald:wght@500&display=swap');
 @import "tailwindcss";
+
 
 .input-base {
     @apply w-full px-4 py-2 text-[#091540] border border-[#091540] text-sm;

@@ -2,25 +2,18 @@ import { useNavigate } from "@tanstack/react-router";
 import g28 from "../../../Auth/Assets/g28.png";
 import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, UserCog, Forklift } from "lucide-react";
 import { Can } from "../../../Auth/Components/Can";
-
-const listOptions = [
-  { name: "Principal", to: "/dashboard", icon: Home },
-  { name: "Solicitudes", to: "/solicitudes", icon: FileText },
-  { name: "Notificaciones", to: "/notificaciones", icon: Bell },
-  { name: "Reportes", to: "/reportes", icon: OctagonAlert },
-  { name: "Proyectos", to: "/proyectos", icon: Hammer },
-  { name: "Ajustes", to: "/ajustes", icon: Settings },
-];
+import SidebarDropdown from "./SidebarDropdown";
 
 const AsideDashboard = () => {
   const navigate = useNavigate();
 
-  const goLogin = () =>{
-    navigate({to: "/login"});
-  }
+  const goLogin = () => {
+    navigate({ to: "/login" });
+  };
 
   return (
-    <div className="bg-[#F9F5FF] h-dvh flex flex-col">
+    // min-h-0 permite que overflow-y-auto funcione dentro del flex container
+    <div className="bg-[#F9F5FF] h-dvh min-h-0 flex flex-col">
       {/* Branding */}
       <div className="flex items-center gap-3 px-4 pt-6 pb-4 flex-col">
         <img src={g28} alt="Logo ASADA" className="w-20 h-20 object-contain" />
@@ -30,71 +23,86 @@ const AsideDashboard = () => {
       {/* Línea separadora */}
       <div className="h-px bg-black/10 mx-4 mb-2" />
 
-      {/* Navegación */}
-      <nav className="flex-1 px-2 py-2 flex flex-col gap-2">
-        {/* <Can rule={{ any: ['ADMIN', 'OFFICE'] }} fallback="No autorizado">
-          <PanelAdmin />
-        </Can> */}
-        <Can rule={{ any: ['ADMIN', "GUEST" , 'ABONADO'] }} >
-          <button 
+      {/* Navegación con scroll + scrollbar estilizado */}
+      <nav className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+        <Can rule={{ any: ["ADMIN", "GUEST", "ABONADO"] }}>
+          <button
             onClick={() => navigate({ to: "/dashboard" })}
-            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
-            <Home className="size-[23px] transition-colors group-hover:text-white"/>
-            <span className="transition-colors ">Principal</span>
-          </button>  
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+          >
+            <Home className="size-[23px] transition-colors group-hover:text-white" />
+            <span className="transition-colors">Principal</span>
+          </button>
         </Can>
-        <Can rule={{ any: ['ADMIN', "GUEST" , 'ABONADO'] }} >
+
+        <Can rule={{ any: ["ADMIN", "GUEST", "ABONADO"] }}>
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
-            <FileText className="size-[23px] transition-colors group-hover:text-white"/>
-            <span className="transition-colors ">Solicitudes</span>
-          </button>  
+            <FileText className="size-[23px] transition-colors group-hover:text-white" />
+            <span className="transition-colors">Solicitudes</span>
+          </button>
         </Can>
-        <Can rule={{ all: ['ADMIN'] }} >
-          <button 
-          onClick={() => navigate({ to: "/dashboard/users/table" })}
-          className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
-            <UserCog  className="size-[23px] transition-colors group-hover:text-white"/>
-            <span className="transition-colors ">Usuarios</span>
-          </button>  
+
+        <Can rule={{ all: ["ADMIN"] }}>
+          <button
+            onClick={() => navigate({ to: "/dashboard/users/table" })}
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+          >
+            <UserCog className="size-[23px] transition-colors group-hover:text-white" />
+            <span className="transition-colors">Usuarios</span>
+          </button>
         </Can>
-        <Can rule={{ all: ['ADMIN'] }} >
-          <button 
-          onClick={() => navigate({ to: "/dashboard/materials/table" })}
-          className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
-            <Forklift  className="size-[23px] transition-colors group-hover:text-white"/>
-            <span className="transition-colors ">Materiales</span>
-          </button>  
+
+        {/* Dropdown Productos */}
+        <Can rule={{ all: ["ADMIN"] }}>
+          <SidebarDropdown
+            icon={<Forklift className="size-[23px] transition-colors group-hover:text-white" />}
+            label="Productos"
+            items={[
+              { label: "Productos", onClick: () => navigate({ }) },
+              { label: "Materiales", onClick: () => navigate({ to: "/dashboard/materials/table" }) },
+              { label: "Categorías", onClick: () => navigate({  }) },
+              { label: "Unidad de medidas", onClick: () => navigate({  }) },
+            ]}
+          />
         </Can>
-        <Can rule={{ any: ['ADMIN', "GUEST", 'ABONADO'] }} >
+
+        <Can rule={{ any: ["ADMIN", "GUEST", "ABONADO"] }}>
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
-            <Bell className="size-[23px] transition-colors group-hover:text-white"/>
-            <span className="transition-colors ">Notificaciones</span>
-          </button>  
+            <Bell className="size-[23px] transition-colors group-hover:text-white" />
+            <span className="transition-colors">Notificaciones</span>
+          </button>
         </Can>
-        <Can rule={{ none: ['ADMIN', 'ABONADO'] }} >
+
+        <Can rule={{ none: ["ADMIN", "ABONADO"] }}>
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
-            <OctagonAlert className="size-[23px] transition-colors group-hover:text-white"/>
-            <span className="transition-colors ">Reportes</span>
-          </button> 
+            <OctagonAlert className="size-[23px] transition-colors group-hover:text-white" />
+            <span className="transition-colors">Reportes</span>
+          </button>
         </Can>
-        <Can rule={{ any: ['ADMIN', 'ABONADO'] }} >
+
+        <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
-            <Hammer className="size-[23px] transition-colors group-hover:text-white"/>
-            <span className="transition-colors ">Proyectos</span>
-          </button>  
+            <Hammer className="size-[23px] transition-colors group-hover:text-white" />
+            <span className="transition-colors">Proyectos</span>
+          </button>
         </Can>
-          <Can rule={{ any: ['ADMIN', "GUEST" , 'ABONADO'] }} >
-          <button 
-          onClick={() => navigate({ to: "/dashboard/settings" })}
-          className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
-            <Settings className="size-[23px] transition-colors group-hover:text-white"/>
-            <span className="transition-colors ">Ajustes</span>
-          </button>  
+
+        {/* Dropdown Ajustes */}
+        <Can rule={{ any: ["ADMIN", "GUEST", "ABONADO"] }}>
+          <SidebarDropdown
+            icon={<Settings className="size-[23px] transition-colors group-hover:text-white" />}
+            label="Ajustes"
+            items={[
+              { label: "Cambio de contraseña", onClick: () => navigate({ to: "/dashboard/settings/change-password" }) },
+              { label: "Cambio de correo", onClick: () => navigate({ to: "/dashboard/settings/change-email" }) },
+              { label: "Editar perfil", onClick: () => navigate({ to: "/dashboard/users/edit" }) },
+            ]}
+          />
         </Can>
       </nav>
 
-      {/* Cerrar sesión pegado abajo */}
-      <div className="px-2 pb-4 pt-2">
+      {/* Cerrar sesión siempre visible */}
+      <div className="px-2 pb-4 pt-2 shrink-0">
         <button
           onClick={goLogin}
           type="button"
