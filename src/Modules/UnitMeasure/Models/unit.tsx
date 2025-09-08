@@ -1,7 +1,14 @@
 export interface Unit {
+    Id : number
     Name : string;
 }
 
-export const unitInitialState : Unit = {
+
+
+export interface NewUnit {
+    Name: string
+}
+
+export const NewUnitInitialState = {
     Name : ''
 }
