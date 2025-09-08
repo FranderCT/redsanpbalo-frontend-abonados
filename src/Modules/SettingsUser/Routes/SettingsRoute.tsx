@@ -1,13 +1,12 @@
-import { createRoute } from "@tanstack/react-router";
+import { createRoute, Outlet } from "@tanstack/react-router";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
-import SettingsLayout from "../Layouts/SettingsLayout";
 import EditEmailUser from "../Components/EditEmailUser";
 import EditPasswordUser from "../Components/EditPasswordUser";
 
     export const settingsRoute = createRoute({
     getParentRoute: () => dashboardRoute,
-    path: "settings",
-    component: SettingsLayout,
+    path: "settings", 
+    component: Outlet,
     });
 
     export const changePasswordRoute = createRoute({
