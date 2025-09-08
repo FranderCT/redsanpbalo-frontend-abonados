@@ -31,11 +31,9 @@ export default function EditMaterialModal({ material, open, onClose, onSuccess }
     },
     defaultValues: {
       Name: material.Name ?? "",
-      IsActive: material.IsActive ?? true, // solo UI; no se envía si tu backend no lo soporta
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        // Solo enviamos el shape del modelo base: { Name }
         await updateMutation.mutateAsync({ id: material.Id, data: { Name: value.Name.trim() } });
         toast.success("¡Material actualizado!", { position: "top-right", autoClose: 3000 });
         formApi.reset();
@@ -86,29 +84,11 @@ export default function EditMaterialModal({ material, open, onClose, onSuccess }
               )}
             </form.Field>
 
-          {/* Activo (solo UI si no hay endpoint para estado) */}
-          <form.Field name="IsActive">
-            {(field) => (
-              <label className="group flex items-center cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={!!field.state.value}
-                  onChange={(e) => field.handleChange(e.target.checked)}
-                  className="hidden peer rounded-md"
-                />
-                <span className="relative w-4 h-4 flex justify-center items-center bg-gray-100 border-2 border-gray-400 transition-all duration-300 peer-checked:border-blue-500 peer-checked:bg-blue-500" />
-                <span className="ml-3 text-gray-700 group-hover:text-blue-500 font-medium transition-colors duration-300">
-                  Activo
-                </span>
-              </label>
-            )}
-          </form.Field>
-
           {/* Footer */}
           <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (
               <div className="mt-4 flex flex-col md:flex-row md:justify-end gap-2">
-                <button type="button" onClick={onClose} className="h-10 px-4 bg-gray-200 hover:bg-gray-300 ">
+                <button type="button" onClick={handleClose} className="h-10 px-4 bg-gray-200 hover:bg-gray-300 ">
                   Cancelar
                 </button>
                 <button
