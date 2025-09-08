@@ -16,7 +16,7 @@ export default function CreateMaterialForm({ onCreated }: Props) {
 
   const handleClose = () => {
     setOpen(false);
-    toast.info("¡Creación cancelada!", {
+    toast.info("Creación cancelada", {
       position: "top-right",
       autoClose: 3000,
     });
