@@ -1,137 +1,125 @@
+import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
+import { toast } from "react-toastify";
 import { MaterialInitialState } from "../Models/Material";
 import { useCreateMaterial } from "../Hooks/MaterialHooks";
-import { toast } from "react-toastify";
+import { ModalBase } from "../../../Components/Modals/ModalBase";
 
 type Props = {
-  onSuccess?: () => void; // opcional: cerrar modal al terminar
+  onCreated?: () => void;
 };
 
-const CreateMaterialForm = ({ onSuccess }: Props) => {
+export default function CreateMaterialForm({ onCreated }: Props) {
+  const [open, setOpen] = useState(false);
   const createMaterialMutation = useCreateMaterial();
 
-const form = useForm({
-  defaultValues: MaterialInitialState,
-  onSubmit: async ({ value }) => {
-    try {
-      const { Name, Description, Unit } = value; 
-      await createMaterialMutation.mutateAsync({ Name, Description, Unit });
+  const form = useForm({
+    defaultValues: MaterialInitialState, // { Name: "" }
+    validators: {
+      onChange: ({ value }) => {
+        const name = value.Name?.trim() ?? "";
+        if (!name) return "El nombre es obligatorio";
+        if (name.length > 100) return "El nombre no debe superar 100 caracteres";
+        return undefined;
+      },
+    },
+    onSubmit: async ({ value, formApi }) => {
+      try {
+        const payload = { Name: value.Name.trim() };
+        await createMaterialMutation.mutateAsync(payload);
 
-      toast.success("¡Registro exitoso!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-
-      form.reset();
-      onSuccess?.(); // cierra modal si se provee
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.message ??
-        err?.message ??
-        "No se pudo crear el material.";
-      toast.error(msg, {
-        position: "top-right",
-        autoClose: 4000,
-      });
-      console.error("Error al crear el material:", err);
-    }
-  },
-});
-
+        toast.success("¡Material creado!", { position: "top-right", autoClose: 3000 });
+        formApi.reset();        // limpia el formulario
+        setOpen(false);         // cierra modal
+        onCreated?.();          // callback opcional
+      } catch (error: any) {
+        console.error("Error creando material:", error);
+        const msg =
+          error?.response?.data?.message ||
+          error?.message ||
+          "No se pudo crear el material";
+        toast.error(msg, { position: "top-right", autoClose: 3000 });
+      }
+    },
+  });
 
   return (
-    <div className="w-full">
-      <h2 className="text-2xl font-bold text-[#091540] mb-6 text-center">
-        Registrar Material
-      </h2>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-        className="flex flex-col gap-5"
+    <div>
+      {/* Botón que abre el modal */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="px-4 py-2 bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
       >
-        <form.Field name="Name">
-          {(field) => (
-            <div className="flex flex-col gap-1">
+        + Agregar Nuevo Material
+      </button>
 
-              <input
-                type="text"
-                placeholder="Ingrese nombre del material"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                className="px-3 py-2 border border-gray-300  shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1789FC] focus:border-[#1789FC] disabled:bg-gray-100 disabled:text-gray-500"
-              />
-              {field.state.meta.isTouched &&
-                field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ??
-                      String(field.state.meta.errors[0])}
-                  </p>
-                )}
-            </div>
-          )}
-        </form.Field>
+      {/* Modal */}
+      <ModalBase
+        open={open}
+        onClose={() => setOpen(false)}
+        panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl"
+      >
+        {/* Header */}
+        <div className="px-6 py-5 text-[#091540]">
+          <h3 className="text-xl font-bold">Crear material</h3>
+          <p className="text-sm/6 opacity-90">Complete los datos del material</p>
+        </div>
 
-        <form.Field name="Description">
-          {(field) => (
-            <div className="flex flex-col gap-1">
-              
-              <input
-                type="text"
-                placeholder="Ingrese la descripción del material"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                className="px-3 py-2 border border-gray-300  shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1789FC] focus:border-[#1789FC] disabled:bg-gray-100 disabled:text-gray-500"
-              />
-              {field.state.meta.isTouched &&
-                field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ??
-                      String(field.state.meta.errors[0])}
-                  </p>
-                )}
-            </div>
-          )}
-        </form.Field>
+        {/* Body */}
+        <div className="p-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
+            className="grid gap-3"
+          >
+            {/* Nombre */}
+            <form.Field name="Name">
+              {(field) => (
+                <label className="grid gap-1">
+                  <span className="text-sm text-gray-700">Nombre</span>
+                  <input
+                    autoFocus
+                    className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring focus:ring-blue-200"
+                    placeholder="Nombre del material"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors?.length ? (
+                    <span className="text-xs text-red-600">
+                      {field.state.meta.errors[0]}
+                    </span>
+                  ) : null}
+                </label>
+              )}
+            </form.Field>
 
-        <form.Field name="Unit">
-          {(field) => (
-            <div className="flex flex-col gap-1">
-              
-              <input
-                type="text"
-                placeholder="Ingrese la unidad del material"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-                className="px-3 py-2 border border-gray-300  shadow-sm focus:outline-none focus:ring-2 focus:ring-[#1789FC] focus:border-[#1789FC] disabled:bg-gray-100 disabled:text-gray-500"
-              />
-              {field.state.meta.isTouched &&
-                field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ??
-                      String(field.state.meta.errors[0])}
-                  </p>
-                )}
-            </div>
-          )}
-        </form.Field>
-
-        <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-          {([canSubmit, isSubmitting]) => (
-            <button
-              type="submit"
-              className="w-full bg-[#091540] shadow-md text-white py-2  font-semibold hover:bg-[#1789FC] transition disabled:opacity-50"
-              disabled={!canSubmit}
-            >
-              {isSubmitting ? "..." : "Registrar"}
-            </button>
-          )}
-        </form.Subscribe>
-      </form>
+            {/* Footer botones */}
+            <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+              {([canSubmit, isSubmitting]) => (
+                <div className="mt-4 flex flex-col md:flex-row md:justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="h-10 px-4 bg-gray-200 hover:bg-gray-300 "
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60 "
+                    disabled={!canSubmit || isSubmitting}
+                  >
+                    {isSubmitting ? "Creando…" : "Crear material"}
+                  </button>
+                </div>
+              )}
+            </form.Subscribe>
+          </form>
+        </div>
+      </ModalBase>
     </div>
   );
-};
-
-export default CreateMaterialForm;
+}

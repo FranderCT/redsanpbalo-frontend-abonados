@@ -1,48 +1,68 @@
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
+import type { Material } from "../Models/Material";
 import { useDeleteMaterial } from "../Hooks/MaterialHooks";
-import MaterialModal from "./MaterialModal";
+import InhabilityActionModal from "../../../Components/Modals/InhabilyActionModal";
+
+// Tipo de fila extendido (solo para UI)
+export type RowMaterial = Material & { Id: number; IsActive?: boolean };
 
 type Props = {
-  id: number | null;
-  onClose: () => void;
+  material: RowMaterial;
+  onSuccess?: () => void;
 };
 
-const DeleteMaterialModal = ({ id, onClose }: Props) => {
-  const del = useDeleteMaterial();
-  const isOpen = id !== null;
+export default function DeleteMaterialButton({ material, onSuccess }: Props) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const qc = useQueryClient();
+  const deleteMaterialMutation = useDeleteMaterial();
 
-  const handleDelete = async () => {
-    if (id == null) return;
+  const handleConfirm = async () => {
     try {
-      await del.mutateAsync(id);   // DELETE /material/{id}
-      onClose();                   // cerrar modal
-    } catch (e) {
-      console.error("Error al eliminar:", e);
+      setBusy(true);
+      await deleteMaterialMutation.mutateAsync(material.Id);
+      toast.success("Material inhabilitado");
+      setOpen(false);
+      onSuccess?.();
+      await qc.invalidateQueries({ queryKey: ["materials"] });
+      await qc.invalidateQueries({ queryKey: ["materials", material.Id] });
+    } catch (err) {
+      console.error("Error al inhabilitar material:", err);
+      toast.error("No se pudo inhabilitar el material");
+    } finally {
+      setBusy(false);
     }
   };
 
   return (
-    <MaterialModal isOpen={isOpen} onClose={onClose}>
-      <div className="space-y-4">
-        <h2 className="text-xl font-bold text-[#091540]">Eliminar material</h2>
-        <p className="text-sm text-gray-700">
-          ¿Seguro que deseas eliminar este material? 
-        </p>
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        disabled={busy}
+        className={`px-3 py-1 text-sm font-medium transition
+          ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-red-600 text-white hover:bg-red-700"}`}
+        title="Ihabilitar material"
+      >
+        {busy ? "..." : "Inhabilitar"}
+      </button>
 
-        <div className="flex gap-3 pt-2">
-         
-          <button
-            onClick={handleDelete}
-            disabled={del.isPending}
-            className="flex-1 py-2 font-semibold rounded 
-                       bg-red-600 text-white shadow 
-                       hover:bg-red-700 disabled:opacity-60 transition"
-          >
-            {del.isPending ? "Eliminando..." : "Eliminar"}
-          </button>
+      {open && (
+        <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
+          <InhabilityActionModal
+            title="¿Inhabilitar material?"
+            description={`Se inhabilitará el material "${material.Name ?? ""}".`}
+            cancelLabel="Cancelar"
+            confirmLabel="Inhabilitar"
+            onConfirm={handleConfirm}
+            onClose={() => setOpen(false)}
+            onCancel={() => setOpen(false)}
+            
+          />
         </div>
-      </div>
-    </MaterialModal>
+      )}
+    </>
   );
-};
-
-export default DeleteMaterialModal;
+}
