@@ -24,7 +24,7 @@ export const RegisterUserInitialState: RegisterUserForm = {
   Nis: '',
   Email: '',
   PhoneNumber: '',
-  Birthdate: new Date(),
+  Birthdate: '' as unknown as Date,
   Address: '',
   Password: '',
   ConfirmPassword: '',
