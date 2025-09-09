@@ -1,6 +1,6 @@
 // Modules/Materials/MaterialColumns.tsx
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Category } from "../Models/Category";
+import type { Category } from "../../Models/Category";
 
 
 export const CategoryColumns = (

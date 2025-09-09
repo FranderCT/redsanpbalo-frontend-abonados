@@ -1,6 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createCategory, getAllCategory, UpdateCategory } from "../Services/CategoryServices";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { createCategory, getAllCategory, searchCategories, UpdateCategory } from "../Services/CategoryServices";
 import type { Category, NewCategory } from "../Models/Category";
+import type { CategoriesPaginationParams, PaginatedResponse } from "../Models/PaginationCategory";
+import { useEffect } from "react";
 
 export const useCreateCategory = () => {
     const qc = useQueryClient();
@@ -43,3 +45,32 @@ export const useGetAllCategory = () => {
 
     return{category, isLoading, error}
 }
+
+export const useSearchCategories = (params: CategoriesPaginationParams) => {
+  const query = useQuery<PaginatedResponse<Category>, Error>({
+    queryKey: ["categories", "search", params],
+    queryFn: () => searchCategories(params),
+    placeholderData: keepPreviousData,   // v5
+    staleTime: 30_000,
+  });
+
+  // ⬇️ Log en cada fetch/refetch exitoso
+  useEffect(() => {
+    if (query.data) {
+      const res = query.data; // res: PaginatedResponse<Category>
+      console.log(
+        "[Categories fetched]",
+        {
+          page: res.meta.page,
+          limit: res.meta.limit,
+          total: res.meta.total,
+          pageCount: res.meta.pageCount,
+          params,
+        },
+        res.data // array de Category
+      );
+    }
+  }, [query.data, params]);
+
+  return query;
+};
