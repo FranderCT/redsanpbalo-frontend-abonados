@@ -21,7 +21,7 @@ export async function createMaterial(payload: Material): Promise<Material> {
 
 export async function updateMaterial(id: number, payload: Material): Promise<Material> {
   // Usa PATCH si tu backend lo espera
-  const res = await apiAxios.patch<Material>(`${BASE}/${id}`, payload);
+  const res = await apiAxios.put<Material>(`${BASE}/${id}`, payload);
   return res.data;
 }
 
