@@ -29,16 +29,19 @@ export const RegisterSchema = z.object({
     PhoneNumber: z.string()
     .regex(/^[678]\d{7}$/, "Teléfono inválido. Debe tener 8 dígitos y empezar en 6, 7 u 8"),
     
-    Birthdate: z.coerce.date().refine((val) => {
-    const age = new Date(Date.now() - val.getTime()).getUTCFullYear() - 1970;
-    return age >= 18;
-    }, {
-        message: "Debes tener al menos 18 años"
-    }),
+    Birthdate: z.coerce.date().refine(
+      (d) => !Number.isNaN(d.getTime()),
+      { message: "Fecha inválida" }
+    ).refine(
+      (d) => {
+        const age = new Date(Date.now() - d.getTime()).getUTCFullYear() - 1970;
+        return age >= 18;
+      },
+      { message: "Debes tener al menos 18 años" }
+    ),
 
     Address: z.string()
-    .min(10, "La dirección debe tener al menos 10 caracteres." )
-    .max(120, "La dirección no puede superar 120 caracteres."),
+    .min(10, "La dirección debe tener al menos 10 caracteres." ),
 
     Password: z.string()
     .min(8, 'La contraseña debe tener al menos 8 caracteres')

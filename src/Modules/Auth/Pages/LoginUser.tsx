@@ -70,7 +70,7 @@ const LoginUser = () => {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Correo electrónico"
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
+                      className="input-base"
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">
@@ -85,7 +85,7 @@ const LoginUser = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
+                      className="input-base"
                       placeholder="Escriba su contraseña"
                       value={field.state.value}
                       type="password"

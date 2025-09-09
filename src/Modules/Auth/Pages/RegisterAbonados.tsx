@@ -100,7 +100,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
+                      className="input-base"
                       placeholder="Cédula"
                       value={field.state.value}
                       onChange={async (e) => {
@@ -146,7 +146,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
+                      className="input-base"
                       placeholder="Nombre"
                       value={field.state.value}
                       disabled
@@ -167,7 +167,7 @@ const RegisterAbonados = () => {
                   {(field) => (
                     <>
                       <input
-                        className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
+                        className="input-base"
                         placeholder="Apellido1"
                         value={field.state.value}
                         disabled
@@ -186,7 +186,7 @@ const RegisterAbonados = () => {
                   {(field) => (
                     <>
                       <input
-                        className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
+                        className="input-base"
                         placeholder="Apellido2"
                         value={field.state.value}
                         disabled
@@ -218,7 +218,7 @@ const RegisterAbonados = () => {
                         className="hidden peer"
                       />
                       <span className="relative w-4 h-4 flex justify-center items-center bg-gray-100 border-2 border-gray-400 rounded-md transition-all duration-300 peer-checked:border-blue-500 peer-checked:bg-blue-500" />
-                      <span className="ml-3 text-gray-700 group-hover:text-blue-500 font-medium transition-colors duration-300">
+                      <span className="ml-3 text-gray-700 font-medium duration-300">
                         Soy abonado
                       </span>
                     </label>
@@ -232,8 +232,8 @@ const RegisterAbonados = () => {
                     return (
                       <>
                         <input
-                          className={`w-full max-w-full px-4 py-2 text-sm ${
-                            isAbonado ? 'bg-gray-100 text-[#091540]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          className={`input-base ${
+                            isAbonado ? '' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                           }`}
                           placeholder="NIS"
                           value={field.state.value}
@@ -259,7 +259,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
+                      className="input-base"
                       placeholder="Correo electrónico"
                       type="email"
                       value={field.state.value}
@@ -279,7 +279,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
+                      className="input-base"
                       placeholder="Número telefónico"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -301,14 +301,12 @@ const RegisterAbonados = () => {
                     <input
                       type="date"
                       value={
-                        field.state.value
-                          ? (field.state.value instanceof Date
-                              ? field.state.value.toISOString().split('T')[0]
-                              : String(field.state.value))
-                          : ''
+                        field.state.value instanceof Date && !Number.isNaN(field.state.value.getTime())
+                          ? field.state.value.toISOString().slice(0,10)
+                          : typeof field.state.value === 'string' ? field.state.value : ''
                       }
                       onChange={(e) => { field.handleChange(new Date(e.target.value)); }}
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
+                      className="input-base"
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">
@@ -324,7 +322,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <textarea
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm resize-none h-15"
+                      className="input-base"
                       placeholder="Dirección"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -344,7 +342,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
+                      className="input-base"
                       placeholder="Contraseña"
                       type="password"
                       value={field.state.value}
@@ -364,7 +362,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
+                      className="input-base"
                       placeholder="Confirmar contraseña"
                       type="password"
                       value={field.state.value}
