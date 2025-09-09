@@ -38,7 +38,7 @@ const RegisterAbonados = () => {
         className="
           bg-white w-full
           max-w-[560px] md:max-w-4xl
-          rounded-2xl shadow-lg
+          shadow-lg
           p-4 md:p-6
           flex flex-col md:flex-row gap-4 md:gap-6
           mx-auto
@@ -59,7 +59,7 @@ const RegisterAbonados = () => {
             basis-1/2 shrink-0
             bg-cover bg-center bg-no-repeat
             flex-col justify-between items-center
-            px-4 py-8 relative shadow-xl/30 rounded-xl
+            px-4 py-8 relative shadow-xl/30 
           "
           style={{ backgroundImage: "url('/Image01.jpg')" }}
         >
@@ -100,7 +100,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
                       placeholder="Cédula"
                       value={field.state.value}
                       onChange={async (e) => {
@@ -146,7 +146,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
                       placeholder="Nombre"
                       value={field.state.value}
                       disabled
@@ -167,7 +167,7 @@ const RegisterAbonados = () => {
                   {(field) => (
                     <>
                       <input
-                        className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                        className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
                         placeholder="Apellido1"
                         value={field.state.value}
                         disabled
@@ -186,7 +186,7 @@ const RegisterAbonados = () => {
                   {(field) => (
                     <>
                       <input
-                        className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                        className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
                         placeholder="Apellido2"
                         value={field.state.value}
                         disabled
@@ -232,7 +232,7 @@ const RegisterAbonados = () => {
                     return (
                       <>
                         <input
-                          className={`w-full max-w-full px-4 py-2 rounded-md text-sm ${
+                          className={`w-full max-w-full px-4 py-2 text-sm ${
                             isAbonado ? 'bg-gray-100 text-[#091540]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                           }`}
                           placeholder="NIS"
@@ -259,7 +259,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
                       placeholder="Correo electrónico"
                       type="email"
                       value={field.state.value}
@@ -279,7 +279,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
                       placeholder="Número telefónico"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -297,6 +297,7 @@ const RegisterAbonados = () => {
               <form.Field name="Birthdate">
                 {(field) => (
                   <>
+                    <span className='text-sm mt-1'>Fecha de nacimiento</span>
                     <input
                       type="date"
                       value={
@@ -307,7 +308,7 @@ const RegisterAbonados = () => {
                           : ''
                       }
                       onChange={(e) => { field.handleChange(new Date(e.target.value)); }}
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">
@@ -322,16 +323,16 @@ const RegisterAbonados = () => {
               <form.Field name="Address">
                 {(field) => (
                   <>
-                    <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                    <textarea
+                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm resize-none h-15"
                       placeholder="Dirección"
-                      type="text"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        {(field.state.meta.errors[0] as any)?.message ??
+                          String(field.state.meta.errors[0])}
                       </p>
                     )}
                   </>
@@ -343,7 +344,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
                       placeholder="Contraseña"
                       type="password"
                       value={field.state.value}
@@ -363,7 +364,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
                       placeholder="Confirmar contraseña"
                       type="password"
                       value={field.state.value}
@@ -384,7 +385,7 @@ const RegisterAbonados = () => {
                   <div className="flex flex-col md:flex-row md:justify-end">
                     <button
                       type="submit"
-                      className="w-full md:w-1/3 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition disabled:opacity-60"
+                      className="w-full md:w-1/3 bg-[#091540] shadow-xl text-white py-2 font-semibold hover:bg-[#1789FC] transition disabled:opacity-60"
                       disabled={!canSubmit}
                     >
                       {isSubmitting ? '...' : 'Registrar'}

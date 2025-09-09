@@ -26,9 +26,8 @@ const LoginUser = () => {
   });
 
   return (
-    // ⬇️ Wrapper que centra la tarjeta sin usar flex
     <div className="grid min-h-screen place-items-center bg-gray-100 p-4">
-      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg p-6 flex flex-col md:flex-row gap-6 md:h-[600px] mx-auto overflow-y-auto">
+      <div className="bg-white w-full max-w-4xl shadow-lg p-6 flex flex-col md:flex-row gap-6 md:h-[600px] mx-auto overflow-y-auto">
         {/* Título para mobile */}
         <div className="md:hidden flex flex-col items-center justify-center mb-4">
           <h1 className="text-4xl font-extrabold text-[#091540]">ASADA</h1>
@@ -71,7 +70,7 @@ const LoginUser = () => {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Correo electrónico"
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">
@@ -86,7 +85,7 @@ const LoginUser = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] text-sm"
                       placeholder="Escriba su contraseña"
                       value={field.state.value}
                       type="password"
@@ -114,7 +113,7 @@ const LoginUser = () => {
                             to="/forgot-password"
                             className="
                             underline font-medium cursor-pointer text-[#1789FC]
-                            text-center md:text-left
+                            text-center md:text-left hover:text-[#091540] cursor-pointer
                             "
                         >
                             ¿Olvidó su contraseña?
@@ -124,7 +123,7 @@ const LoginUser = () => {
                             type="submit"
                             className="
                             w-full md:w-1/3
-                            bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold
+                            bg-[#091540] shadow-xl text-white py-2 font-semibold
                             hover:bg-[#1789FC] transition cursor-pointer disabled:opacity-60
                             "
                             disabled={!canSubmit}
