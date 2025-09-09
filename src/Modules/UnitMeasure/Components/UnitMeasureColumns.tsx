@@ -5,7 +5,7 @@ import type { Unit } from "../Models/unit";
 
 export const UnitMeasureColumns = (
   onEdit: (unit: Unit) => void,
-  onDelete: (id: number) => void
+  onDelete: (unit: Unit) => void
 ): ColumnDef<Unit>[] => [
   { accessorKey: "Name", header: "Nombre de la Unidad de Medida" },
   {
@@ -22,7 +22,7 @@ export const UnitMeasureColumns = (
             Editar
           </button>
           <button
-            onClick={() => onDelete(unit.Id)}
+            onClick={() => onDelete(unit)}
             className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
           >
             Eliminar
