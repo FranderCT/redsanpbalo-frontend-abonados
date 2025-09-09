@@ -57,3 +57,13 @@ export async function updateUser(id: number, payloads: UserUpdate) : Promise<Use
     return Promise.reject(err);
   }
 }
+
+export async function getUserById(id: number) : Promise<Users>{
+  try{
+    const {data} = await apiAxios.get<Users>(`users/${id}`);
+    return data;
+  }catch(err){
+    console.error("Error al obtener la informacion del ususario", err);
+    return Promise.reject(err);
+  }
+}

@@ -11,6 +11,7 @@ import { useDeleteUser } from "../../Hooks/UsersHooks";
 import type { Users } from "../../Models/Users";
 import AddUserModal from "../ListUsersModals/AddUserModal";
 import EditUserModal from "../ListUsersModals/EditUserModal"; // ⬅️ importa el modal
+import GetInfoUserModal from "../ListUsersModals/GetInfoUserModal";
 
 type Props = { data: Users[] };
 
@@ -18,10 +19,15 @@ const UsersTable = ({ data }: Props) => {
   const deleteUserMutation = useDeleteUser();
 
   const [editingUser, setEditingUser] = useState<Users | null>(null);
+  const [getInfoUser, setGetinfoUser] = useState<Users | null>(null);
 
   const handleEdit = (user: Users) => {
     setEditingUser(user);
   };
+
+  const handleGetInfo = (user: Users)=> {
+    setGetinfoUser(user)
+  }
 
   const handleDelete = (id: number) => {
     const ok = window.confirm("¿Eliminar este usuario?");
@@ -31,7 +37,7 @@ const UsersTable = ({ data }: Props) => {
 
   const table = useReactTable({
     data,
-    columns: makeUsersColumns(handleEdit, handleDelete),
+    columns: makeUsersColumns(handleEdit, handleDelete, handleGetInfo),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
@@ -40,8 +46,8 @@ const UsersTable = ({ data }: Props) => {
 
   return (
     <div className="space-y-4 w-full">
-      <AddUserModal />
 
+      <AddUserModal />
       {/* Modal de edición controlado desde aquí */}
       {editingUser && (
         <EditUserModal
@@ -52,6 +58,16 @@ const UsersTable = ({ data }: Props) => {
         />
       )}
 
+      {/* Modal de información */}
+      {getInfoUser && (
+        <GetInfoUserModal
+          user={getInfoUser}
+          open={true}
+          onClose={() => setGetinfoUser(null)}
+          onSuccess={() => setGetinfoUser(null)}
+        />
+      )}
+      
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-auto max-h-[70vh]">
           <table className="w-full table-auto border-collapse text-sm">

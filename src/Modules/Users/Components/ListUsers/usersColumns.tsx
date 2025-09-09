@@ -4,7 +4,8 @@ import type { Users } from "../../Models/Users";
 
 export const usersColumns = (
    onEdit: (user: Users) => void,   
-  onDelete: (id: number) => void
+   onDelete: (id: number) => void,
+   onGetInfo: (user: Users) => void
 ): ColumnDef<Users>[] => [
   {
     id: "FullName",
@@ -49,6 +50,12 @@ export const usersColumns = (
             className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
           >
             Eliminar
+          </button>
+          <button
+            onClick={() => onGetInfo(user)}
+            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Ver más
           </button>
         </div>
       );

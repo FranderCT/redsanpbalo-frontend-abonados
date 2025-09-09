@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createUserModal, deleteUser, getAllRoles, getAllUsers, getUserProfile, updateUser, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
+import { createUserModal, deleteUser, getAllRoles, getAllUsers, getUserById, getUserProfile, updateUser, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
 import type { Users, UserUpdate } from "../Models/Users";
 
 
@@ -94,4 +94,15 @@ export const useUpdateUser = () => {
       console.error("Error al actualizar el usuario:", err);
     },
   });
+};
+
+
+export const useGetUserById = (id: number) => {
+
+  const {data: user, isLoading,error} = useQuery({
+    queryKey: ["user", id],
+    queryFn: () => getUserById(id),
+  });
+
+  return { user, isLoading, error };
 };
