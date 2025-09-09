@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
-import { ModalBase } from "../../../Components/Modals/ModalBase";
-import { useCreateCategory } from "../Hooks/CategoryHooks";
-import { NewCategoryInitialState } from "../Models/Category";
-import { CategorySchema } from "../schemas/CategorySchema";
+import { ModalBase } from "../../../../Components/Modals/ModalBase";
+import { useCreateCategory } from "../../Hooks/CategoryHooks";
+import { NewCategoryInitialState } from "../../Models/Category";
+import { CategorySchema } from "../../schemas/CategorySchema";
 
 const CreateCategoryModal = () => {
   const [open, setOpen] = useState(false);
   const createCategoryMutation = useCreateCategory();
-
+  const handleClose = () => {
+      toast.info("Registro cancelado", { position: "top-right", autoClose: 3000 });
+      setOpen(false);
+  };
   const form = useForm({
     defaultValues: NewCategoryInitialState,
     validators:{
@@ -40,7 +43,7 @@ const CreateCategoryModal = () => {
 
       <ModalBase
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={handleClose}
         panelClassName="w-full max-w-md !p-0 overflow-hidden shadow-2xl"
       >
         {/* Header */}
@@ -112,7 +115,7 @@ const CreateCategoryModal = () => {
               <div className="mt-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setOpen(false)}
+                  onClick={handleClose}
                   className="h-10 px-4  bg-gray-200 hover:bg-gray-300 transition"
                 >
                   Cancelar

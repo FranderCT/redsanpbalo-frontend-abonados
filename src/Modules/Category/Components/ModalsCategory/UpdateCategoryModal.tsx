@@ -1,10 +1,10 @@
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
-import { ModalBase } from "../../../Components/Modals/ModalBase";
-import { useUpdateCategory } from "../Hooks/CategoryHooks";
-import type { Category } from "../Models/Category";
-import { CategorySchema } from "../schemas/CategorySchema";
-import ConfirmActionModal from "../../../Components/Modals/ConfirmActionModal";
+import { ModalBase } from "../../../../Components/Modals/ModalBase";
+import { useUpdateCategory } from "../../Hooks/CategoryHooks";
+import type { Category } from "../../Models/Category";
+import { CategorySchema } from "../../schemas/CategorySchema";
+import ConfirmActionModal from "../../../../Components/Modals/ConfirmActionModal";
 import { useState } from "react";
 
 type Props = {
