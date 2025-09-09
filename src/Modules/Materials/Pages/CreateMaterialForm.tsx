@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { MaterialInitialState } from "../Models/Material";
 import { useCreateMaterial } from "../Hooks/MaterialHooks";
 import { ModalBase } from "../../../Components/Modals/ModalBase";
+import { MaterialSchema } from "../schemas/Materials/MaterialSchema";
 
 type Props = {
   onCreated?: () => void;
@@ -13,15 +14,18 @@ export default function CreateMaterialForm({ onCreated }: Props) {
   const [open, setOpen] = useState(false);
   const createMaterialMutation = useCreateMaterial();
 
+  const handleClose = () => {
+    setOpen(false);
+    toast.info("Creación cancelada", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  };
+
   const form = useForm({
-    defaultValues: MaterialInitialState, // { Name: "" }
+    defaultValues: MaterialInitialState,
     validators: {
-      onChange: ({ value }) => {
-        const name = value.Name?.trim() ?? "";
-        if (!name) return "El nombre es obligatorio";
-        if (name.length > 100) return "El nombre no debe superar 100 caracteres";
-        return undefined;
-      },
+      onChange: MaterialSchema,
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -29,9 +33,9 @@ export default function CreateMaterialForm({ onCreated }: Props) {
         await createMaterialMutation.mutateAsync(payload);
 
         toast.success("¡Material creado!", { position: "top-right", autoClose: 3000 });
-        formApi.reset();        // limpia el formulario
-        setOpen(false);         // cierra modal
-        onCreated?.();          // callback opcional
+        formApi.reset();
+        setOpen(false);
+        onCreated?.();
       } catch (error: any) {
         console.error("Error creando material:", error);
         const msg =
@@ -57,7 +61,7 @@ export default function CreateMaterialForm({ onCreated }: Props) {
       {/* Modal */}
       <ModalBase
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={handleClose}   // ⬅️ ahora usamos handleClose
         panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl"
       >
         {/* Header */}
@@ -87,9 +91,9 @@ export default function CreateMaterialForm({ onCreated }: Props) {
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
-                  {field.state.meta.errors?.length ? (
+                  {field.state.meta.isTouched && field.state.meta.errors?.[0]?.message ? (
                     <span className="text-xs text-red-600">
-                      {field.state.meta.errors[0]}
+                      {field.state.meta.errors[0].message}
                     </span>
                   ) : null}
                 </label>
@@ -102,14 +106,14 @@ export default function CreateMaterialForm({ onCreated }: Props) {
                 <div className="mt-4 flex flex-col md:flex-row md:justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => setOpen(false)}
-                    className="h-10 px-4 bg-gray-200 hover:bg-gray-300 "
+                    onClick={handleClose}  // ⬅️ también aquí
+                    className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60 "
+                    className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
                     disabled={!canSubmit || isSubmitting}
                   >
                     {isSubmitting ? "Creando…" : "Crear material"}

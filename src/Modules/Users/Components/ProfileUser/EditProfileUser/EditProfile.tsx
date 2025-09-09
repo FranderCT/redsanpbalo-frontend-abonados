@@ -89,23 +89,17 @@ const handleCancelUpdate = () => {
               <>
                 <input
                   type="date"
-                  placeholder={UserProfile?.Birthdate}
                   value={
-                    field.state.value instanceof Date
-                      ? field.state.value.toISOString().split("T")[0]
-                      : ""
+                    field.state.value instanceof Date && !Number.isNaN(field.state.value.getTime())
+                      ? field.state.value.toISOString().slice(0,10)
+                      : typeof field.state.value === 'string' ? field.state.value : ''
                   }
-                  onChange={(e) =>
-                    field.handleChange(
-                      e.target.value ? new Date(e.target.value) : undefined
-                    )
-                  }
+                  onChange={(e) => { field.handleChange(new Date(e.target.value)); }}
                   className="input-base"
                 />
                 {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                   <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ??
-                      String(field.state.meta.errors[0])}
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
                   </p>
                 )}
               </>

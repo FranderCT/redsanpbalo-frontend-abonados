@@ -38,7 +38,7 @@ const RegisterAbonados = () => {
         className="
           bg-white w-full
           max-w-[560px] md:max-w-4xl
-          rounded-2xl shadow-lg
+          shadow-lg
           p-4 md:p-6
           flex flex-col md:flex-row gap-4 md:gap-6
           mx-auto
@@ -59,7 +59,7 @@ const RegisterAbonados = () => {
             basis-1/2 shrink-0
             bg-cover bg-center bg-no-repeat
             flex-col justify-between items-center
-            px-4 py-8 relative shadow-xl/30 rounded-xl
+            px-4 py-8 relative shadow-xl/30 
           "
           style={{ backgroundImage: "url('/Image01.jpg')" }}
         >
@@ -100,7 +100,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="input-base"
                       placeholder="Cédula"
                       value={field.state.value}
                       onChange={async (e) => {
@@ -146,7 +146,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="input-base"
                       placeholder="Nombre"
                       value={field.state.value}
                       disabled
@@ -167,7 +167,7 @@ const RegisterAbonados = () => {
                   {(field) => (
                     <>
                       <input
-                        className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                        className="input-base"
                         placeholder="Apellido1"
                         value={field.state.value}
                         disabled
@@ -186,7 +186,7 @@ const RegisterAbonados = () => {
                   {(field) => (
                     <>
                       <input
-                        className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                        className="input-base"
                         placeholder="Apellido2"
                         value={field.state.value}
                         disabled
@@ -218,7 +218,7 @@ const RegisterAbonados = () => {
                         className="hidden peer"
                       />
                       <span className="relative w-4 h-4 flex justify-center items-center bg-gray-100 border-2 border-gray-400 rounded-md transition-all duration-300 peer-checked:border-blue-500 peer-checked:bg-blue-500" />
-                      <span className="ml-3 text-gray-700 group-hover:text-blue-500 font-medium transition-colors duration-300">
+                      <span className="ml-3 text-gray-700 font-medium duration-300">
                         Soy abonado
                       </span>
                     </label>
@@ -232,8 +232,8 @@ const RegisterAbonados = () => {
                     return (
                       <>
                         <input
-                          className={`w-full max-w-full px-4 py-2 rounded-md text-sm ${
-                            isAbonado ? 'bg-gray-100 text-[#091540]' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          className={`input-base ${
+                            isAbonado ? '' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                           }`}
                           placeholder="NIS"
                           value={field.state.value}
@@ -259,7 +259,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="input-base"
                       placeholder="Correo electrónico"
                       type="email"
                       value={field.state.value}
@@ -279,7 +279,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="input-base"
                       placeholder="Número telefónico"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
@@ -297,17 +297,16 @@ const RegisterAbonados = () => {
               <form.Field name="Birthdate">
                 {(field) => (
                   <>
+                    <span className='text-sm mt-1'>Fecha de nacimiento</span>
                     <input
                       type="date"
                       value={
-                        field.state.value
-                          ? (field.state.value instanceof Date
-                              ? field.state.value.toISOString().split('T')[0]
-                              : String(field.state.value))
-                          : ''
+                        field.state.value instanceof Date && !Number.isNaN(field.state.value.getTime())
+                          ? field.state.value.toISOString().slice(0,10)
+                          : typeof field.state.value === 'string' ? field.state.value : ''
                       }
                       onChange={(e) => { field.handleChange(new Date(e.target.value)); }}
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="input-base"
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">
@@ -322,16 +321,16 @@ const RegisterAbonados = () => {
               <form.Field name="Address">
                 {(field) => (
                   <>
-                    <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                    <textarea
+                      className="input-base"
                       placeholder="Dirección"
-                      type="text"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        {(field.state.meta.errors[0] as any)?.message ??
+                          String(field.state.meta.errors[0])}
                       </p>
                     )}
                   </>
@@ -343,7 +342,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="input-base"
                       placeholder="Contraseña"
                       type="password"
                       value={field.state.value}
@@ -363,7 +362,7 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full max-w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="input-base"
                       placeholder="Confirmar contraseña"
                       type="password"
                       value={field.state.value}
@@ -384,7 +383,7 @@ const RegisterAbonados = () => {
                   <div className="flex flex-col md:flex-row md:justify-end">
                     <button
                       type="submit"
-                      className="w-full md:w-1/3 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition disabled:opacity-60"
+                      className="w-full md:w-1/3 bg-[#091540] shadow-xl text-white py-2 font-semibold hover:bg-[#1789FC] transition disabled:opacity-60"
                       disabled={!canSubmit}
                     >
                       {isSubmitting ? '...' : 'Registrar'}
