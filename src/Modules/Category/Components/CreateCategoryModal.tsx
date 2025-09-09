@@ -94,7 +94,7 @@ const CreateCategoryModal = () => {
                   placeholder="Escriba la descripción de la categoría"
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  rows={4} // altura inicial
+                  rows={2} // altura inicial
                 />
                 {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                   <p className="text-sm text-red-500 mt-1">

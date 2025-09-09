@@ -13,7 +13,7 @@ export async function createCategory(payloads: NewCategory) : Promise<NewCategor
 
 export async function UpdateCategory (id: number, payloads: NewCategory) : Promise<Category>{
     try{
-        const {data} = await apiAxios.patch<Category>(`categories/${id}`, payloads)
+        const {data} = await apiAxios.put<Category>(`categories/${id}`, payloads)
         return data;
     }catch(err){
         console.log('Error descondico',err)

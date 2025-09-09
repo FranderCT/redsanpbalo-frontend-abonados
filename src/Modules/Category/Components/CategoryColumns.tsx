@@ -18,15 +18,15 @@ export const CategoryColumns = (
         <div className="flex gap-2">
           <button
             onClick={() => onEdit(category)}
-            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-3 py-1 text-sm bg-blue-500 text-white  hover:bg-blue-600"
           >
             Editar
           </button>
           <button
             onClick={() => onDelete(category.Id)}
-            className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+            className="px-3 py-1 text-sm bg-red-500 text-white  hover:bg-red-600"
           >
-            Eliminar
+            Inhabilitar
           </button>
         </div>
       );
