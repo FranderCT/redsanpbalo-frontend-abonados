@@ -1,30 +1,34 @@
+// src/Modules/Category/Components/TableCategory/CategoryTable.tsx
 import { useState } from "react";
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import type { Category } from "../../Models/Category";
 import UpdateCategoryModal from "../ModalsCategory/UpdateCategoryModal";
 import { CategoryColumns } from "./CategoryColumns";
+import CategoryPager from "../PaginationCategory/CategoryPager";
 
 type Props = {
   data: Category[];
-  total?: number; // meta.total del backend
+  total?: number;
+  page: number;                 // <- NUEVO
+  pageCount: number;            // <- NUEVO
+  onPageChange: (p: number) => void; // <- NUEVO
 };
 
-export default function CategoryTable({ data, total }: Props) {
+export default function CategoryTable({ data, total, page, pageCount, onPageChange }: Props) {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const table = useReactTable({
     data,
     columns: CategoryColumns(
-      (category) => setEditingCategory(category), // onEdit
-      (id) => setDeleteId(id)                    // onDelete
+      (category) => setEditingCategory(category),
+      (id) => setDeleteId(id)
     ),
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
-    <div className="space-y-4 w-full">
-      {/* Modal de edición */}
+    <div className="w-full">
       {editingCategory && (
         <UpdateCategoryModal
           category={editingCategory}
@@ -33,58 +37,57 @@ export default function CategoryTable({ data, total }: Props) {
           onSuccess={() => setEditingCategory(null)}
         />
       )}
-      <div className="overflow-x-auto shadow-xl">
-        <table className="min-w-full border-collapse border border-gray-300">
-          <thead>
-            {table.getHeaderGroups().map((hg) => (
-              <tr key={hg.id}>
-                {hg.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="px-4 py-2 text-left text-[#091540] border border-gray-300"
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
 
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="hover:bg-gray-50">
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-4 py-2 border border-gray-300">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
+      <table className="min-w-full border-collapse border border-gray-300">
+        <thead>
+          {table.getHeaderGroups().map((hg) => (
+            <tr key={hg.id}>
+              {hg.headers.map((header) => (
+                <th key={header.id} className="px-4 py-2 text-left text-[#091540] border border-gray-300">
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
 
-            {table.getRowModel().rows.length === 0 && (
-              <tr>
-                <td
-                  colSpan={table.getVisibleLeafColumns().length}
-                  className="px-4 py-6 text-center text-gray-500 border border-gray-300"
-                >
-                  No hay Categorías para mostrar
+        <tbody>
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id} className="hover:bg-gray-50">
+              {row.getVisibleCells().map((cell) => (
+                <td key={cell.id} className="px-4 py-2 border border-gray-300">
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
-              </tr>
-            )}
-          </tbody>
+              ))}
+            </tr>
+          ))}
 
-          <tfoot>
+          {table.getRowModel().rows.length === 0 && (
             <tr>
-              <td
-                colSpan={table.getVisibleLeafColumns().length}
-                className="px-4 py-3 border border-gray-300"
-              >
-                Total registros: <b>{total ?? data.length}</b>
+              <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-6 text-center text-gray-500 border border-gray-300">
+                No hay Categorías para mostrar
               </td>
             </tr>
-          </tfoot>
-        </table>
-      </div>
+          )}
+        </tbody>
+
+        <tfoot>
+          <tr>
+            <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-3 border border-gray-300">
+              {/* Total (izq) + Paginación incrustada (der) */}
+              <div className="w-full flex items-center justify-between gap-3">
+                <span>Total registros: <b>{total ?? data.length}</b></span>
+                <CategoryPager
+                  page={page}
+                  pageCount={pageCount}
+                  onPageChange={onPageChange}
+                  variant="inline"  // <- sin caja/borde
+                />
+              </div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   );
 }

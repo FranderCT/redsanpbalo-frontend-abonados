@@ -85,9 +85,7 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
                   {category.Name ?? "-"}
                 </dd>
               </div>
-            </dl>
 
-            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className=" bg-gray-50 p-3">
                 <dt className="text-[11px] uppercase tracking-wide text-gray-500">
                   Descripción De la Categoría

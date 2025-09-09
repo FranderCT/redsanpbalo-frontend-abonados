@@ -1,5 +1,4 @@
-// src/Modules/Category/Components/CategoryHeaderBar.tsx
-
+import { ListFilter } from 'lucide-react';
 import type { ReactNode } from "react";
 import PaginationSearch from "./PaginationSearch";
 
@@ -28,7 +27,7 @@ export default function CategoryHeaderBar({
       <div className="flex items-center gap-2">
         <span className="text-sm text-[#091540]">Filas por página:</span>
         <select
-          className="h-9 px-3 rounded border border-[#D9DBE9] bg-white text-sm outline-none"
+          className="h-9 px-3 border border-[#D9DBE9] bg-white text-sm outline-none"
           value={limit}
           onChange={(e) => onLimitChange(Number(e.target.value))}
         >
@@ -41,10 +40,10 @@ export default function CategoryHeaderBar({
       {/* Filtrar */}
       <button
         onClick={onFilterClick}
-        className="h-9 px-3 rounded border border-[#D9DBE9] bg-white text-sm hover:bg-gray-50"
+        className="h-9 px-3 border border-[#D9DBE9] bg-white text-sm hover:bg-gray-50"
         type="button"
       >
-        Filtrar
+        <ListFilter className="size-[23px] transition-colors group-hover:text-white" />
       </button>
 
       {/* Buscar por nombre (en vivo) */}

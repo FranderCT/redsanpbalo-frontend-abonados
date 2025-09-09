@@ -6,18 +6,14 @@ import CategoryFilterModal from "../Components/PaginationCategory/CategoryFilter
 import CategoryTable from "../Components/TableCategory/CategoryTable";
 import CreateCategoryModal from "../Components/ModalsCategory/CreateCategoryModal";
 import type { Category } from "../Models/Category";
-import CategoryPager from "../Components/PaginationCategory/CategoryPager";
 
 export default function ListCategories() {
   const [page, setPage] = useState(1);   // 1-based
   const [limit, setLimit] = useState(10);
-
-  // texto visible en el input
+  
   const [search, setSearch] = useState("");
-  // valor que se envía al backend
   const [name, setName] = useState<string | undefined>(undefined);
 
-  // ⬇️ APLICA en vivo: al escribir, actualiza 'name' y resetea a página 1
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
     const trimmed = txt.trim();
@@ -45,31 +41,26 @@ export default function ListCategories() {
         search={search}
         onLimitChange={(l) => { setLimit(l); setPage(1); }}
         onFilterClick={() => setOpenFilter(true)}
-        onSearchChange={handleSearchChange}   // <- aplica al escribir
+        onSearchChange={handleSearchChange}
         rightAction={<CreateCategoryModal />}
       />
 
-      {/* Tabla */}
       <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
         {isLoading ? (
           <div className="p-6 text-center text-gray-500">Cargando…</div>
         ) : error ? (
-          <div className="p-6 text-center text-red-600">
-            Ocurrió un error al cargar las Categorías.
-          </div>
+          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar las Categorías.</div>
         ) : (
-          <CategoryTable data={rows} total={meta.total} />
+          <CategoryTable
+            data={rows}
+            total={meta.total}
+            page={meta.page}               // <- pasa paginación al footer
+            pageCount={meta.pageCount}
+            onPageChange={setPage}
+          />
         )}
       </div>
 
-      {/* Paginación inferior */}
-      <CategoryPager
-        page={meta.page}
-        pageCount={meta.pageCount}
-        onPageChange={(p) => setPage(p)}
-      />
-
-      {/* Filtros → también aplica al instante */}
       <CategoryFilterModal
         open={openFilter}
         initialName={search}
