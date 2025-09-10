@@ -1,4 +1,4 @@
-import { useState } from "react";
+// src/Modules/Users/Components/ListUsers/UsersTables.tsx
 import {
   useReactTable,
   getCoreRowModel,
@@ -6,78 +6,27 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import { usersColumns as makeUsersColumns } from "./usersColumns";
-import PaginationControls from "./Table/PaginationControls";
+
 import type { Users } from "../../Models/Users";
-import AddUserModal from "../ListUsersModals/AddUserModal";
-import EditUserModal from "../ListUsersModals/EditUserModal"; // ⬅️ importa el modal
-import GetInfoUserModal from "../ListUsersModals/GetInfoUserModal";
-import DeleteUserModal from "../ListUsersModals/DeleteUserModal";
 
-type Props = { data: Users[] };
+type Props = {
+  data: Users[];
+  onEdit: (u: Users) => void;
+  onGetInfo: (u: Users) => void;
+  onDelete: (u: Users) => void;
+};
 
-const UsersTable = ({ data }: Props) => {
-
-
-  const [editingUser, setEditingUser] = useState<Users | null>(null);
-  const [getInfoUser, setGetinfoUser] = useState<Users | null>(null);
-  const [deleteUser, setdeleteUser] = useState<Users | null>(null);
-
-  const handleEdit = (user: Users) => {
-    setEditingUser(user);
-  };
-
-  const handleGetInfo = (user: Users)=> {
-    setGetinfoUser(user);
-  }
-
-  const handleDelete = (user: Users) => {
-    setdeleteUser(user);
-  };
-
+const UsersTable = ({ data, onEdit, onGetInfo, onDelete }: Props) => {
   const table = useReactTable({
     data,
-    columns: makeUsersColumns(handleEdit, handleDelete, handleGetInfo),
+    columns: makeUsersColumns(onEdit, onDelete, onGetInfo),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const { pageIndex } = table.getState().pagination;
-
+  
   return (
     <div className="space-y-4 w-full">
-
-      <AddUserModal />
-      {/* Modal de edición controlado desde aquí */}
-      {editingUser && (
-        <EditUserModal
-          user={editingUser}
-          open={true}
-          onClose={() => setEditingUser(null)}
-          onSuccess={() => setEditingUser(null)}
-        />
-      )}
-
-      {/* Modal de información */}
-      {getInfoUser && (
-        <GetInfoUserModal
-          user={getInfoUser}
-          open={true}
-          onClose={() => setGetinfoUser(null)}
-          onSuccess={() => setGetinfoUser(null)}
-        />
-      )}
-
-      {/* Modal de información */}
-      {deleteUser && (
-        <DeleteUserModal
-          user={deleteUser}
-          open={true}
-          onClose={() => setdeleteUser(null)}
-          onSuccess={() => setdeleteUser(null)}
-        />
-      )}
-
-
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-auto max-h-[70vh]">
           <table className="w-full table-auto border-collapse text-sm">
@@ -90,9 +39,7 @@ const UsersTable = ({ data }: Props) => {
                       colSpan={header.colSpan}
                       className="px-4 py-3 first:pl-5 last:pr-5 text-xs font-semibold uppercase tracking-wide text-gray-600 border-b border-gray-200"
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </th>
                   ))}
                 </tr>
@@ -115,11 +62,7 @@ const UsersTable = ({ data }: Props) => {
                           : "",
                       ].join(" ")}
                     >
-                      <div
-                        className={`truncate max-w-[240px] ${
-                          cell.column.id === "Address" ? "max-w-[360px]" : ""
-                        }`}
-                      >
+                      <div className={`truncate max-w-[240px] ${cell.column.id === "Address" ? "max-w-[360px]" : ""}`}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </div>
                     </td>
@@ -145,19 +88,7 @@ const UsersTable = ({ data }: Props) => {
                   colSpan={table.getVisibleLeafColumns().length}
                   className="px-4 py-3 first:pl-5 last:pr-5 text-xs text-gray-600 border-t border-gray-200"
                 >
-                  <div className="flex justify-center">
-                    <PaginationControls
-                      canPrev={table.getCanPreviousPage()}
-                      canNext={table.getCanNextPage()}
-                      pageIndex={pageIndex}
-                      pageCount={table.getPageCount()}
-                      onFirst={() => table.setPageIndex(0)}
-                      onPrev={() => table.previousPage()}
-                      onNext={() => table.nextPage()}
-                      onLast={() => table.setPageIndex(table.getPageCount() - 1)}
-                      onGotoPage={(p) => table.setPageIndex(p)}
-                    />
-                  </div>
+                  
                 </td>
               </tr>
             </tfoot>

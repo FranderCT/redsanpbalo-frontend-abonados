@@ -59,3 +59,25 @@ export const updateUserInitialState : UserUpdate = {
   PhoneNumber : '',
   Address : '',
 }
+
+
+// Respuesta paginada (ajústala si tu backend cambia nombres)
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  pageCount: number;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: PaginationMeta;
+}
+
+// Parámetros de búsqueda
+export interface UsersPaginationParams {
+  page: number;       // 1-based
+  limit: number;
+  name?: string;      // LIKE
+  roleId?: number;    // exact id
+}
