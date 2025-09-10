@@ -75,9 +75,10 @@ export interface PaginatedResponse<T> {
 }
 
 // Parámetros de búsqueda
+// Models/PaginationTypes.ts
 export interface UsersPaginationParams {
-  page: number;       // 1-based
+  page: number;
   limit: number;
-  name?: string;      // LIKE
-  roleId?: number;    // exact id
+  name?: string;
+  roleName?: string;  // 👈 en vez de roleId
 }

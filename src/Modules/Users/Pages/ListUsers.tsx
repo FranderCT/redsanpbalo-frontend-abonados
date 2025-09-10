@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import UsersTable from "../Components/ListUsers/UsersTables";
 
 import { useGetAllUsersPaginate } from "../Hooks/UsersHooks";
@@ -6,13 +7,41 @@ import type { Users } from "../Models/Users";
 import DeleteUserModal from "../Components/ListUsersModals/DeleteUserModal";
 import EditUserModal from "../Components/ListUsersModals/EditUserModal";
 import GetInfoUserModal from "../Components/ListUsersModals/GetInfoUserModal";
+import { getAllRoles } from "../Services/UsersServices";
+
+// 👇 Ajusta la ruta si tu servicio vive en otro lado
+ 
+// export type Roles = { Id: number; Rolname: string } // si no lo tienes ya tipado
 
 const ListUsers = () => {
   // Filtros + paginación (server-side)
   const [name, setName] = useState<string>("");
   const [roleId, setRoleId] = useState<number | undefined>(undefined);
+  const [roleName, setRoleName] = useState<string>(""); // ⬅️ filtro por nombre visible
   const [limit, setLimit] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
+
+  // Traer roles para el select
+  const { data: roles = [], isLoading: rolesLoading } = useQuery({
+    queryKey: ["roles", "all"],
+    queryFn: getAllRoles, // debe devolver Roles[]
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Cuando cambia roleName, calculamos el roleId correspondiente
+  const selectedRoleId = useMemo(() => {
+    if (!roleName) return undefined;
+    const found = roles.find((r) => r.Rolname === roleName);
+    return found?.Id;
+  }, [roleName, roles]);
+
+  // Empujamos el roleId calculado al estado que va al endpoint
+  // (si ya usas roleId en otra parte, puedes omitir este efecto y usar selectedRoleId directamente en params)
+  if (roleId !== selectedRoleId) {
+    // mínimo re-render y sin efectos: sincroniza roleId con selección
+    // (evita bucles porque sólo se ejecuta cuando difieren)
+    setRoleId(selectedRoleId);
+  }
 
   const params = useMemo(
     () => ({ page, limit, name: name || undefined, roleId }),
@@ -46,10 +75,10 @@ const ListUsers = () => {
       {/* Filtros */}
       <div className="flex flex-wrap items-end gap-3 p-3">
         <label className="grid text-sm">
-          <span className="mb-1">Nombre </span>
+          <span className="mb-1">Nombre</span>
           <input
-            className="border rounded px-3 py-2 w-56"
-            placeholder="Ej: frander"
+            className="border  px-3 py-2 w-56"
+            placeholder="Ej: José Daniel Román"
             value={name}
             onChange={(e) => {
               setName(e.target.value);
@@ -59,23 +88,29 @@ const ListUsers = () => {
         </label>
 
         <label className="grid text-sm">
-          <span className="mb-1">Rol (roleId)</span>
-          <input
-            className="border rounded px-3 py-2 w-28"
-            type="number"
-            value={roleId ?? ""}
+          <span className="mb-1">Rol</span>
+          <select
+            className="border  px-3 py-2 w-56"
+            value={roleName}
             onChange={(e) => {
-              const v = e.target.value;
-              setRoleId(v === "" ? undefined : Number(v));
+              setRoleName(e.target.value);
               resetPageOnFilter();
             }}
-          />
+            disabled={rolesLoading}
+          >
+            <option value="">Todos</option>
+            {roles.map((r) => (
+              <option key={r.Id} value={r.Rolname}>
+                {r.Rolname}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="grid text-sm">
           <span className="mb-1">Por página</span>
           <select
-            className="border  px-3 py-2 w-28"
+            className="border px-3 py-2 w-28 "
             value={limit}
             onChange={(e) => {
               setLimit(Number(e.target.value));
@@ -92,10 +127,11 @@ const ListUsers = () => {
           type="button"
           onClick={() => {
             setName("");
-            setRoleId(undefined);
+            setRoleName("");      // limpia selección visible
+            setRoleId(undefined); // limpia param al backend
             resetPageOnFilter();
           }}
-          className="h-10 px-4 = border text-sm text-[#091540] hover:bg-gray-100"
+          className="h-10 px-4 border  text-sm text-[#091540] hover:bg-gray-100"
         >
           Limpiar filtros
         </button>
@@ -115,7 +151,7 @@ const ListUsers = () => {
       />
 
       {/* Paginación */}
-      <div className="flex items-center gap-2  justify-center">
+      <div className="flex items-center gap-2 justify-center">
         <button
           className="border px-3 py-1  disabled:opacity-50"
           onClick={() => setPage((p) => Math.max(1, p - 1))}

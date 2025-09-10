@@ -78,9 +78,8 @@ export async function deteleUserById(id: number) : Promise<void>{
 
 // src/Modules/Users/Services/UsersService.ts
 
-export async function getAllUsersPaginate(
-  params: UsersPaginationParams
-): Promise<PaginatedResponse<Users>> {
+export async function getAllUsersPaginate(params: UsersPaginationParams) {
   const { data } = await apiAxios.get<PaginatedResponse<Users>>("/users/pagination", { params });
   return data;
 }
+
