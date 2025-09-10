@@ -3,7 +3,7 @@ import { registerRoute, loginRoute, resetPasswordRoute, forgotPasswordRoute } fr
 import { dashboardRoute, dashboardIndexRoute } from "./Modules/Dashboard/Routes/DashboardRoutes";
 import { materialRoute, createMaterialRoute } from "./Modules/Materials/Routes/MaterialsRoutes";
 import { settingsRoute, changeEmailRoute, changePasswordRoute } from "./Modules/SettingsUser/Routes/SettingsRoute";
-import { usersRoute, userProfilewRoute, userProfileEditRoute } from "./Modules/Users/Routes/UsersRoutes";
+import { usersRoute, userProfilewRoute, userProfileEditRoute, listUsersRoute } from "./Modules/Users/Routes/UsersRoutes";
 import { categoryRoute } from "./Modules/Category/Routes/RoutesCategories";
 import { uniteMeasureRoute } from "./Modules/UnitMeasure/routes/RoutesUnitMeasures";
 
@@ -24,6 +24,7 @@ export const routeTree = rootRoute.addChildren([
     usersRoute.addChildren([
       userProfilewRoute,
       userProfileEditRoute,
+      listUsersRoute
     ]),
     dashboardIndexRoute,
     materialRoute.addChildren([

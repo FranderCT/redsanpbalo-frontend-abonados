@@ -66,7 +66,7 @@ const CreateUnitMeasureModal = () => {
                 <label className="grid gap-2">
                   <span className="text-sm font-medium text-gray-700">Nombre de la unidad</span>
                   <input
-                    className="w-full h-11 px-4  bg-gray-50 border border-gray-300 text-[#091540] placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#1789FC] focus:border-[#1789FC] transition"
+                    className="w-full h-11 px-4  border border-[#091540]/40  text-[#091540] placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#1789FC] focus:border-[#1789FC] transition"
                     type="text"
                     placeholder="Ej. metro, unidad…"
                     value={field.state.value}

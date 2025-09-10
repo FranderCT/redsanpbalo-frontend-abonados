@@ -22,15 +22,20 @@ import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
 import UserProfile from "../Pages/UserProfile/UserProfile";
 import EditProfile from "../Components/ProfileUser/EditProfileUser/EditProfile";
 import ListUsers from "../Pages/ListUsers";
-import { createRoute } from "@tanstack/react-router";
+import { createRoute, Outlet } from "@tanstack/react-router";
 
 
 export const usersRoute = createRoute({
   getParentRoute: () => dashboardRoute,
   path: "users",
-  component: ListUsers
+  component: ()=> <Outlet/>
 });
 
+export const listUsersRoute = createRoute({
+  getParentRoute: ()=> usersRoute,
+  path: '/',
+  component: ListUsers
+})
 
 export const userProfilewRoute = createRoute({
   getParentRoute: () => usersRoute,

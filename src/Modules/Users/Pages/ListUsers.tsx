@@ -63,8 +63,10 @@ const ListUsers = () => {
 
   return (
     <div className="p-4 space-y-4">
-      <h2 className="text-2xl font-bold text-[#091540]">Lista de Usuarios</h2>
-
+      <div className="border-b border-[#222]/20 flex flex-col gap-2 ">
+        <h2 className="text-4xl font-bold text-[#091540]">Información de los Usuarios</h2>
+        <span className=" text-[#091540]">Resumen de todos los Usuarios registrados </span>
+      </div>
       {/* Filtros */}
       <div className="flex flex-wrap items-end gap-3 p-3">
         <label className="grid text-sm">

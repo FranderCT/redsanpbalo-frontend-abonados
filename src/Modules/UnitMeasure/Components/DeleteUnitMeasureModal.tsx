@@ -31,7 +31,9 @@ const DeleteUnitMeasureModal = ({ unit, open, onClose, onSuccess }: Props) => {
     }
   };
 
-  const canDelete = confirmText.trim().toLowerCase() === unit.Name?.trim().toLowerCase();
+  const text = 'confirmar'
+
+  const canDelete = confirmText.trim().toLowerCase() === text.trim().toLowerCase();
 
   return (
     <ModalBase
@@ -50,7 +52,7 @@ const DeleteUnitMeasureModal = ({ unit, open, onClose, onSuccess }: Props) => {
           <p className="text-sm text-[#091540]">
             Estás a punto de <span className="font-semibold text-red-600">Desactivar</span> la unidad:
           </p>
-          <p className="mt-1 text-base font-semibold break-words">{unit.Name ?? "-"}</p>
+          <p className="mt-1 text-base font-semibold break-words">{unit.Name?? "-"}</p>
         </div>
 
         <div className="p-3 border border-red-200 bg-red-50 rounded">
@@ -62,13 +64,13 @@ const DeleteUnitMeasureModal = ({ unit, open, onClose, onSuccess }: Props) => {
         {/* Confirmación por texto (opcional pero recomendable) */}
         <label className="grid gap-1">
           <span className="text-sm text-gray-700">
-            Escribe <span className="font-semibold">{unit.Name}</span> para confirmar
+            Escribe <span className="font-semibold">{text}</span> para desactivar
           </span>
           <input
-            className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+            className="w-full px-4 py-2 border-[#091540]/40 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
-            placeholder={`Escribe "${unit.Name}"`}
+            placeholder={`Escribe "${text}"`}
           />
         </label>
 
