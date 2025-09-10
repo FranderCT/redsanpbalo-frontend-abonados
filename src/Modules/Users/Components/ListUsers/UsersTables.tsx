@@ -7,7 +7,6 @@ import {
 } from "@tanstack/react-table";
 import { usersColumns as makeUsersColumns } from "./usersColumns";
 import PaginationControls from "./Table/PaginationControls";
-import { useDeleteUser } from "../../Hooks/UsersHooks";
 import type { Users } from "../../Models/Users";
 import AddUserModal from "../ListUsersModals/AddUserModal";
 import EditUserModal from "../ListUsersModals/EditUserModal"; // ⬅️ importa el modal
