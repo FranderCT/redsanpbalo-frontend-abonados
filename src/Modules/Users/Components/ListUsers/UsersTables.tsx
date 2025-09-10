@@ -23,7 +23,6 @@ const UsersTable = ({
   onEdit,
   onGetInfo,
   onDelete,
-  total,
   page,
   pageCount,
   onPageChange,
