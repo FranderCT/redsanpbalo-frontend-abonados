@@ -20,7 +20,7 @@ export default function PaginationSearchWater({
         ref={formRef}
         className="
           relative w-67
-          bg-white h-10
+          bg-white h-9
           pl-12 pr-3
           ring-1 ring-gray-200 shadow-sm
           focus-within:ring-[#1789FC]

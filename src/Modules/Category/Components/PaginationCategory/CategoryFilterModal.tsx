@@ -1,4 +1,3 @@
-// src/Modules/Category/Components/CategoryFilterModal.tsx
 type Props = {
   open: boolean;
   initialName: string;

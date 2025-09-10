@@ -36,13 +36,21 @@ export async function searchCategories(
   params: CategoriesPaginationParams
 ): Promise<PaginatedResponse<Category>> {
   try {
-    const { page = 1, limit = 10, name } = params ?? {};
+    const { page = 1, limit = 10, name, state } = params ?? {};
     const { data } = await apiAxios.get<PaginatedResponse<Category>>("categories/search", {
-      params: { page, limit, name },
+      params: { page, limit, name, state },
     });
     return data;
   } catch (err) {
     console.error("Error buscando categorías", err);
     return Promise.reject(err);
+  }
+}
+
+export async function deleteCategory(id: number): Promise<void> {
+  try {
+    await apiAxios.put(`/categories/${id}`);
+  } catch (error) {
+    console.error("Error al inhabilitar la categoría", error);
   }
 }
