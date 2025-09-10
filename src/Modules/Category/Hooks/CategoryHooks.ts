@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createCategory, getAllCategory, searchCategories, UpdateCategory } from "../Services/CategoryServices";
+import { createCategory, deleteCategory, getAllCategory, searchCategories, UpdateCategory } from "../Services/CategoryServices";
 import type { Category, NewCategory } from "../Models/Category";
 import type { CategoriesPaginationParams, PaginatedResponse } from "../Models/PaginationCategory";
 import { useEffect } from "react";
@@ -73,4 +73,14 @@ export const useSearchCategories = (params: CategoriesPaginationParams) => {
   }, [query.data, params]);
 
   return query;
+};
+
+export const useDeleteCategory = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteCategory(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["categories"] });
+    },
+  });
 };

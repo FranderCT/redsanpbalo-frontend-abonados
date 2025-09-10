@@ -16,5 +16,6 @@ export type PaginatedResponse<T> = {
 export type CategoriesPaginationParams = {
   page?: number;
   limit?: number;
-  name?: string; 
+  name?: string;
+  state?: string;
 };
