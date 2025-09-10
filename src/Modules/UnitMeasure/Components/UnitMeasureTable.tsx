@@ -37,7 +37,7 @@ const UnitMeasureTable = ({ data }: Props) => {
   return (
     <div className="space-y-4 w-full">
       {/* Controles superiores */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3"> 
         <CreateUnitMeasureModal />
 
         {/* Modal de edición */}
@@ -112,7 +112,9 @@ const UnitMeasureTable = ({ data }: Props) => {
                 colSpan={table.getVisibleLeafColumns().length}
                 className="px-4 py-3 border border-gray-300"
               >
-                {/* aquí podrías mover tu paginador si quieres */}
+                <div className="w-full flex items-center  justify-center gap-3">
+                
+                </div>
               </td>
             </tr>
           </tfoot>
