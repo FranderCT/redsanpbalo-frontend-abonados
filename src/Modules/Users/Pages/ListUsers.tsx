@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import UsersTable from "../Components/ListUsers/UsersTables";
 
@@ -9,15 +9,11 @@ import EditUserModal from "../Components/ListUsersModals/EditUserModal";
 import GetInfoUserModal from "../Components/ListUsersModals/GetInfoUserModal";
 import { getAllRoles } from "../Services/UsersServices";
 
-// 👇 Ajusta la ruta si tu servicio vive en otro lado
- 
-// export type Roles = { Id: number; Rolname: string } // si no lo tienes ya tipado
-
 const ListUsers = () => {
   // Filtros + paginación (server-side)
   const [name, setName] = useState<string>("");
   const [roleId, setRoleId] = useState<number | undefined>(undefined);
-  const [roleName, setRoleName] = useState<string>(""); // ⬅️ filtro por nombre visible
+  const [roleName, setRoleName] = useState<string>(""); // visible
   const [limit, setLimit] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
 
@@ -28,20 +24,17 @@ const ListUsers = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Cuando cambia roleName, calculamos el roleId correspondiente
+  // Derivar roleId a partir del nombre visible
   const selectedRoleId = useMemo(() => {
     if (!roleName) return undefined;
     const found = roles.find((r) => r.Rolname === roleName);
     return found?.Id;
   }, [roleName, roles]);
 
-  // Empujamos el roleId calculado al estado que va al endpoint
-  // (si ya usas roleId en otra parte, puedes omitir este efecto y usar selectedRoleId directamente en params)
-  if (roleId !== selectedRoleId) {
-    // mínimo re-render y sin efectos: sincroniza roleId con selección
-    // (evita bucles porque sólo se ejecuta cuando difieren)
+  // ✅ sincronizar roleId de forma segura (no durante render)
+  useEffect(() => {
     setRoleId(selectedRoleId);
-  }
+  }, [selectedRoleId]);
 
   const params = useMemo(
     () => ({ page, limit, name: name || undefined, roleId }),
@@ -77,7 +70,7 @@ const ListUsers = () => {
         <label className="grid text-sm">
           <span className="mb-1">Nombre</span>
           <input
-            className="border  px-3 py-2 w-56"
+            className="border px-3 py-2 w-56"
             placeholder="Ej: José Daniel Román"
             value={name}
             onChange={(e) => {
@@ -90,7 +83,7 @@ const ListUsers = () => {
         <label className="grid text-sm">
           <span className="mb-1">Rol</span>
           <select
-            className="border  px-3 py-2 w-56"
+            className="border px-3 py-2 w-56"
             value={roleName}
             onChange={(e) => {
               setRoleName(e.target.value);
@@ -110,7 +103,7 @@ const ListUsers = () => {
         <label className="grid text-sm">
           <span className="mb-1">Por página</span>
           <select
-            className="border px-3 py-2 w-28 "
+            className="border px-3 py-2 w-28"
             value={limit}
             onChange={(e) => {
               setLimit(Number(e.target.value));
@@ -127,49 +120,27 @@ const ListUsers = () => {
           type="button"
           onClick={() => {
             setName("");
-            setRoleName("");      // limpia selección visible
-            setRoleId(undefined); // limpia param al backend
+            setRoleName("");
+            setRoleId(undefined);
             resetPageOnFilter();
           }}
-          className="h-10 px-4 border  text-sm text-[#091540] hover:bg-gray-100"
+          className="h-10 px-4 border text-sm text-[#091540] hover:bg-gray-100"
         >
           Limpiar filtros
         </button>
       </div>
 
-      {/* Resumen */}
-      <div className="text-sm text-gray-600">
-        {total > 0 ? `Total: ${total} registros` : "Sin resultados"}
-      </div>
-
-      {/* Tabla */}
+      {/* Tabla con paginación incrustada */}
       <UsersTable
         data={usersProfiles ?? []}
         onEdit={onEdit}
         onGetInfo={onGetInfo}
         onDelete={onDelete}
+        total={total}
+        page={currentPage}
+        pageCount={pageCount}
+        onPageChange={setPage}
       />
-
-      {/* Paginación */}
-      <div className="flex items-center gap-2 justify-center">
-        <button
-          className="border px-3 py-1  disabled:opacity-50"
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={currentPage <= 1}
-        >
-          ← Anterior
-        </button>
-        <span className="text-sm">
-          Página {currentPage} de {pageCount}
-        </span>
-        <button
-          className="border px-3 py-1  disabled:opacity-50"
-          onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-          disabled={currentPage >= pageCount}
-        >
-          Siguiente →
-        </button>
-      </div>
 
       {/* Modales */}
       {editingUser && (

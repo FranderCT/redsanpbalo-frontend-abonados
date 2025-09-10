@@ -1,30 +1,39 @@
-// src/Modules/Users/Components/ListUsers/UsersTables.tsx
-import {
-  useReactTable,
-  getCoreRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import { usersColumns as makeUsersColumns } from "./usersColumns";
-
 import type { Users } from "../../Models/Users";
+
+// ⬇️ importa el mismo pager que usas en categorías (ajusta la ruta si difiere)
+import CategoryPager from "../../../Category/Components/PaginationCategory/CategoryPager";
 
 type Props = {
   data: Users[];
   onEdit: (u: Users) => void;
   onGetInfo: (u: Users) => void;
   onDelete: (u: Users) => void;
+
+  // Para paginación incrustada
+  total?: number;
+  page: number;                 // 1-based
+  pageCount: number;            // >= 1
+  onPageChange: (p: number) => void;
 };
 
-const UsersTable = ({ data, onEdit, onGetInfo, onDelete }: Props) => {
+const UsersTable = ({
+  data,
+  onEdit,
+  onGetInfo,
+  onDelete,
+  total,
+  page,
+  pageCount,
+  onPageChange,
+}: Props) => {
   const table = useReactTable({
     data,
     columns: makeUsersColumns(onEdit, onDelete, onGetInfo),
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
-  
   return (
     <div className="space-y-4 w-full">
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -39,7 +48,9 @@ const UsersTable = ({ data, onEdit, onGetInfo, onDelete }: Props) => {
                       colSpan={header.colSpan}
                       className="px-4 py-3 first:pl-5 last:pr-5 text-xs font-semibold uppercase tracking-wide text-gray-600 border-b border-gray-200"
                     >
-                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </th>
                   ))}
                 </tr>
@@ -62,7 +73,11 @@ const UsersTable = ({ data, onEdit, onGetInfo, onDelete }: Props) => {
                           : "",
                       ].join(" ")}
                     >
-                      <div className={`truncate max-w-[240px] ${cell.column.id === "Address" ? "max-w-[360px]" : ""}`}>
+                      <div
+                        className={`truncate max-w-[240px] ${
+                          cell.column.id === "Address" ? "max-w-[360px]" : ""
+                        }`}
+                      >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </div>
                     </td>
@@ -82,13 +97,21 @@ const UsersTable = ({ data, onEdit, onGetInfo, onDelete }: Props) => {
               )}
             </tbody>
 
-            <tfoot className="bg-gray-50">
+            <tfoot className="bg-gray-50 ">
               <tr>
                 <td
                   colSpan={table.getVisibleLeafColumns().length}
                   className="px-4 py-3 first:pl-5 last:pr-5 text-xs text-gray-600 border-t border-gray-200"
                 >
-                  
+                  {/* Total (izquierda) + Paginación incrustada (derecha) */}
+                  <div className="w-full flex items-center  justify-center gap-3">
+                    <CategoryPager
+                      page={page}
+                      pageCount={pageCount}
+                      onPageChange={onPageChange}
+                      variant="inline"   // sin caja/borde, como CategoryTable
+                    />
+                  </div>
                 </td>
               </tr>
             </tfoot>
