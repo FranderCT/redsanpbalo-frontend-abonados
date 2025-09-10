@@ -1,7 +1,10 @@
-// Modules/Materials/MaterialColumns.tsx
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Category } from "../../Models/Category";
 
+export type RowCategory = Category & {
+  Id: number;
+  IsActive?: boolean;
+};
 
 export const CategoryColumns = (
   onEdit: (category: Category) => void,
@@ -9,6 +12,9 @@ export const CategoryColumns = (
 ): ColumnDef<Category>[] => [
   { accessorKey: "Name", header: "Nombre de la Categoría" },
   { accessorKey: "Description", header: "Descripción" },
+  { accessorKey: "IsActive", header: "Estado",  
+    cell: ({ row }) => (row.original.IsActive ? "Activo" : "Inactivo"),
+  },
   {
     id: "Acciones",
     header: "Acciones",

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createUnitMeasure, getAllUnitsMeasure, UpdateUnitMeasure } from "../Services/UnitMeasureServices";
+import { createUnitMeasure, deleteUnitMeasure, getAllUnitsMeasure, UpdateUnitMeasure } from "../Services/UnitMeasureServices";
 import type { NewUnit, Unit } from "../Models/unit";
 
 export const useCreateUnitMeasure = () => {
@@ -43,3 +43,14 @@ export const useGetAllUnitsMeasure = () => {
 
     return{unit, isLoading, error}
 }
+
+
+export const useDeleteUnitMeasure = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => deleteUnitMeasure(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["units"] });
+    },
+  });
+};

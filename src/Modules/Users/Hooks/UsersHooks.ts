@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createUserModal, deleteUser, getAllRoles, getAllUsers, getUserProfile, updateUser, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
+import { createUserModal, deleteUser, deteleUserById, getAllRoles, getAllUsers, getUserById, getUserProfile, updateUser, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
 import type { Users, UserUpdate } from "../Models/Users";
 
 
@@ -95,3 +95,31 @@ export const useUpdateUser = () => {
     },
   });
 };
+
+
+export const useGetUserById = (id: number) => {
+
+  const {data: user, isLoading,error} = useQuery({
+    queryKey: ["user", id],
+    queryFn: () => getUserById(id),
+  });
+
+  return { user, isLoading, error };
+};
+
+
+export const useDeleteUserByID = () =>{
+    const qc = useQueryClient();
+
+    const mutation = useMutation({
+      mutationFn: (id: number) => deteleUserById(id),
+      onSuccess: (res) =>{
+        qc.invalidateQueries({queryKey: ["users"]})
+        console.log("Usuario eliminado, ", res);
+      },
+      onError: (err)=>{
+        console.error("No se pudo eliminar el usuario", err);
+      }
+    })
+    return mutation;
+}

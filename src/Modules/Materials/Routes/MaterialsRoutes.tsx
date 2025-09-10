@@ -6,6 +6,7 @@ import ListMaterials from "../Pages/ListMaterials";
 export const materialRoute = createRoute({
   getParentRoute: () => dashboardRoute,
   path: "materials", 
+  component: ListMaterials
 });
 
 export const createMaterialRoute = createRoute({
@@ -14,8 +15,3 @@ export const createMaterialRoute = createRoute({
     component: CreateMaterialForm,
 })
 
-export const materialTableRoute = createRoute({
-  getParentRoute : () => materialRoute,
-  path : 'table',
-  component: ListMaterials
-})

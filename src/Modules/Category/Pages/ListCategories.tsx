@@ -2,7 +2,6 @@
 import { useMemo, useState } from "react";
 import { useSearchCategories } from "../Hooks/CategoryHooks";
 import CategoryHeaderBar from "../Components/PaginationCategory/CategoryHeaderBar";
-import CategoryFilterModal from "../Components/PaginationCategory/CategoryFilterModal";
 import CategoryTable from "../Components/TableCategory/CategoryTable";
 import CreateCategoryModal from "../Components/ModalsCategory/CreateCategoryModal";
 import type { Category } from "../Models/Category";
@@ -13,6 +12,7 @@ export default function ListCategories() {
   
   const [search, setSearch] = useState("");
   const [name, setName] = useState<string | undefined>(undefined);
+  const [state, setState] = useState<string | undefined>(undefined);
 
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
@@ -21,15 +21,26 @@ export default function ListCategories() {
     setPage(1);
   };
 
-  const params = useMemo(() => ({ page, limit, name }), [page, limit, name]);
+   // Manejo de filtro por estado
+  const handleStateChange = (newState: string) => {
+    setState(newState || undefined);
+    setPage(1);
+  };
+
+  const handleCleanFilters = () => {
+    setSearch("");
+    setName(undefined);
+    setState(undefined);
+    setPage(1);
+  }
+  
+  const params = useMemo(() => ({ page, limit, name, state }), [page, limit, name, state]);
   const { data, isLoading, error } = useSearchCategories(params);
 
   const rows: Category[] = data?.data ?? [];
   const meta = data?.meta ?? {
     total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false,
   };
-
-  const [openFilter, setOpenFilter] = useState(false);
 
   return (
     <div className="p-4 space-y-4">
@@ -40,8 +51,9 @@ export default function ListCategories() {
         total={meta.total}
         search={search}
         onLimitChange={(l) => { setLimit(l); setPage(1); }}
-        onFilterClick={() => setOpenFilter(true)}
+        onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}
+        onCleanFilters={handleCleanFilters}
         rightAction={<CreateCategoryModal />}
       />
 
@@ -61,12 +73,6 @@ export default function ListCategories() {
         )}
       </div>
 
-      <CategoryFilterModal
-        open={openFilter}
-        initialName={search}
-        onClose={() => setOpenFilter(false)}
-        onApply={(next) => handleSearchChange(next)}
-      />
     </div>
   );
 }

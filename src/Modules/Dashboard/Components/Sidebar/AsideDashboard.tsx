@@ -44,7 +44,7 @@ const AsideDashboard = () => {
 
         <Can rule={{ all: ["ADMIN"] }}>
           <button
-            onClick={() => navigate({ to: "/dashboard/users/table" })}
+            onClick={() => navigate({ to: "/dashboard/users" })}
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
           >
             <UserCog className="size-[23px] transition-colors group-hover:text-white" />
@@ -58,10 +58,10 @@ const AsideDashboard = () => {
             icon={<Forklift className="size-[23px] transition-colors group-hover:text-white" />}
             label="Productos"
             items={[
-              { label: "Productos", onClick: () => navigate({ }) },
-              { label: "Materiales", onClick: () => navigate({ to: "/dashboard/materials/table" }) },
-              { label: "Categorías", onClick: () => navigate({  }) },
-              { label: "Unidad de medidas", onClick: () => navigate({  }) },
+              { label: "Productos", onClick: () => navigate({  }) },
+              { label: "Materiales", onClick: () => navigate({ to: "/dashboard/materials" }) },
+              { label: "Categorías", onClick: () => navigate({ to: "/dashboard/categories" }) },
+              { label: "Unidad de medidas", onClick: () => navigate({ to: "/dashboard/units-measure" }) },
             ]}
           />
         </Can>

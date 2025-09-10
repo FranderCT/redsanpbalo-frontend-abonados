@@ -1,10 +1,11 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import type { Users } from "../../Models/Users";
-
+import { Edit2, Trash, Info } from "lucide-react";
 
 export const usersColumns = (
-   onEdit: (user: Users) => void,   
-  onDelete: (id: number) => void
+  onEdit: (user: Users) => void,
+  onDelete: (user: Users) => void,
+  onGetInfo: (user: Users) => void
 ): ColumnDef<Users>[] => [
   {
     id: "FullName",
@@ -19,18 +20,6 @@ export const usersColumns = (
   { accessorKey: "Email", header: "Correo" },
   { accessorKey: "PhoneNumber", header: "Teléfono" },
   {
-    accessorKey: "Roles",
-    header: "Roles",
-    cell: ({ row }) =>
-      row.original.Roles.map((r) => r.Rolname).join(", ") || "Sin rol",
-  },
-  {
-    accessorKey: "IsActive",
-    header: "Estatus",
-    cell: ({ row }) => (row.original.IsActive ? "Activo" : "Inactivo"),
-  },
-  { accessorKey: "Address", header: "Dirección" },
-  {
     id: "Acciones",
     header: "Acciones",
     cell: ({ row }) => {
@@ -38,21 +27,47 @@ export const usersColumns = (
 
       return (
         <div className="flex gap-2">
+          {/* Editar */}
           <button
             onClick={() => onEdit(user)}
-            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#1789FC] border-[#1789FC]
+                       hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
           >
+            <Edit2 className="w-4 h-4" />
             Editar
           </button>
+
+          {/* Desactivar */}
           <button
-            onClick={() => onDelete(user.Id) }
-            className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+            onClick={() => onDelete(user)}
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#F6132D] border-[#F6132D]
+                       hover:bg-[#F6132D] hover:text-[#F9F5FF] transition"
           >
-            Eliminar
+            <Trash className="w-4 h-4" />
+            Desactivar
           </button>
         </div>
       );
     },
   },
+  {
+    id: "Información",
+    header: "Información",
+    cell: ({ row }) => {
+      const user = row.original;
+      return (
+        <button
+          onClick={() => onGetInfo(user)}
+          className="flex items-center gap-1 px-3 py-1 text-xs font-medium 
+                     text-[#091540] border-[#091540]
+                     hover:bg-[#091540] hover:text-[#F9F5FF] transition"
+        >
+          <Info className="w-4 h-4" />
+          Ver más...
+        </button>
+      );
+    },
+  },
 ];
-// se definen las columnas de la tabla para usuasrios 

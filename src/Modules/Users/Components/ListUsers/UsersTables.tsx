@@ -7,31 +7,36 @@ import {
 } from "@tanstack/react-table";
 import { usersColumns as makeUsersColumns } from "./usersColumns";
 import PaginationControls from "./Table/PaginationControls";
-import { useDeleteUser } from "../../Hooks/UsersHooks";
 import type { Users } from "../../Models/Users";
 import AddUserModal from "../ListUsersModals/AddUserModal";
 import EditUserModal from "../ListUsersModals/EditUserModal"; // ⬅️ importa el modal
+import GetInfoUserModal from "../ListUsersModals/GetInfoUserModal";
+import DeleteUserModal from "../ListUsersModals/DeleteUserModal";
 
 type Props = { data: Users[] };
 
 const UsersTable = ({ data }: Props) => {
-  const deleteUserMutation = useDeleteUser();
+
 
   const [editingUser, setEditingUser] = useState<Users | null>(null);
+  const [getInfoUser, setGetinfoUser] = useState<Users | null>(null);
+  const [deleteUser, setdeleteUser] = useState<Users | null>(null);
 
   const handleEdit = (user: Users) => {
     setEditingUser(user);
   };
 
-  const handleDelete = (id: number) => {
-    const ok = window.confirm("¿Eliminar este usuario?");
-    if (!ok) return;
-    deleteUserMutation.mutateAsync(id);
+  const handleGetInfo = (user: Users)=> {
+    setGetinfoUser(user);
+  }
+
+  const handleDelete = (user: Users) => {
+    setdeleteUser(user);
   };
 
   const table = useReactTable({
     data,
-    columns: makeUsersColumns(handleEdit, handleDelete),
+    columns: makeUsersColumns(handleEdit, handleDelete, handleGetInfo),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
@@ -40,8 +45,8 @@ const UsersTable = ({ data }: Props) => {
 
   return (
     <div className="space-y-4 w-full">
-      <AddUserModal />
 
+      <AddUserModal />
       {/* Modal de edición controlado desde aquí */}
       {editingUser && (
         <EditUserModal
@@ -51,6 +56,27 @@ const UsersTable = ({ data }: Props) => {
           onSuccess={() => setEditingUser(null)}
         />
       )}
+
+      {/* Modal de información */}
+      {getInfoUser && (
+        <GetInfoUserModal
+          user={getInfoUser}
+          open={true}
+          onClose={() => setGetinfoUser(null)}
+          onSuccess={() => setGetinfoUser(null)}
+        />
+      )}
+
+      {/* Modal de información */}
+      {deleteUser && (
+        <DeleteUserModal
+          user={deleteUser}
+          open={true}
+          onClose={() => setdeleteUser(null)}
+          onSuccess={() => setdeleteUser(null)}
+        />
+      )}
+
 
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-auto max-h-[70vh]">

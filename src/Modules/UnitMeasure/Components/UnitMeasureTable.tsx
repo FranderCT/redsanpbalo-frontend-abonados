@@ -6,62 +6,58 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 
-
-
 import type { Unit } from "../Models/unit";
-import CreateMaterialModal from "../../Materials/Modals/CreateMaterialModal";
-import DeleteMaterialModal from "../../Materials/Modals/DeleteMaterialModal";
 import { UnitMeasureColumns } from "./UnitMeasureColumns";
 import CreateUnitMeasureModal from "./CreateUnitMeasureModal";
 import UpdateUnitMeasureModal from "./UpdateUnitMeasureModal";
-
+import DeleteUnitMeasureModal from "./DeleteUnitMeasureModal";
 
 type Props = { data: Unit[] };
 
 const UnitMeasureTable = ({ data }: Props) => {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
-  // Estado para modal de edición
+  // Modales
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
-
-  // Estado para modal de eliminación (solo id)
-  const [deleteId, setDeleteId] = useState<number | null>(null); // <- NUEVO
+  const [deleteUnit, setDeleteUnit] = useState<Unit | null>(null); 
 
   // Handlers
-  const handleEdit = (unit: Unit) => {
-    setEditingUnit(unit); // abre modal edición
-  };
-
-  const handleDelete = (id: number) => {
-    setDeleteId(id); // <- abre modal eliminación
-  };
+  const handleEdit = (unit: Unit) => setEditingUnit(unit);
+  const handleDelete = (unit: Unit) => setDeleteUnit(unit);
 
   const table = useReactTable({
     data,
-    columns: UnitMeasureColumns(handleEdit, handleDelete), // onDelete espera id:number
+    columns: UnitMeasureColumns(handleEdit, handleDelete), // asegúrate que el onDelete reciba Unit
     state: { pagination },
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  
-
   return (
     <div className="space-y-4 w-full">
       {/* Controles superiores */}
       <div className="flex items-center gap-3">
-        
         <CreateUnitMeasureModal />
 
-        {/* Modal de edición controlado desde aquí */}
+        {/* Modal de edición */}
         {editingUnit && (
-            <UpdateUnitMeasureModal
+          <UpdateUnitMeasureModal
             unit={editingUnit}
             open={true}
             onClose={() => setEditingUnit(null)}
             onSuccess={() => setEditingUnit(null)}
-            />
+          />
+        )}
+
+        {/* Modal de eliminación */}
+        {deleteUnit && (
+          <DeleteUnitMeasureModal
+            unit={deleteUnit}
+            open={true}
+            onClose={() => setDeleteUnit(null)}   // <- corrige tipo
+            onSuccess={() => setDeleteUnit(null)} // opcional: cerrar al terminar
+          />
         )}
 
         <span className="ml-auto text-sm text-gray-600">
@@ -72,7 +68,7 @@ const UnitMeasureTable = ({ data }: Props) => {
       {/* Tabla */}
       <div className="overflow-x-auto shadow-xl">
         <table className="min-w-full border-collapse border border-gray-300">
-          <thead className="">
+          <thead>
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id}>
                 {hg.headers.map((header) => (
@@ -80,10 +76,7 @@ const UnitMeasureTable = ({ data }: Props) => {
                     key={header.id}
                     className="px-4 py-2 text-left text-[#091540] border border-gray-300"
                   >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                    {flexRender(header.column.columnDef.header, header.getContext())}
                   </th>
                 ))}
               </tr>
@@ -113,25 +106,20 @@ const UnitMeasureTable = ({ data }: Props) => {
             )}
           </tbody>
 
-          <tfoot className="">
+          <tfoot>
             <tr>
               <td
                 colSpan={table.getVisibleLeafColumns().length}
                 className="px-4 py-3 border border-gray-300"
               >
-               <h1>shi uwu</h1>
+                {/* aquí podrías mover tu paginador si quieres */}
               </td>
             </tr>
           </tfoot>
         </table>
       </div>
-
-
-      {/* Modal de eliminación (solo id) */}
-      
     </div>
   );
 };
 
 export default UnitMeasureTable;
-
