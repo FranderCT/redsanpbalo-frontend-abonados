@@ -27,16 +27,23 @@ export const usersColumns = (
 
       return (
         <div className="flex gap-2">
+          {/* Editar */}
           <button
             onClick={() => onEdit(user)}
-            className="flex items-center gap-1 px-3 py-1 text-xs font-medium   text-[#1789FC] hover:bg-[#091540] transition border"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#1789FC] border-[#1789FC]
+                       hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
           >
             <Edit2 className="w-4 h-4" />
             Editar
           </button>
+
+          {/* Desactivar */}
           <button
             onClick={() => onDelete(user)}
-            className="flex items-center gap-1 px-3 py-1 text-xs font-medium hover:bg-[#091540] transition text-[#F6132D] border"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#F6132D] border-[#F6132D]
+                       hover:bg-[#F6132D] hover:text-[#F9F5FF] transition"
           >
             <Trash className="w-4 h-4" />
             Desactivar
@@ -53,9 +60,11 @@ export const usersColumns = (
       return (
         <button
           onClick={() => onGetInfo(user)}
-          className="flex items-center gap-1 px-3 py-1 text-xs font-medium   text-[#091540] hover:bg-[#091540] hover:text-[#F9F5FF] transition "
+          className="flex items-center gap-1 px-3 py-1 text-xs font-medium 
+                     text-[#091540] border-[#091540]
+                     hover:bg-[#091540] hover:text-[#F9F5FF] transition"
         >
-          <Info className="w-4 h-4"/>
+          <Info className="w-4 h-4" />
           Ver más...
         </button>
       );
