@@ -67,3 +67,11 @@ export async function getUserById(id: number) : Promise<Users>{
     return Promise.reject(err);
   }
 }
+
+export async function deteleUserById(id: number) : Promise<void>{
+  try{
+    await apiAxios.delete(`users/${id}`);
+  }catch(err){
+    console.error("Error al eliminar Usuario", err);
+  }
+}
