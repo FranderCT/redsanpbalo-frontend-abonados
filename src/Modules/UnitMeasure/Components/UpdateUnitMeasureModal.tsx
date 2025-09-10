@@ -3,6 +3,7 @@ import { useUpdateUnitMeasure } from "../Hooks/UnitMeasureHooks";
 import type { Unit } from "../Models/unit"
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../Components/Modals/ModalBase";
+import { UnitMeasureSchemas } from "../Schemas/UnitMeasureSchemas";
 
 type Props = {
     unit : Unit;
@@ -19,6 +20,7 @@ const UpdateUnitMeasureModal = ({unit, open, onClose, onSuccess}: Props) => {
     defaultValues: {
       Name: unit?.Name ?? "",
     },
+    validators: { onChange: UnitMeasureSchemas },
     onSubmit: async ({ value, formApi }) => {
       try {
         await updateUnitMeasureModalMutation.mutateAsync({
@@ -77,16 +79,23 @@ const UpdateUnitMeasureModal = ({unit, open, onClose, onSuccess}: Props) => {
 
           <form.Field name="Name">
             {(field) => (
+              <>
               <label className="grid gap-1">
                 <span className="text-sm text-gray-700">Nuevo Nombre de Unidad de Medida</span>
                 <input
-                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  className="w-full px-4 py-2 bg-gray-50 border border-[#091540]/40 focus:outline-none focus:ring-2 focus:ring-[#1789FC] "
                   value={field.state.value}
                   inputMode="tel"
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="Ej. Metros, pulgadas, etc."
                 />
               </label>
+              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
+              )}
+              </>
             )}
           </form.Field>
 
