@@ -5,7 +5,7 @@ import type { UpdateEmailUser } from "../../SettingsUser/Models/EmailUser";
 import type { EditUser } from "../Models/EditUser";
 import type { Roles } from "../Models/Roles";
 import type { UserProfile } from "../Models/User";
-import type { Users, UserUpdate } from "../Models/Users";
+import type { PaginatedResponse, Users, UsersPaginationParams, UserUpdate } from "../Models/Users";
 
 
 export async function getUserProfile(): Promise<UserProfile> {
@@ -75,3 +75,11 @@ export async function deteleUserById(id: number) : Promise<void>{
     console.error("Error al eliminar Usuario", err);
   }
 }
+
+// src/Modules/Users/Services/UsersService.ts
+
+export async function getAllUsersPaginate(params: UsersPaginationParams) {
+  const { data } = await apiAxios.get<PaginatedResponse<Users>>("/users/pagination", { params });
+  return data;
+}
+
