@@ -1,34 +1,81 @@
-import UnitMeasureTable from "../Components/UnitMeasureTable";
-import { useGetAllUnitsMeasure } from "../Hooks/UnitMeasureHooks"
+import { useMemo, useState } from "react";
+import { useSearchUnits } from "../Hooks/UnitMeasureHooks";
+import type { Unit } from "../Models/unit";
+import UnitHeaderBar from "../Components/PaginationUnits/UnitHeaderBar";
+import CreateUnitMeasureModal from "../Components/UnitsModal/CreateUnitMeasureModal";
+import UnitMeasureTable from "../Components/TableUnit/UnitMeasureTable";
 
+export default function ListUnitMeasures() {
+  const [page, setPage] = useState(1);   // 1-based
+  const [limit, setLimit] = useState(10);
+  
+  const [search, setSearch] = useState("");
+  const [name, setName] = useState<string | undefined>(undefined);
+  const [state, setState] = useState<string | undefined>(undefined);
 
-const ListUnitMeasures = () => {
-  const {unit, isLoading, error} = useGetAllUnitsMeasure();
+  const handleSearchChange = (txt: string) => {
+    setSearch(txt);
+    const trimmed = txt.trim();
+    setName(trimmed ? trimmed : undefined);
+    setPage(1);
+  };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64 text-gray-600">
-        Cargando Unidades...
-      </div>
-    );
+   // Manejo de filtro por estado
+  const handleStateChange = (newState: string) => {
+    setState(newState || undefined);
+    setPage(1);
+  };
+
+  const handleCleanFilters = () => {
+    setSearch("");
+    setName(undefined);
+    setState(undefined);
+    setPage(1);
   }
+  
+  const params = useMemo(() => ({ page, limit, name, state }), [page, limit, name, state]);
+  const { data, isLoading, error } = useSearchUnits(params);
 
-  if (error) {
-    return (
-      <div className="text-red-500 text-center p-4">
-        Ocurrió un error al cargar las Unidades.
-      </div>
-    );
-  }
+  const rows: Unit[] = data?.data ?? [];
+  const meta = data?.meta ?? {
+    total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false,
+  };
 
   return (
-    <div>
-      <div className="p-4 space-y-4">
-      <h2 className="text-2xl font-bold text-[#091540]">Lista de Unidades de Medida</h2>
-      <UnitMeasureTable data={unit ?? []} />
-    </div>
-    </div>
-  )
-}
+    <div className="p-4 space-y-4">
+      <h1 className="text-2xl font-bold text-[#091540]">Lista de Unidades de Medida</h1>
+        <p className="text-[#091540]/70 text-md">
+            Gestione todas las unidades de medida
+        </p>
+        <div className="border-b border-dashed border-gray-300 mb-8"></div>
 
-export default ListUnitMeasures
+      <UnitHeaderBar
+        limit={meta.limit}
+        total={meta.total}
+        search={search}
+        onLimitChange={(l) => { setLimit(l); setPage(1); }}
+        onFilterClick={handleStateChange}
+        onSearchChange={handleSearchChange}
+        onCleanFilters={handleCleanFilters}
+        rightAction={<CreateUnitMeasureModal />}
+      />
+
+      <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
+        {isLoading ? (
+          <div className="p-6 text-center text-gray-500">Cargando…</div>
+        ) : error ? (
+          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar las Unidades de Medida.</div>
+        ) : (
+          <UnitMeasureTable
+            data={rows}
+            total={meta.total}
+            page={meta.page}               // <- pasa paginación al footer
+            pageCount={meta.pageCount}
+            onPageChange={setPage}
+          />
+        )}
+      </div>
+
+    </div>
+  );
+}
