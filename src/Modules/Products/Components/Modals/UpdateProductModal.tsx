@@ -1,0 +1,221 @@
+import { useForm } from "@tanstack/react-form";
+import { toast } from "react-toastify";
+import { ModalBase } from "../../../../Components/Modals/ModalBase";
+
+import { useUpdateProduct } from "../../Hooks/ProductsHooks"; // 👈 igual a useUpdateUser pero para productos
+import { useGetAllCategory } from "../../../Category/Hooks/CategoryHooks";
+import { useGetAllUnitsMeasure } from "../../../UnitMeasure/Hooks/UnitMeasureHooks";
+import { useGetAllMaterials } from "../../../Materials/Hooks/MaterialHooks";
+import type { Product } from "../../Models/CreateProduct";
+
+type Props = {
+  product: Product;
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+};
+
+export default function UpdateProductModal({ product, open, onClose, onSuccess }: Props) {
+  const updateProductMutation = useUpdateProduct();
+
+  const { category: categories = [], isLoading: categoriesLoading } = useGetAllCategory();
+  const { unit: units = [], isLoading: unitsLoading } = useGetAllUnitsMeasure();
+  const {
+    materials = [],
+    isPending: materialsLoading,
+    error: materialsError,
+  } = useGetAllMaterials();
+
+  const form = useForm({
+    defaultValues: {
+      Name: product.Name ?? "",
+      Type: product.Type ?? "",
+      Observation: product.Observation ?? "",
+      CategoryId: product.Category?.Id ?? 0,
+      MaterialId: product.Material?.Id ?? 0,
+      UnitMeasureId: product.UnitMeasure?.Id ?? 0,
+    },
+    onSubmit: async ({ value, formApi }) => {
+      try {
+        await updateProductMutation.mutateAsync({ id: product.Id, data: value });
+        toast.success("¡Producto actualizado!", { position: "top-right", autoClose: 3000 });
+        formApi.reset();
+        onClose();
+        onSuccess?.();
+      } catch (err: any) {
+        const msg =
+          err?.response?.data?.message ??
+          err?.message ??
+          "No se pudo actualizar el producto.";
+        toast.error(msg, { position: "top-right", autoClose: 3000 });
+      }
+    },
+  });
+
+  return (
+    <ModalBase
+      open={open}
+      onClose={onClose}
+      panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl"
+    >
+      {/* Header */}
+      <div className="px-6 py-5 border-b border-gray-200 bg-white">
+        <h3 className="text-xl font-bold text-[#091540]">Editar producto</h3>
+      </div>
+      <div className="p-6 bg-white">
+        {/* Formulario de edición */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+          className="grid gap-4"
+        >
+          {/* Name */}
+          <form.Field name="Name">
+            {(field) => (
+              <label className="grid gap-1">
+                <span className="text-sm text-gray-700">Nombre</span>
+                <input
+                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  value={field.state.value ?? ""}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="Nombre del producto"
+                />
+              </label>
+            )}
+          </form.Field>
+
+          {/* Type */}
+          <form.Field name="Type">
+            {(field) => (
+              <label className="grid gap-1">
+                <span className="text-sm text-gray-700">Tipo</span>
+                <input
+                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  value={field.state.value ?? ""}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="Tipo de producto"
+                />
+              </label>
+            )}
+          </form.Field>
+
+          {/* Observation */}
+          <form.Field name="Observation">
+            {(field) => (
+              <label className="grid gap-1">
+                <span className="text-sm text-gray-700">Observación</span>
+                <textarea
+                  className="w-full px-4 py-2 bg-gray-50 border min-h-[96px] resize-y focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  value={field.state.value ?? ""}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="Observaciones del producto"
+                />
+              </label>
+            )}
+          </form.Field>
+
+          {/* CategoryId (dropdown) */}
+          <form.Field name="CategoryId">
+            {(field) => (
+              <label className="grid gap-1">
+                <span className="text-sm text-gray-700">Categoría</span>
+                <select
+                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  value={field.state.value ?? 0}
+                  onChange={(e) => field.handleChange(Number(e.target.value))}
+                  disabled={categoriesLoading}
+                >
+                  <option value={0} disabled>
+                    {categoriesLoading ? "Cargando categorías..." : "Seleccione una categoría"}
+                  </option>
+                  {categories.map((c) => (
+                    <option key={c.Id} value={c.Id}>
+                      {c.Name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </form.Field>
+
+          {/* MaterialId (dropdown) */}
+          <form.Field name="MaterialId">
+            {(field) => (
+              <label className="grid gap-1">
+                <span className="text-sm text-gray-700">Material</span>
+                <select
+                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  value={field.state.value ?? 0}
+                  onChange={(e) => field.handleChange(Number(e.target.value))}
+                  disabled={materialsLoading || !!materialsError}
+                >
+                  <option value={0} disabled>
+                    {materialsLoading ? "Cargando materiales..." : "Seleccione un material"}
+                  </option>
+                  {materials.map((m) => (
+                    <option key={m.Id} value={m.Id}>
+                      {m.Name}
+                    </option>
+                  ))}
+                </select>
+                {materialsError && (
+                  <span className="text-xs text-red-600 mt-1">
+                    No se pudieron cargar los materiales.
+                  </span>
+                )}
+              </label>
+            )}
+          </form.Field>
+
+          {/* UnitMeasureId (dropdown) */}
+          <form.Field name="UnitMeasureId">
+            {(field) => (
+              <label className="grid gap-1">
+                <span className="text-sm text-gray-700">Unidad de medida</span>
+                <select
+                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  value={field.state.value ?? 0}
+                  onChange={(e) => field.handleChange(Number(e.target.value))}
+                  disabled={unitsLoading}
+                >
+                  <option value={0} disabled>
+                    {unitsLoading ? "Cargando unidades..." : "Seleccione una unidad"}
+                  </option>
+                  {units.map((u) => (
+                    <option key={u.Id} value={u.Id}>
+                      {u.Name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+          </form.Field>
+
+          {/* Footer botones */}
+          <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+            {([canSubmit, isSubmitting]) => (
+              <div className="mt-2 flex justify-end items-center gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={!canSubmit || isSubmitting}
+                  className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
+                >
+                  {isSubmitting ? "Guardando…" : "Guardar cambios"}
+                </button>
+              </div>
+            )}
+          </form.Subscribe>
+        </form>
+      </div>
+    </ModalBase>
+  );
+}

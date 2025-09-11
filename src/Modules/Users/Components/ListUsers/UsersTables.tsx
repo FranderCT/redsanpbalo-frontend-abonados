@@ -1,83 +1,40 @@
-import { useState } from "react";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import { usersColumns as makeUsersColumns } from "./usersColumns";
-import PaginationControls from "./Table/PaginationControls";
 import type { Users } from "../../Models/Users";
-import AddUserModal from "../ListUsersModals/AddUserModal";
-import EditUserModal from "../ListUsersModals/EditUserModal"; // ⬅️ importa el modal
-import GetInfoUserModal from "../ListUsersModals/GetInfoUserModal";
-import DeleteUserModal from "../ListUsersModals/DeleteUserModal";
 
-type Props = { data: Users[] };
+// ⬇️ importa el mismo pager que usas en categorías (ajusta la ruta si difiere)
+import CategoryPager from "../../../Category/Components/PaginationCategory/CategoryPager";
 
-const UsersTable = ({ data }: Props) => {
+type Props = {
+  data: Users[];
+  onEdit: (u: Users) => void;
+  onGetInfo: (u: Users) => void;
+  onDelete: (u: Users) => void;
 
+  // Para paginación incrustada
+  total?: number;
+  page: number;                 // 1-based
+  pageCount: number;            // >= 1
+  onPageChange: (p: number) => void;
+};
 
-  const [editingUser, setEditingUser] = useState<Users | null>(null);
-  const [getInfoUser, setGetinfoUser] = useState<Users | null>(null);
-  const [deleteUser, setdeleteUser] = useState<Users | null>(null);
-
-  const handleEdit = (user: Users) => {
-    setEditingUser(user);
-  };
-
-  const handleGetInfo = (user: Users)=> {
-    setGetinfoUser(user);
-  }
-
-  const handleDelete = (user: Users) => {
-    setdeleteUser(user);
-  };
-
+const UsersTable = ({
+  data,
+  onEdit,
+  onGetInfo,
+  onDelete,
+  page,
+  pageCount,
+  onPageChange,
+}: Props) => {
   const table = useReactTable({
     data,
-    columns: makeUsersColumns(handleEdit, handleDelete, handleGetInfo),
+    columns: makeUsersColumns(onEdit, onDelete, onGetInfo),
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
-
-  const { pageIndex } = table.getState().pagination;
 
   return (
     <div className="space-y-4 w-full">
-
-      <AddUserModal />
-      {/* Modal de edición controlado desde aquí */}
-      {editingUser && (
-        <EditUserModal
-          user={editingUser}
-          open={true}
-          onClose={() => setEditingUser(null)}
-          onSuccess={() => setEditingUser(null)}
-        />
-      )}
-
-      {/* Modal de información */}
-      {getInfoUser && (
-        <GetInfoUserModal
-          user={getInfoUser}
-          open={true}
-          onClose={() => setGetinfoUser(null)}
-          onSuccess={() => setGetinfoUser(null)}
-        />
-      )}
-
-      {/* Modal de información */}
-      {deleteUser && (
-        <DeleteUserModal
-          user={deleteUser}
-          open={true}
-          onClose={() => setdeleteUser(null)}
-          onSuccess={() => setdeleteUser(null)}
-        />
-      )}
-
-
       <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="overflow-auto max-h-[70vh]">
           <table className="w-full table-auto border-collapse text-sm">
@@ -139,23 +96,19 @@ const UsersTable = ({ data }: Props) => {
               )}
             </tbody>
 
-            <tfoot className="bg-gray-50">
+            <tfoot className="bg-gray-50 ">
               <tr>
                 <td
                   colSpan={table.getVisibleLeafColumns().length}
                   className="px-4 py-3 first:pl-5 last:pr-5 text-xs text-gray-600 border-t border-gray-200"
                 >
-                  <div className="flex justify-center">
-                    <PaginationControls
-                      canPrev={table.getCanPreviousPage()}
-                      canNext={table.getCanNextPage()}
-                      pageIndex={pageIndex}
-                      pageCount={table.getPageCount()}
-                      onFirst={() => table.setPageIndex(0)}
-                      onPrev={() => table.previousPage()}
-                      onNext={() => table.nextPage()}
-                      onLast={() => table.setPageIndex(table.getPageCount() - 1)}
-                      onGotoPage={(p) => table.setPageIndex(p)}
+                  {/* Total (izquierda) + Paginación incrustada (derecha) */}
+                  <div className="w-full flex items-center  justify-center gap-3">
+                    <CategoryPager
+                      page={page}
+                      pageCount={pageCount}
+                      onPageChange={onPageChange}
+                      variant="inline"   // sin caja/borde, como CategoryTable
                     />
                   </div>
                 </td>

@@ -1,7 +1,7 @@
 
 import { BrushCleaning } from 'lucide-react';
 import type { ReactNode } from "react";
-import PaginationSearch from "./PaginationSearch";
+import PaginationSearch from '../../../Category/Components/PaginationCategory/PaginationSearch';
 
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
   rightAction?: ReactNode;
 };
 
-export default function CategoryHeaderBar({
+export default function ProductHeaderBar({
   limit,
   search,
   state,

@@ -2,9 +2,9 @@ import MaterialTable from "../Components/TableMateriales/MaterialTable";
 import { useGetAllMaterials } from "../Hooks/MaterialHooks";
 
 const ListMaterials = () => {
-  const { materials, isLoading, error } = useGetAllMaterials();
+  const { materials, isPending, error } = useGetAllMaterials();
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <div className="flex justify-center items-center h-64 text-gray-600">
         Cargando materiales...

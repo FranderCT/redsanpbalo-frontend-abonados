@@ -1,5 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Category } from "../../Models/Category";
+import { Edit2, Trash} from "lucide-react";
+import DeleteCategoryButton from "../ModalsCategory/DeleteCategoryModal";
 
 export type RowCategory = Category & {
   Id: number;
@@ -7,8 +9,7 @@ export type RowCategory = Category & {
 };
 
 export const CategoryColumns = (
-  onEdit: (category: Category) => void,
-  onDelete: (id: number) => void
+  onEdit: (categoryEdit: Category) => void,
 ): ColumnDef<Category>[] => [
   { accessorKey: "Name", header: "Nombre de la Categoría" },
   { accessorKey: "Description", header: "Descripción" },
@@ -24,16 +25,24 @@ export const CategoryColumns = (
         <div className="flex gap-2">
           <button
             onClick={() => onEdit(category)}
-            className="px-3 py-1 text-sm bg-blue-500 text-white  hover:bg-blue-600"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#1789FC] border-[#1789FC]
+                       hover:bg-[#1789FC] hover:text-[#F9F5FF] transition0"
           >
+            <Edit2 className="w-4 h-4" />
             Editar
           </button>
-          <button
+
+          <DeleteCategoryButton categorySelected={category} />
+          {/* <button
             onClick={() => onDelete(category.Id)}
-            className="px-3 py-1 text-sm bg-red-500 text-white  hover:bg-red-600"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#F6132D] border-[#F6132D]
+                       hover:bg-[#F6132D] hover:text-[#F9F5FF] transition"
           >
+            <Trash className="w-4 h-4" />
             Inhabilitar
-          </button>
+          </button> */}
         </div>
       );
     },

@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createUserModal, deleteUser, deteleUserById, getAllRoles, getAllUsers, getUserById, getUserProfile, updateUser, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
-import type { Users, UserUpdate } from "../Models/Users";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createUserModal, deleteUser, deteleUserById, getAllRoles, getAllUsers, getAllUsersPaginate, getUserById, getUserProfile, updateUser, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
+import type { PaginatedResponse, Users, UsersPaginationParams, UserUpdate } from "../Models/Users";
 
 
 
@@ -122,4 +122,19 @@ export const useDeleteUserByID = () =>{
       }
     })
     return mutation;
+}
+
+export function useGetAllUsersPaginate(params: UsersPaginationParams) {
+  const query = useQuery<PaginatedResponse<Users>, Error>({
+    queryKey: ["users", params],
+    queryFn: () => getAllUsersPaginate(params),
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  });
+
+  return {
+    usersProfiles: query.data?.data ?? [],
+    meta: query.data?.meta,
+    ...query,
+  };
 }

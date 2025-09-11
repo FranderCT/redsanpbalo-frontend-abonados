@@ -1,6 +1,7 @@
 // Modules/Materials/MaterialColumns.tsx
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Unit } from "../Models/unit";
+import { Edit2, Trash } from "lucide-react";
 
 
 export const UnitMeasureColumns = (
@@ -17,15 +18,21 @@ export const UnitMeasureColumns = (
         <div className="flex gap-2">
           <button
             onClick={() => onEdit(unit)}
-            className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#1789FC] border-[#1789FC]
+                       hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
           >
+            <Edit2 className="w-4 h-4" />
             Editar
           </button>
           <button
             onClick={() => onDelete(unit)}
-            className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#F6132D] border-[#F6132D]
+                       hover:bg-[#F6132D] hover:text-[#F9F5FF] transition"
           >
-            Eliminar
+            <Trash className="w-4 h-4" />
+            Desactivar
           </button>
         </div>
       );

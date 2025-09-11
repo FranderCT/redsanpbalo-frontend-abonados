@@ -181,25 +181,31 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
         </div>
       </ModalBase>
 
-      {/* Modal de confirmación (reutilizando tu ModalBase + ConfirmActionModal) */}
-      <ModalBase
-        open={openConfirm}
-        onClose={handleClose}
-        panelClassName="!p-0 w-[320px]"
+      {/* Modal de confirmación  */}
+      {openConfirm && (
+      <div
+        className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none"
+        aria-hidden={false}
       >
-        <ConfirmActionModal
-          title="¿Confirmar cambios?"
-          description="Se actualizará la información de la categoría."
-          confirmLabel="Confirmar"
-          cancelLabel="Cancelar"
-          onConfirm={() => {
-            // dispara el submit real del formulario
-            form.handleSubmit();
-          }}
-          onCancel={handleClose}
-          onClose={handleClose}
+        <div
+          className="absolute inset-0 bg-black/40 pointer-events-auto"
+          onClick={() => setOpenConfirm(false)}
         />
-      </ModalBase>
+        <div className="relative pointer-events-auto">
+              <ConfirmActionModal
+                description="Se actualizará la información de la categoría."
+                confirmLabel="Confirmar"
+                cancelLabel="Cancelar"
+                onConfirm={() => {
+                  setOpenConfirm(false);
+                  form.handleSubmit();
+                }}
+                onCancel={() => setOpenConfirm(false)}
+                onClose={() => setOpenConfirm(false)}
+              />
+          </div>
+        </div>
+      )}
     </>
   );
 };

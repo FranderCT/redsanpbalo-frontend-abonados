@@ -10,7 +10,7 @@ const HeaderUserProfile = () => {
         <div>
           <h1 className="text-2xl font-bold text-[#091540]">Perfil</h1>
           <p className="text-[#091540]/70 text-md">
-            Observe todos los detalles de su perfil aquí
+            Observe todos los detalles de su perfil 
           </p>
         </div>
         <button 

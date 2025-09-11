@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
-import { useSearchCategories } from "../Hooks/CategoryHooks";
-import CategoryHeaderBar from "../Components/PaginationCategory/CategoryHeaderBar";
-import CategoryTable from "../Components/TableCategory/CategoryTable";
-import CreateCategoryModal from "../Components/ModalsCategory/CreateCategoryModal";
-import type { Category } from "../Models/Category";
+import { useSearchProducts } from "../Hooks/ProductsHooks";
+import type { Product } from "../Models/CreateProduct";
+import ProductHeaderBar from "../Components/PaginationProducts/ProductHeaderBar";
+import CreateProductModal from "../Components/Modals/CreateProductModal";
+import ProductTable from "../Components/ProductsTable/ProductTable";
 
-export default function ListCategories() {
+export default function ListProducts() {
   const [page, setPage] = useState(1);   // 1-based
   const [limit, setLimit] = useState(10);
   
@@ -34,22 +34,22 @@ export default function ListCategories() {
   }
   
   const params = useMemo(() => ({ page, limit, name, state }), [page, limit, name, state]);
-  const { data, isLoading, error } = useSearchCategories(params);
+  const { data, isLoading, error } = useSearchProducts(params);
 
-  const rows: Category[] = data?.data ?? [];
+  const rows: Product[] = data?.data ?? [];
   const meta = data?.meta ?? {
     total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false,
   };
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-[#091540]">Lista de Categorías</h1>
+      <h1 className="text-2xl font-bold text-[#091540]">Lista de Productos</h1>
         <p className="text-[#091540]/70 text-md">
-            Gestione todas las categorías
+            Gestione todos los productos
         </p>
         <div className="border-b border-dashed border-gray-300 mb-8"></div>
 
-      <CategoryHeaderBar
+      <ProductHeaderBar
         limit={meta.limit}
         total={meta.total}
         search={search}
@@ -57,16 +57,16 @@ export default function ListCategories() {
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
-        rightAction={<CreateCategoryModal />}
+        rightAction={<CreateProductModal />}
       />
 
       <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
         {isLoading ? (
           <div className="p-6 text-center text-gray-500">Cargando…</div>
         ) : error ? (
-          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar las Categorías.</div>
+          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar los Productos.</div>
         ) : (
-          <CategoryTable
+          <ProductTable
             data={rows}
             total={meta.total}
             page={meta.page}               // <- pasa paginación al footer

@@ -11,6 +11,7 @@ import {
 
 // Obtener todos
 export const useGetAllMaterials = () => {
+  const qc = useQueryClient();
   const { data: materials, isPending, error } = useQuery({
     queryKey: ["materials"],
     queryFn: getAllMaterials,

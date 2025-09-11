@@ -5,6 +5,8 @@ import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../Components/Modals/ModalBase";
 import { NewUnitInitialState } from "../Models/unit";
+import { UnitMeasureSchemas } from "../Schemas/UnitMeasureSchemas";
+
 
 const CreateUnitMeasureModal = () => {
   const [open, setOpen] = useState(false);
@@ -12,6 +14,7 @@ const CreateUnitMeasureModal = () => {
 
   const form = useForm({
     defaultValues: NewUnitInitialState,
+    validators: { onChange: UnitMeasureSchemas },
     onSubmit: async ({ value, formApi }) => {
       try {
         await createUnitMeasureMutation.mutateAsync(value);
@@ -59,16 +62,23 @@ const CreateUnitMeasureModal = () => {
         >
           <form.Field name="Name">
             {(field) => (
-              <label className="grid gap-2">
-                <span className="text-sm font-medium text-gray-700">Nombre de la unidad</span>
-                <input
-                  className="w-full h-11 px-4  bg-gray-50 border border-gray-300 text-[#091540] placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#1789FC] focus:border-[#1789FC] transition"
-                  type="text"
-                  placeholder="Ej. metro, unidad…"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-              </label>
+              <>
+                <label className="grid gap-2">
+                  <span className="text-sm font-medium text-gray-700">Nombre de la unidad</span>
+                  <input
+                    className="w-full h-11 px-4  border border-[#091540]/40  text-[#091540] placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#1789FC] focus:border-[#1789FC] transition"
+                    type="text"
+                    placeholder="Ej. metro, unidad…"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                </label>
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
+                )}
+              </>
             )}
           </form.Field>
 
