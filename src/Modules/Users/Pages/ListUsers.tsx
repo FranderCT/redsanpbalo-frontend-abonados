@@ -9,6 +9,9 @@ import EditUserModal from "../Components/ListUsersModals/EditUserModal";
 import GetInfoUserModal from "../Components/ListUsersModals/GetInfoUserModal";
 import { getAllRoles } from "../Services/UsersServices";
 
+import RegisterAbonadosModal from "../Components/ListUsersModals/AddUserModal";
+import { BrushCleaning, Trash } from "lucide-react";
+
 const ListUsers = () => {
   // Filtros + paginación (server-side)
   const [name, setName] = useState<string>("");
@@ -68,68 +71,79 @@ const ListUsers = () => {
         <span className=" text-[#091540]">Resumen de todos los Usuarios registrados </span>
       </div>
       {/* Filtros */}
-      <div className="flex flex-wrap items-end gap-3 p-3">
-        <label className="grid text-sm">
-          <span className="mb-1">Nombre</span>
-          <input
-            className="border px-3 py-2 w-56"
-            placeholder="Ej: José Daniel Román"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              resetPageOnFilter();
-            }}
-          />
-        </label>
+      <div className="flex flex-wrap items-end justify-between gap-3 p-3">
+        {/* Filtros a la izquierda */}
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="grid text-sm">
+            <span className="mb-1">Nombre</span>
+            <input
+              className="border px-3 py-2 w-56"
+              placeholder="Ej: José Daniel Román"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                resetPageOnFilter();
+              }}
+            />
+          </label>
 
-        <label className="grid text-sm">
-          <span className="mb-1">Rol</span>
-          <select
-            className="border px-3 py-2 w-56"
-            value={roleName}
-            onChange={(e) => {
-              setRoleName(e.target.value);
+          <label className="grid text-sm">
+            <span className="mb-1">Rol</span>
+            <select
+              className="border px-3 py-2 w-56"
+              value={roleName}
+              onChange={(e) => {
+                setRoleName(e.target.value);
+                resetPageOnFilter();
+              }}
+              disabled={rolesLoading}
+            >
+              <option value="">Todos</option>
+              {roles.map((r) => (
+                <option key={r.Id} value={r.Rolname}>
+                  {r.Rolname}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="grid text-sm">
+            <span className="mb-1">Por página</span>
+            <select
+              className="border px-3 py-2 w-28"
+              value={limit}
+              onChange={(e) => {
+                setLimit(Number(e.target.value));
+                resetPageOnFilter();
+              }}
+            >
+              {[5, 10, 20, 50].map((n) => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </label>
+
+          
+        </div>
+
+        {/* Botón de registrar a la derecha */}
+        <div className="flex flex-row gap-3">
+          {/* Botón escoba */}
+          <button
+            type="button"
+            onClick={() => {
+              setName("");
+              setRoleName("");  
+              setRoleId(undefined);
               resetPageOnFilter();
             }}
-            disabled={rolesLoading}
+            className="flex items-center gap-1 h-10 px-3 border text-sm text-[#091540] hover:bg-gray-100"
           >
-            <option value="">Todos</option>
-            {roles.map((r) => (
-              <option key={r.Id} value={r.Rolname}>
-                {r.Rolname}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="grid text-sm">
-          <span className="mb-1">Por página</span>
-          <select
-            className="border px-3 py-2 w-28"
-            value={limit}
-            onChange={(e) => {
-              setLimit(Number(e.target.value));
-              resetPageOnFilter();
-            }}
-          >
-            {[5, 10, 20, 50].map((n) => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </select>
-        </label>
-
-        <button
-          type="button"
-          onClick={() => {
-            setName("");
-            setRoleName("");
-            setRoleId(undefined);
-            resetPageOnFilter();
-          }}
-          className="h-10 px-4 border text-sm text-[#091540] hover:bg-gray-100"
-        >
-          Limpiar filtros
-        </button>
+            <BrushCleaning />
+            <span className="hidden sm:inline">Limpiar filtros</span>
+          </button>
+          <RegisterAbonadosModal />
+        </div>
       </div>
 
       {/* Tabla con paginación incrustada */}

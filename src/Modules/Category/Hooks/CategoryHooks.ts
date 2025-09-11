@@ -79,8 +79,12 @@ export const useDeleteCategory = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteCategory(id),
-    onSuccess: () => {
+    onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["categories"] });
+      console.log("Categoria inhabilitada", res);
     },
+    onError: (err)=>{
+      console.error("Error al inhabilitar", err);
+    }
   });
 };

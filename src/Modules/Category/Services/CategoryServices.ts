@@ -49,7 +49,7 @@ export async function searchCategories(
 
 export async function deleteCategory(id: number): Promise<void> {
   try {
-    await apiAxios.put(`/categories/${id}`);
+    await apiAxios.delete(`/categories/${id}`);
   } catch (error) {
     console.error("Error al inhabilitar la categoría", error);
   }

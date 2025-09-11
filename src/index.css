@@ -1,15 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Oswald:wght@500&display=swap');
+@import "tailwindcss";
 :root {
   background-color: #fff;
   color:#091540;
+  font-family: 'Montserrat', sans-serif;
 }
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Oswald:wght@500&display=swap');
-@import "tailwindcss";
-
 
 .input-base {
     @apply w-full px-4 py-2 text-[#091540] border border-[#091540] text-sm;
+    font-family: 'Montserrat', sans-serif;
 }
 
+.font {
+  font-family: Oswald, sans-serif;
+  /* font-style: bold; */
+}
 /* .button-base-sidebar {
   @apply group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40
             

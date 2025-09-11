@@ -4,27 +4,33 @@ type Props = {
   search: string;
   onSearchChange: (v: string) => void;
   className?: string;
+  fluid?: boolean;
+  widthClass?: string;
 };
 
-export default function PaginationSearchWater({
+export default function PaginationSearch({
   search,
   onSearchChange,
   className = "",
+  fluid = false,            
+  widthClass = "w-[300px]", // <- ancho del buscador (ajústalo a tu gusto)
 }: Props) {
   const formRef = React.useRef<HTMLFormElement>(null);
   const filled = Boolean(search && search.trim().length > 0);
 
+  const wrapperClass = `${fluid ? "flex-1" : "inline-flex"} ${className}`;
+
   return (
-    <div className={`flex-1 min-w-[260px] md:min-w-[360px] ${className}`}>
+    <div className={wrapperClass}>
       <form
         ref={formRef}
-        className="
-          relative w-67
+        className={`
+          relative ${widthClass}
           bg-white h-9
           pl-12 pr-3
           ring-1 ring-gray-200 shadow-sm
           focus-within:ring-[#1789FC]
-        "
+        `}
         onReset={() => {
           onSearchChange("");
           requestAnimationFrame(() =>
@@ -84,7 +90,7 @@ export default function PaginationSearchWater({
             />
           </svg>
 
-          {/* gota de agua (visible con focus o texto) */}
+
           <svg
             className="
               h-[15px] w-[15px] opacity-0 invisible text-gray-900 transition
@@ -117,11 +123,7 @@ export default function PaginationSearchWater({
             hover:ring-2 hover:ring-gray-200
           "
         >
-          <svg
-            viewBox="0 0 20 20"
-            className="h-5 w-5"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg viewBox="0 0 20 20" className="h-5 w-5">
             <path
               fillRule="evenodd"
               clipRule="evenodd"

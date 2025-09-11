@@ -17,7 +17,7 @@ const AsideDashboard = () => {
       {/* Branding */}
       <div className="flex items-center gap-3 px-4 pt-6 pb-4 flex-col">
         <img src={g28} alt="Logo ASADA" className="w-20 h-20 object-contain" />
-        <h1 className="text-3xl text-[#091540] font-bold leading-tight">RedSanPablo</h1>
+        <h1 className="text-3xl text-[#091540] font-bold leading-tight font">RedSanPablo</h1>
       </div>
 
       {/* Línea separadora */}
@@ -58,7 +58,7 @@ const AsideDashboard = () => {
             icon={<Forklift className="size-[23px] transition-colors group-hover:text-white" />}
             label="Productos"
             items={[
-              { label: "Productos", onClick: () => navigate({  }) },
+              { label: "Productos", onClick: () => navigate({ to: "/dashboard/products" }) },
               { label: "Materiales", onClick: () => navigate({ to: "/dashboard/materials" }) },
               { label: "Categorías", onClick: () => navigate({ to: "/dashboard/categories" }) },
               { label: "Unidad de medidas", onClick: () => navigate({ to: "/dashboard/units-measure" }) },

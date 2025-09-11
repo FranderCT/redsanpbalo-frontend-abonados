@@ -1,38 +1,38 @@
 // src/Modules/Category/Components/TableCategory/CategoryTable.tsx
 import { useState } from "react";
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
-import type { Category } from "../../Models/Category";
-import UpdateCategoryModal from "../ModalsCategory/UpdateCategoryModal";
-import { CategoryColumns } from "./CategoryColumns";
-import CategoryPager from "../PaginationCategory/CategoryPager";
+import { ProductColumns } from "./ProductColumns";
+import type { Product } from "../../Models/CreateProduct";
+import UpdateProductModal from "../Modals/UpdateProductModal";
+import ProductPager from "../PaginationProducts/ProductPager";
 
 type Props = {
-  data: Category[];
+  data: Product[];
   total?: number;
   page: number;                 // <- NUEVO
   pageCount: number;            // <- NUEVO
   onPageChange: (p: number) => void; // <- NUEVO
 };
 
-export default function CategoryTable({ data, total, page, pageCount, onPageChange }: Props) {
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+export default function ProductsTable({ data, total, page, pageCount, onPageChange }: Props) {
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const table = useReactTable({
     data,
-    columns: CategoryColumns(
-      (category) => setEditingCategory(category),
+    columns: ProductColumns(
+      (product) => setEditingProduct(product),
     ),
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
     <div className="w-full">
-      {editingCategory && (
-        <UpdateCategoryModal
-          category={editingCategory}
+      {editingProduct && (
+        <UpdateProductModal
+          product={editingProduct}
           open={true}
-          onClose={() => setEditingCategory(null)}
-          onSuccess={() => setEditingCategory(null)}
+          onClose={() => setEditingProduct(null)}
+          onSuccess={() => setEditingProduct(null)}
         />
       )}
 
@@ -63,7 +63,7 @@ export default function CategoryTable({ data, total, page, pageCount, onPageChan
           {table.getRowModel().rows.length === 0 && (
             <tr>
               <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-6 text-center text-gray-500 border border-gray-300">
-                No hay Categorías para mostrar
+                No hay Productos para mostrar
               </td>
             </tr>
           )}
@@ -76,7 +76,7 @@ export default function CategoryTable({ data, total, page, pageCount, onPageChan
               <div className="w-full flex items-center justify-between gap-3">
                 <span className="flex-none text-sm">Total registros: <b>{total ?? data.length}</b></span>
                 <div className="flex-1 flex justify-center">
-                <CategoryPager
+                <ProductPager
                   page={page}
                   pageCount={pageCount}
                   onPageChange={onPageChange}

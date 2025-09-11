@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
-import { MaterialInitialState } from "../Models/Material";
 import { useCreateMaterial } from "../Hooks/MaterialHooks";
 import { ModalBase } from "../../../Components/Modals/ModalBase";
 import { MaterialSchema } from "../schemas/Materials/MaterialSchema";
+import { newMaterialInitialState } from "../Models/Material";
 
 type Props = {
   onCreated?: () => void;
@@ -23,7 +23,7 @@ export default function CreateMaterialForm({ onCreated }: Props) {
   };
 
   const form = useForm({
-    defaultValues: MaterialInitialState,
+    defaultValues: newMaterialInitialState,
     validators: {
       onChange: MaterialSchema,
     },
