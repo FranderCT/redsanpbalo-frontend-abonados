@@ -6,4 +6,8 @@ export const UnitMeasureSchemas = z.object({
     .max(30, 'El nombre es demasiado largo'),
 })
 
+export const UpdateUnitMeasureSchemas = z.object({
+    Name: z.string()
+    .max(30, 'El nombre es demasiado largo'),
+})
 

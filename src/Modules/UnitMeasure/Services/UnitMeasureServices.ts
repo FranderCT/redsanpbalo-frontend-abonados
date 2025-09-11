@@ -1,5 +1,6 @@
 import apiAxios from "../../../api/apiConfig";
-import type { NewUnit, Unit } from "../Models/unit";
+import type { PaginatedResponse } from "../../Users/Models/Users";
+import type { NewUnit, Unit, UnitPaginationParams } from "../Models/unit";
 
 export async function createUnitMeasure(payloads: NewUnit) : Promise<NewUnit>{
     try{
@@ -29,6 +30,21 @@ export async function getAllUnitsMeasure () : Promise<Unit[]>{
         console.error("Error", err);
         return Promise.reject(err)
     }
+}
+
+export async function searchUnits(
+  params: UnitPaginationParams
+): Promise<PaginatedResponse<Unit>> {
+  try {
+    const { page = 1, limit = 10, name, state } = params ?? {};
+    const { data } = await apiAxios.get<PaginatedResponse<Unit>>("unit-measure/search", {
+      params: { page, limit, name, state },
+    });
+    return data;
+  } catch (err) {
+    console.error("Error buscando unidades de medida", err);
+    return Promise.reject(err);
+  }
 }
 
 export async function deleteUnitMeasure(id: number): Promise<void> {

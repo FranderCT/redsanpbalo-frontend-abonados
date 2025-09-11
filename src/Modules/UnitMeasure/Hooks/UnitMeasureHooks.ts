@@ -1,6 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createUnitMeasure, deleteUnitMeasure, getAllUnitsMeasure, UpdateUnitMeasure } from "../Services/UnitMeasureServices";
-import type { NewUnit, Unit } from "../Models/unit";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { createUnitMeasure, deleteUnitMeasure, getAllUnitsMeasure, searchUnits, UpdateUnitMeasure } from "../Services/UnitMeasureServices";
+import type { NewUnit, Unit, UnitPaginationParams } from "../Models/unit";
+import { useEffect } from "react";
+import type { PaginatedResponse } from "../../Users/Models/Users";
 
 export const useCreateUnitMeasure = () => {
     const qc = useQueryClient();
@@ -44,13 +46,45 @@ export const useGetAllUnitsMeasure = () => {
     return{unit, isLoading, error}
 }
 
+export const useSearchUnits = (params: UnitPaginationParams) => {
+  const query = useQuery<PaginatedResponse<Unit>, Error>({
+    queryKey: ["units", "search", params],
+    queryFn: () => searchUnits(params),
+    placeholderData: keepPreviousData,   // v5
+    staleTime: 30_000,
+  });
+
+  // ⬇️ Log en cada fetch/refetch exitoso
+  useEffect(() => {
+    if (query.data) {
+      const res = query.data; 
+      console.log(
+        "[Units fetched]",
+        {
+          page: res.meta.page,
+          limit: res.meta.limit,
+          total: res.meta.total,
+          pageCount: res.meta.pageCount,
+          params,
+        },
+        res.data 
+      );
+    }
+  }, [query.data, params]);
+
+  return query;
+};
 
 export const useDeleteUnitMeasure = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteUnitMeasure(id),
-    onSuccess: () => {
+    onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["units"] });
+      console.log("Unidad de medida inhabilitada", res);
     },
+    onError: (err)=>{
+      console.error("Error al inhabilitar", err);
+    }
   });
 };
