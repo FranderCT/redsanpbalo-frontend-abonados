@@ -1,5 +1,6 @@
 import type { Category } from "../../Category/Models/Category";
 import type { Material } from "../../Materials/Models/Material";
+import type { Supplier } from "../../Supplier/Models/Supplier";
 import type { Unit } from "../../UnitMeasure/Models/unit";
 
 export interface Product {
@@ -10,6 +11,8 @@ export interface Product {
   Category: Category;
   Material: Material;
   UnitMeasure: Unit;
+  Supplier: Supplier;
+  IsActive: boolean;  // Añadir IsActive
 }
 
 export interface NewProduct {
@@ -19,6 +22,7 @@ export interface NewProduct {
   CategoryId: number;
   MaterialId: number;
   UnitMeasureId: number;
+  SupplierId: number;  
 }
 
 export const newProductInitialState: NewProduct = {
@@ -28,17 +32,20 @@ export const newProductInitialState: NewProduct = {
   CategoryId: 0,
   MaterialId: 0,
   UnitMeasureId: 0,
+  SupplierId: 0,
 };
 
-export interface UpdateProduct{
+export interface UpdateProduct {
   Name?: string;
   Type?: string;
   Observation?: string;
   CategoryId?: number;
   MaterialId?: number;
   UnitMeasureId?: number;
-  IsActive?: boolean;
+  SupplierId?: number;
+  IsActive?: boolean;  // Puede ser opcional
 }
+
 
 export interface ProductPaginationParams {
   page: number;

@@ -20,7 +20,6 @@ export const useCreateProduct = () =>{
 }
 
 export const useGetAllProducts = () =>{
-    const qc = useQueryClient();
     const { data: products, isPending, error } = useQuery({
         queryKey: ["products"],
         queryFn: getAllProducts,
