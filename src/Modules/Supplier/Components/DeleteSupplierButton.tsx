@@ -1,31 +1,30 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { useDeleteCategory } from "../../Hooks/CategoryHooks";
-import type { Category } from "../../Models/Category";
-import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { Trash } from "lucide-react";
-
+import InhabilityActionModal from "../../../Components/Modals/InhabilyActionModal";
+import { useDeleteSupplier } from "../Hooks/SupplierHooks";
+import type { Supplier } from "../Models/Supplier";
 
 type Props = {
-  categorySelected: Category;
+  supplierSelected: Supplier;  // Cambié Category por Supplier
   onSuccess?: () => void;
 };
 
-export default function DeleteCategoryButton({ categorySelected, onSuccess }: Props) {
+export default function DeleteSupplierButton({ supplierSelected, onSuccess }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const deleteCategoryMutation = useDeleteCategory();
+  const deleteSupplierMutation = useDeleteSupplier();  // Hook para eliminar un proveedor
 
   const handleConfirm = async () => {
     try {
       setBusy(true);
-      await deleteCategoryMutation.mutateAsync(categorySelected.Id);
-      toast.success("Categoría inhabilitada");
+      await deleteSupplierMutation.mutateAsync(supplierSelected.Id);  // Se usa el ID del proveedor para eliminarlo
+      toast.success("Proveedor inhabilitado");
       setOpen(false);
       onSuccess?.();
     } catch (err) {
-      console.error("Error al inhabilitar categoría:", err);
-      toast.error("No se pudo inhabilitar la categoría");
+      console.error("Error al inhabilitar proveedor:", err);
+      toast.error("No se pudo inhabilitar el proveedor");
     } finally {
       setBusy(false);
     }
@@ -39,17 +38,17 @@ export default function DeleteCategoryButton({ categorySelected, onSuccess }: Pr
         disabled={busy}
         className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
           ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
-        title="Inhabilitar categoría"
+        title="Inhabilitar proveedor"
       >
-        <Trash  className="h-4 w-4"/>
+        <Trash className="h-4 w-4" />
         {busy ? "..." : "Inhabilitar"}
       </button>
 
       {open && (
         <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
           <InhabilityActionModal
-            title="¿Inhabilitar categoría?"
-            description={`Se inhabilitará la categoría "${categorySelected.Name ?? ""}".`}
+            title="¿Inhabilitar proveedor?"
+            description={`Se inhabilitará el proveedor "${supplierSelected.Name ?? ""}".`}
             cancelLabel="Cancelar"
             confirmLabel="Inhabilitar"
             onConfirm={handleConfirm}

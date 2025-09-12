@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Category } from "../../Models/Category";
-import { Edit2, Trash} from "lucide-react";
+import { Edit2} from "lucide-react";
 import DeleteCategoryButton from "../ModalsCategory/DeleteCategoryModal";
 
 export type RowCategory = Category & {
