@@ -1,7 +1,7 @@
 
 import { BrushCleaning } from 'lucide-react';
 import type { ReactNode } from "react";
-import PaginationSearch from '../../../Category/Components/PaginationCategory/PaginationSearch';
+import PaginationSearch from '../../../../Components/PaginationSearch';
 
 
 type Props = {

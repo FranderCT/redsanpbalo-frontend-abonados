@@ -1,10 +1,10 @@
 import apiAxios from "../../../api/apiConfig";
 import type { PaginatedResponse } from "../../Users/Models/Users";
-import type { NewUnit, Unit, UnitPaginationParams } from "../Models/unit";
+import type { NewUnit, Unit, UnitPaginationParams, UpdateUnitDto } from "../Models/unit";
 
-export async function createUnitMeasure(payloads: NewUnit) : Promise<NewUnit>{
+export async function createUnitMeasure(payload: NewUnit) : Promise<NewUnit>{
     try{
-        const {data} = await apiAxios.post<NewUnit>(`unit-measure`, payloads);
+        const {data} = await apiAxios.post<NewUnit>(`unit-measure`, payload);
         return data;
     }catch(err){
         console.log(err);
@@ -12,7 +12,7 @@ export async function createUnitMeasure(payloads: NewUnit) : Promise<NewUnit>{
     }
 }
 
-export async function UpdateUnitMeasure (id: number, payloads: NewUnit) : Promise<Unit>{
+export async function UpdateUnitMeasure (id: number, payloads: UpdateUnitDto) : Promise<Unit>{
     try{
         const {data} = await apiAxios.put<Unit>(`unit-measure/${id}`, payloads)
         return data;

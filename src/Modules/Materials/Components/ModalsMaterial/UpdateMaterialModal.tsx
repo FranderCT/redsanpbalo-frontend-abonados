@@ -1,21 +1,21 @@
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
-import { useUpdateCategory } from "../../Hooks/CategoryHooks";
-import type { Category } from "../../Models/Category";
-import { UpdateCategorySchema } from "../../schemas/CategorySchema";
 import ConfirmActionModal from "../../../../Components/Modals/ConfirmActionModal";
 import { useState } from "react";
+import { useUpdateMaterial } from "../../Hooks/MaterialHooks";
+import type { Material } from "../../Models/Material";
+import { UpdateMaterialSchema } from "../../schemas/Materials/MaterialSchema";
 
 type Props = {
-  category: Category;
+  material: Material;
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
 };
 
-const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
-  const updateCategoryModalMutation = useUpdateCategory();
+const UpdateMaterialModal = ({ material, open, onClose, onSuccess }: Props) => {
+  const updateMaterialModalMutation = useUpdateMaterial();
   const [openConfirm, setOpenConfirm] = useState(false);
   const handleClose = () => {
       toast.info("Edición cancelada", { position: "top-right", autoClose: 3000 });
@@ -23,21 +23,20 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
   };
   const form = useForm({
     validators: {
-      onChange: UpdateCategorySchema,
+      onChange: UpdateMaterialSchema,
     },
     defaultValues: {
-      Name: category?.Name ?? "",
-      Description: category?.Description ?? "",
-      IsActive: category?.IsActive ?? true,
+      Name: material?.Name ?? "",
+      IsActive: material?.IsActive ?? true,
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        await updateCategoryModalMutation.mutateAsync({
-          id: category.Id,
+        await updateMaterialModalMutation.mutateAsync({
+          id: material.Id,
           data: value,
         });
 
-        toast.success("¡Categoría actualizada!", {
+        toast.success("¡Material actualizado!", {
           position: "top-right",
           autoClose: 3000,
         });
@@ -48,7 +47,7 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
         onSuccess?.();
       } catch (err) {
         console.error("error desconocido", err);
-        toast.error("Error al actualizar la Categoría", {
+        toast.error("Error al actualizar el material", {
           position: "top-right",
           autoClose: 3000,
         });
@@ -66,7 +65,7 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
       >
         {/* Header */}
         <div className="px-6 py-5 border-b border-gray-200 bg-white">
-          <h3 className="text-xl font-bold text-[#091540]">Editar Categoría</h3>
+          <h3 className="text-xl font-bold text-[#091540]">Editar Material</h3>
         </div>
 
         {/* Body */}
@@ -74,39 +73,30 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
           {/* Vista previa (información actual) */}
           <div className="mb-5">
             <h4 className="text-sm font-semibold text-gray-700 mb-2">
-              Información de la Categoría
+              Información del Material
             </h4>
 
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className=" bg-gray-50 p-3">
                 <dt className="text-[11px] uppercase tracking-wide text-gray-500">
-                  Nombre De la Categoría
+                  Nombre Del Material
                 </dt>
                 <dd className="mt-1 text-sm text-[#091540] break-words">
-                  {category.Name ?? "-"}
+                  {material.Name ?? "-"}
                 </dd>
               </div>
-
-              <div className=" bg-gray-50 p-3">
-                <dt className="text-[11px] uppercase tracking-wide text-gray-500">
-                  Descripción De la Categoría
-                </dt>
-                <dd className="mt-1 text-sm text-[#091540] break-words">
-                  {category.Description ?? "-"}
-                </dd>
-              </div>
-
               <div className=" bg-gray-50 p-3">
                 <dt className="text-[11px] uppercase tracking-wide text-gray-500">
                   Estado
                 </dt>
                 <dd className="mt-1 text-sm text-[#091540] break-words">
-                  {category.IsActive ? "Activo" : "Inactivo"}
+                  {material.IsActive ? "Activo" : "Inactivo"}
                 </dd>
               </div>
-              
             </dl>
           </div>
+
+          
 
           {/* Formulario de edición */}
           <form
@@ -120,38 +110,14 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
               {(field) => (
                 <label className="grid gap-1">
                   <span className="text-sm text-gray-700">
-                    Nuevo Nombre de Categoría
+                    Nuevo Nombre del Material
                   </span>
                   <input
                     className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
                     value={field.state.value}
                     inputMode="text"
                     onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder="Escriba el nuevo nombre de la categoría"
-                  />
-                  {field.state.meta.isTouched &&
-                    field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ??
-                          String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                </label>
-              )}
-            </form.Field>
-
-            <form.Field name="Description">
-              {(field) => (
-                <label className="grid gap-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    Nueva Descripción de la Categoría
-                  </span>
-                  <textarea
-                    className="w-full min-h-[50px] px-4 py-2 bg-gray-50 border focus:outline-none focus:ring focus:ring-blue-200"
-                    placeholder="Escriba la nueva descripción de la categoría"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    rows={2}
+                    placeholder="Escriba el nuevo nombre del material"
                   />
                   {field.state.meta.isTouched &&
                     field.state.meta.errors.length > 0 && (
@@ -227,15 +193,15 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
         />
         <div className="relative pointer-events-auto">
               <ConfirmActionModal
-                description="Se actualizará la información de la categoría."
+                description="Se actualizará la información del material."
                 confirmLabel="Confirmar"
                 cancelLabel="Cancelar"
                 onConfirm={() => {
                   setOpenConfirm(false);
                   form.handleSubmit();
                 }}
-                onCancel={() => setOpenConfirm(false)}
-                onClose={() => setOpenConfirm(false)}
+                onCancel={handleClose}
+                onClose={handleClose}
               />
           </div>
         </div>
@@ -244,4 +210,4 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
   );
 };
 
-export default UpdateCategoryModal;
+export default UpdateMaterialModal;

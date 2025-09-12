@@ -78,10 +78,18 @@ const UpdateUnitMeasureModal = ({ unit, open, onClose, onSuccess }: Props) => {
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className=" bg-gray-50 p-3">
                 <dt className="text-[11px] uppercase tracking-wide text-gray-500">
-                  Nombre De la Unidad de Medida
+                  Nombre de la Unidad de Medida
                 </dt>
                 <dd className="mt-1 text-sm text-[#091540] break-words">
                   {unit.Name ?? "-"}
+                </dd>
+              </div>
+              <div className=" bg-gray-50 p-3">
+                <dt className="text-[11px] uppercase tracking-wide text-gray-500">
+                  Estado
+                </dt>
+                <dd className="mt-1 text-sm text-[#091540] break-words">
+                  {unit.IsActive ? "Activo" : "Inactivo"}
                 </dd>
               </div>
             </dl>
@@ -108,6 +116,29 @@ const UpdateUnitMeasureModal = ({ unit, open, onClose, onSuccess }: Props) => {
                     onChange={(e) => field.handleChange(e.target.value)}
                     placeholder="Escriba el nuevo nombre de la unidad de medida"
                   />
+                  {field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ??
+                          String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                </label>
+              )}
+            </form.Field>
+
+            <form.Field name="IsActive">
+              {(field) => (
+                <label className="flex items-center gap-2">
+                  <span className="text-sm text-gray-700">
+                    Activo: 
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={!!field.state.value}
+                    onChange={(e) => field.handleChange(e.target.checked)}
+                  />
+                  
                   {field.state.meta.isTouched &&
                     field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">
@@ -159,7 +190,7 @@ const UpdateUnitMeasureModal = ({ unit, open, onClose, onSuccess }: Props) => {
         />
         <div className="relative pointer-events-auto">
               <ConfirmActionModal
-                description="Se actualizará la información de la categoría."
+                description="Se actualizará la información de la unidad de medida."
                 confirmLabel="Confirmar"
                 cancelLabel="Cancelar"
                 onConfirm={() => {

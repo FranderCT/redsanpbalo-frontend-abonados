@@ -16,7 +16,7 @@ type Props = {
   rightAction?: ReactNode;
 };
 
-export default function ProductHeaderBar({
+export default function MaterialHeaderBar({
   limit,
   search,
   state,

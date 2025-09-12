@@ -193,6 +193,29 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
             )}
           </form.Field>
 
+          <form.Field name="IsActive">
+              {(field) => (
+                <label className="flex items-center gap-2">
+                  <span className="text-sm text-gray-700">
+                    Activo: 
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={!!field.state.value}
+                    onChange={(e) => field.handleChange(e.target.checked)}
+                  />
+                  
+                  {field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ??
+                          String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                </label>
+              )}
+          </form.Field>
+
           {/* Footer botones */}
           <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (

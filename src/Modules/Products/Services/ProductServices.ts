@@ -1,5 +1,5 @@
 import apiAxios from "../../../api/apiConfig";
-import type { PaginatedResponse } from "../../Category/Models/PaginationCategory";
+import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import type { NewProduct, Product, ProductPaginationParams, UpdateProduct } from "../Models/CreateProduct";
 
 const BASE = "/product"; 

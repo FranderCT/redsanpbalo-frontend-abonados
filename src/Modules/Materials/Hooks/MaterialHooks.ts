@@ -1,23 +1,56 @@
 // Hooks/MaterialHooks.ts
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Material } from "../Models/Material";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Material, MaterialPaginationParams, updateMaterialDto } from "../Models/Material";
 import {
   createMaterial,
   deleteMaterial,
   getAllMaterials,
   getMaterialById,
+  searchMaterials,
   updateMaterial,
-} from "../Services/MaterialServices";
+}
+  from "../Services/MaterialServices";
+import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
+import { useEffect } from "react";
 
 // Obtener todos
 export const useGetAllMaterials = () => {
-  const qc = useQueryClient();
   const { data: materials, isPending, error } = useQuery({
     queryKey: ["materials"],
     queryFn: getAllMaterials,
   });
   return { materials, isPending, error };
 };
+
+export const useSearchMaterials = (params: MaterialPaginationParams) => {
+  const query = useQuery<PaginatedResponse<Material>, Error>({
+    queryKey: ["materials", "search", params],
+    queryFn: () => searchMaterials(params),
+    placeholderData: keepPreviousData,   // v5
+    staleTime: 30_000,
+  });
+
+  // ⬇️ Log en cada fetch/refetch exitoso
+  useEffect(() => {
+    if (query.data) {
+      const res = query.data; 
+      console.log(
+        "[Materials fetched]",
+        {
+          page: res.meta.page,
+          limit: res.meta.limit,
+          total: res.meta.total,
+          pageCount: res.meta.pageCount,
+          params,
+        },
+        res.data 
+      );
+    }
+  }, [query.data, params]);
+
+  return query;
+};
+
 
 // Obtener por ID
 export const useGetMaterialById = (id?: number) => {
@@ -32,31 +65,36 @@ export const useGetMaterialById = (id?: number) => {
 // Crear
 export const useCreateMaterial = () => {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: createMaterial,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["materials"] });
-    },
-    onError: (err) => {
-      console.error("Error al crear material:", err);
-    },
-  });
+  const mutation = useMutation({
+      mutationFn: createMaterial,
+      onSuccess: (res) =>{
+          console.log('Material creado correctamente',res)
+          qc.invalidateQueries({queryKey: ['materials']})
+      },
+      onError: (err) =>{
+          console.error('Error al crear', err)
+      }
+  })
+
+  return mutation;
 };
 
 // Actualizar
 export const useUpdateMaterial = () => {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Material }) =>
-      updateMaterial(id, data),
-    onSuccess: (_res, vars) => {
-      qc.invalidateQueries({ queryKey: ["materials"] });
-      qc.invalidateQueries({ queryKey: ["materials", vars.id] });
-    },
-    onError: (err) => {
-      console.error("Error al actualizar material:", err);
-    },
-  });
+  
+  const mutation = useMutation<Material, Error, {id: number; data: updateMaterialDto }>({
+      mutationFn: ({id, data}) => updateMaterial(id, data),
+      onSuccess :(res)=>{
+          console.log('Material Actualizado', console.log(res))
+          qc.invalidateQueries({queryKey: [`materials`]})
+      },
+      onError: (err) =>{
+          console.error(err);
+      }
+  })
+
+  return mutation;
 };
 
 // Eliminar
@@ -64,12 +102,12 @@ export const useDeleteMaterial = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteMaterial(id),
-    onSuccess: (_res, id) => {
+    onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["materials"] });
-      qc.invalidateQueries({ queryKey: ["materials", id] });
+      console.log("Material inhabilitado", res);
     },
-    onError: (err) => {
-      console.error("Error al eliminar material:", err);
-    },
+    onError: (err)=>{
+      console.error("Error al inhabilitar", err);
+    }
   });
 };

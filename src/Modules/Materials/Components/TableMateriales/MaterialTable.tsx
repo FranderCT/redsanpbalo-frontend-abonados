@@ -1,78 +1,53 @@
+// src/Modules/Category/Components/TableCategory/CategoryTable.tsx
 import { useState } from "react";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getPaginationRowModel,
-  flexRender,
-} from "@tanstack/react-table";
+import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
+import MaterialPager from "../PaginationMaterial/MaterialPager";
+import UpdateMaterialModal from "../ModalsMaterial/UpdateMaterialModal";
+import type { Material } from "../../Models/Material";
+import { MaterialColumns } from "./MaterialColumns";
 
-import { MaterialColumns, type RowMaterial } from "./MaterialColumns";
-import PageSizeSelect from "../../../Users/Components/ListUsers/Table/PageSizeSelect";
-import PaginationControls from "../../../Users/Components/ListUsers/Table/PaginationControls";
-import CreateMaterialForm from "../../Pages/CreateMaterialForm";
-import EditMaterialModal from "../../Modals/EditMaterialModal";
+type Props = {
+  data: Material[];
+  total?: number;
+  page: number;                 // <- NUEVO
+  pageCount: number;            // <- NUEVO
+  onPageChange: (p: number) => void; // <- NUEVO
+};
 
-type Props = { data: RowMaterial[] };
-
-const MaterialTable = ({ data }: Props) => {
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
-
-  // Estado para modal de edición
-  const [selected, setSelected] = useState<RowMaterial | null>(null);
-  const [openEdit, setOpenEdit] = useState(false);
-
-  const handleEdit = (material: RowMaterial) => {
-    setSelected(material);
-    setOpenEdit(true);
-  };
+export default function MaterialTable({ data, total, page, pageCount, onPageChange }: Props) {
+  const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
 
   const table = useReactTable({
     data,
-    columns: MaterialColumns(handleEdit), // ← solo onEdit; borrar ya está dentro de las columnas
-    state: { pagination },
-    onPaginationChange: setPagination,
+    columns: MaterialColumns(
+      (material) => setEditingMaterial(material),
+    ),
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const { pageIndex, pageSize } = table.getState().pagination;
-
   return (
-    <div className="space-y-4 w-full">
-      {/* Controles superiores */}
-      <div className="flex items-center gap-3">
-        <PageSizeSelect
-          value={pageSize}
-          onChange={(size) => table.setPageSize(size)}
-          options={[5, 10, 20, 50]}
+    <div className="w-full">
+      {editingMaterial && (
+        <UpdateMaterialModal
+          material={editingMaterial}
+          open={true}
+          onClose={() => setEditingMaterial(null)}
+          onSuccess={() => setEditingMaterial(null)}
         />
+      )}
 
-        <CreateMaterialForm onCreated={() => {
-          // Si la data proviene de un useQuery en el padre, se refrescará con invalidateQueries(["materials"])
-        }} />
-
-        <span className="ml-auto text-sm text-gray-600">
-          Total registros: <b>{data.length}</b>
-        </span>
-      </div>
-
-      {/* Tabla */}
-      <div className="overflow-x-auto shadow-xl">
-        <table className="min-w-full border-collapse border border-gray-300">
-          <thead>
-            {table.getHeaderGroups().map((hg) => (
-              <tr key={hg.id}>
-                {hg.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="px-4 py-2 text-left text-[#091540] border border-gray-300"
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
+      <table className="min-w-full border-collapse border border-gray-300">
+        <thead>
+          {table.getHeaderGroups().map((hg) => (
+            <tr key={hg.id}>
+              {hg.headers.map((header) => (
+                <th key={header.id} className="px-4 py-2 text-left text-[#091540] border border-gray-300">
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
 
         <tbody>
           {table.getRowModel().rows.map((row) => (
@@ -87,53 +62,32 @@ const MaterialTable = ({ data }: Props) => {
 
           {table.getRowModel().rows.length === 0 && (
             <tr>
-              <td
-                colSpan={table.getVisibleLeafColumns().length}
-                className="px-4 py-6 text-center text-gray-500 border border-gray-300"
-              >
-                No hay materiales para mostrar
+              <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-6 text-center text-gray-500 border border-gray-300">
+                No hay Materiales para mostrar
               </td>
             </tr>
           )}
         </tbody>
 
-          <tfoot>
-            <tr>
-              <td
-                colSpan={table.getVisibleLeafColumns().length}
-                className="px-4 py-3 border border-gray-300"
-              >
-                <PaginationControls
-                  canPrev={table.getCanPreviousPage()}
-                  canNext={table.getCanNextPage()}
-                  pageIndex={pageIndex}
-                  pageCount={table.getPageCount()}
-                  onFirst={() => table.setPageIndex(0)}
-                  onPrev={() => table.previousPage()}
-                  onNext={() => table.nextPage()}
-                  onLast={() => table.setPageIndex(table.getPageCount() - 1)}
-                  onGotoPage={(p) => table.setPageIndex(p)}
+        <tfoot>
+          <tr>
+            <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-3 border border-gray-300">
+              {/* Total (izq) + Paginación incrustada (der) */}
+              <div className="w-full flex items-center justify-between gap-3">
+                <span className="flex-none text-sm">Total registros: <b>{total ?? data.length}</b></span>
+                <div className="flex-1 flex justify-center">
+                <MaterialPager
+                  page={page}
+                  pageCount={pageCount}
+                  onPageChange={onPageChange}
+                  variant="inline"  // <- sin caja/borde
                 />
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      {/* Modal de edición */}
-      {selected && (
-        <EditMaterialModal
-          material={selected}
-          open={openEdit}
-          onClose={() => setOpenEdit(false)}
-          onSuccess={() => {
-            setOpenEdit(false);
-            setSelected(null);
-          }}
-        />
-      )}
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   );
-};
-
-export default MaterialTable;
+}

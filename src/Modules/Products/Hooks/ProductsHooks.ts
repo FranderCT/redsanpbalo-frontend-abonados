@@ -30,15 +30,15 @@ export const useGetAllProducts = () =>{
 
 
 export const useUpdateProduct = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateProduct }) =>
-      updateProduct(id, data),
-    onSuccess: () => {
-      // refresca listas donde corresponda
-      qc.invalidateQueries({ queryKey: ["products"] });
-    },
-  });
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: UpdateProduct }) =>
+        updateProduct(id, data),
+        onSuccess: () => {
+        // refresca listas donde corresponda
+            qc.invalidateQueries({ queryKey: ["products"] });
+        },
+    });
 };
 
 export const useDeleteProduct = () => {

@@ -12,7 +12,6 @@ export interface Product {
   UnitMeasure: Unit;
 }
 
-
 export interface NewProduct {
   Name: string;
   Type: string;
@@ -21,7 +20,6 @@ export interface NewProduct {
   MaterialId: number;
   UnitMeasureId: number;
 }
-
 
 export const newProductInitialState: NewProduct = {
   Name: "",
@@ -39,6 +37,7 @@ export interface UpdateProduct{
   CategoryId?: number;
   MaterialId?: number;
   UnitMeasureId?: number;
+  IsActive?: boolean;
 }
 
 export interface ProductPaginationParams {
