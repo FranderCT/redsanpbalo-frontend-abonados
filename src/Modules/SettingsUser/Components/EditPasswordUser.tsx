@@ -1,18 +1,16 @@
 import React from "react";
 import { useForm } from "@tanstack/react-form";
-import { useNavigate } from "@tanstack/react-router";
 import { toast } from "react-toastify";
 import ConfirmActionModal from "../../../Components/Modals/ConfirmActionModal";
 import { ChangePasswordSchema } from "../../Auth/schemas/ChangePasswordSchema";
 import { changePasswordInitialState } from "../../Auth/Models/changePassword";
+import { useChangePassword } from "../../Auth/Hooks/AuthHooks";
 
-// import { useChangePassword } from "../../Hooks/AuthHooks"; // si ya tienes hook real
 
 type EditPayload = typeof changePasswordInitialState;
 
 const ChangePassword = () => {
-  // const changePasswordMutation = useChangePassword();
-  const navigate = useNavigate();
+  const changePasswdMutation = useChangePassword();
 
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const pendingValuesRef = React.useRef<EditPayload | null>(null);
@@ -25,7 +23,8 @@ const ChangePassword = () => {
         toast.error("Las contraseñas no coinciden", { position: "top-right", autoClose: 3000 });
         return;
       }
-      pendingValuesRef.current = value as EditPayload;
+      const NewPasswordObject = {OldPassword: value.OldPassword, NewPassword: value.NewPassword };
+      pendingValuesRef.current = NewPasswordObject as EditPayload;
       setOpenConfirm(true);
     },
   });
@@ -33,14 +32,14 @@ const ChangePassword = () => {
   const handleConfirmUpdate = async () => {
     if (!pendingValuesRef.current) return;
     try {
-      // await changePasswordMutation.mutateAsync(pendingValuesRef.current);
+      await changePasswdMutation.mutateAsync({ payload: pendingValuesRef.current, token: localStorage.getItem("token") || "" });
 
       toast.success("¡Contraseña actualizada con éxito!", { position: "top-right", autoClose: 2500 });
 
       // Opcional: invalidar credenciales locales antes de enviar al login
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
-      // Si usas cookies HTTP-only, el backend debería invalidarlas.
+      
       toast.info("Tu sesión ha finalizado. Inicia sesión con tu nueva contraseña.", {
         position: "top-right",
         autoClose: 3500,
@@ -48,8 +47,6 @@ const ChangePassword = () => {
 
       form.reset();
 
-      // ➜ Redirigir a login
-      navigate({ to: "/login" });
     } catch (err) {
       toast.error("¡Error al actualizar la contraseña!", { position: "top-right", autoClose: 3000 });
     } finally {
@@ -173,7 +170,7 @@ const ChangePassword = () => {
         >
           <div onClick={(e) => e.stopPropagation()}>
             <ConfirmActionModal
-              description="¿Deseas actualizar tu contraseña? Esto cerrará tus sesiones activas."
+              description="¿Deseas actualizar tu contraseña? Su sesión finalizará una vez realice esta acción."
               confirmLabel="Confirmar"
               cancelLabel="Cancelar"
               onConfirm={handleConfirmUpdate}

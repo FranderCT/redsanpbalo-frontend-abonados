@@ -2,25 +2,22 @@ import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
-import { useCreateAbonado } from "../../../Auth/Hooks/AuthHooks";
-import { RegisterUserInitialState } from "../../../Auth/Models/RegisterUser";
+import { useCreateUser } from "../../../Auth/Hooks/AuthHooks";
+import { AdminUserInitialState } from "../../../Auth/Models/RegisterUser";
+import { useGetAllRoles } from "../../Hooks/UsersHooks";
 
 export default function RegisterAbonadosModal() {
   const [open, setOpen] = useState(false);
-  const createUserMutation = useCreateAbonado();
-  const [isAbonado, setIsAbonado] = useState<boolean>(RegisterUserInitialState.IsAbonado);
+  const createUserMutation = useCreateUser();
+  const { roles } = useGetAllRoles();
+  // const [isAbonado, setIsAbonado] = useState<boolean>(AdminUserInitialState.IsAbonado);
 
 
   const form = useForm({
-    defaultValues: RegisterUserInitialState,
+    defaultValues: AdminUserInitialState,
     onSubmit: async ({ value }) => {
-      if (value.Password !== value.ConfirmPassword) {
-        alert("Las contraseñas no coinciden");
-        return;
-      }
       try {
-        const { IsAbonado, ...userData } = value; 
-        await createUserMutation.mutateAsync(userData);
+        await createUserMutation.mutateAsync(value);
         toast.success("¡Registro exitoso!", { position: "top-right", autoClose: 3000 });
         setOpen(false);
 
@@ -159,7 +156,7 @@ export default function RegisterAbonadosModal() {
                {/* Soy abonado + NIS */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Checkbox controlado por useState (y sincronizado con el form) */}
-                  <label className="group flex items-center cursor-pointer select-none">
+                  {/* <label className="group flex items-center cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={isAbonado}
@@ -175,23 +172,21 @@ export default function RegisterAbonadosModal() {
                     <span className="ml-3 text-gray-700 group-hover:text-blue-500 font-medium transition-colors duration-300">
                       Soy abonado
                     </span>
-                  </label>
+                  </label> */}
 
                   <form.Field name="Nis">
                     {(field) => (
                       <label className="grid gap-1">
                         <input
-                          className={`w-full px-4 py-2 border rounded-md ${
-                            isAbonado ? "bg-gray-50 text-[#091540]" : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          }`}
+                          className={`w-full px-4 py-2 border rounded-md`}
                           placeholder="NIS"
                           value={field.state.value}
                           inputMode="numeric"
                           pattern="[0-9]*"
                           onChange={(e) => field.handleChange(e.target.value.replace(/\D/g, ""))}
-                          disabled={!isAbonado}
-                          aria-disabled={!isAbonado}
-                          required={isAbonado}
+                          // disabled={!isAbonado}
+                          // aria-disabled={!isAbonado}
+                          // required={isAbonado}
                         />
                       </label>
                     )}
@@ -269,38 +264,31 @@ export default function RegisterAbonadosModal() {
                   )}
                 </form.Field>
 
-                {/* Contraseñas */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <form.Field name="Password">
-                    {(field) => (
-                      <label className="grid gap-1">
-                        
-                        <input
-                          className="w-full px-4 py-2 bg-gray-50 border "
-                          placeholder="Contraseña"
-                          type="password"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                      </label>
-                    )}
-                  </form.Field>
+                {/* <form.Field name="Roles">
+                  {(field) => (
+                    <label className="grid gap-1">
+                      <select
+                        className="w-full px-4 py-2 bg-gray-50 border"
+                        value={JSON.stringify(field.state.value)} // 👈 stringify para comparar
+                        onChange={(e) => field.handleChange(JSON.parse(e.target.value))} // 👈 parse para guardar objeto
+                      >
+                        {roles.map((c) => (
+                          <option key={c.Id} value={JSON.stringify(c)}>
+                            {c.Rolname}
+                          </option>
+                        ))}
+                      </select>
 
-                  <form.Field name="ConfirmPassword">
-                    {(field) => (
-                      <label className="grid gap-1">
-                        
-                        <input
-                          className="w-full px-4 py-2 bg-gray-50 border "
-                          placeholder="Confirmar contraseña"
-                          type="password"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                      </label>
-                    )}
-                  </form.Field>
-                </div>
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                    </label>
+                  )}
+                </form.Field> */}
+
+
 
                 {/* Footer botones */}
                 <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>

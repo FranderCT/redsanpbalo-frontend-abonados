@@ -1,33 +1,34 @@
-import { type ColumnDef } from "@tanstack/react-table";
-import type { Users } from "../../Models/Users";
-import { Edit2, Trash, Info } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { User } from "../../Models/User";
+import { Edit2 } from "lucide-react";
+import DeleteUserButton from "./DeleteUserButton";
+
+
+export type RowUser = User & {
+  Id: number;
+  IsActive?: boolean;
+};
 
 export const usersColumns = (
-  onEdit: (user: Users) => void,
-  onDelete: (user: Users) => void,
-  onGetInfo: (user: Users) => void
-): ColumnDef<Users>[] => [
-  {
-    id: "FullName",
-    header: "Nombre completo",
-    cell: ({ row }) => {
-      const { Name, Surname1, Surname2 } = row.original;
-      return `${Name} ${Surname1} ${Surname2}`;
-    },
-  },
+  onEdit: (userEdit: User) => void,
+): ColumnDef<User>[] => [
+  { accessorKey: "Name", header: "Nombre" },
+  { accessorKey: "Surname1", header: "Primer Apellido" },
+  { accessorKey: "Surname2", header: "Segundo Apellido" },
   { accessorKey: "Nis", header: "Nis" },
   { accessorKey: "IDcard", header: "Cédula" },
   { accessorKey: "Email", header: "Correo" },
   { accessorKey: "PhoneNumber", header: "Teléfono" },
+  { accessorKey: "IsActive", header: "Estado",
+    cell: ({ row }) => (row.original.IsActive ? "Activo" : "Inactivo"),
+  },
   {
     id: "Acciones",
     header: "Acciones",
     cell: ({ row }) => {
       const user = row.original;
-
       return (
         <div className="flex gap-2">
-          {/* Editar */}
           <button
             onClick={() => onEdit(user)}
             className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
@@ -38,35 +39,8 @@ export const usersColumns = (
             Editar
           </button>
 
-          {/* Desactivar */}
-          <button
-            onClick={() => onDelete(user)}
-            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-                       text-[#F6132D] border-[#F6132D]
-                       hover:bg-[#F6132D] hover:text-[#F9F5FF] transition"
-          >
-            <Trash className="w-4 h-4" />
-            Desactivar
-          </button>
+          <DeleteUserButton userSelected={user} />
         </div>
-      );
-    },
-  },
-  {
-    id: "Información",
-    header: "Información",
-    cell: ({ row }) => {
-      const user = row.original;
-      return (
-        <button
-          onClick={() => onGetInfo(user)}
-          className="flex items-center gap-1 px-3 py-1 text-xs font-medium 
-                     text-[#091540] border-[#091540]
-                     hover:bg-[#091540] hover:text-[#F9F5FF] transition"
-        >
-          <Info className="w-4 h-4" />
-          Ver más...
-        </button>
       );
     },
   },

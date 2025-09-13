@@ -1,124 +1,89 @@
+import { useState } from "react";
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
-import { usersColumns as makeUsersColumns } from "./usersColumns";
-import type { Users } from "../../Models/Users";
-
-// ⬇️ importa el mismo pager que usas en categorías (ajusta la ruta si difiere)
+import type { User } from "../../Models/User";
+import EditUserModal from "../ListUsersModals/EditUserModal";
+import { usersColumns } from "./usersColumns";
 import CategoryPager from "../../../Category/Components/PaginationCategory/CategoryPager";
 
 type Props = {
-  data: Users[];
-  onEdit: (u: Users) => void;
-  onGetInfo: (u: Users) => void;
-  onDelete: (u: Users) => void;
-
-  // Para paginación incrustada
+  data: User[];
   total?: number;
-  page: number;                 // 1-based
-  pageCount: number;            // >= 1
+  page: number;
+  pageCount: number;
   onPageChange: (p: number) => void;
 };
 
-const UsersTable = ({
-  data,
-  onEdit,
-  onGetInfo,
-  onDelete,
-  page,
-  pageCount,
-  onPageChange,
-}: Props) => {
+export default function UsersTable({ data, total, page, pageCount, onPageChange }: Props) {
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+
   const table = useReactTable({
     data,
-    columns: makeUsersColumns(onEdit, onDelete, onGetInfo),
+    columns: usersColumns((user) => setEditingUser(user)),
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
-    <div className="space-y-4 w-full">
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="overflow-auto max-h-[70vh]">
-          <table className="w-full table-auto border-collapse text-sm">
-            <thead className="sticky top-0 z-10 bg-gray-50/95 backdrop-blur supports-[backdrop-filter]:bg-gray-50/60">
-              {table.getHeaderGroups().map((hg) => (
-                <tr key={hg.id} className="text-left">
-                  {hg.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      colSpan={header.colSpan}
-                      className="px-4 py-3 first:pl-5 last:pr-5 text-xs font-semibold uppercase tracking-wide text-gray-600 border-b border-gray-200"
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
+    <div className="w-full">
+      {editingUser && (
+        <EditUserModal
+          user={editingUser}
+          open={true}
+          onClose={() => setEditingUser(null)}
+          onSuccess={() => setEditingUser(null)}
+        />
+      )}
+
+      <table className="min-w-full border-collapse border border-gray-300">
+        <thead>
+          {table.getHeaderGroups().map((hg) => (
+            <tr key={hg.id}>
+              {hg.headers.map((header) => (
+                <th key={header.id} className="px-4 py-2 text-left text-[#091540] border border-gray-300">
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                </th>
               ))}
-            </thead>
+            </tr>
+          ))}
+        </thead>
 
-            <tbody>
-              {table.getRowModel().rows.map((row) => (
-                <tr
-                  key={row.original.Id}
-                  className="odd:bg-white even:bg-gray-50 hover:bg-indigo-50/40 transition-colors"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      className={[
-                        "px-4 py-3 first:pl-5 last:pr-5 border-b border-gray-100 text-gray-800 align-middle",
-                        cell.column.id === "actions"
-                          ? "sticky left-0 z-10 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-r border-gray-200"
-                          : "",
-                      ].join(" ")}
-                    >
-                      <div
-                        className={`truncate max-w-[240px] ${
-                          cell.column.id === "Address" ? "max-w-[360px]" : ""
-                        }`}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </div>
-                    </td>
-                  ))}
-                </tr>
-              ))}
-
-              {table.getRowModel().rows.length === 0 && (
-                <tr>
-                  <td
-                    className="px-4 py-8 text-center text-gray-500 border-t border-gray-200"
-                    colSpan={table.getVisibleLeafColumns().length}
-                  >
-                    No hay datos para mostrar
-                  </td>
-                </tr>
-              )}
-            </tbody>
-
-            <tfoot className="bg-gray-50 ">
-              <tr>
-                <td
-                  colSpan={table.getVisibleLeafColumns().length}
-                  className="px-4 py-3 first:pl-5 last:pr-5 text-xs text-gray-600 border-t border-gray-200"
-                >
-                  {/* Total (izquierda) + Paginación incrustada (derecha) */}
-                  <div className="w-full flex items-center  justify-center gap-3">
-                    <CategoryPager
-                      page={page}
-                      pageCount={pageCount}
-                      onPageChange={onPageChange}
-                      variant="inline"   // sin caja/borde, como CategoryTable
-                    />
-                  </div>
+        <tbody>
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id} className="hover:bg-gray-50">
+              {row.getVisibleCells().map((cell) => (
+                <td key={cell.id} className="px-4 py-2 border border-gray-300">
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
+              ))}
+            </tr>
+          ))}
+
+          {table.getRowModel().rows.length === 0 && (
+            <tr>
+              <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-6 text-center text-gray-500 border border-gray-300">
+                No hay usuarios para mostrar
+              </td>
+            </tr>
+          )}
+        </tbody>
+
+        <tfoot>
+          <tr>
+            <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-3 border border-gray-300">
+              <div className="w-full flex items-center justify-between gap-3">
+                <span className="flex-none text-sm">Total registros: <b>{total ?? data.length}</b></span>
+                <div className="flex-1 flex justify-center">
+                  <CategoryPager
+                    page={page}
+                    pageCount={pageCount}
+                    onPageChange={onPageChange}
+                    variant="inline"
+                  />
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
   );
-};
-
-export default UsersTable;
+}

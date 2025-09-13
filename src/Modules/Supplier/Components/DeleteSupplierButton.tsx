@@ -8,13 +8,17 @@ import type { Supplier } from "../Models/Supplier";
 type Props = {
   supplierSelected: Supplier;  // Cambié Category por Supplier
   onSuccess?: () => void;
+  onClose:()=>void;
 };
 
-export default function DeleteSupplierButton({ supplierSelected, onSuccess }: Props) {
+export default function DeleteSupplierButton({ supplierSelected, onSuccess, onClose}: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const deleteSupplierMutation = useDeleteSupplier();  // Hook para eliminar un proveedor
-
+const handleClose = () =>{
+  toast.warning("Edición cancelada",{position:"top-right",autoClose:3000});
+    onClose();
+  }
   const handleConfirm = async () => {
     try {
       setBusy(true);
@@ -52,8 +56,8 @@ export default function DeleteSupplierButton({ supplierSelected, onSuccess }: Pr
             cancelLabel="Cancelar"
             confirmLabel="Inhabilitar"
             onConfirm={handleConfirm}
-            onClose={() => setOpen(false)}
-            onCancel={() => setOpen(false)}
+            onClose={handleClose}
+            onCancel={handleClose}
           />
         </div>
       )}

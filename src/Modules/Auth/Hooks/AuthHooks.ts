@@ -1,29 +1,31 @@
-
-import { createUser, ForgotPasswd, Login, ResetPasswd } from "../Services/AuthServices";
+import { ChangePasswd, createAdminUser, createUser, ForgotPasswd, Login, ResetPasswd } from "../Services/AuthServices";
 import { useNavigate } from "@tanstack/react-router";
 import type { ResetPassword } from "../Models/ResetPassword";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
-
-
-// export const useCreateUser = () => {
-//     const queryClient = useQueryClient()
-
-//     const mutation = useMutation({
-//         mutationFn: createUser,
-//         onSuccess: () => { 
-//             queryClient.invalidateQueries({ queryKey: ['users'] });
-//         },
-//     });
-
-//     return mutation;
-// }
+import type { changePassword } from "../Models/changePassword";
 
 export const useCreateAbonado = () => {
   const qc = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: createUser,
+    onSuccess:(res)=>{
+      console.log(res);
+      qc.invalidateQueries({ queryKey: ['abonados'] });
+    },
+    onError:(res)=>{
+      console.log("no se que pudo haber pasado", res)
+    }
+  })
+
+  return mutation;
+}
+
+export const useCreateUser = () => {
+  const qc = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: createAdminUser,
     onSuccess:(res)=>{
       console.log(res);
       qc.invalidateQueries({ queryKey: ['abonados'] });
@@ -63,6 +65,18 @@ export const useResetPassword = () => {
 
   return useMutation({
     mutationFn: ({ payload, token }: ResetArgs) => ResetPasswd(payload, token),
+    onSuccess: () => {
+      console.log("Contraseña cambiada");
+    },
+  });
+};
+
+type ChangeArgs = { payload: changePassword; token: string };
+
+export const useChangePassword = () => {
+
+  return useMutation({
+    mutationFn: ({ payload, token }: ChangeArgs) => ChangePasswd(payload, token),
     onSuccess: () => {
       console.log("Contraseña cambiada");
     },

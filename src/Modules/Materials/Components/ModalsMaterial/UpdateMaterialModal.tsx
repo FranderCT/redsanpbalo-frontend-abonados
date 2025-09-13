@@ -18,7 +18,7 @@ const UpdateMaterialModal = ({ material, open, onClose, onSuccess }: Props) => {
   const updateMaterialModalMutation = useUpdateMaterial();
   const [openConfirm, setOpenConfirm] = useState(false);
   const handleClose = () => {
-      toast.info("Edición cancelada", { position: "top-right", autoClose: 3000 });
+      toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
       onClose();
   };
   const form = useForm({

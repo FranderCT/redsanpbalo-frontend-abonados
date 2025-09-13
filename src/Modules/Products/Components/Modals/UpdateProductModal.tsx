@@ -27,7 +27,10 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
     error: materialsError,
   } = useGetAllMaterials();
   const { supplier = [], isLoading: suppliersLoading } = useGetAllSupplier();  // Hook para proveedores
-
+  const handleClose = () =>{
+  toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
+    onClose();
+ }
   const form = useForm({
     defaultValues: {
       Name: product.Name ?? "",
@@ -256,7 +259,8 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
               <div className="mt-2 flex justify-end items-center gap-2">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClose={handleClose}
+                  onCancel={handleClose}
                   className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
                 >
                   Cancelar

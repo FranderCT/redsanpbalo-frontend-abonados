@@ -18,7 +18,7 @@ const UpdateSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
   const [openConfirm, setOpenConfirm] = useState(false);
 
   const handleClose = () => {
-      toast.info("Edición cancelada", { position: "top-right", autoClose: 3000 });
+      toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
       onClose();
   };
 
@@ -167,7 +167,8 @@ const UpdateSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
                   </button>
                   <button
                     type="button"
-                    onClick={handleClose}
+                    onClick={() => setOpen(false)}
+                    onClose={handleClose}
                     className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
                   >
                     Cancelar

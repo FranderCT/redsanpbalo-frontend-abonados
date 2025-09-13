@@ -10,7 +10,7 @@ const CreateMaterialModal = () => {
   const [open, setOpen] = useState(false);
   const createMaterialMutation = useCreateMaterial();
   const handleClose = () => {
-      toast.info("Registro cancelado", { position: "top-right", autoClose: 3000 });
+      toast.warning("Registro cancelado", { position: "top-right", autoClose: 3000 });
       setOpen(false);
   };
   const form = useForm({
@@ -92,6 +92,7 @@ const CreateMaterialModal = () => {
               <div className="mt-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
                 <button
                   type="button"
+                  onClose={handleClose}
                   onClick={handleClose}
                   className="h-10 px-4  bg-gray-200 hover:bg-gray-300 transition"
                 >

@@ -18,7 +18,7 @@ const UpdateUnitMeasureModal = ({ unit, open, onClose, onSuccess }: Props) => {
   const updateUnitModalMutation = useUpdateUnitMeasure();
   const [openConfirm, setOpenConfirm] = useState(false);
   const handleClose = () => {
-      toast.info("Edición cancelada", { position: "top-right", autoClose: 3000 });
+      toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
       onClose();
   };
   const form = useForm({

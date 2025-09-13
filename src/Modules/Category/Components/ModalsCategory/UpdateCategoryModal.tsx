@@ -18,7 +18,7 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
   const updateCategoryModalMutation = useUpdateCategory();
   const [openConfirm, setOpenConfirm] = useState(false);
   const handleClose = () => {
-      toast.info("Edición cancelada", { position: "top-right", autoClose: 3000 });
+      toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
       onClose();
   };
   const form = useForm({

@@ -1,9 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createUserModal, deleteUser, deteleUserById, getAllRoles, getAllUsers, getAllUsersPaginate, getUserById, getUserProfile, updateUser, updateUserEmail, updateUserProfile } from "../Services/UsersServices";
-import type { PaginatedResponse, Users, UsersPaginationParams, UserUpdate } from "../Models/Users";
-
-
+import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
+import { useEffect } from "react";
+import type { UsersPaginationParams, User, UpdateUser } from "../Models/User";
+import { getUserProfile, updateUserProfile, updateUserEmail, getAllUsers, deleteUser, 
+  createUserModal, getAllRoles, updateUser, getUserById, deteleUserById, searchUsers } from "../Services/UsersServices";
 
 export const useGetUserProfile = () => {
     const {data: UserProfile, isLoading, error} = useQuery({
@@ -37,7 +38,6 @@ export const useUpdateUserEmail = () => {
 };
 
 export const useGetAllUsers = () => {
-  
   const { data: usersProfiles, isPending, error } = useQuery({
     queryKey: ["users"],
     queryFn: getAllUsers,
@@ -49,24 +49,31 @@ export const useGetAllUsers = () => {
 export function useDeleteUser() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: deleteUser,
-      onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['users'] })
-    },
-  })
+      mutationFn: (id: number) => deleteUser(id),
+      onSuccess: (res) => {
+          qc.invalidateQueries({ queryKey: ["users"] });
+          console.log("Usuario inhabilitadp", res);
+      },
+      onError: (err)=>{
+          console.error("Error al inhabilitar", err);
+      }
+  });
+
 }
 
 export const useCreateUser = () => {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: createUserModal,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["users"] });
-    },
-    onError: () =>{
-      console.error("error al crear un usuario");
-    }
-  });
+  const mutation = useMutation({
+      mutationFn: createUserModal,
+      onSuccess: (res) =>{
+          console.log('Usuario creado', res);
+          qc.invalidateQueries({queryKey: ['users']})
+      },
+      onError: (err) =>{
+          console.log("error al crear", err)
+      }
+  })
+  return mutation;
 };
 
 
@@ -83,16 +90,13 @@ export const useGetAllRoles = () => {
 
 export const useUpdateUser = () => {
   const qc = useQueryClient();
-
-  return useMutation<Users, Error, { id: number; data: UserUpdate }>({
-    mutationFn: ({ id, data }) => updateUser(id, data),
-    onSuccess: () => {
-      // refresca la tabla
-      qc.invalidateQueries({ queryKey: ["users"] });
-    },
-    onError: (err) => {
-      console.error("Error al actualizar el usuario:", err);
-    },
+  return useMutation({
+      mutationFn: ({ id, data }: { id: number; data: UpdateUser }) =>
+      updateUser(id, data),
+      onSuccess: () => {
+        // refresca listas donde corresponda
+        qc.invalidateQueries({ queryKey: ["products"] });
+      },
   });
 };
 
@@ -125,16 +129,28 @@ export const useDeleteUserByID = () =>{
 }
 
 export function useGetAllUsersPaginate(params: UsersPaginationParams) {
-  const query = useQuery<PaginatedResponse<Users>, Error>({
-    queryKey: ["users", params],
-    queryFn: () => getAllUsersPaginate(params),
-    placeholderData: keepPreviousData,
-    staleTime: 30_000,
+  const query = useQuery<PaginatedResponse<User>, Error>({
+      queryKey: ["users", "search", params],
+      queryFn: () => searchUsers(params),
+      placeholderData: keepPreviousData,   // v5
+      staleTime: 30_000,
   });
-
-  return {
-    usersProfiles: query.data?.data ?? [],
-    meta: query.data?.meta,
-    ...query,
-  };
+  // ⬇️ Log en cada fetch/refetch exitoso
+  useEffect(() => {
+      if (query.data) {
+      const res = query.data; // res: PaginatedResponse<Category>
+      console.log(
+          "[Users fetched]",
+          {
+          page: res.meta.page,
+          limit: res.meta.limit,
+          total: res.meta.total,
+          pageCount: res.meta.pageCount,
+          params,
+          },
+          res.data // array de Category
+      );
+      }
+  }, [query.data, params]);
+  return query;
 }

@@ -1,3 +1,5 @@
+import type { Roles } from "../../Users/Models/Roles";
+
 export interface RegisterUser{
     IDcard:string;
     Name : string;
@@ -29,4 +31,34 @@ export const RegisterUserInitialState: RegisterUserForm = {
   Password: '',
   ConfirmPassword: '',
   IsAbonado: false,
+}
+
+export interface createAdminUser{
+    IDcard:string;
+    Name : string;
+    Surname1 : string;
+    Surname2 : string;
+    Nis: string;
+    Email: string;
+    PhoneNumber: string;
+    Birthdate: Date;
+    Address: string;
+    //Roles: Roles[];
+}
+
+export type createAdminUserForm = createAdminUser & {
+  IsAbonado: boolean;
+};
+
+export const AdminUserInitialState: createAdminUser = {
+  IDcard: '',
+  Name: '',
+  Surname1: '',
+  Surname2: '',
+  Nis: '',
+  Email: '',
+  PhoneNumber: '',
+  Birthdate: '' as unknown as Date,
+  Address: '',
+  //Roles: [],
 }

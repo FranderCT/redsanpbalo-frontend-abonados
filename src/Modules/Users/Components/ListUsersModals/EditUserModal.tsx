@@ -3,10 +3,10 @@ import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useUpdateUser } from "../../Hooks/UsersHooks";
-import type { Users } from "../../Models/Users";
+import type { User } from "../../Models/User";
 
 type Props = {
-  user: Users;
+  user: User
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;

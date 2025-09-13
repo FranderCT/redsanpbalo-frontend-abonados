@@ -1,36 +1,30 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { useDeleteCategory } from "../../Hooks/CategoryHooks";
-import type { Category } from "../../Models/Category";
-import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { Trash } from "lucide-react";
+import type { User } from "../../Models/User";
+import { useDeleteUser } from "../../Hooks/UsersHooks";
+import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 
-
-type Props = {
-  categorySelected: Category;
+interface Props {
+  userSelected: User;
   onSuccess?: () => void;
-  onClose:()=> void;
-};
+}
 
-export default function DeleteCategoryButton({ categorySelected, onSuccess,onClose }: Props) {
+export default function DeleteUserButton({ userSelected, onSuccess }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const deleteCategoryMutation = useDeleteCategory();
-  const handleClose = () =>{
-  toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
-    onClose();
- }
+  const deleteUserMutation = useDeleteUser();
 
   const handleConfirm = async () => {
     try {
       setBusy(true);
-      await deleteCategoryMutation.mutateAsync(categorySelected.Id);
-      toast.success("Categoría inhabilitada");
+      await deleteUserMutation.mutateAsync(userSelected.Id);
+      toast.success("Usuario inhabilitado");
       setOpen(false);
       onSuccess?.();
     } catch (err) {
-      console.error("Error al inhabilitar categoría:", err);
-      toast.error("No se pudo inhabilitar la categoría");
+      console.error("Error al inhabilitar usuario:", err);
+      toast.error("No se pudo inhabilitar el usuario");
     } finally {
       setBusy(false);
     }
@@ -44,22 +38,22 @@ export default function DeleteCategoryButton({ categorySelected, onSuccess,onClo
         disabled={busy}
         className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
           ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
-        title="Inhabilitar categoría"
+        title="Inhabilitar usuario"
       >
-        <Trash  className="h-4 w-4"/>
+        <Trash className="h-4 w-4" />
         {busy ? "..." : "Inhabilitar"}
       </button>
 
       {open && (
         <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
           <InhabilityActionModal
-            title="¿Inhabilitar categoría?"
-            description={`Se inhabilitará la categoría "${categorySelected.Name ?? ""}".`}
+            title="¿Inhabilitar usuario?"
+            description={`Se inhabilitará el usuario \"${userSelected.Name ?? ""} ${userSelected.Surname1 ?? ""} ${userSelected.Surname2 ?? ""}\".`}
             cancelLabel="Cancelar"
             confirmLabel="Inhabilitar"
             onConfirm={handleConfirm}
-            onClose={handleClose}
-            onCancel={handleClose}
+            onClose={() => setOpen(false)}
+            onCancel={() => setOpen(false)}
           />
         </div>
       )}

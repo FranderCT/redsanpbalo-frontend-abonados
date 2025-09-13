@@ -10,7 +10,11 @@ import { useGetAllSupplier } from "../../../Supplier/Hooks/SupplierHooks"; // A√
 import { newProductInitialState } from "../../Models/CreateProduct";
 
 
-export default function CreateProductModal() {
+type Props ={
+  onClose:()=>void;
+};
+
+export default function CreateProductModal({onClose}:Props) {
   const [open, setOpen] = useState(false);
   const createProductMutation = useCreateProduct();
 
@@ -19,6 +23,10 @@ export default function CreateProductModal() {
   const { materials = [], isPending: materialsLoading, error: materialsError } = useGetAllMaterials();
   const { supplier = [], isLoading: suppliersLoading } = useGetAllSupplier();  // Hook para proveedores
 
+  const handleClose=()=>{
+    toast.warning("Creaci√≥n cancelada",{position:"top-right",autoClose:3000});
+    onClose();  
+  }
   const form = useForm({
     defaultValues: newProductInitialState,
     // validators: {
@@ -258,8 +266,8 @@ export default function CreateProductModal() {
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
-                  >
+                    //onClose={handleClose}
+                    className="h-10 px-4 bg-gray-200 hover:bg-gray-300">
                     Cancelar
                   </button>
                   <button

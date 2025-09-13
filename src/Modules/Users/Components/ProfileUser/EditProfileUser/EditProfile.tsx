@@ -1,12 +1,12 @@
 import React from "react";
 import { useForm } from "@tanstack/react-form";
-import { EditUserInitialState } from "../../../Models/EditUser";
 import { useGetUserProfile, useUpdateUserProfile } from "../../../Hooks/UsersHooks";
 import { EditProfileSchema } from "../../../schemas/EditProfileSchema"; // <-- ajusta la ruta según tu árbol
 import ConfirmActionModal from "../../../../../Components/Modals/ConfirmActionModal";
 import { toast } from "react-toastify";
+import { updateUserMeInitialState } from "../../../Models/User";
 
-type EditPayload = typeof EditUserInitialState;
+type EditPayload = typeof updateUserMeInitialState;
 
 const EditProfile = () => {
   const { UserProfile } = useGetUserProfile();
@@ -17,7 +17,7 @@ const EditProfile = () => {
   const pendingValuesRef = React.useRef<EditPayload | null>(null);
 
   const form = useForm({
-    defaultValues: EditUserInitialState,
+    defaultValues: updateUserMeInitialState,
     validators: { onChange: EditProfileSchema },
     onSubmit: async ({ value }) => {
       // No llamamos aún a la API: primero pedimos confirmación

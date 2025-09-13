@@ -22,7 +22,7 @@ export default function EditMaterialModal({ material, open, onClose, onSuccess }
   const updateMutation = useUpdateMaterial();
 
   const handleClose = () => {
-    toast.info("Edición cancelada", { position: "top-right", autoClose: 3000 });
+    toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
     onClose();
   };
   const form = useForm({
