@@ -8,16 +8,16 @@ import { useDeleteUnitMeasure } from "../../Hooks/UnitMeasureHooks";
 type Props = {
   unitSelected: Unit;
   onSuccess?: () => void;
-  onClose: ()=>void;
+  
 };
 
-export default function DeleteUnitButton({ unitSelected, onSuccess, onClose }: Props) {
+export default function DeleteUnitButton({ unitSelected, onSuccess }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const deleteUnitMutation = useDeleteUnitMeasure();
  const handleClose = () =>{
-  toast.info("cancelado",{position:"top-right",autoClose:3000});
-    onClose();
+  toast.warning("cancelado",{position:"top-right",autoClose:3000});
+    setOpen(false);
  }
   const handleConfirm = async () => {
     try {

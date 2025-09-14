@@ -5,21 +5,20 @@ import type { Category } from "../../Models/Category";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { Trash } from "lucide-react";
 
-
 type Props = {
   categorySelected: Category;
   onSuccess?: () => void;
-  onClose:()=> void;
 };
 
-export default function DeleteCategoryButton({ categorySelected, onSuccess,onClose }: Props) {
+export default function DeleteCategoryButton({ categorySelected, onSuccess }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const deleteCategoryMutation = useDeleteCategory();
-  const handleClose = () =>{
-  toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
-    onClose();
- }
+
+  const handleClose = () => {
+    toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
+    setOpen(false); // Cierra el modal
+  };
 
   const handleConfirm = async () => {
     try {
@@ -46,7 +45,7 @@ export default function DeleteCategoryButton({ categorySelected, onSuccess,onClo
           ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
         title="Inhabilitar categoría"
       >
-        <Trash  className="h-4 w-4"/>
+        <Trash className="h-4 w-4" />
         {busy ? "..." : "Inhabilitar"}
       </button>
 

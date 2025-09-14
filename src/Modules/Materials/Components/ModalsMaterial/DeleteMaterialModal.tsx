@@ -9,16 +9,16 @@ import { useDeleteMaterial } from "../../Hooks/MaterialHooks";
 type Props = {
   materialSelected: Material;
   onSuccess?: () => void;
-  onClose:()=>void;
+  
 };
 
-export default function DeleteMaterialButton({ materialSelected, onSuccess,onClose }: Props) {
+export default function DeleteMaterialButton({ materialSelected, onSuccess }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const deleteMaterialMutation = useDeleteMaterial();
   const handleClose = () =>{
   toast.warning("Edición cancelada",{position:"top-right",autoClose:3000});
-    onClose();
+    setOpen(false);
  }
   const handleConfirm = async () => {
     try {
@@ -57,7 +57,6 @@ export default function DeleteMaterialButton({ materialSelected, onSuccess,onClo
             cancelLabel="Cancelar"
             confirmLabel="Inhabilitar"
             onConfirm={handleConfirm}
-            onClose={handleClose}
             onClose={handleClose}
             onCancel={() => setOpen(false)}
           />

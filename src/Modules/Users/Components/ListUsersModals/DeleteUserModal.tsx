@@ -1,12 +1,13 @@
 // src/Modules/Users/Components/DeleteUserModal.tsx
 import { useState } from "react";
 import { toast } from "react-toastify";
-import type { Users } from "../../Models/Users";
+
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useDeleteUser } from "../../Hooks/UsersHooks";
+import type { User } from "../../Models/User";
 
 type Props = {
-  user: Users;
+  user: User;
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;

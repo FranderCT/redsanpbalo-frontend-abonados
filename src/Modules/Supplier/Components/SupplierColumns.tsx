@@ -21,6 +21,14 @@ export const SupplierColumns = (
     cell: ({ row }) => (row.original.IsActive ? "Activo" : "Inactivo"),  // Muestra si el proveedor está activo o inactivo
   },
   {
+    accessorKey: "Email",
+    header: "Correo Electrónico"
+  },
+  {
+    accessorKey: "PhoneNumber",
+    header: "Correo Electrónico"
+  },
+  {
     id: "Acciones",
     header: "Acciones",
     cell: ({ row }) => {
@@ -39,7 +47,7 @@ export const SupplierColumns = (
           </button>
 
           {/* Botón para eliminar/inhabilitar proveedor */}
-         <DeleteSupplierButton supplierSelected={supplier} />  {/* Componente para eliminar el proveedor */}
+         <DeleteSupplierButton supplierSelected={supplier} onClose={() => {}} />  {/* Componente para eliminar el proveedor */}
           
           {/* Si deseas agregar la funcionalidad para eliminar, descomenta el siguiente código */}
           {/* 

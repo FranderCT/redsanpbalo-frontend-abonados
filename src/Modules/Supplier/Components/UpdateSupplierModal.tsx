@@ -28,6 +28,9 @@ const UpdateSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
     },
     defaultValues: {
       Name: supplier?.Name ?? updateSupplierInitialState.Name,
+      Email: supplier?.Email ?? updateSupplierInitialState.Email,
+      PhoneNumber: supplier?.PhoneNumber ?? updateSupplierInitialState.PhoneNumber,
+      Location: supplier?.Location ?? updateSupplierInitialState.Location,
       IsActive: supplier?.IsActive ?? updateSupplierInitialState.IsActive,
     },
     onSubmit: async ({ value, formApi }) => {
@@ -36,12 +39,10 @@ const UpdateSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
           id: supplier.Id,
           data: value,
         });
-
         toast.success("¡Proveedor actualizado!", {
           position: "top-right",
           autoClose: 3000,
         });
-
         formApi.reset();
         setOpenConfirm(false); // por si estaba abierto
         onClose?.();
@@ -130,6 +131,77 @@ const UpdateSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
               )}
             </form.Field>
 
+            {/* Email */}
+            <form.Field name="Email">
+              {(field) => (
+                <label className="grid gap-1">
+                  <span className="text-sm text-gray-700">Correo electrónico</span>
+                  <input
+                    className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                    value={field.state.value}
+                    inputMode="email"
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="ejemplo@correo.com"
+                    type="email"
+                  />
+                  {field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ??
+                          String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                </label>
+              )}
+            </form.Field>
+
+            {/* Teléfono */}
+            <form.Field name="PhoneNumber">
+              {(field) => (
+                <label className="grid gap-1">
+                  <span className="text-sm text-gray-700">Teléfono</span>
+                  <input
+                    className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                    value={field.state.value}
+                    inputMode="tel"
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Número de teléfono"
+                    type="tel"
+                  />
+                  {field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ??
+                          String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                </label>
+              )}
+            </form.Field>
+
+            {/* Ubicación */}
+            <form.Field name="Location">
+              {(field) => (
+                <label className="grid gap-1">
+                  <span className="text-sm text-gray-700">Ubicación</span>
+                  <input
+                    className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                    value={field.state.value}
+                    inputMode="text"
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Ubicación"
+                  />
+                  {field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ??
+                          String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                </label>
+              )}
+            </form.Field>
+
             <form.Field name="IsActive">
               {(field) => (
                 <label className="flex items-center gap-2">
@@ -139,7 +211,6 @@ const UpdateSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
                     checked={!!field.state.value}
                     onChange={(e) => field.handleChange(e.target.checked)}
                   />
-                  
                   {field.state.meta.isTouched &&
                     field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">
@@ -158,7 +229,6 @@ const UpdateSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
                     type="button"
                     disabled={!canSubmit || isSubmitting}
                     onClick={() => {
-                      // sólo abrimos confirm si pasa validaciones y no está enviando
                       if (canSubmit && !isSubmitting) setOpenConfirm(true);
                     }}
                     className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
@@ -167,8 +237,7 @@ const UpdateSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setOpen(false)}
-                    onClose={handleClose}
+                    onClick={handleClose}
                     className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
                   >
                     Cancelar

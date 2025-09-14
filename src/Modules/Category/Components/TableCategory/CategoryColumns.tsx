@@ -21,6 +21,7 @@ export const CategoryColumns = (
     header: "Acciones",
     cell: ({ row }) => {
       const category = row.original;
+      
       return (
         <div className="flex gap-2">
           <button

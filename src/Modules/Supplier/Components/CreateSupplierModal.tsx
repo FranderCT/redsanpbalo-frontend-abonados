@@ -66,6 +66,7 @@ const CreateSupplierModal = () => {
           className="px-7 py-2 flex flex-col gap-3"
         >
           {/* Nombre del proveedor */}
+           
           <form.Field name="Name">
             {(field) => (
               <>
@@ -85,6 +86,68 @@ const CreateSupplierModal = () => {
                   )}
                 </label>
               </>
+            )}
+          </form.Field>
+
+          {/* Email */}
+          <form.Field name="Email">
+            {(field) => (
+              <label className="grid gap-1">
+                <span className="text-sm text-gray-700">Correo electrónico</span>
+                <input
+                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring focus:ring-blue-200"
+                  placeholder="ejemplo@correo.com"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type="email"
+                />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </label>
+            )}
+          </form.Field>
+
+          {/* Teléfono */}
+          <form.Field name="PhoneNumber">
+            {(field) => (
+              <label className="grid gap-1">
+                <span className="text-sm text-gray-700">Teléfono</span>
+                <input
+                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring focus:ring-blue-200"
+                  placeholder="Número de teléfono"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type="tel"
+                />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </label>
+            )}
+          </form.Field>
+
+          {/* Ubicación */}
+          <form.Field name="Location">
+            {(field) => (
+              <label className="grid gap-1">
+                <span className="text-sm text-gray-700">Ubicación</span>
+                <input
+                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring focus:ring-blue-200"
+                  placeholder="Ubicación"
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </label>
             )}
           </form.Field>
 

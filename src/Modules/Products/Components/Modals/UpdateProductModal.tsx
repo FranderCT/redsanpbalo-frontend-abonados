@@ -259,8 +259,7 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
               <div className="mt-2 flex justify-end items-center gap-2">
                 <button
                   type="button"
-                  onClose={handleClose}
-                  onCancel={handleClose}
+                  onClick={handleClose}
                   className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
                 >
                   Cancelar

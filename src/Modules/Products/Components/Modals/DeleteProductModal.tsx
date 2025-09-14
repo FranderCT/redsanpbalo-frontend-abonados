@@ -9,7 +9,7 @@ import { useDeleteProduct } from "../../Hooks/ProductsHooks";
 type Props = {
     product: Product;
     onSuccess?: () => void;
-    onClose:()=>void;
+  
 };
 
 export default function DeleteProductButton({ product, onSuccess }: Props) {
@@ -18,7 +18,7 @@ export default function DeleteProductButton({ product, onSuccess }: Props) {
     const deleteProductMutation = useDeleteProduct();
     const handleClose = () =>{
     toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
-    onClose();
+    setOpen(false);
  }
     const handleConfirm = async () => {
         try {

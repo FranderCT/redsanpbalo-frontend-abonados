@@ -5,24 +5,26 @@ import InhabilityActionModal from "../../../Components/Modals/InhabilyActionModa
 import { useDeleteSupplier } from "../Hooks/SupplierHooks";
 import type { Supplier } from "../Models/Supplier";
 
+
 type Props = {
-  supplierSelected: Supplier;  // Cambié Category por Supplier
+  supplierSelected: Supplier;
   onSuccess?: () => void;
-  onClose:()=>void;
 };
 
-export default function DeleteSupplierButton({ supplierSelected, onSuccess, onClose}: Props) {
+export default function DeleteSupplierButton({ supplierSelected, onSuccess }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const deleteSupplierMutation = useDeleteSupplier();  // Hook para eliminar un proveedor
-const handleClose = () =>{
-  toast.warning("Edición cancelada",{position:"top-right",autoClose:3000});
-    onClose();
-  }
+  const deleteSupplierMutation = useDeleteSupplier();
+
+  const handleClose = () => {
+    toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
+    setOpen(false);
+  };
+
   const handleConfirm = async () => {
     try {
       setBusy(true);
-      await deleteSupplierMutation.mutateAsync(supplierSelected.Id);  // Se usa el ID del proveedor para eliminarlo
+      await deleteSupplierMutation.mutateAsync(supplierSelected.Id);
       toast.success("Proveedor inhabilitado");
       setOpen(false);
       onSuccess?.();

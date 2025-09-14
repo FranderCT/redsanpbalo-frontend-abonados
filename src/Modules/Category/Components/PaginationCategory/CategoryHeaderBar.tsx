@@ -64,7 +64,7 @@ export default function CategoryHeaderBar({
           fluid={false}            // <- NO se expande
           widthClass="w-[300px]"   // <- ancho exacto del buscador
         />
-        //clean
+        
         <button
             onClick={onCleanFilters}
             className="h-9 px-3 border border-[#D9DBE9] bg-white text-sm hover:bg-gray-50 shrink-0"
