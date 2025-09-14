@@ -5,6 +5,8 @@ import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useCreateUser } from "../../../Auth/Hooks/AuthHooks";
 import { AdminUserInitialState } from "../../../Auth/Models/RegisterUser";
 import { useGetAllRoles } from "../../Hooks/UsersHooks";
+import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
+import { AddUserSchema } from "../../schemas/AddUserSchema";
 
 export default function RegisterAbonadosModal() {
   const [open, setOpen] = useState(false);
@@ -15,6 +17,9 @@ export default function RegisterAbonadosModal() {
 
   const form = useForm({
     defaultValues: AdminUserInitialState,
+    validators:{
+      onChange: AddUserSchema,
+    },
     onSubmit: async ({ value }) => {
       try {
         await createUserMutation.mutateAsync(value);
@@ -68,6 +73,7 @@ export default function RegisterAbonadosModal() {
                 {/* Cédula */}
                 <form.Field name="IDcard">
                   {(field) => (
+                    <>
                     <label className="grid gap-1">
                       <input
                         className="w-full px-4 py-2 bg-gray-50 border "
@@ -102,13 +108,20 @@ export default function RegisterAbonadosModal() {
                           }
                         }}
                       />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
                     </label>
+                    </>
                   )}
                 </form.Field>
 
                 {/* Nombre */}
                 <form.Field name="Name">
                   {(field) => (
+                    <>
                     <label className="grid gap-1">
                       <input
                         className="w-full px-4 py-2 bg-gray-100 text-[#091540] border "
@@ -117,7 +130,13 @@ export default function RegisterAbonadosModal() {
                         disabled
                         onChange={(e) => field.handleChange(e.target.value)}
                       />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
                     </label>
+                    </>
                   )}
                 </form.Field>
 
@@ -125,6 +144,7 @@ export default function RegisterAbonadosModal() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <form.Field name="Surname1">
                     {(field) => (
+                      <>
                       <label className="grid gap-1">
                         <input
                           className="w-full px-4 py-2 bg-gray-100 text-[#091540] border "
@@ -133,12 +153,19 @@ export default function RegisterAbonadosModal() {
                           disabled
                           onChange={(e) => field.handleChange(e.target.value)}
                         />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                          </p>
+                        )}
                       </label>
+                      </>
                     )}
                   </form.Field>
 
                   <form.Field name="Surname2">
                     {(field) => (
+                      <>
                       <label className="grid gap-1">
                         
                         <input
@@ -148,7 +175,13 @@ export default function RegisterAbonadosModal() {
                           disabled
                           onChange={(e) => field.handleChange(e.target.value)}
                         />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                          </p>
+                        )}
                       </label>
+                      </>
                     )}
                   </form.Field>
                 </div>
@@ -176,9 +209,10 @@ export default function RegisterAbonadosModal() {
 
                   <form.Field name="Nis">
                     {(field) => (
+                      <>
                       <label className="grid gap-1">
                         <input
-                          className={`w-full px-4 py-2 border rounded-md`}
+                          className={`w-full px-4 py-2 border`}
                           placeholder="NIS"
                           value={field.state.value}
                           inputMode="numeric"
@@ -188,7 +222,13 @@ export default function RegisterAbonadosModal() {
                           // aria-disabled={!isAbonado}
                           // required={isAbonado}
                         />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                          </p>
+                        )}
                       </label>
+                      </>
                     )}
                   </form.Field>
                 </div>
@@ -197,6 +237,7 @@ export default function RegisterAbonadosModal() {
                 {/* Email */}
                 <form.Field name="Email">
                   {(field) => (
+                    <>
                     <label className="grid gap-1">
                       
                       <input
@@ -206,28 +247,44 @@ export default function RegisterAbonadosModal() {
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                       />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
                     </label>
+                    </>
                   )}
                 </form.Field>
 
                 {/* Teléfono */}
                 <form.Field name="PhoneNumber">
-                  {(field) => (
-                    <label className="grid gap-1">
-                      
-                      <input
-                        className="w-full px-4 py-2 bg-gray-50 border "
-                        placeholder="Número telefónico"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
+                 {(field) => (
+                 <>
+                 <PhoneField
+                    value={field.state.value}            
+                    onChange={(val) => field.handleChange(val ?? "")} 
+                    defaultCountry="CR"
+                    required
+                      error={
+                         field.state.meta.isTouched && field.state.meta.errors[0]
+                        ? String(field.state.meta.errors[0])
+                        : undefined
+                       }
                       />
-                    </label>
-                  )}
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                    </>
+                   )}
                 </form.Field>
 
                 {/* Fecha de nacimiento */}
                 <form.Field name="Birthdate">
                   {(field) => (
+                    <>
                     <label className="grid gap-1">
                       <span className="text-sm text-gray-700">Fecha de Nacimiento</span>
                       <input
@@ -244,13 +301,20 @@ export default function RegisterAbonadosModal() {
                         }}
                         className="w-full px-4 py-2 bg-gray-50 border "
                       />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
                     </label>
+                    </>
                   )}
                 </form.Field>
 
                 {/* Dirección */}
                 <form.Field name="Address">
                   {(field) => (
+                    <>
                     <label className="grid gap-1">
                       
                       <input
@@ -260,7 +324,13 @@ export default function RegisterAbonadosModal() {
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
                       />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
                     </label>
+                    </>
                   )}
                 </form.Field>
 

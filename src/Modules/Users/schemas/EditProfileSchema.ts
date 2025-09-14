@@ -1,13 +1,15 @@
 import { z } from 'zod'
+import { isValidPhoneNumber } from 'react-phone-number-input';
 
 const emptyToUndef = (v: unknown) =>
   v === "" || v === null ? undefined : v;
 
 export const EditProfileSchema = z.object({
     
-    PhoneNumber: z.string()
-    .regex(/^[678]\d{7}$/, "Teléfono inválido. Debe tener 8 dígitos y empezar en 6, 7 u 8")
-    .optional(),
+    PhoneNumber: z.string({
+    required_error: 'El teléfono es obligatorio',
+    invalid_type_error: 'El teléfono es obligatorio',
+    }).refine((val) => isValidPhoneNumber(val), 'Número telefónico inválido'),
     
     Birthdate: z.coerce.date().refine((val) => {
     const age = new Date(Date.now() - val.getTime()).getUTCFullYear() - 1970;
