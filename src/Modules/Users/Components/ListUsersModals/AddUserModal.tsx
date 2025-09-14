@@ -36,7 +36,7 @@ export default function RegisterAbonadosModal() {
         onClick={() => setOpen(true)}
         className="px-4 py-2  bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
       >
-        + Agregar Nuevo Abonado
+        + Agregar Usuario
       </button>
 
       <ModalBase
@@ -264,31 +264,92 @@ export default function RegisterAbonadosModal() {
                   )}
                 </form.Field>
 
-                {/* <form.Field name="Roles">
-                  {(field) => (
-                    <label className="grid gap-1">
-                      <select
-                        className="w-full px-4 py-2 bg-gray-50 border"
-                        value={JSON.stringify(field.state.value)} // 👈 stringify para comparar
-                        onChange={(e) => field.handleChange(JSON.parse(e.target.value))} // 👈 parse para guardar objeto
+          {/* ===== Roles ===== */}
+          <form.Field name="roleIds">
+            {(field) => {
+              const selectedIds: number[] = field.state.value ?? [];
+              const notSelected = roles?.filter((r: any) => !selectedIds.includes(r.Id)) ?? [];
+
+              const removeRole = (id: number) =>
+                field.handleChange(selectedIds.filter((x) => x !== id));
+              const addRole = (id: number) =>
+                field.handleChange(Array.from(new Set([...selectedIds, id])));
+              const clearAll = () => field.handleChange([]);
+
+              return (
+                <div className="grid gap-2">
+                  <span className="text-sm text-gray-700">Roles</span>
+
+                  {/* Chips seleccionados */}
+                  <div className="flex flex-wrap gap-2">
+                    {selectedIds.length === 0 && <span className="text-xs text-gray-500">Sin roles asignados.</span>}
+                    {selectedIds.map((id) => {
+                      const r = roles?.find((x: any) => x.Id === id);
+                      return (
+                        <span
+                          key={id}
+                          className="inline-flex items-center gap-2 border px-3 py-1 text-sm bg-gray-50"
+                        >
+                          {r?.Rolname ?? `ID ${id}`}
+                          <button
+                            type="button"
+                            onClick={() => removeRole(id)}
+                            className="text-gray-500 hover:text-red-600"
+                            title="Quitar rol"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+
+                  {/* Agregar más roles (select simple que inserta y se resetea) */}
+                  <div className="flex items-center gap-2">
+                    <select
+                      className="w-98.5 px-4 py-2 bg-gray-50 border"
+                      defaultValue=""
+                      onChange={(e) => {
+                        const v = e.currentTarget.value;
+                        if (!v) return;
+                        addRole(Number(v));
+                        e.currentTarget.value = ""; // reset
+                      }}
+                    >
+                      <option value="" disabled>
+                        {notSelected.length ? "Agregar rol…" : "No hay más roles disponibles"}
+                      </option>
+                      {notSelected.map((r: any) => (
+                        <option key={r.Id} value={String(r.Id)}>
+                          {r.Rolname}
+                        </option>
+                      ))}
+                    </select>
+
+                    {selectedIds.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={clearAll}
+                        className="h-10 px-3 border bg-white hover:bg-gray-50"
+                        title="Quitar todos"
                       >
-                        {roles.map((c) => (
-                          <option key={c.Id} value={JSON.stringify(c)}>
-                            {c.Rolname}
-                          </option>
-                        ))}
-                      </select>
+                        Quitar todos
+                      </button>
+                    )}
+                  </div>
 
-                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                        </p>
-                      )}
-                    </label>
+                  {/* Errores */}
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ??
+                        String(field.state.meta.errors[0])}
+                    </p>
                   )}
-                </form.Field> */}
-
-
+                </div>
+              );
+            }}
+          </form.Field>
+          {/* ===== Fin Roles ===== */}
 
                 {/* Footer botones */}
                 <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>

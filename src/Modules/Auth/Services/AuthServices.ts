@@ -36,8 +36,6 @@ export async function ChangePasswd (payload: changePassword, token: string): Pro
   });
 }
 
-
-
 export async function ForgotPasswd(payload : ForgotPassword) : Promise<ForgotPasswordResponse>{
   const res = await apiAxios.post<ForgotPasswordResponse>(`${BASE}/forgot-password`, payload);
   return res.data;

@@ -9,12 +9,7 @@ import { useGetAllMaterials } from "../../../Materials/Hooks/MaterialHooks";
 import { useGetAllSupplier } from "../../../Supplier/Hooks/SupplierHooks"; // Añadir hook para proveedores
 import { newProductInitialState } from "../../Models/CreateProduct";
 
-
-type Props ={
-  onClose:()=>void;
-};
-
-export default function CreateProductModal({onClose}:Props) {
+export default function CreateProductModal() {
   const [open, setOpen] = useState(false);
   const createProductMutation = useCreateProduct();
 
@@ -25,8 +20,9 @@ export default function CreateProductModal({onClose}:Props) {
 
   const handleClose=()=>{
     toast.warning("Creación cancelada",{position:"top-right",autoClose:3000});
-    onClose();  
+    setOpen(false);  
   }
+  
   const form = useForm({
     defaultValues: newProductInitialState,
     // validators: {
@@ -265,8 +261,7 @@ export default function CreateProductModal({onClose}:Props) {
                 <div className="mt-4 flex justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => setOpen(false)}
-                    //onClose={handleClose}
+                    onClick={handleClose}
                     className="h-10 px-4 bg-gray-200 hover:bg-gray-300">
                     Cancelar
                   </button>

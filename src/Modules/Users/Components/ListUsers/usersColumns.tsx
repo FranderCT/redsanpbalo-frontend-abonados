@@ -12,9 +12,9 @@ export type RowUser = User & {
 export const usersColumns = (
   onEdit: (userEdit: User) => void,
 ): ColumnDef<User>[] => [
-  { accessorKey: "Name", header: "Nombre" },
-  { accessorKey: "Surname1", header: "Primer Apellido" },
-  { accessorKey: "Surname2", header: "Segundo Apellido" },
+  { accessorKey: "Name", header: "Nombre Completo", 
+    cell: ({ row }) => (row.original.Name + " " + row.original.Surname1 + " " + row.original.Surname2),
+  },
   { accessorKey: "Nis", header: "Nis" },
   { accessorKey: "IDcard", header: "Cédula" },
   { accessorKey: "Email", header: "Correo" },
@@ -32,8 +32,8 @@ export const usersColumns = (
           <button
             onClick={() => onEdit(user)}
             className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-                       text-[#1789FC] border-[#1789FC]
-                       hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
+              text-[#1789FC] border-[#1789FC]
+              hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
           >
             <Edit2 className="w-4 h-4" />
             Editar

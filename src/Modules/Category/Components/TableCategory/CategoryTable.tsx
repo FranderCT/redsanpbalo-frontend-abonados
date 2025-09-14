@@ -47,7 +47,7 @@ export default function CategoryTable({ data, total, page, pageCount, onPageChan
               ))}
             </tr>
           ))}
-        </thead>
+      </thead>
 
         <tbody>
           {table.getRowModel().rows.map((row) => (

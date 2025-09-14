@@ -4,6 +4,7 @@ import type { User } from "../Models/User";
 import RegisterAbonadosModal from "../Components/ListUsersModals/AddUserModal";
 import { BrushCleaning } from "lucide-react";
 import { useGetAllUsersPaginate } from "../Hooks/UsersHooks";
+import UserHeaderBar from "../Components/Pagination/UserHeaderBar";
 
 
 export default function ListUsers() {
@@ -11,6 +12,7 @@ export default function ListUsers() {
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
   const [name, setName] = useState<string | undefined>(undefined);
+  const [state, setState] = useState<string | undefined>(undefined);
 
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
@@ -19,18 +21,19 @@ export default function ListUsers() {
     setPage(1);
   };
 
-  const handleLimitChange = (l: number) => {
-    setLimit(l);
+  const handleStateChange = (newState: string) => {
+    setState(newState || undefined);
     setPage(1);
   };
 
   const handleCleanFilters = () => {
     setSearch("");
     setName(undefined);
+    setState(undefined);
     setPage(1);
   };
 
-  const params = useMemo(() => ({ page, limit, name }), [page, limit, name]);
+  const params = useMemo(() => ({ page, limit, name, state }), [page, limit, name, state]);
   const { data, isLoading, error } = useGetAllUsersPaginate(params);
 
   const rows: User[] = data?.data ?? [];
@@ -44,42 +47,16 @@ export default function ListUsers() {
       <p className="text-[#091540]/70 text-md">Gestione todos los usuarios</p>
       <div className="border-b border-dashed border-gray-300 mb-8"></div>
 
-      <div className="flex flex-wrap items-end justify-between gap-3 p-3">
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="grid text-sm">
-            <span className="mb-1">Nombre</span>
-            <input
-              className="border px-3 py-2 w-56"
-              placeholder="Ej: José Daniel Román"
-              value={search}
-              onChange={(e) => handleSearchChange(e.target.value)}
-            />
-          </label>
-          <label className="grid text-sm">
-            <span className="mb-1">Por página</span>
-            <select
-              className="border px-3 py-2 w-28"
-              value={limit}
-              onChange={(e) => handleLimitChange(Number(e.target.value))}
-            >
-              {[5, 10, 20, 50].map((n) => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <div className="flex flex-row gap-3">
-          <button
-            type="button"
-            onClick={handleCleanFilters}
-            className="flex items-center gap-1 h-10 px-3 border text-sm text-[#091540] hover:bg-gray-100"
-          >
-            <BrushCleaning />
-            <span className="hidden sm:inline">Limpiar filtros</span>
-          </button>
-          <RegisterAbonadosModal />
-        </div>
-      </div>
+    <UserHeaderBar
+    limit={meta.limit}
+    total={meta.total}
+    search={search}
+    onLimitChange={(l) => { setLimit(l); setPage(1); }}
+    onFilterClick={handleStateChange}
+    onSearchChange={handleSearchChange}
+    onCleanFilters={handleCleanFilters}
+    rightAction={<RegisterAbonadosModal />}
+    />
 
       <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
         {isLoading ? (

@@ -43,7 +43,7 @@ export interface createAdminUser{
     PhoneNumber: string;
     Birthdate: Date;
     Address: string;
-    //Roles: Roles[];
+    roleIds?: number[];
 }
 
 export type createAdminUserForm = createAdminUser & {
@@ -60,5 +60,5 @@ export const AdminUserInitialState: createAdminUser = {
   PhoneNumber: '',
   Birthdate: '' as unknown as Date,
   Address: '',
-  //Roles: [],
+  roleIds: [],
 }
