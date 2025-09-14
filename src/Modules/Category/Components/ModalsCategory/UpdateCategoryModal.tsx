@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useUpdateCategory } from "../../Hooks/CategoryHooks";
 import type { Category } from "../../Models/Category";
-import { CategorySchema } from "../../schemas/CategorySchema";
+import { UpdateCategorySchema } from "../../schemas/CategorySchema";
 import ConfirmActionModal from "../../../../Components/Modals/ConfirmActionModal";
 import { useState } from "react";
 
@@ -18,16 +18,17 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
   const updateCategoryModalMutation = useUpdateCategory();
   const [openConfirm, setOpenConfirm] = useState(false);
   const handleClose = () => {
-      toast.info("Edición cancelada", { position: "top-right", autoClose: 3000 });
+      toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
       onClose();
   };
   const form = useForm({
     validators: {
-      onChange: CategorySchema,
+      onChange: UpdateCategorySchema,
     },
     defaultValues: {
       Name: category?.Name ?? "",
       Description: category?.Description ?? "",
+      IsActive: category?.IsActive ?? true,
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -94,6 +95,16 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
                   {category.Description ?? "-"}
                 </dd>
               </div>
+
+              <div className=" bg-gray-50 p-3">
+                <dt className="text-[11px] uppercase tracking-wide text-gray-500">
+                  Estado
+                </dt>
+                <dd className="mt-1 text-sm text-[#091540] break-words">
+                  {category.IsActive ? "Activo" : "Inactivo"}
+                </dd>
+              </div>
+              
             </dl>
           </div>
 
@@ -142,6 +153,29 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
                     onChange={(e) => field.handleChange(e.target.value)}
                     rows={2}
                   />
+                  {field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ??
+                          String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                </label>
+              )}
+            </form.Field>
+
+            <form.Field name="IsActive">
+              {(field) => (
+                <label className="flex items-center gap-2">
+                  <span className="text-sm text-gray-700">
+                    Activo: 
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={!!field.state.value}
+                    onChange={(e) => field.handleChange(e.target.checked)}
+                  />
+                  
                   {field.state.meta.isTouched &&
                     field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">

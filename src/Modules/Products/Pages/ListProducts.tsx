@@ -2,13 +2,12 @@ import { useMemo, useState } from "react";
 import { useSearchProducts } from "../Hooks/ProductsHooks";
 import type { Product } from "../Models/CreateProduct";
 import ProductHeaderBar from "../Components/PaginationProducts/ProductHeaderBar";
-import CreateProductModal from "../Components/Modals/CreateProductModal";
 import ProductTable from "../Components/ProductsTable/ProductTable";
+import CreateProductModal from "../Components/Modals/CreateProductModal";
 
 export default function ListProducts() {
   const [page, setPage] = useState(1);   // 1-based
   const [limit, setLimit] = useState(10);
-  
   const [search, setSearch] = useState("");
   const [name, setName] = useState<string | undefined>(undefined);
   const [state, setState] = useState<string | undefined>(undefined);

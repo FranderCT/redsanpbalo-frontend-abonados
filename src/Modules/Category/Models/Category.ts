@@ -15,3 +15,16 @@ export const NewCategoryInitialState = {
     Name: "",
     Description: "",
 }
+
+export type CategoriesPaginationParams = {
+    page?: number;
+    limit?: number;
+    name?: string;
+    state?: string;
+};
+
+export interface UpdateCategoryDto {
+    Name?: string;
+    Description?: string;
+    IsActive?: boolean;
+}

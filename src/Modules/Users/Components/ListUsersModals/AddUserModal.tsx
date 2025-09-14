@@ -2,25 +2,22 @@ import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
-import { useCreateAbonado } from "../../../Auth/Hooks/AuthHooks";
-import { RegisterUserInitialState } from "../../../Auth/Models/RegisterUser";
+import { useCreateUser } from "../../../Auth/Hooks/AuthHooks";
+import { AdminUserInitialState } from "../../../Auth/Models/RegisterUser";
+import { useGetAllRoles } from "../../Hooks/UsersHooks";
 
 export default function RegisterAbonadosModal() {
   const [open, setOpen] = useState(false);
-  const createUserMutation = useCreateAbonado();
-  const [isAbonado, setIsAbonado] = useState<boolean>(RegisterUserInitialState.IsAbonado);
+  const createUserMutation = useCreateUser();
+  const { roles } = useGetAllRoles();
+  // const [isAbonado, setIsAbonado] = useState<boolean>(AdminUserInitialState.IsAbonado);
 
 
   const form = useForm({
-    defaultValues: RegisterUserInitialState,
+    defaultValues: AdminUserInitialState,
     onSubmit: async ({ value }) => {
-      if (value.Password !== value.ConfirmPassword) {
-        alert("Las contraseñas no coinciden");
-        return;
-      }
       try {
-        const { IsAbonado, ...userData } = value; 
-        await createUserMutation.mutateAsync(userData);
+        await createUserMutation.mutateAsync(value);
         toast.success("¡Registro exitoso!", { position: "top-right", autoClose: 3000 });
         setOpen(false);
 
@@ -39,7 +36,7 @@ export default function RegisterAbonadosModal() {
         onClick={() => setOpen(true)}
         className="px-4 py-2  bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
       >
-        + Agregar Nuevo Abonado
+        + Agregar Usuario
       </button>
 
       <ModalBase
@@ -159,7 +156,7 @@ export default function RegisterAbonadosModal() {
                {/* Soy abonado + NIS */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Checkbox controlado por useState (y sincronizado con el form) */}
-                  <label className="group flex items-center cursor-pointer select-none">
+                  {/* <label className="group flex items-center cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={isAbonado}
@@ -175,23 +172,21 @@ export default function RegisterAbonadosModal() {
                     <span className="ml-3 text-gray-700 group-hover:text-blue-500 font-medium transition-colors duration-300">
                       Soy abonado
                     </span>
-                  </label>
+                  </label> */}
 
                   <form.Field name="Nis">
                     {(field) => (
                       <label className="grid gap-1">
                         <input
-                          className={`w-full px-4 py-2 border rounded-md ${
-                            isAbonado ? "bg-gray-50 text-[#091540]" : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                          }`}
+                          className={`w-full px-4 py-2 border rounded-md`}
                           placeholder="NIS"
                           value={field.state.value}
                           inputMode="numeric"
                           pattern="[0-9]*"
                           onChange={(e) => field.handleChange(e.target.value.replace(/\D/g, ""))}
-                          disabled={!isAbonado}
-                          aria-disabled={!isAbonado}
-                          required={isAbonado}
+                          // disabled={!isAbonado}
+                          // aria-disabled={!isAbonado}
+                          // required={isAbonado}
                         />
                       </label>
                     )}
@@ -269,38 +264,92 @@ export default function RegisterAbonadosModal() {
                   )}
                 </form.Field>
 
-                {/* Contraseñas */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <form.Field name="Password">
-                    {(field) => (
-                      <label className="grid gap-1">
-                        
-                        <input
-                          className="w-full px-4 py-2 bg-gray-50 border "
-                          placeholder="Contraseña"
-                          type="password"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                      </label>
-                    )}
-                  </form.Field>
+          {/* ===== Roles ===== */}
+          <form.Field name="roleIds">
+            {(field) => {
+              const selectedIds: number[] = field.state.value ?? [];
+              const notSelected = roles?.filter((r: any) => !selectedIds.includes(r.Id)) ?? [];
 
-                  <form.Field name="ConfirmPassword">
-                    {(field) => (
-                      <label className="grid gap-1">
-                        
-                        <input
-                          className="w-full px-4 py-2 bg-gray-50 border "
-                          placeholder="Confirmar contraseña"
-                          type="password"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                      </label>
+              const removeRole = (id: number) =>
+                field.handleChange(selectedIds.filter((x) => x !== id));
+              const addRole = (id: number) =>
+                field.handleChange(Array.from(new Set([...selectedIds, id])));
+              const clearAll = () => field.handleChange([]);
+
+              return (
+                <div className="grid gap-2">
+                  <span className="text-sm text-gray-700">Roles</span>
+
+                  {/* Chips seleccionados */}
+                  <div className="flex flex-wrap gap-2">
+                    {selectedIds.length === 0 && <span className="text-xs text-gray-500">Sin roles asignados.</span>}
+                    {selectedIds.map((id) => {
+                      const r = roles?.find((x: any) => x.Id === id);
+                      return (
+                        <span
+                          key={id}
+                          className="inline-flex items-center gap-2 border px-3 py-1 text-sm bg-gray-50"
+                        >
+                          {r?.Rolname ?? `ID ${id}`}
+                          <button
+                            type="button"
+                            onClick={() => removeRole(id)}
+                            className="text-gray-500 hover:text-red-600"
+                            title="Quitar rol"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+
+                  {/* Agregar más roles (select simple que inserta y se resetea) */}
+                  <div className="flex items-center gap-2">
+                    <select
+                      className="w-98.5 px-4 py-2 bg-gray-50 border"
+                      defaultValue=""
+                      onChange={(e) => {
+                        const v = e.currentTarget.value;
+                        if (!v) return;
+                        addRole(Number(v));
+                        e.currentTarget.value = ""; // reset
+                      }}
+                    >
+                      <option value="" disabled>
+                        {notSelected.length ? "Agregar rol…" : "No hay más roles disponibles"}
+                      </option>
+                      {notSelected.map((r: any) => (
+                        <option key={r.Id} value={String(r.Id)}>
+                          {r.Rolname}
+                        </option>
+                      ))}
+                    </select>
+
+                    {selectedIds.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={clearAll}
+                        className="h-10 px-3 border bg-white hover:bg-gray-50"
+                        title="Quitar todos"
+                      >
+                        Quitar todos
+                      </button>
                     )}
-                  </form.Field>
+                  </div>
+
+                  {/* Errores */}
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ??
+                        String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </div>
+              );
+            }}
+          </form.Field>
+          {/* ===== Fin Roles ===== */}
 
                 {/* Footer botones */}
                 <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>

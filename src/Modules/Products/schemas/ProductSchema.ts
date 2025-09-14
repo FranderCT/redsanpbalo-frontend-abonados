@@ -18,4 +18,5 @@ export const UpdateProductSchema = z.object({
   CategoryId: z.number().int().min(0, "Valor inválido").optional(),
   MaterialId: z.number().int().min(0, "Valor inválido").optional(),
   UnitMeasureId: z.number().int().min(0, "Valor inválido").optional(),
+  IsActive: z.boolean(),
 });

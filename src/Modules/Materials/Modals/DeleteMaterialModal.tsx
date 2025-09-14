@@ -11,13 +11,19 @@ export type RowMaterial = Material & { Id: number; IsActive?: boolean };
 type Props = {
   material: RowMaterial;
   onSuccess?: () => void;
+  onClose:()=>void;
 };
 
-export default function DeleteMaterialButton({ material, onSuccess }: Props) {
+export default function DeleteMaterialButton({ material, onSuccess,onClose }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const qc = useQueryClient();
   const deleteMaterialMutation = useDeleteMaterial();
+
+  const handleClose = () =>{
+  toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
+    onClose();
+ }
 
   const handleConfirm = async () => {
     try {
@@ -57,8 +63,8 @@ export default function DeleteMaterialButton({ material, onSuccess }: Props) {
             cancelLabel="Cancelar"
             confirmLabel="Inhabilitar"
             onConfirm={handleConfirm}
-            onClose={() => setOpen(false)}
-            onCancel={() => setOpen(false)}
+            onClose={handleClose}
+            onCancel={handleClose}
             
           />
         </div>

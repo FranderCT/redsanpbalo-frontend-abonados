@@ -36,6 +36,11 @@ export const ProductColumns = (
     cell: ({ row }) => row.original.UnitMeasure?.Name ?? "-",
   },
   {
+    id: "Supplier",
+    header : "Proveedor",
+    cell: ({ row }) => row.original.Supplier?.Name ?? "-",
+  },
+  {
     id: "Acciones",
     header: "Acciones",
     cell: ({ row }) => {

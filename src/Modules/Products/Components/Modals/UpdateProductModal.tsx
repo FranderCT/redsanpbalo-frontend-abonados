@@ -1,11 +1,12 @@
+
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
-
 import { useUpdateProduct } from "../../Hooks/ProductsHooks"; // 👈 igual a useUpdateUser pero para productos
 import { useGetAllCategory } from "../../../Category/Hooks/CategoryHooks";
 import { useGetAllUnitsMeasure } from "../../../UnitMeasure/Hooks/UnitMeasureHooks";
 import { useGetAllMaterials } from "../../../Materials/Hooks/MaterialHooks";
+import { useGetAllSupplier } from "../../../Supplier/Hooks/SupplierHooks"; // Añadir hook para proveedores
 import type { Product } from "../../Models/CreateProduct";
 
 type Props = {
@@ -25,7 +26,11 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
     isPending: materialsLoading,
     error: materialsError,
   } = useGetAllMaterials();
-
+  const { supplier = [], isLoading: suppliersLoading } = useGetAllSupplier();  // Hook para proveedores
+  const handleClose = () =>{
+  toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
+    onClose();
+ }
   const form = useForm({
     defaultValues: {
       Name: product.Name ?? "",
@@ -34,6 +39,8 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
       CategoryId: product.Category?.Id ?? 0,
       MaterialId: product.Material?.Id ?? 0,
       UnitMeasureId: product.UnitMeasure?.Id ?? 0,
+      SupplierId: product.Supplier?.Id ?? 0,  // Asignar SupplierId
+      IsActive: product.IsActive ?? true,
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -169,7 +176,36 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
             )}
           </form.Field>
 
-          {/* UnitMeasureId (dropdown) */}
+          {/* SupplierId (dropdown para seleccionar proveedor) */}
+          <form.Field name="SupplierId">
+            {(field) => (
+              <label className="grid gap-1">
+                <span className="text-sm text-gray-700">Proveedor</span>
+                <select
+                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  value={field.state.value ?? 0}
+                  onChange={(e) => field.handleChange(Number(e.target.value))}
+                  disabled={suppliersLoading}
+                >
+                  <option value={0} disabled>
+                    {suppliersLoading ? "Cargando proveedores..." : "Seleccione un proveedor"}
+                  </option>
+                  {supplier.map((s) => (
+                    <option key={s.Id} value={s.Id}>
+                      {s.Name}
+                    </option>
+                  ))}
+                </select>
+                {suppliersLoading && (
+                  <span className="text-xs text-red-600 mt-1">
+                    No se pudieron cargar los proveedores.
+                  </span>
+                )}
+              </label>
+            )}
+          </form.Field>
+
+          {/* UnitMeasureId (dropdown para seleccionar unidad de medida) */}
           <form.Field name="UnitMeasureId">
             {(field) => (
               <label className="grid gap-1">
@@ -193,13 +229,37 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
             )}
           </form.Field>
 
+          {/* IsActive */}
+          <form.Field name="IsActive">
+              {(field) => (
+                <label className="flex items-center gap-2">
+                  <span className="text-sm text-gray-700">
+                    Activo: 
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={!!field.state.value}
+                    onChange={(e) => field.handleChange(e.target.checked)}
+                  />
+                  
+                  {field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ??
+                          String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                </label>
+              )}
+          </form.Field>
+
           {/* Footer botones */}
           <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (
               <div className="mt-2 flex justify-end items-center gap-2">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
                 >
                   Cancelar

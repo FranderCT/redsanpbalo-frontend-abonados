@@ -1,10 +1,11 @@
 // Components/GetInfoUserModal.tsx
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useGetUserById } from "../../Hooks/UsersHooks";
-import type { Users } from "../../Models/Users";
+import type { User } from "../../Models/User";
+
 
 type Props = {
-  user: Users;
+  user: User;
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;

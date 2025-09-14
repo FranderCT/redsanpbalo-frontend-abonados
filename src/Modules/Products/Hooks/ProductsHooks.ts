@@ -1,8 +1,8 @@
 import { useQueryClient, useMutation, useQuery, keepPreviousData } from "@tanstack/react-query";
 import { createProduct, deleteProduct, getAllProducts, searchProducts, updateProduct } from "../Services/ProductServices";
 import type { Product, ProductPaginationParams, UpdateProduct } from "../Models/CreateProduct";
-import type { PaginatedResponse } from "../../Users/Models/Users";
 import { useEffect } from "react";
+import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 
 export const useCreateProduct = () =>{
     const qc = useQueryClient();
@@ -20,7 +20,6 @@ export const useCreateProduct = () =>{
 }
 
 export const useGetAllProducts = () =>{
-    const qc = useQueryClient();
     const { data: products, isPending, error } = useQuery({
         queryKey: ["products"],
         queryFn: getAllProducts,
@@ -30,15 +29,15 @@ export const useGetAllProducts = () =>{
 
 
 export const useUpdateProduct = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateProduct }) =>
-      updateProduct(id, data),
-    onSuccess: () => {
-      // refresca listas donde corresponda
-      qc.invalidateQueries({ queryKey: ["products"] });
-    },
-  });
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: UpdateProduct }) =>
+        updateProduct(id, data),
+        onSuccess: () => {
+        // refresca listas donde corresponda
+            qc.invalidateQueries({ queryKey: ["products"] });
+        },
+    });
 };
 
 export const useDeleteProduct = () => {
@@ -46,11 +45,11 @@ export const useDeleteProduct = () => {
     return useMutation({
         mutationFn: (id: number) => deleteProduct(id),
         onSuccess: (res) => {
-        qc.invalidateQueries({ queryKey: ["categories"] });
-        console.log("Categoria inhabilitada", res);
+            qc.invalidateQueries({ queryKey: ["categories"] });
+            console.log("Categoria inhabilitada", res);
         },
         onError: (err)=>{
-        console.error("Error al inhabilitar", err);
+            console.error("Error al inhabilitar", err);
         }
     });
 };

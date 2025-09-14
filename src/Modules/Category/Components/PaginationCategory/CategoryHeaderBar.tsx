@@ -1,7 +1,7 @@
 
 import { BrushCleaning } from 'lucide-react';
 import type { ReactNode } from "react";
-import PaginationSearch from "./PaginationSearch";
+import PaginationSearch from "../../../../Components/PaginationSearch";
 
 
 type Props = {
@@ -64,6 +64,7 @@ export default function CategoryHeaderBar({
           fluid={false}            // <- NO se expande
           widthClass="w-[300px]"   // <- ancho exacto del buscador
         />
+        
         <button
             onClick={onCleanFilters}
             className="h-9 px-3 border border-[#D9DBE9] bg-white text-sm hover:bg-gray-50 shrink-0"

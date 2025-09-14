@@ -5,17 +5,20 @@ import { Trash } from "lucide-react";
 import type { Unit } from "../../Models/unit";
 import { useDeleteUnitMeasure } from "../../Hooks/UnitMeasureHooks";
 
-
 type Props = {
   unitSelected: Unit;
   onSuccess?: () => void;
+  
 };
 
 export default function DeleteUnitButton({ unitSelected, onSuccess }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const deleteUnitMutation = useDeleteUnitMeasure();
-
+ const handleClose = () =>{
+  toast.warning("cancelado",{position:"top-right",autoClose:3000});
+    setOpen(false);
+ }
   const handleConfirm = async () => {
     try {
       setBusy(true);
@@ -53,8 +56,8 @@ export default function DeleteUnitButton({ unitSelected, onSuccess }: Props) {
             cancelLabel="Cancelar"
             confirmLabel="Inhabilitar"
             onConfirm={handleConfirm}
-            onClose={() => setOpen(false)}
-            onCancel={() => setOpen(false)}
+            onClose={handleClose}
+            onCancel={handleClose}
           />
         </div>
       )}

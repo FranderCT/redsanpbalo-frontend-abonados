@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { useQueryClient } from "@tanstack/react-query";
 import { useDeleteCategory } from "../../Hooks/CategoryHooks";
 import type { Category } from "../../Models/Category";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { Trash } from "lucide-react";
-
 
 type Props = {
   categorySelected: Category;
@@ -16,6 +14,11 @@ export default function DeleteCategoryButton({ categorySelected, onSuccess }: Pr
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const deleteCategoryMutation = useDeleteCategory();
+
+  const handleClose = () => {
+    toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
+    setOpen(false); // Cierra el modal
+  };
 
   const handleConfirm = async () => {
     try {
@@ -42,7 +45,7 @@ export default function DeleteCategoryButton({ categorySelected, onSuccess }: Pr
           ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
         title="Inhabilitar categoría"
       >
-        <Trash  className="h-4 w-4"/>
+        <Trash className="h-4 w-4" />
         {busy ? "..." : "Inhabilitar"}
       </button>
 
@@ -54,8 +57,8 @@ export default function DeleteCategoryButton({ categorySelected, onSuccess }: Pr
             cancelLabel="Cancelar"
             confirmLabel="Inhabilitar"
             onConfirm={handleConfirm}
-            onClose={() => setOpen(false)}
-            onCancel={() => setOpen(false)}
+            onClose={handleClose}
+            onCancel={handleClose}
           />
         </div>
       )}

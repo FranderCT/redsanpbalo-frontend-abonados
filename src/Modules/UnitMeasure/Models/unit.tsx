@@ -4,8 +4,6 @@ export interface Unit {
     IsActive: boolean;
 }
 
-
-
 export interface NewUnit {
     Name: string
 }
@@ -15,8 +13,13 @@ export const NewUnitInitialState = {
 }
 
 export interface UnitPaginationParams {
-  page: number;
-  limit: number;
-  name?: string;
-  state?: string;
+    page: number;
+    limit: number;
+    name?: string;
+    state?: string;
+}
+
+export interface UpdateUnitDto {
+    Name?: string,
+    IsActive?: boolean
 }

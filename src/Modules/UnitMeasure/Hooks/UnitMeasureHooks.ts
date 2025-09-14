@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createUnitMeasure, deleteUnitMeasure, getAllUnitsMeasure, searchUnits, UpdateUnitMeasure } from "../Services/UnitMeasureServices";
-import type { NewUnit, Unit, UnitPaginationParams } from "../Models/unit";
+import type { Unit, UnitPaginationParams, UpdateUnitDto } from "../Models/unit";
 import { useEffect } from "react";
 import type { PaginatedResponse } from "../../Users/Models/Users";
 
@@ -23,7 +23,7 @@ export const useCreateUnitMeasure = () => {
 export const useUpdateUnitMeasure = () =>{
     const qc = useQueryClient();
 
-    const mutation = useMutation<Unit, Error, {id: number; data: NewUnit }>({
+    const mutation = useMutation<Unit, Error, {id: number; data: UpdateUnitDto }>({
         mutationFn: ({id, data}) => UpdateUnitMeasure(id, data),
         onSuccess :(res)=>{
             console.log('Unidad de Medida Creada', console.log(res))
@@ -38,12 +38,11 @@ export const useUpdateUnitMeasure = () =>{
 }
 
 export const useGetAllUnitsMeasure = () => {
-    const {data: unit = [], isLoading, error} = useQuery({
-        queryKey: ["units"],
-        queryFn: getAllUnitsMeasure,
-    });
-
-    return{unit, isLoading, error}
+  const {data: unit = [], isLoading, error} = useQuery({
+    queryKey: ["units"],
+    queryFn: getAllUnitsMeasure,
+  });
+  return{unit, isLoading, error}
 }
 
 export const useSearchUnits = (params: UnitPaginationParams) => {

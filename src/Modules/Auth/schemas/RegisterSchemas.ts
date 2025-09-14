@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { isValidPhoneNumber } from 'react-phone-number-input';
 
 export const RegisterSchema = z.object({
     IDcard: z.string()
@@ -26,8 +27,10 @@ export const RegisterSchema = z.object({
     .email('Debe ser un correo electrónico válido.')
     .max(254, 'El correo es demasiado largo'),
     
-    PhoneNumber: z.string()
-    .regex(/^[678]\d{7}$/, "Teléfono inválido. Debe tener 8 dígitos y empezar en 6, 7 u 8"),
+    PhoneNumber: z.string({
+    required_error: 'El teléfono es obligatorio',
+    invalid_type_error: 'El teléfono es obligatorio',
+    }).refine((val) => isValidPhoneNumber(val), 'Número telefónico inválido'),
     
     Birthdate: z.coerce.date().refine(
       (d) => !Number.isNaN(d.getTime()),

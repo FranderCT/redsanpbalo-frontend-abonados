@@ -1,6 +1,6 @@
 import apiAxios from "../../../api/apiConfig";
-import type { Category, NewCategory } from "../Models/Category";
-import type { CategoriesPaginationParams, PaginatedResponse } from "../Models/PaginationCategory";
+import type { CategoriesPaginationParams, Category, NewCategory, UpdateCategoryDto } from "../Models/Category";
+import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 
 export async function createCategory(payloads: NewCategory) : Promise<NewCategory>{
     try{
@@ -12,7 +12,7 @@ export async function createCategory(payloads: NewCategory) : Promise<NewCategor
     }
 }
 
-export async function UpdateCategory (id: number, payloads: NewCategory) : Promise<Category>{
+export async function UpdateCategory (id: number, payloads: UpdateCategoryDto) : Promise<Category>{
     try{
         const {data} = await apiAxios.put<Category>(`categories/${id}`, payloads)
         return data;

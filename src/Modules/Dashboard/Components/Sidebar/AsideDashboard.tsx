@@ -62,6 +62,7 @@ const AsideDashboard = () => {
               { label: "Materiales", onClick: () => navigate({ to: "/dashboard/materials" }) },
               { label: "Categorías", onClick: () => navigate({ to: "/dashboard/categories" }) },
               { label: "Unidad de medidas", onClick: () => navigate({ to: "/dashboard/units-measure" }) },
+              { label: "Proveedor", onClick: () => navigate({ to: "/dashboard/suppliers" }) },
             ]}
           />
         </Can>

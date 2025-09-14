@@ -5,6 +5,7 @@ import { RegisterSchema } from '../schemas/RegisterSchemas';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useCreateAbonado } from '../Hooks/AuthHooks';
+import PhoneField from '../../../Components/PhoneNumber/PhoneField';
 
 const RegisterAbonados = () => {
   const createUserMutation = useCreateAbonado();
@@ -209,7 +210,7 @@ const RegisterAbonados = () => {
                     <label className="group flex items-center cursor-pointer select-none">
                       <input
                         type="checkbox"
-                        checked={field.state.value}
+                        checked={!!field.state.value}
                         onChange={(e) => {
                           const checked = e.target.checked;
                           field.handleChange(checked);
@@ -224,7 +225,9 @@ const RegisterAbonados = () => {
                     </label>
                   )}
                 </form.Field>
-
+                  {/* Suscripción: Nis se re-renderiza cuando cambia IsAbonado */}
+                <form.Subscribe selector={(s) => s.values.IsAbonado ?? false}>
+                  {(isAbonado) => (
                 <form.Field name="Nis">
                   {(field) => {
                     const isAbonado = form.getFieldValue('IsAbonado');
@@ -252,6 +255,8 @@ const RegisterAbonados = () => {
                     );
                   }}
                 </form.Field>
+                )}
+                </form.Subscribe>
               </div>
 
               {/* Email */}
@@ -278,12 +283,17 @@ const RegisterAbonados = () => {
               <form.Field name="PhoneNumber">
                 {(field) => (
                   <>
-                    <input
-                      className="input-base"
-                      placeholder="Número telefónico"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
+                  <PhoneField
+                    value={field.state.value}            
+                    onChange={(val) => field.handleChange(val ?? "")} 
+                    defaultCountry="CR"
+                    required
+                    error={
+                      field.state.meta.isTouched && field.state.meta.errors[0]
+                        ? String(field.state.meta.errors[0])
+                        : undefined
+                    }
+                  />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">
                         {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}

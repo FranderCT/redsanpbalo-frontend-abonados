@@ -10,7 +10,7 @@ const CreateCategoryModal = () => {
   const [open, setOpen] = useState(false);
   const createCategoryMutation = useCreateCategory();
   const handleClose = () => {
-      toast.info("Registro cancelado", { position: "top-right", autoClose: 3000 });
+      toast.warning("Registro cancelado", { position: "top-right", autoClose: 3000 });
       setOpen(false);
   };
   const form = useForm({

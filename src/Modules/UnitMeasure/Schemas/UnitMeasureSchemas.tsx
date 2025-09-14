@@ -9,5 +9,6 @@ export const UnitMeasureSchemas = z.object({
 export const UpdateUnitMeasureSchemas = z.object({
     Name: z.string()
     .max(30, 'El nombre es demasiado largo'),
+    IsActive: z.boolean(),
 })
 
