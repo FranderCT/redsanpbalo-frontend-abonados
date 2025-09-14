@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useUpdateUser, useGetAllRoles } from "../../Hooks/UsersHooks"; // 👈 trae roles
 import type { User } from "../../Models/User";
+import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 
 type Props = {
   user: User;
@@ -85,17 +86,25 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
         >
           <form.Field name="PhoneNumber">
             {(field) => (
-              <label className="grid gap-1">
-                <span className="text-sm text-gray-700">Número telefónico</span>
-                <input
-                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
-                  value={field.state.value}
-                  inputMode="tel"
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Ej. 8888-8888"
-                />
-              </label>
-            )}
+              <>
+              <PhoneField
+                  value={field.state.value}            
+                  onChange={(val) => field.handleChange(val ?? "")} 
+                  defaultCountry="CR"
+                  required
+                  error={
+                  field.state.meta.isTouched && field.state.meta.errors[0]
+                  ? String(field.state.meta.errors[0])
+                   : undefined
+                  }
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </>
+             )}
           </form.Field>
 
           <form.Field name="Address">
