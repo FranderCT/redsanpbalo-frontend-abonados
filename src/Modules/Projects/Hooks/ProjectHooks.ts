@@ -14,6 +14,15 @@ export const useGetAllProjects = () => {
   return { projects, isPending, error };
 };
 
+// export const useGetProjectCard = () => {
+//     const {data: ProjectCard, isLoading, error} = useQuery({
+//         queryKey: ['projectCard'],
+//         queryFn: () => getProjectCard()
+//     });
+
+//     return { ProjectCard, isLoading, error };
+// }
+
 export const useSearchProjects = (params: ProjectPaginationParams) => {
   const query = useQuery<PaginatedResponse<Project>, Error>({
     queryKey: ["projects", "search", params],

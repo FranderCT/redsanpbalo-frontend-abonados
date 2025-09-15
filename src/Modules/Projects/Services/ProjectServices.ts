@@ -4,7 +4,16 @@ import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory"
 import type { newProject, Project, ProjectPaginationParams } from "../Models/Project";
 
 const BASE = "/project"; 
-
+// export async function getProjectCard(): Promise<Project> {
+//   try{
+//   const response = await apiAxios.get<Project>(`${BASE}/me`);
+//   return response.data;
+//   }catch(err){
+//     console.error(err);
+//     return Promise.reject(err);
+//   }
+  
+// }
 export async function getAllProjects(): Promise<Project[]> {
   try{
     const {data} = await apiAxios.get<Project[]>(BASE)

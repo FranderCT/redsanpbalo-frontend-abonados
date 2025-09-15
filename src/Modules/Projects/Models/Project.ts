@@ -6,6 +6,7 @@ export interface Project {
   EndDate: Date;
   SpaceOfDocument:string;
   Objective:string;
+  Description:string;
   Observation:string;
   IsActive: boolean;
 }
@@ -17,6 +18,7 @@ export interface newProject{
   EndDate: Date;
   SpaceOfDocument:string;
   Objective:string;
+  Description:string;
   Observation:string;
 }
 
@@ -24,10 +26,11 @@ export interface newProject{
 export const newProjectInitialState: newProject = {
   Name: "",
   Location:"",
-  InnitialDate:'' as unknown as Date,
-  EndDate:'' as unknown as Date,
+  InnitialDate: '' as unknown as Date,
+  EndDate: '' as unknown as Date,
   SpaceOfDocument:"",
   Objective:"",
+  Description:"",
   Observation:"",
 };
 
