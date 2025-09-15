@@ -8,6 +8,7 @@ import { categoryRoute } from "./Modules/Category/Routes/RoutesCategories";
 import { uniteMeasureRoute } from "./Modules/UnitMeasure/routes/RoutesUnitMeasures";
 import { productsRoutes } from "./Modules/Products/routes/ProductsRoutes";
 import { supplierRoute } from "./Modules/Supplier/Routes/SuppliersRoutes";
+import { projectRoute } from "./Modules/Projects/Routes/ProjectsRoutes";
 
 export const rootRoute = createRootRoute();
 
@@ -39,7 +40,8 @@ export const routeTree = rootRoute.addChildren([
     categoryRoute,
     uniteMeasureRoute,
     productsRoutes,
-    supplierRoute
+    supplierRoute,
+    projectRoute
   ]),
   
 ]);
