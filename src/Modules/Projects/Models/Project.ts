@@ -4,10 +4,10 @@ export interface Project {
   Location: string;
   InnitialDate: Date;
   EndDate: Date;
-  SpaceOfDocument:string;
   Objective:string;
   Description:string;
   Observation:string;
+  SpaceOfDocument:string;
   IsActive: boolean;
 }
 
@@ -16,10 +16,10 @@ export interface newProject{
   Location: string;
   InnitialDate: Date;
   EndDate: Date;
-  SpaceOfDocument:string;
   Objective:string;
   Description:string;
   Observation:string;
+  SpaceOfDocument:string;
 }
 
 // Estado inicial del formulario
@@ -28,10 +28,10 @@ export const newProjectInitialState: newProject = {
   Location:"",
   InnitialDate: '' as unknown as Date,
   EndDate: '' as unknown as Date,
-  SpaceOfDocument:"",
   Objective:"",
   Description:"",
   Observation:"",
+  SpaceOfDocument:"",
 };
 
 export interface ProjectPaginationParams {
