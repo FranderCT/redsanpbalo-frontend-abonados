@@ -2,6 +2,8 @@
 import React from "react";
 import type { Project } from "../../Models/Project";
 import g28 from "../../../Auth/Assets/g28.png";
+import { useNavigate, useRouter } from "@tanstack/react-router";
+import { projectRoute, viewProjectRoute } from "../../Routes/ProjectsRoutes";
 
 type Props = { project: Project; onDetails?: (id: number) => void; className?: string; };
 
@@ -12,6 +14,9 @@ const formatDate = (d: unknown) => {
 };
 
 const CardProject: React.FC<Props> = ({ project, onDetails, className }) => {
+
+  const navigate = useNavigate({ from: projectRoute.id });
+
   return (
     <div
       className={[
@@ -47,7 +52,12 @@ const CardProject: React.FC<Props> = ({ project, onDetails, className }) => {
         <img src={g28} alt="Logo ASADA" className="w-10 h-10 object-contain" />
         <button
           type="button"
-          onClick={() => onDetails?.(project.Id)}
+          onClick={() =>
+            navigate({
+              to: viewProjectRoute.to,                 
+              params: { projectId: String(project.Id) }
+            })
+          }
           className="text-base text-white px-3 py-1.5 border bg-[#091540] hover:bg-[#1789FC]"
         >
           Ver detalles

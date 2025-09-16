@@ -60,6 +60,7 @@ const CreateProject = () => {
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
+                    rows={3}
                   />
                 </label>
               )}
@@ -210,7 +211,7 @@ const CreateProject = () => {
         ))}
       </div>
       <span className="block mt-4 mb-6 text-center text-lg  tracking-wide  text-[#091540]">
-        Rellene la siguiente información para registrar un nuevo proyecto
+        Rellene los siguientes datos para registrar un nuevo proyecto
       </span>
 
       <form
