@@ -2,7 +2,8 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { createUnitMeasure, deleteUnitMeasure, getAllUnitsMeasure, searchUnits, UpdateUnitMeasure } from "../Services/UnitMeasureServices";
 import type { Unit, UnitPaginationParams, UpdateUnitDto } from "../Models/unit";
 import { useEffect } from "react";
-import type { PaginatedResponse } from "../../Users/Models/Users";
+import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
+
 
 export const useCreateUnitMeasure = () => {
     const qc = useQueryClient();

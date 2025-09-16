@@ -10,7 +10,7 @@ export const useCreateProduct = () =>{
         mutationFn: createProduct,
         onSuccess: (res) =>{
             console.log('producto creado', res);
-            qc.invalidateQueries({queryKey: ['produtcs']})
+            qc.invalidateQueries({queryKey: ['products']})
         },
         onError: (err) =>{
             console.log("error al crear", err)
@@ -67,7 +67,7 @@ export const useSearchProducts = (params: ProductPaginationParams) => {
         if (query.data) {
         const res = query.data; // res: PaginatedResponse<Category>
         console.log(
-            "[Categories fetched]",
+            "[Products fetched]",
             {
             page: res.meta.page,
             limit: res.meta.limit,

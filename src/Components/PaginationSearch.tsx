@@ -29,7 +29,7 @@ export default function PaginationSearch({
           bg-white h-9
           pl-12 pr-3
           ring-1 ring-gray-200 shadow-sm
-          focus-within:ring-[#1789FC]
+          focus-within:ring-[#091540]
         `}
         onReset={() => {
           onSearchChange("");

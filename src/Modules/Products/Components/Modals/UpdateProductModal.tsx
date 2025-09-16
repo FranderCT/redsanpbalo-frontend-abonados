@@ -62,7 +62,7 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
   return (
     <ModalBase
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl"
     >
       {/* Header */}
@@ -258,18 +258,18 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
             {([canSubmit, isSubmitting]) => (
               <div className="mt-2 flex justify-end items-center gap-2">
                 <button
-                  type="button"
-                  onClick={handleClose}
-                  className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
-                >
-                  Cancelar
-                </button>
-                <button
                   type="submit"
                   disabled={!canSubmit || isSubmitting}
                   className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
                 >
                   {isSubmitting ? "Guardando…" : "Guardar cambios"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
+                >
+                  Cancelar
                 </button>
               </div>
             )}

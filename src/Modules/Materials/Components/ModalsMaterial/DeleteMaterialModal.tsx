@@ -58,7 +58,7 @@ export default function DeleteMaterialButton({ materialSelected, onSuccess }: Pr
             confirmLabel="Inhabilitar"
             onConfirm={handleConfirm}
             onClose={handleClose}
-            onCancel={() => setOpen(false)}
+            onCancel={handleClose}
           />
         </div>
       )}

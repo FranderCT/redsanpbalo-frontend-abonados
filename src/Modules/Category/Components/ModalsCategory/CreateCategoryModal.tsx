@@ -38,7 +38,7 @@ const CreateCategoryModal = () => {
         onClick={() => setOpen(true)}
         className="inline-flex  px-5 py-2  bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
       >
-        + Agregar Nueva Categoría
+        + Agregar Categoría
       </button>
 
       <ModalBase
@@ -114,18 +114,18 @@ const CreateCategoryModal = () => {
             {([canSubmit, isSubmitting]) => (
               <div className="mt-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
                 <button
-                  type="button"
-                  onClick={handleClose}
-                  className="h-10 px-4  bg-gray-200 hover:bg-gray-300 transition"
-                >
-                  Cancelar
-                </button>
-                <button
                   type="submit"
                   className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60 transition"
                   disabled={!canSubmit}
                 >
                   {isSubmitting ? "Registrando…" : "Registrar"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="h-10 px-4  bg-gray-200 hover:bg-gray-300 transition"
+                >
+                  Cancelar
                 </button>
               </div>
             )}
