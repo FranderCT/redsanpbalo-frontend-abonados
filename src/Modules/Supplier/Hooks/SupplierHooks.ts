@@ -1,8 +1,8 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSupplier, deleteSupplier, getAllSupplier, searchSuppliers, updateSupplier } from "../Service/SupplierService";
 import type { Supplier, SupplierPaginationParams, updatSupplierDto } from "../Models/Supplier";
-import type { PaginatedResponse } from "../../Users/Models/Users";
 import { useEffect } from "react";
+import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 
 export const useCreateSupplier = () => {
     const qc = useQueryClient();
@@ -10,7 +10,7 @@ export const useCreateSupplier = () => {
         mutationFn: createSupplier,
         onSuccess: (res) =>{
             console.log('proveedor creado correctamente',res)
-            qc.invalidateQueries({queryKey: ['supplier']})
+            qc.invalidateQueries({queryKey: ['suppliers']})
         },
         onError: (err) =>{
             console.error('Error al crear', err)

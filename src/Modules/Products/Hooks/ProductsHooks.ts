@@ -21,7 +21,7 @@ export const useCreateProduct = () =>{
 
 export const useGetAllProducts = () =>{
     const { data: products, isPending, error } = useQuery({
-        queryKey: ["products"],
+        queryKey: ["product"],
         queryFn: getAllProducts,
     });
     return { products, isPending, error };
@@ -45,8 +45,8 @@ export const useDeleteProduct = () => {
     return useMutation({
         mutationFn: (id: number) => deleteProduct(id),
         onSuccess: (res) => {
-            qc.invalidateQueries({ queryKey: ["categories"] });
-            console.log("Categoria inhabilitada", res);
+            qc.invalidateQueries({ queryKey: ["products"] });
+            console.log("Producto inhabilitado", res);
         },
         onError: (err)=>{
             console.error("Error al inhabilitar", err);
@@ -56,7 +56,7 @@ export const useDeleteProduct = () => {
 
 export const useSearchProducts = (params: ProductPaginationParams) => {
     const query = useQuery<PaginatedResponse<Product>, Error>({
-        queryKey: ["categories", "search", params],
+        queryKey: ["products", "search", params],
         queryFn: () => searchProducts(params),
         placeholderData: keepPreviousData,   // v5
         staleTime: 30_000,
