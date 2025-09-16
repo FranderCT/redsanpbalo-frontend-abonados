@@ -16,7 +16,7 @@ export default function DeleteUnitButton({ unitSelected, onSuccess }: Props) {
   const [busy, setBusy] = useState(false);
   const deleteUnitMutation = useDeleteUnitMeasure();
  const handleClose = () =>{
-  toast.warning("cancelado",{position:"top-right",autoClose:3000});
+  toast.warning("Edición cancelada",{position:"top-right",autoClose:3000});
     setOpen(false);
  }
   const handleConfirm = async () => {

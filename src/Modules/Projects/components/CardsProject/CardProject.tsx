@@ -58,7 +58,7 @@ const CardProject: React.FC<Props> = ({ project, onDetails, className }) => {
               params: { projectId: String(project.Id) }
             })
           }
-          className="text-base text-white px-3 py-1.5 border bg-[#091540] hover:bg-[#1789FC]"
+          className="text-base text-[#091540] px-3 py-1.5 border border-[#091540] hover:bg-gray-200"
         >
           Ver detalles
         </button>

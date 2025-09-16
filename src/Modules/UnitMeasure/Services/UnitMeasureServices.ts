@@ -1,5 +1,5 @@
 import apiAxios from "../../../api/apiConfig";
-import type { PaginatedResponse } from "../../Users/Models/Users";
+import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import type { NewUnit, Unit, UnitPaginationParams, UpdateUnitDto } from "../Models/unit";
 
 export async function createUnitMeasure(payload: NewUnit) : Promise<NewUnit>{

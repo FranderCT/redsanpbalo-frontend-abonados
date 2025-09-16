@@ -24,12 +24,12 @@ export default function DeleteProductButton({ product, onSuccess }: Props) {
         try {
         setBusy(true);
         await deleteProductMutation.mutateAsync(product.Id);
-        toast.success("Categoría inhabilitada");
+        toast.success("Producto inhabilitado");
         setOpen(false);
         onSuccess?.();
         } catch (err) {
-        console.error("Error al inhabilitar categoría:", err);
-        toast.error("No se pudo inhabilitar la categoría");
+        console.error("Error al inhabilitar producto:", err);
+        toast.error("No se pudo inhabilitar la producto");
         } finally {
         setBusy(false);
         }

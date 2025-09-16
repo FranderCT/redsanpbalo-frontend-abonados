@@ -19,7 +19,7 @@ export default function CreateProductModal() {
   const { supplier = [], isLoading: suppliersLoading } = useGetAllSupplier();  // Hook para proveedores
 
   const handleClose=()=>{
-    toast.warning("Creación cancelada",{position:"top-right",autoClose:3000});
+    toast.warning("Registro cancelado",{position:"top-right",autoClose:3000});
     setOpen(false);  
   }
   
@@ -51,7 +51,7 @@ export default function CreateProductModal() {
 
       <ModalBase
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={handleClose}
         panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl"
       >
         {/* Header */}
@@ -260,17 +260,17 @@ export default function CreateProductModal() {
               {([canSubmit, isSubmitting]) => (
                 <div className="mt-4 flex justify-end gap-2">
                   <button
-                    type="button"
-                    onClick={handleClose}
-                    className="h-10 px-4 bg-gray-200 hover:bg-gray-300">
-                    Cancelar
-                  </button>
-                  <button
                     type="submit"
                     className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
                     disabled={!canSubmit}
                   >
-                    {isSubmitting ? "Guardando…" : "Guardar"}
+                    {isSubmitting ? "Registrando…" : "Registrar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    className="h-10 px-4 bg-gray-200 hover:bg-gray-300">
+                    Cancelar
                   </button>
                 </div>
               )}
