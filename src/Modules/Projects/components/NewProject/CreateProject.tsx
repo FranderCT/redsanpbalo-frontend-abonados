@@ -38,10 +38,10 @@ const CreateProject = () => {
             <form.Field key="Name" name="Name">
               {(field) => (
                 <label className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Nombre</span>
+                  <span className="text-sm font-medium text-[#091540]">Nombre del proyecto</span>
                   <input
                     className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                    placeholder="Nombre del proyecto"
+                    placeholder="Ejemplo. Instalación de nuevas tuberías para el caserío la Uvita"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
@@ -53,10 +53,10 @@ const CreateProject = () => {
             <form.Field key="Location" name="Location">
               {(field) => (
                 <label className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Ubicación</span>
+                  <span className="text-sm font-medium text-[#091540]">Dirección</span>
                   <textarea
                     className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
-                    placeholder="Ubicación"
+                    placeholder="Ejemplo. 200 al este metros de plaza de los mangos."
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
@@ -105,7 +105,7 @@ const CreateProject = () => {
             <form.Field key="Objective" name="Objective">
               {(field) => (
                 <label className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Objetivo</span>
+                  <span className="text-sm font-medium text-[#091540]">Objetivo del proyecto</span>
                   <textarea
                     className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
                     placeholder="Objetivo"
@@ -121,7 +121,7 @@ const CreateProject = () => {
             <form.Field key="Description" name="Description">
               {(field) => (
                 <label className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Descripción</span>
+                  <span className="text-sm font-medium text-[#091540]">Descripción del proyecto</span>
                   <textarea
                     className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
                     placeholder="Descripción"
@@ -137,7 +137,7 @@ const CreateProject = () => {
             <form.Field key="Observation" name="Observation">
               {(field) => (
                 <label className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Observación</span>
+                  <span className="text-sm font-medium text-[#091540]">Observaciones del proyecto</span>
                   <textarea
                     className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
                     placeholder="Observaciones"

@@ -2,7 +2,8 @@ import { createRoute } from "@tanstack/react-router";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
 import ListProjects from "../Pages/ListProjects";
 import NewProject from "../Pages/NewProject";
-import ViewProject from "../components/ViewProject";
+import ViewProject from "../Pages/ViewProject";
+
 
 
 export const projectRoute = createRoute ({
