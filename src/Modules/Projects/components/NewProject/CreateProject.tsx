@@ -3,6 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { newProjectInitialState } from "../../Models/Project";
 import { useCreateProject } from "../../Hooks/ProjectHooks";
 import { toast } from "react-toastify";
+import { useGetAllProjectStates } from "../../../Project_State/Hooks/ProjectStateHooks";
 
 const steps = [
   { label: "Datos Básicos" },
@@ -13,6 +14,8 @@ const steps = [
 const CreateProject = () => {
   const [step, setStep] = useState(0);
   const createProjectMutation = useCreateProject();
+  const { projectStates, projectStatesLoading } = useGetAllProjectStates();
+
 
   const form = useForm({
     defaultValues: newProjectInitialState,
@@ -162,6 +165,36 @@ const CreateProject = () => {
                 </label>
               )}
             </form.Field>
+
+            <form.Field name="ProjectStateId">
+              {(field) => (
+                <>
+                  <label className="grid gap-1">
+                    <select
+                      className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(Number(e.target.value))}
+                      disabled={projectStatesLoading}
+                    >
+                      <option value={0} disabled>
+                        {projectStatesLoading ? "Cargando estados de proyecto..." : "Seleccione estado de proyecto"}
+                      </option>
+                      {projectStates.map((s) => (
+                        <option key={s.Id} value={s.Id}>
+                          {s.Name}
+                        </option>
+                      ))}
+                    </select>
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </label>
+                </>
+              )}
+            </form.Field>
+
           </div>
         );
       case 2:
