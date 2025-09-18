@@ -9,6 +9,7 @@ export interface Project {
   Observation:string;
   SpaceOfDocument:string;
   IsActive: boolean;
+  ProjectStateId : number;
 }
 
 export interface newProject{
@@ -20,6 +21,7 @@ export interface newProject{
   Description:string;
   Observation:string;
   SpaceOfDocument:string;
+  ProjectStateId : number;
 }
 
 // Estado inicial del formulario
@@ -32,6 +34,7 @@ export const newProjectInitialState: newProject = {
   Description:"",
   Observation:"",
   SpaceOfDocument:"",
+  ProjectStateId : 1
 };
 
 export interface ProjectPaginationParams {
