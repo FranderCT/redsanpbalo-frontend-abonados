@@ -1,7 +1,7 @@
 // Services/MaterialServices.ts
 
 import apiAxios from "../../../api/apiConfig";
-import type { PaginatedResponse } from "../../Users/Models/Users";
+import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import type { newSupplier, Supplier, SupplierPaginationParams, updatSupplierDto } from "../Models/Supplier";
 
 const BASE = "/supplier"; 

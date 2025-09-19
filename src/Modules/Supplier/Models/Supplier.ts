@@ -1,3 +1,4 @@
+
 export interface Supplier{
     Id:number;
     Name:string;
@@ -42,7 +43,7 @@ export const updateSupplierInitialState: updatSupplierDto = {
 export interface SupplierPaginationParams {
     page: number;
     limit: number;
-    Name?: string;
+    name?: string;
     Email?:string;
     PhoneNumber?:string;
     Location?:string;
