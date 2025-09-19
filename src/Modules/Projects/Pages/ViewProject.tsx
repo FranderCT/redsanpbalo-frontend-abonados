@@ -24,7 +24,7 @@ const ViewProject = () => {
   if (!project) return <p className="p-6">No se encontró el proyecto.</p>;
 
   return (
-    <div className="p-6 space-y-2 text-[#091540] h-full flex flex-col justify-center items-center">
+    <div className="p-6 space-y-2 text-[#091540] h-auto flex flex-col justify-center items-center">
       <HeaderViewProject data={project}/>
       <DetailsProjectContainer data={project} />
     </div>

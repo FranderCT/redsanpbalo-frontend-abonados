@@ -10,85 +10,80 @@ function formatDate(d?: Date | string | null) {
 
 export default function DetailsProjectContainer({ data }: Props) {
   return (
-    <div className="w-full max-w-6xl h-[90%] mx-auto px-4 sm:px-6 lg:px-8 py-6 text-[#091540]">
-      {/* CONTENEDOR FLEX: columna en mobile, dos columnas en lg */}
-      <div className="flex flex-col lg:flex-row gap-6 h-full">
-        {/* Columna principal (misma estructura) */}
-        <section className="flex  min-w-0 space-y-6">
-          <div className="flex flex-col gap-6 w-full">
-            <label className="flex flex-col gap-1">
-              <span className="text-sm sm:text-base font-semibold tracking-wide">Descripción del proyecto</span>
-              <div className="px-3 sm:px-4 py-2 border border-gray-300 whitespace-pre-wrap leading-relaxed text-sm sm:text-base break-words">
-                {data?.Description || <span className="text-gray-400 italic">—</span>}
-              </div>
-            </label>
+    <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 py-8 text-[#091540]">
+      {/* bloque principal en una sola columna, limpio y amplio */}
+      <section className="space-y-8">
+        <Field label="Descripción del proyecto">
+          {data?.Description || <Placeholder />}
+        </Field>
 
-            <div className="border-t border-gray-200" />
+        <Divider />
 
-            <label className="flex flex-col gap-1">
-              <span className="text-sm sm:text-base font-semibold tracking-wide">Objetivo del proyecto</span>
-              <div className="px-3 sm:px-4 py-2 border border-gray-300 whitespace-pre-wrap leading-relaxed text-sm sm:text-base break-words">
-                {data?.Objective || <span className="text-gray-400 italic">—</span>}
-              </div>
-            </label>
+        <Field label="Objetivo del proyecto">
+          {data?.Objective || <Placeholder />}
+        </Field>
 
-            <div className="border-t border-gray-200" />
+        <Divider />
 
-            <label className="flex flex-col gap-1">
-              <span className="text-sm sm:text-base font-semibold tracking-wide">Dirección</span>
-              <div className="px-3 sm:px-4 py-2 border border-gray-300 whitespace-pre-wrap leading-relaxed text-sm sm:text-base break-words">
-                {data?.Location || <span className="text-gray-400 italic">—</span>}
-              </div>
-            </label>
+        <Field label="Dirección">
+          {data?.Location || <Placeholder />}
+        </Field>
 
-            <div className="border-t border-gray-200" />
+        <Divider />
 
-            {/* dos campos en fila usando flex en sm+ */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <label className="flex-1 flex flex-col gap-1">
-                <span className="text-sm sm:text-base font-semibold tracking-wide">Fecha de inicio</span>
-                <div className="px-3 sm:px-4 py-2 border border-gray-300 text-sm sm:text-base">
-                  {formatDate(data?.InnitialDate)}
-                </div>
-              </label>
-              <label className="flex-1 flex flex-col gap-1">
-                <span className="text-sm sm:text-base font-semibold tracking-wide">Fecha de fin</span>
-                <div className="px-3 sm:px-4 py-2 border border-gray-300 text-sm sm:text-base">
-                  {formatDate(data?.EndDate)}
-                </div>
-              </label>
-            </div>
+        {/* Fechas en dos columnas en pantallas medianas+ */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Field label="Fecha de inicio">
+            {formatDate(data?.InnitialDate)}
+          </Field>
+          <Field label="Fecha de fin">
+            {formatDate(data?.EndDate)}
+          </Field>
+        </div>
 
-            <div className="border-t border-gray-200" />
+        <Divider />
 
-            <label className="flex flex-col gap-1">
-              <span className="text-sm sm:text-base font-semibold tracking-wide">Observaciones del proyecto</span>
-              <div className="px-3 sm:px-4 py-2 border border-gray-300 whitespace-pre-wrap leading-relaxed text-sm sm:text-base min-h-[80px] break-words">
-                {data?.Observation || <span className="text-gray-400 italic">—</span>}
-              </div>
-            </label>
+        <Field label="Observaciones del proyecto">
+          {data?.Observation || <Placeholder />}
+        </Field>
 
-            <div className="border-t border-gray-200" />
+        <Divider />
 
-            <label className="flex flex-col gap-1">
-              <span className="text-sm sm:text-base font-semibold tracking-wide">Espacio de documento</span>
-              <div className="px-3 sm:px-4 py-2 border border-gray-300 text-sm sm:text-base break-words">
-                {data?.SpaceOfDocument || <span className="text-gray-400 italic">—</span>}
-              </div>
-            </label>
-          </div>
-        </section>
+        <Field label="Espacio de documento">
+          {data?.SpaceOfDocument || <Placeholder />}
+        </Field>
 
-        {/* Aside (misma estructura, sin fondos) */}
-        <aside className="lg:w-[32%] lg:shrink-0 lg:self-start lg:sticky lg:top-6 max-h-[calc(100vh-3rem)] overflow-auto">
-          <div className="p-4 sm:p-6">
-            <h3 className="text-base sm:text-lg font-semibold mb-3">Materiales asignados</h3>
-            <div className="border border-gray-300 p-3 text-sm sm:text-base text-gray-600">
-              Sin materiales asignados
-            </div>
-          </div>
-        </aside>
-      </div>
+        <Divider />
+
+        <Field label="Estado del Proyecto">
+          {data.ProjectState.Name}
+        </Field>
+      </section>
     </div>
   );
+}
+
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block space-y-2">
+      <span className="text-base font-semibold tracking-wide">{label}</span>
+      <div className="px-4 py-3 border border-gray-300 text-base leading-relaxed whitespace-pre-wrap break-words">
+        {children}
+      </div>
+    </label>
+  );
+}
+
+function Divider() {
+  return <div className="h-px bg-gray-200" />;
+}
+
+function Placeholder() {
+  return <span className="text-gray-400 italic">—</span>;
 }
