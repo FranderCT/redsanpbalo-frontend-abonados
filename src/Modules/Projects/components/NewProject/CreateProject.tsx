@@ -274,7 +274,7 @@ const CreateProject = () => {
               ) : <div />}
               <button
                 type="submit"
-                className="px-6 py-2 border border-[#091540] bg-[#091540] text-white  hover:bg-white hover:text-[#091540] hover:border-[#091540] transition disabled:opacity-60"
+                className="px-6 py-2 border border-[#091540] bg-[#091540] text-white   hover:text-[#f5f5f5] hover:border-[#091540] transition disabled:opacity-60"
                 disabled={step === steps.length - 1 ? !canSubmit || isSubmitting : false}
               >
                 {step === steps.length - 1

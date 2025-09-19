@@ -16,7 +16,7 @@ export default function PhoneField({
   value,
   onChange,
   defaultCountry = "CR",
-  error,
+
   required,
 }: Props) {
   const id = useId();
