@@ -86,8 +86,6 @@ const CreateSupplier = () => {
             <form.Field key="PhoneNumber" name="PhoneNumber">
             {(field) => (
                 <label className="flex flex-col gap-1">
-                <span className="text-sm font-medium text-[#091540]">Teléfono</span>
-                <div className="px-0 py-0 border border-gray-300 focus-within:border-blue-500 transition">
                     {/* Si tu <PhoneField> ya trae su propio input, lo envolvemos para mantener el borde/estilo */}
                     <PhoneField
                     value={field.state.value ?? ""}
@@ -100,7 +98,7 @@ const CreateSupplier = () => {
                         : undefined
                     }
                     />
-                </div>
+                
                 {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                     <p className="text-sm text-red-500 mt-1">
                     {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
@@ -223,28 +221,24 @@ const CreateSupplier = () => {
 
         //   </div>
         // );
-    //   case 2:
-    //     return (
-    //       <div className="text-[#091540] space-y-2 px-2" key="step-2">
-    //         <h3 className="text-lg font-semibold mb-2">Confirma los datos antes de registrar el proyecto:</h3>
-    //         <form.Subscribe selector={(state) => state.values}>
-    //           {(values) => (
-    //             <ul className="text-base space-y-1">
-    //               <li><b>Nombre:</b> {values.Name}</li>
-    //               <li><b>Ubicación:</b> {values.Location}</li>
-    //               <li><b>Fecha de inicio:</b> {values.InnitialDate ? new Date(values.InnitialDate).toLocaleDateString() : ""}</li>
-    //               <li><b>Fecha de fin:</b> {values.EndDate ? new Date(values.EndDate).toLocaleDateString() : ""}</li>
-    //               <li><b>Objetivo:</b> {values.Objective}</li>
-    //               <li><b>Descripción:</b> {values.Description}</li>
-    //               <li><b>Observación:</b> {values.Observation}</li>
-    //               <li><b>Espacio de documento:</b> {values.SpaceOfDocument}</li>
-    //             </ul>
-    //           )}
-    //         </form.Subscribe>
-    //       </div>
-    //     );
-    //   default:
-    //     return null;
+    case 1:
+         return (
+           <div className="text-[#091540] space-y-2 px-2" key="step-2">
+             <h3 className="text-lg font-semibold mb-2">Confirma los datos antes de registrar el proyecto:</h3>
+             <form.Subscribe selector={(state) => state.values}>
+               {(values) => (
+                 <ul className="text-base space-y-1">
+                   <li><b>Nombre:</b> {values.Name}</li>
+                   <li><b>Ubicación:</b> {values.Location}</li>
+                   <li><b>Email:</b> {values.Email}</li>
+                   <li><b>Numero de telefono:</b> {values.PhoneNumber}</li>
+                 </ul>
+               )}
+             </form.Subscribe>
+           </div>
+         );
+       default:
+         return null;
     }
   };
 
@@ -300,7 +294,7 @@ const CreateSupplier = () => {
               ) : <div />}
               <button
                 type="submit"
-                className="px-6 py-2 border border-[#091540] bg-[#091540] text-white  hover:bg-white hover:text-[#091540] hover:border-[#091540] transition disabled:opacity-60"
+                className="px-6 py-2 border border-[#091540] bg-[#091540] text-white   hover:text-[#f5f5f5] hover:border-[#091540] transition disabled:opacity-60"
                 disabled={step === steps.length - 1 ? !canSubmit || isSubmitting : false}
               >
                 {step === steps.length - 1
