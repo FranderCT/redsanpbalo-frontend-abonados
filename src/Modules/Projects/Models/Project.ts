@@ -1,3 +1,5 @@
+import type { ProjectState } from "../../Project_State/Models/ProjectState";
+
 export interface Project {
   Id: number;
   Name: string;
@@ -9,7 +11,7 @@ export interface Project {
   Observation:string;
   SpaceOfDocument:string;
   IsActive: boolean;
-  ProjectStateId : number;
+  ProjectState : ProjectState;
 }
 
 export interface newProject{
