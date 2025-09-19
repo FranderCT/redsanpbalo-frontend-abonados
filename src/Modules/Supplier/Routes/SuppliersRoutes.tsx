@@ -2,6 +2,7 @@ import { createRoute } from "@tanstack/react-router";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
 import ListSuppliers from "../Pages/ListSuppliers";
 import NewSupplier from "../Pages/NewSupplier";
+import ViewSuppliers from "../Pages/ViewSuppliers";
 
 
 export const supplierRoute = createRoute({
@@ -20,3 +21,10 @@ export const newSupplierRoute = createRoute({
     path: 'new-supplier',
     component: NewSupplier
 })
+
+
+export const viewSuppliertRoute = createRoute({
+  getParentRoute: () => supplierRoute,
+  path: "$supplierId",
+  component: ViewSuppliers,
+});

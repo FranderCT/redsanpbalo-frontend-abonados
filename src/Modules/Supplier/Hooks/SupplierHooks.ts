@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createSupplier, deleteSupplier, getAllSupplier, searchSuppliers, updateSupplier } from "../Service/SupplierService";
+import { createSupplier, deleteSupplier, getAllSupplier, getSupplierById, searchSuppliers, updateSupplier } from "../Service/SupplierService";
 import type { Supplier, SupplierPaginationParams, updatSupplierDto } from "../Models/Supplier";
 import { useEffect } from "react";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
@@ -88,3 +88,12 @@ export const useDeleteSupplier = () => {
     }
   });
 };
+
+export const useGetSupplierById = (id?: number) => {
+  const { data: supplier, isPending, error } = useQuery({
+    queryKey: ["supplier", id],
+    queryFn: () => getSupplierById(id as number),
+    enabled: typeof id === "number" && id > 0,
+  });
+  return { supplier, isPending, error };
+}
