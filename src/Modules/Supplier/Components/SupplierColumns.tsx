@@ -47,7 +47,7 @@ export const SupplierColumns = (
           </button>
 
           {/* Botón para eliminar/inhabilitar proveedor */}
-         <DeleteSupplierButton supplierSelected={supplier} onClose={() => {}} />  {/* Componente para eliminar el proveedor */}
+         {/* <DeleteSupplierButton supplierSelected={supplier} onClose={() => {}} />  Componente para eliminar el proveedor */}
           
           {/* Si deseas agregar la funcionalidad para eliminar, descomenta el siguiente código */}
           {/* 
