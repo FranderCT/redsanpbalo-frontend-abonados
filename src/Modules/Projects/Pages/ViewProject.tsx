@@ -15,7 +15,6 @@ const ViewProject = () => {
   const { project, isPending, error } = useGetProjectById(
     Number.isFinite(id) && id > 0 ? id : undefined
   );
-
   if (!Number.isFinite(id) || id <= 0) {
     return <p className="p-6 text-red-600">ID de proyecto inválido.</p>;
   }

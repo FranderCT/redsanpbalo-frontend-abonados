@@ -1,4 +1,4 @@
-import CreateProject from "./CreateProject"
+import CreateSupplier from "./CreateSupplier"
 
 
 const NewSupplierContainer = () => {

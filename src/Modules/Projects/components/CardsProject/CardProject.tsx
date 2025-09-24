@@ -2,7 +2,7 @@
 import React from "react";
 import type { Project } from "../../Models/Project";
 import g28 from "../../../Auth/Assets/g28.png";
-import { useNavigate, useRouter } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { projectRoute, viewProjectRoute } from "../../Routes/ProjectsRoutes";
 
 type Props = { project: Project; onDetails?: (id: number) => void; className?: string; };
@@ -13,7 +13,7 @@ const formatDate = (d: unknown) => {
   return Number.isFinite(dt.getTime()) ? dt.toLocaleDateString() : "-";
 };
 
-const CardProject: React.FC<Props> = ({ project, onDetails, className }) => {
+const CardProject: React.FC<Props> = ({ project, className }) => {
 
   const navigate = useNavigate({ from: projectRoute.id });
 
@@ -40,7 +40,7 @@ const CardProject: React.FC<Props> = ({ project, onDetails, className }) => {
         {/* Descripción */}
         <div className="
           w-full max-w-full text-xs text-gray-600 leading-relaxed
-          break-words [overflow-wrap:anywhere] overflow-hidden line-clamp-3
+          [overflow-wrap:anywhere] overflow-hidden line-clamp-3
         ">
           <p className="text-sm text-gray-500">Descripción:</p>
           {project.Description}

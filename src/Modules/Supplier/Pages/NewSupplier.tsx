@@ -1,5 +1,5 @@
 
-import CreateSupplier from '../Components/Supplier/CreateSupplier'
+import CreateSupplier from '../Components/CreateSupplier/CreateSupplier'
 
 const NewSupplier = () => {
   return (

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
-import { useCreateSupplier, useGetAllSupplier } from "../../Hooks/SupplierHooks";
+import { useCreateSupplier } from "../../Hooks/SupplierHooks";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { newSupplierInitialState } from "../../Models/Supplier";
-import { useCreateAgentSupplier } from "../../Hooks/AgentSupplierHooks";
+import { useNavigate } from "@tanstack/react-router";
+
 
 const steps = [
   { label: "Datos Básicos" },
@@ -15,7 +16,7 @@ const steps = [
 const CreateSupplier = () => {
   const [step, setStep] = useState(0);
   const createSupplierMutation = useCreateSupplier();
-  const createAgentSupplierMutation = useCreateAgentSupplier();
+  const navigate = useNavigate();
 
 
   const form = useForm({
@@ -26,6 +27,7 @@ const CreateSupplier = () => {
         formApi.reset();
         toast.success("¡Proveedor creado exitosamente!", { position: "top-right", autoClose: 3000 });
         setStep(0);
+        navigate({to :'/dashboard/supplier'})
       } catch (err) {
         console.error("error al crear un proveedor", err);
         toast.error("¡Error al crear el proveedor!", { position: "top-right", autoClose: 3000 });

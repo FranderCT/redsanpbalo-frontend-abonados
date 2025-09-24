@@ -6,6 +6,7 @@ type Props = {
   label?: string;
   value?: string;                 // E.164: "+50688887777"
   onChange: (val?: string) => void;
+  styles?: string;
   defaultCountry?: string;        // "CR" por defecto
   error?: string;
   required?: boolean;
@@ -16,7 +17,6 @@ export default function PhoneField({
   value,
   onChange,
   defaultCountry = "CR",
-
   required,
 }: Props) {
   const id = useId();
@@ -44,7 +44,7 @@ export default function PhoneField({
         className={`${base} ${valid ? ok : bad} input-base`} 
         countrySelectProps={{
           className:
-            "h-9 rounded-lg border border-gray-300 bg-white px-2 text-sm",
+             "h-9 rounded-lg border border-gray-300 bg-white px-2 text-sm",
         }}
         numberInputProps={{
           className:
