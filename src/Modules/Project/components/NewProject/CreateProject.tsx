@@ -27,14 +27,16 @@ const CreateProject = () => {
   const createProjectMutation = useCreateProject();
   const createProjectProjectionMutation = useCreateProjectProjection();
   const createProductDetailMutation = useCreateProductDetail();
-
   const { projectStates, projectStatesLoading } = useGetAllProjectStates();
   const { products, isPending: productsLoading, error: productsError } = useGetAllProducts();
 
   const form = useForm({
     defaultValues: {
       ...newProjectInitialState,          
-      Observation: "",          
+      Observation: "",
+      productDetails: {                
+        Observation: "",
+      },     
       ...NewProductDetailInitialState,    
     },
     onSubmit: async ({ value, formApi }) => {
@@ -267,7 +269,7 @@ const CreateProject = () => {
         return (
           <div className="flex flex-col gap-6" key="step-2">
             {/* Observación de la PROYECCIÓN */}
-            <form.Field name="Observation">
+            <form.Field name="productDetails.Observation">
               {(field) => (
                 <label className="flex flex-col gap-1">
                   <span className="text-sm font-medium text-[#091540]">Observación de la proyección</span>
