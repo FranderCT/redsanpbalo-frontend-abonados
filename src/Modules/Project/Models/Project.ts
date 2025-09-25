@@ -1,4 +1,6 @@
 import type { ProjectState } from "../../Project_State/Models/ProjectState";
+import type { User } from "../../Users/Models/User";
+import type { ProjectProjection } from "../Project-projection/Models/ProjectProjection";
 
 export interface Project {
   Id: number;
@@ -12,7 +14,8 @@ export interface Project {
   SpaceOfDocument:string;
   IsActive: boolean;
   ProjectState : ProjectState;
-  UserId : number
+  ProjectProjection : ProjectProjection;
+  User : User;
 }
 
 export interface newProject{

@@ -13,6 +13,16 @@ export default function DetailsProjectContainer({ data }: Props) {
     <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 py-8 text-[#091540]">
       {/* bloque principal en una sola columna, limpio y amplio */}
       <section className="space-y-8">
+
+        <h4 className="text-2xl font-semibold tracking-wide">Información del Proyecto</h4>
+
+        <Field label="Encargado del Proyecto">
+          {data?.User.Name || <Placeholder />} {data?.User.Surname1 || <Placeholder />} {data?.User.Surname2 || <Placeholder />}
+        </Field>
+
+        <Divider />
+
+
         <Field label="Descripción del proyecto">
           {data?.Description || <Placeholder />}
         </Field>
@@ -58,6 +68,16 @@ export default function DetailsProjectContainer({ data }: Props) {
         <Field label="Estado del Proyecto">
           {data.ProjectState.Name}
         </Field>
+
+        <Divider />
+
+        <h4 className="text-2xl font-semibold tracking-wide">Proyección del Proyecto</h4>
+
+        <Field label="Observación de la Proyección">
+          {data.ProjectProjection.Observation}
+        </Field>
+
+
       </section>
     </div>
   );
