@@ -2,35 +2,56 @@ import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { newProjectInitialState } from "../../Models/Project";
 import { useCreateProject } from "../../Hooks/ProjectHooks";
-
 import { useGetAllProjectStates } from "../../../Project_State/Hooks/ProjectStateHooks";
 import { toast } from "react-toastify";
+
 import type { NewProjectProjection } from "../../Project-projection/Models/ProjectProjection";
 import { useCreateProjectProjection } from "../../Project-projection/Hooks/Project-ProjectionHooks";
 
+import { NewProductDetailInitialState, type NewProductDetail } from "../../../Product-Detail/Models/ProductDetail";
+import { useGetAllProducts } from "../../../Products/Hooks/ProductsHooks";
+import { useCreateProductDetail } from "../../../Product-Detail/Hooks/ProductDetailHooks";
 
 const steps = [
   { label: "Datos Básicos" },
   { label: "Detalles" },
-  { label: "Proyección" },   
+  { label: "Proyección" },   // 👈 aquí van Observación de proyección + Detalle de producto
   { label: "Confirmación" },
 ];
 
 const CreateProject = () => {
   const [step, setStep] = useState(0);
+
   const createProjectMutation = useCreateProject();
   const createProjectProjectionMutation = useCreateProjectProjection();
+  const createProductDetailMutation = useCreateProductDetail();
+
   const { projectStates, projectStatesLoading } = useGetAllProjectStates();
+  const { products, isPending: productsLoading, error: productsError } = useGetAllProducts();
 
   const form = useForm({
     defaultValues: {
-      ...newProjectInitialState,
-      NewProjectProjection: "", 
+      ...newProjectInitialState,          // campos del proyecto
+      Observation: "",          // 👈 observación específica de la proyección
+      ...NewProductDetailInitialState,    // 👈 { Quantity: 0, ProductId: 0, ProjectProjectionId: 0 }
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        // 1) Crear proyecto
-        const projectRes = await createProjectMutation.mutateAsync(value);
+        // 1) Crear PROYECTO
+        const projectPaylodas : newProjectInitialState = {
+          name : value.Name,
+          Location : value.Location,
+          InnitialDate : value.InnitialDate,
+          EndDate : value.EndDate,
+          Objective : value.Objective,
+          Description:  value.Description,
+          Observation: value.Observation,
+          SpaceOfDocument: value.SpaceOfDocument,
+          ProjectStateId : value.ProjectStateId
+        }
+        
+    
+        const projectRes = await createProjectMutation.mutateAsync(projectPaylodas);
         const projectId =
           (projectRes as any)?.Id ??
           (projectRes as any)?.id ??
@@ -39,24 +60,42 @@ const CreateProject = () => {
 
         if (!projectId) throw new Error("No se obtuvo el Id del proyecto creado.");
 
-        // 2) Crear proyección (usando tus interfaces)
+        // 2) Crear PROYECCIÓN
         const projectionPayload: NewProjectProjection = {
           ProjectId: Number(projectId),
           Observation: value.Observation ?? "",
         };
 
-        await createProjectProjectionMutation.mutateAsync(projectionPayload);
+        const projectionRes = await createProjectProjectionMutation.mutateAsync(projectionPayload);
 
-        // 3) Éxito
+        const projectProjectionId =
+          (projectionRes as any)?.Id ??
+          (projectionRes as any)?.id ??
+          (projectionRes as any)?.data?.Id ??
+          (projectionRes as any)?.data?.id;
+
+        if (!projectProjectionId) throw new Error("No se obtuvo el Id de la proyección creada.");
+
+        // 3) Crear DETALLE DE PRODUCTO (solo si hay producto válido y cantidad > 0)
+        if ((value.ProductId ?? 0) > 0 && (value.Quantity ?? 0) > 0) {
+          const productDetailPayload: NewProductDetail = {
+            Quantity: Number(value.Quantity),
+            ProductId: Number(value.ProductId),
+            ProjectProjectionId: Number(projectProjectionId),
+          };
+          await createProductDetailMutation.mutateAsync(productDetailPayload);
+        }
+
+        // 4) ÉXITO
         formApi.reset();
-        toast.success("¡Proyecto y proyección creados exitosamente!", {
+        toast.success("¡Proyecto, proyección y detalle creados!", {
           position: "top-right",
           autoClose: 3000,
         });
         setStep(0);
       } catch (err) {
-        console.error("Error al crear proyecto/proyección", err);
-        toast.error("¡Error al crear el proyecto o su proyección!", {
+        console.error("Error al crear proyecto/proyección/detalle", err);
+        toast.error("¡Error al crear el proyecto, su proyección o el detalle!", {
           position: "top-right",
           autoClose: 3000,
         });
@@ -66,7 +105,7 @@ const CreateProject = () => {
 
   const renderStepFields = () => {
     switch (step) {
-      // Paso 0: Datos Básicos
+      /** Paso 0: Datos Básicos */
       case 0:
         return (
           <div className="flex flex-col gap-6" key="step-0">
@@ -135,7 +174,7 @@ const CreateProject = () => {
           </div>
         );
 
-      // Paso 1: Detalles
+      /** Paso 1: Detalles */
       case 1:
         return (
           <div className="flex flex-col gap-6" key="step-1">
@@ -224,10 +263,11 @@ const CreateProject = () => {
           </div>
         );
 
-      
+      /** Paso 2: Proyección (observación + detalle de producto) */
       case 2:
         return (
           <div className="flex flex-col gap-6" key="step-2">
+            {/* Observación de la PROYECCIÓN */}
             <form.Field name="Observation">
               {(field) => (
                 <label className="flex flex-col gap-1">
@@ -242,10 +282,54 @@ const CreateProject = () => {
                 </label>
               )}
             </form.Field>
+
+            {/* DETALLE DE PRODUCTO */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form.Field name="ProductId">
+                {(field) => (
+                  <label className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-[#091540]">Producto</span>
+                    <select
+                      className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
+                      value={field.state.value ?? 0}
+                      onChange={(e) => field.handleChange(Number(e.target.value))}
+                      disabled={productsLoading || !!productsError}
+                    >
+                      <option value={0} disabled>
+                        {productsLoading ? "Cargando productos…" : "Seleccione un producto"}
+                      </option>
+                      {products?.map((p) => (
+                        <option key={p.Id} value={p.Id}>
+                          {p.Name}
+                        </option>
+                      ))}
+                    </select>
+                    {productsError && (
+                      <span className="text-xs text-red-600 mt-1">No se pudieron cargar los productos.</span>
+                    )}
+                  </label>
+                )}
+              </form.Field>
+
+              <form.Field name="Quantity">
+                {(field) => (
+                  <label className="flex flex-col gap-1">
+                    <span className="text-sm font-medium text-[#091540]">Cantidad</span>
+                    <input
+                      type="number"
+                      min={0}
+                      className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
+                      value={field.state.value ?? 0}
+                      onChange={(e) => field.handleChange(Number(e.target.value))}
+                    />
+                  </label>
+                )}
+              </form.Field>
+            </div>
           </div>
         );
 
-      // Paso 3: Confirmación
+      /** Paso 3: Confirmación */
       case 3:
         return (
           <div className="text-[#091540] space-y-2 px-2" key="step-3">
@@ -262,6 +346,8 @@ const CreateProject = () => {
                   <li><b>Obs. Proyecto:</b> {values.Observation}</li>
                   <li><b>Espacio doc.:</b> {values.SpaceOfDocument}</li>
                   <li><b>Obs. Proyección:</b> {values.Observation}</li>
+                  <li><b>Producto (Id):</b> {values.ProductId}</li>
+                  <li><b>Cantidad:</b> {values.Quantity}</li>
                 </ul>
               )}
             </form.Subscribe>
