@@ -2,49 +2,81 @@ import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { newProjectInitialState } from "../../Models/Project";
 import { useCreateProject } from "../../Hooks/ProjectHooks";
-import { toast } from "react-toastify";
+
 import { useGetAllProjectStates } from "../../../Project_State/Hooks/ProjectStateHooks";
+import { toast } from "react-toastify";
+import type { NewProjectProjection } from "../../Project-projection/Models/ProjectProjection";
+import { useCreateProjectProjection } from "../../Project-projection/Hooks/Project-ProjectionHooks";
+
 
 const steps = [
   { label: "Datos Básicos" },
   { label: "Detalles" },
+  { label: "Proyección" },   
   { label: "Confirmación" },
 ];
 
 const CreateProject = () => {
   const [step, setStep] = useState(0);
   const createProjectMutation = useCreateProject();
+  const createProjectProjectionMutation = useCreateProjectProjection();
   const { projectStates, projectStatesLoading } = useGetAllProjectStates();
 
-
   const form = useForm({
-    defaultValues: newProjectInitialState,
+    defaultValues: {
+      ...newProjectInitialState,
+      NewProjectProjection: "", 
+    },
     onSubmit: async ({ value, formApi }) => {
       try {
-        await createProjectMutation.mutateAsync(value);
+        // 1) Crear proyecto
+        const projectRes = await createProjectMutation.mutateAsync(value);
+        const projectId =
+          (projectRes as any)?.Id ??
+          (projectRes as any)?.id ??
+          (projectRes as any)?.data?.Id ??
+          (projectRes as any)?.data?.id;
+
+        if (!projectId) throw new Error("No se obtuvo el Id del proyecto creado.");
+
+        // 2) Crear proyección (usando tus interfaces)
+        const projectionPayload: NewProjectProjection = {
+          ProjectId: Number(projectId),
+          Observation: value.Observation ?? "",
+        };
+
+        await createProjectProjectionMutation.mutateAsync(projectionPayload);
+
+        // 3) Éxito
         formApi.reset();
-        toast.success("¡Proyecto creado exitosamente!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡Proyecto y proyección creados exitosamente!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
         setStep(0);
       } catch (err) {
-        console.error("error al crear un proyecto", err);
-        toast.error("¡Error al crear el proyecto!", { position: "top-right", autoClose: 3000 });
+        console.error("Error al crear proyecto/proyección", err);
+        toast.error("¡Error al crear el proyecto o su proyección!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
       }
     },
   });
 
   const renderStepFields = () => {
     switch (step) {
+      // Paso 0: Datos Básicos
       case 0:
         return (
           <div className="flex flex-col gap-6" key="step-0">
-            {/* Nombre */}
-            <form.Field key="Name" name="Name">
+            <form.Field name="Name">
               {(field) => (
                 <label className="flex flex-col gap-1">
                   <span className="text-sm font-medium text-[#091540]">Nombre del proyecto</span>
                   <input
                     className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                    placeholder="Ejemplo. Instalación de nuevas tuberías para el caserío la Uvita"
+                    placeholder="Ej. Instalación de nuevas tuberías…"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
@@ -52,25 +84,25 @@ const CreateProject = () => {
                 </label>
               )}
             </form.Field>
-            {/* Ubicación */}
-            <form.Field key="Location" name="Location">
+
+            <form.Field name="Location">
               {(field) => (
                 <label className="flex flex-col gap-1">
                   <span className="text-sm font-medium text-[#091540]">Dirección</span>
                   <textarea
                     className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
-                    placeholder="Ejemplo. 200 al este metros de plaza de los mangos."
+                    placeholder="Ej. 200m este de la plaza…"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    required
                     rows={3}
+                    required
                   />
                 </label>
               )}
             </form.Field>
-            {/* Fechas en la misma fila */}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <form.Field key="InnitialDate" name="InnitialDate">
+              <form.Field name="InnitialDate">
                 {(field) => (
                   <label className="flex flex-col gap-1">
                     <span className="text-sm font-medium text-[#091540]">Fecha de inicio</span>
@@ -84,7 +116,8 @@ const CreateProject = () => {
                   </label>
                 )}
               </form.Field>
-              <form.Field key="EndDate" name="EndDate">
+
+              <form.Field name="EndDate">
                 {(field) => (
                   <label className="flex flex-col gap-1">
                     <span className="text-sm font-medium text-[#091540]">Fecha de fin</span>
@@ -101,11 +134,12 @@ const CreateProject = () => {
             </div>
           </div>
         );
+
+      // Paso 1: Detalles
       case 1:
         return (
           <div className="flex flex-col gap-6" key="step-1">
-            {/* Objetivo */}
-            <form.Field key="Objective" name="Objective">
+            <form.Field name="Objective">
               {(field) => (
                 <label className="flex flex-col gap-1">
                   <span className="text-sm font-medium text-[#091540]">Objetivo del proyecto</span>
@@ -120,14 +154,14 @@ const CreateProject = () => {
                 </label>
               )}
             </form.Field>
-            {/* Descripción */}
-            <form.Field key="Description" name="Description">
+
+            <form.Field name="Description">
               {(field) => (
                 <label className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Descripción del proyecto</span>
+                  <span className="text-sm font-medium text-[#091540]">Descripción</span>
                   <textarea
                     className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
-                    placeholder="Descripción"
+                    placeholder="Descripción del proyecto"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     rows={3}
@@ -136,14 +170,14 @@ const CreateProject = () => {
                 </label>
               )}
             </form.Field>
-            {/* Observación */}
-            <form.Field key="Observation" name="Observation">
+
+            <form.Field name="Observation">
               {(field) => (
                 <label className="flex flex-col gap-1">
                   <span className="text-sm font-medium text-[#091540]">Observaciones del proyecto</span>
                   <textarea
                     className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
-                    placeholder="Observaciones"
+                    placeholder="Observaciones del proyecto (opcional)"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                     rows={3}
@@ -151,14 +185,14 @@ const CreateProject = () => {
                 </label>
               )}
             </form.Field>
-            {/* Espacio de documento */}
-            <form.Field key="SpaceOfDocument" name="SpaceOfDocument">
+
+            <form.Field name="SpaceOfDocument">
               {(field) => (
                 <label className="flex flex-col gap-1">
                   <span className="text-sm font-medium text-[#091540]">Espacio de documento</span>
                   <input
                     className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                    placeholder="Espacio de documento"
+                    placeholder="URL / carpeta / código"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
@@ -168,55 +202,72 @@ const CreateProject = () => {
 
             <form.Field name="ProjectStateId">
               {(field) => (
-                <>
-                  <label className="grid gap-1">
-                    <select
-                      className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                      disabled={projectStatesLoading}
-                    >
-                      <option value={0} disabled>
-                        {projectStatesLoading ? "Cargando estados de proyecto..." : "Seleccione estado de proyecto"}
+                <label className="grid gap-1">
+                  <select
+                    className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(Number(e.target.value))}
+                    disabled={projectStatesLoading}
+                  >
+                    <option value={0} disabled>
+                      {projectStatesLoading ? "Cargando estados…" : "Seleccione estado"}
+                    </option>
+                    {projectStates.map((s) => (
+                      <option key={s.Id} value={s.Id}>
+                        {s.Name}
                       </option>
-                      {projectStates.map((s) => (
-                        <option key={s.Id} value={s.Id}>
-                          {s.Name}
-                        </option>
-                      ))}
-                    </select>
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                  </label>
-                </>
+                    ))}
+                  </select>
+                </label>
               )}
             </form.Field>
-
           </div>
         );
+
+      
       case 2:
         return (
-          <div className="text-[#091540] space-y-2 px-2" key="step-2">
-            <h3 className="text-lg font-semibold mb-2">Confirma los datos antes de registrar el proyecto:</h3>
+          <div className="flex flex-col gap-6" key="step-2">
+            <form.Field name="Observation">
+              {(field) => (
+                <label className="flex flex-col gap-1">
+                  <span className="text-sm font-medium text-[#091540]">Observación de la proyección</span>
+                  <textarea
+                    className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
+                    placeholder="Notas u observaciones para la proyección del proyecto"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    rows={3}
+                  />
+                </label>
+              )}
+            </form.Field>
+          </div>
+        );
+
+      // Paso 3: Confirmación
+      case 3:
+        return (
+          <div className="text-[#091540] space-y-2 px-2" key="step-3">
+            <h3 className="text-lg font-semibold mb-2">Confirma los datos:</h3>
             <form.Subscribe selector={(state) => state.values}>
               {(values) => (
                 <ul className="text-base space-y-1">
                   <li><b>Nombre:</b> {values.Name}</li>
                   <li><b>Ubicación:</b> {values.Location}</li>
-                  <li><b>Fecha de inicio:</b> {values.InnitialDate ? new Date(values.InnitialDate).toLocaleDateString() : ""}</li>
-                  <li><b>Fecha de fin:</b> {values.EndDate ? new Date(values.EndDate).toLocaleDateString() : ""}</li>
+                  <li><b>Fecha inicio:</b> {values.InnitialDate ? new Date(values.InnitialDate).toLocaleDateString() : ""}</li>
+                  <li><b>Fecha fin:</b> {values.EndDate ? new Date(values.EndDate).toLocaleDateString() : ""}</li>
                   <li><b>Objetivo:</b> {values.Objective}</li>
                   <li><b>Descripción:</b> {values.Description}</li>
-                  <li><b>Observación:</b> {values.Observation}</li>
-                  <li><b>Espacio de documento:</b> {values.SpaceOfDocument}</li>
+                  <li><b>Obs. Proyecto:</b> {values.Observation}</li>
+                  <li><b>Espacio doc.:</b> {values.SpaceOfDocument}</li>
+                  <li><b>Obs. Proyección:</b> {values.Observation}</li>
                 </ul>
               )}
             </form.Subscribe>
           </div>
         );
+
       default:
         return null;
     }
@@ -227,25 +278,6 @@ const CreateProject = () => {
       <h2 className="text-2xl font-bold mb-2 text-[#091540] text-center tracking-tight">
         {steps[step].label}
       </h2>
-      <div className="flex items-center justify-center mb-6 gap-3">
-        {steps.map((s, idx) => (
-          <div key={s.label} className="flex items-center">
-            <div
-              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
-                ${step === idx ? "bg-blue-600 border-blue-600" : "bg-white border-blue-300"}
-              `}
-            >
-              <span className={`block w-2 h-2 rounded-full ${step === idx ? "bg-white" : "bg-blue-300"}`}></span>
-            </div>
-            {idx < steps.length - 1 && (
-              <div className="w-8 h-0.5 bg-blue-200 mx-1"></div>
-            )}
-          </div>
-        ))}
-      </div>
-      <span className="block mt-4 mb-6 text-center text-lg  tracking-wide  text-[#091540]">
-        Rellene los siguientes datos para registrar un nuevo proyecto
-      </span>
 
       <form
         onSubmit={(e) => {
@@ -266,19 +298,23 @@ const CreateProject = () => {
               {step > 0 ? (
                 <button
                   type="button"
-                  className="px-6 py-2 border border-gray-300 text-[#091540]  hover:border-blue-400 hover:text-blue-700 transition"
+                  className="px-6 py-2 border border-gray-300 text-[#091540] hover:border-blue-400 hover:text-blue-700 transition"
                   onClick={() => setStep(step - 1)}
                 >
                   Atrás
                 </button>
-              ) : <div />}
+              ) : (
+                <div />
+              )}
               <button
                 type="submit"
-                className="px-6 py-2 border border-[#091540] bg-[#091540] text-white   hover:text-[#f5f5f5] hover:border-[#091540] transition disabled:opacity-60"
+                className="px-6 py-2 border border-[#091540] bg-[#091540] text-white hover:text-[#f5f5f5] hover:border-[#091540] transition disabled:opacity-60"
                 disabled={step === steps.length - 1 ? !canSubmit || isSubmitting : false}
               >
                 {step === steps.length - 1
-                  ? isSubmitting ? "Creando..." : "Crear Proyecto"
+                  ? isSubmitting
+                    ? "Creando..."
+                    : "Crear Proyecto"
                   : "Siguiente"}
               </button>
             </div>
