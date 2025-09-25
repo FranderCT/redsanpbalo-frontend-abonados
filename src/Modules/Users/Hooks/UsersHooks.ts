@@ -156,10 +156,10 @@ export function useGetAllUsersPaginate(params: UsersPaginationParams) {
   return query;
 }
 export const useGetUsersByRoleAdmin = () => {
-  const { data: userAdmin, isPending, error } = useQuery({
-    queryKey: ["users"],
+  const { data: userAdmin = [], isPending, error } = useQuery({
+    queryKey: ["users", "role-admin"],
     queryFn: getUserByRoleAdmin,
-    
   });
+
   return { userAdmin, isPending, error };
 };

@@ -33,7 +33,7 @@ const CreateProject = () => {
   const createProjectMutation = useCreateProject();
   const createProjectProjectionMutation = useCreateProjectProjection();
   const createProductDetailMutation = useCreateProductDetail();
-  const { userAdmin, isPending: UserAdminIsLoading, error : UserAdminError} = useGetUsersByRoleAdmin();
+  const { userAdmin = [], isPending: UserAdminIsLoading} = useGetUsersByRoleAdmin();
 
   const { projectStates, projectStatesLoading } = useGetAllProjectStates();
   const { products, isPending: productsLoading, error: productsError } = useGetAllProducts();
@@ -162,6 +162,8 @@ const CreateProject = () => {
       } catch (err) {
         console.error("Error al crear proyecto/proyección/detalles", err);
         toast.error("¡Error al crear el proyecto, su proyección o los detalles!", { position: "top-right", autoClose: 3000 });
+        console.log(value.UserId)
+        console.log(value.Name)
       }
     },
   });
@@ -370,33 +372,37 @@ const CreateProject = () => {
             </form.Field>
 
             <form.Field name="UserId">
-              {(field) => (
-                <>
-                  <label className="grid gap-1">
-                    <select
-                      className="w-full px-4 py-2 bg-gray-50 border"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                      disabled={UserAdminIsLoading}
-                    >
-                      <option value={0} disabled>
-                        {UserAdminIsLoading ? "Cargando proveedores..." : "Seleccione encargado del proyecto"}
-                      </option>
-                      {userAdmin?.map((u) => (
-                        <option key={u.Id} value={u.Id}>
-                          {u.Name} {u.Surname1} {u.Surname2}
-                        </option>
-                      ))}
-                    </select>
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                  </label>
-                </>
-              )}
-            </form.Field>
+            {(field) => (
+              <label className="grid gap-1">
+                <select
+                  className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition rounded"
+                  value={field.state.value ?? ""}
+                  onChange={(e) => field.handleChange(Number(e.target.value))}
+                  disabled={UserAdminIsLoading}
+                >
+                  <option value="" disabled>
+                    {UserAdminIsLoading
+                      ? "Cargando administradores..."
+                      : "Seleccione encargado del proyecto"}
+                  </option>
+
+                  {userAdmin.map((u) => (
+                    <option key={u.Id} value={u.Id}>
+                      {u.Name} {u.Surname1} {u.Surname2}
+                    </option>
+                  ))}
+                </select>
+
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ??
+                      String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </label>
+            )}
+          </form.Field>
+
           </div>
         );
 

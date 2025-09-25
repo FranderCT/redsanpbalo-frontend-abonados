@@ -39,7 +39,7 @@ export const newProjectInitialState: newProject = {
   Observation:"",
   SpaceOfDocument:"",
   ProjectStateId : 1,
-  UserId : 0
+  UserId : 1
 };
 
 export interface ProjectPaginationParams {
