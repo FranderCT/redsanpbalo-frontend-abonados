@@ -4,7 +4,8 @@ import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory"
 import { useEffect } from "react";
 import type { UsersPaginationParams, User, UpdateUser } from "../Models/User";
 import { getUserProfile, updateUserProfile, updateUserEmail, getAllUsers, deleteUser, 
-  createUserModal, getAllRoles, updateUser, getUserById, deteleUserById, searchUsers } from "../Services/UsersServices";
+  createUserModal, getAllRoles, updateUser, getUserById, deteleUserById, searchUsers, 
+  getUserByRoleAdmin} from "../Services/UsersServices";
 
 export const useGetUserProfile = () => {
     const {data: UserProfile, isLoading, error} = useQuery({
@@ -154,3 +155,11 @@ export function useGetAllUsersPaginate(params: UsersPaginationParams) {
   }, [query.data, params]);
   return query;
 }
+export const useGetUsersByRoleAdmin = () => {
+  const { data: userAdmin = [], isPending, error } = useQuery({
+    queryKey: ["users", "role-admin"],
+    queryFn: getUserByRoleAdmin,
+  });
+
+  return { userAdmin, isPending, error };
+};
