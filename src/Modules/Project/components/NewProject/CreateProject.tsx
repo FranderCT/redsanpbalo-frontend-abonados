@@ -15,9 +15,11 @@ import { useCreateProductDetail } from "../../../Product-Detail/Hooks/ProductDet
 const steps = [
   { label: "Datos Básicos" },
   { label: "Detalles" },
-  { label: "Proyección" },   // 👈 aquí van Observación de proyección + Detalle de producto
+  { label: "Proyección" },
   { label: "Confirmación" },
 ];
+
+type ProjectCreatePayload = typeof newProjectInitialState;
 
 const CreateProject = () => {
   const [step, setStep] = useState(0);
@@ -31,27 +33,26 @@ const CreateProject = () => {
 
   const form = useForm({
     defaultValues: {
-      ...newProjectInitialState,          // campos del proyecto
-      Observation: "",          // 👈 observación específica de la proyección
-      ...NewProductDetailInitialState,    // 👈 { Quantity: 0, ProductId: 0, ProjectProjectionId: 0 }
+      ...newProjectInitialState,          
+      Observation: "",          
+      ...NewProductDetailInitialState,    
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        // 1) Crear PROYECTO
-        const projectPaylodas : newProjectInitialState = {
-          name : value.Name,
-          Location : value.Location,
-          InnitialDate : value.InnitialDate,
-          EndDate : value.EndDate,
-          Objective : value.Objective,
-          Description:  value.Description,
+        // 1) Crear PROYECTO (solo sus campos)
+        const projectPayload: ProjectCreatePayload = {
+          Name: value.Name,
+          Location: value.Location,
+          InnitialDate: value.InnitialDate,
+          EndDate: value.EndDate,
+          Objective: value.Objective,
+          Description: value.Description,
           Observation: value.Observation,
           SpaceOfDocument: value.SpaceOfDocument,
-          ProjectStateId : value.ProjectStateId
-        }
-        
-    
-        const projectRes = await createProjectMutation.mutateAsync(projectPaylodas);
+          ProjectStateId: value.ProjectStateId,
+        };
+
+        const projectRes = await createProjectMutation.mutateAsync(projectPayload);
         const projectId =
           (projectRes as any)?.Id ??
           (projectRes as any)?.id ??
@@ -67,7 +68,6 @@ const CreateProject = () => {
         };
 
         const projectionRes = await createProjectProjectionMutation.mutateAsync(projectionPayload);
-
         const projectProjectionId =
           (projectionRes as any)?.Id ??
           (projectionRes as any)?.id ??
@@ -76,15 +76,14 @@ const CreateProject = () => {
 
         if (!projectProjectionId) throw new Error("No se obtuvo el Id de la proyección creada.");
 
-        // 3) Crear DETALLE DE PRODUCTO (solo si hay producto válido y cantidad > 0)
-        if ((value.ProductId ?? 0) > 0 && (value.Quantity ?? 0) > 0) {
+        
           const productDetailPayload: NewProductDetail = {
             Quantity: Number(value.Quantity),
             ProductId: Number(value.ProductId),
             ProjectProjectionId: Number(projectProjectionId),
           };
           await createProductDetailMutation.mutateAsync(productDetailPayload);
-        }
+      
 
         // 4) ÉXITO
         formApi.reset();
