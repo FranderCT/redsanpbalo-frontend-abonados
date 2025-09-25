@@ -341,7 +341,7 @@ const CreateProject = () => {
 
                           {/* Sugerencias */}
                           {showSuggestions && filteredProducts.length > 0 && (
-                            <ul className="absolute z-10 mt-1 w-full max-h-56 overflow-auto bg-white border border-gray-200 shadow-lg rounded-md">
+                            <ul className="absolute z-10 mt-1 w-full max-h-56 overflow-auto bg-white border border-gray-200 shadow-lg">
                               {filteredProducts.slice(0, 8).map((p) => (
                                 <li
                                   key={p.Id}
@@ -380,7 +380,7 @@ const CreateProject = () => {
                       <div className="md:col-span-2">
                         <button
                           type="button"
-                          className="w-full h-10 mt-6 rounded-xl bg-[#091540] text-white hover:opacity-90 disabled:opacity-50"
+                          className="w-full h-10 mt-6  bg-[#091540] text-white hover:opacity-90 disabled:opacity-50"
                           disabled={!tempProductId || tempQty <= 0}
                           onClick={() => {
                             const current = field.state.value ?? [];
@@ -429,7 +429,7 @@ const CreateProject = () => {
                               />
                               <button
                                 type="button"
-                                className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-50"
+                                className="px-3 py-1  border border-gray-300 hover:bg-gray-50"
                                 onClick={() => {
                                   const next = (field.state.value ?? []).filter((_: any, idx: number) => idx !== i);
                                   field.handleChange(next);
