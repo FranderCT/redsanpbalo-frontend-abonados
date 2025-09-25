@@ -1,9 +1,9 @@
-import type { Project } from "../../Models/Project";
+import type { ProductDetail } from "../../../Product-Detail/Models/ProductDetail";
 
 export interface ProjectProjection { 
     Id : number;
     Observation : string;
-    Project : Project
+    ProductDetails : ProductDetail[]
 }
 
 
