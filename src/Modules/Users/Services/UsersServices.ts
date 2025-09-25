@@ -119,3 +119,12 @@ export async function searchUsers(params: UsersPaginationParams) {
   
 }
 
+export async function getUserByRoleAdmin () : Promise<User[]>{
+  try{
+    const {data} = await apiAxios.get<User[]>(`${BASE}/role-admin`);
+    return data;
+  }catch(err){
+    return Promise.reject(err);
+  }
+  
+}

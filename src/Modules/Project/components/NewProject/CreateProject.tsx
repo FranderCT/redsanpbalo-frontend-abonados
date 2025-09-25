@@ -11,6 +11,11 @@ import { useCreateProjectProjection } from "../../Project-projection/Hooks/Proje
 import { NewProductDetailInitialState, type NewProductDetail } from "../../../Product-Detail/Models/ProductDetail";
 import { useGetAllProducts } from "../../../Products/Hooks/ProductsHooks";
 import { useCreateProductDetail } from "../../../Product-Detail/Hooks/ProductDetailHooks";
+import { ProjectSchema } from "../../schemas/ProjectSchema";
+import { StepSchemas } from "../../schemas/StepSchema";
+import z from "zod";
+import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
+
 
 
 const steps = [
@@ -28,6 +33,7 @@ const CreateProject = () => {
   const createProjectMutation = useCreateProject();
   const createProjectProjectionMutation = useCreateProjectProjection();
   const createProductDetailMutation = useCreateProductDetail();
+  const { userAdmin, isPending: UserAdminIsLoading, error : UserAdminError} = useGetUsersByRoleAdmin();
 
   const { projectStates, projectStatesLoading } = useGetAllProjectStates();
   const { products, isPending: productsLoading, error: productsError } = useGetAllProducts();
@@ -50,9 +56,37 @@ const CreateProject = () => {
 
     const getProductName = (id?: number) =>
       products?.find(p => p.Id === id)?.Name ?? "";
+  
+  //Funcion para validar que se cumplan los campos requeridos para poder pasar al siguiente
+  const handleNext = () => {
+    const schema = StepSchemas[step];
+    // Paso sin validación extra (confirmación)
+    if (schema instanceof z.ZodAny) {
+      setStep(step + 1);
+      return;
+    }
 
+    const res = schema.safeParse(form.state.values);
+    if (!res.success) {
+      // Marca como "touched" los campos con error del paso, para que se muestren mensajes
+      res.error.issues.forEach((iss) => {
+        const path = iss.path.join("."); // ej: "projection.Observation"
+        if (path) {
+          form.setFieldMeta(path as any, (m: any) => ({ ...m, isTouched: true }));
+        }
+      });
+      toast.error("Completa los campos requeridos");
+      return;
+    }
+
+    //válido → avanza
+    setStep(step + 1);
+  };
 
   const form = useForm({
+    validators:{
+      onChange:ProjectSchema,
+    },
     defaultValues: {
       ...newProjectInitialState,
       Observation: "",
@@ -75,6 +109,7 @@ const CreateProject = () => {
           Observation: value.Observation, // Observation del PROYECTO
           SpaceOfDocument: value.SpaceOfDocument,
           ProjectStateId: value.ProjectStateId,
+          UserId : value.UserId
         };
 
         const projectRes = await createProjectMutation.mutateAsync(projectPayload);
@@ -148,6 +183,11 @@ const CreateProject = () => {
                     onChange={(e) => field.handleChange(e.target.value)}
                     required
                   />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </label>
               )}
             </form.Field>
@@ -164,6 +204,11 @@ const CreateProject = () => {
                     rows={3}
                     required
                   />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </label>
               )}
             </form.Field>
@@ -180,6 +225,11 @@ const CreateProject = () => {
                       onChange={(e) => field.handleChange(new Date(e.target.value))}
                       required
                     />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                    )}
                   </label>
                 )}
               </form.Field>
@@ -195,6 +245,11 @@ const CreateProject = () => {
                       onChange={(e) => field.handleChange(new Date(e.target.value))}
                       required
                     />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                    )}
                   </label>
                 )}
               </form.Field>
@@ -218,6 +273,11 @@ const CreateProject = () => {
                     rows={3}
                     required
                   />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </label>
               )}
             </form.Field>
@@ -234,6 +294,11 @@ const CreateProject = () => {
                     rows={3}
                     required
                   />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </label>
               )}
             </form.Field>
@@ -249,6 +314,11 @@ const CreateProject = () => {
                     onChange={(e) => field.handleChange(e.target.value)}
                     rows={3}
                   />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </label>
               )}
             </form.Field>
@@ -263,6 +333,11 @@ const CreateProject = () => {
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </label>
               )}
             </form.Field>
@@ -285,7 +360,41 @@ const CreateProject = () => {
                       </option>
                     ))}
                   </select>
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </label>
+              )}
+            </form.Field>
+
+            <form.Field name="UserId">
+              {(field) => (
+                <>
+                  <label className="grid gap-1">
+                    <select
+                      className="w-full px-4 py-2 bg-gray-50 border"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(Number(e.target.value))}
+                      disabled={UserAdminIsLoading}
+                    >
+                      <option value={0} disabled>
+                        {UserAdminIsLoading ? "Cargando proveedores..." : "Seleccione encargado del proyecto"}
+                      </option>
+                      {userAdmin?.map((u) => (
+                        <option key={u.Id} value={u.Id}>
+                          {u.Name} {u.Surname1} {u.Surname2}
+                        </option>
+                      ))}
+                    </select>
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </label>
+                </>
               )}
             </form.Field>
           </div>
@@ -307,6 +416,11 @@ const CreateProject = () => {
                       onChange={(e) => field.handleChange(e.target.value)}
                       rows={3}
                     />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                    )}
                   </label>
                 )}
               </form.Field>
@@ -338,7 +452,11 @@ const CreateProject = () => {
                             }}
                             disabled={productsLoading || !!productsError}
                           />
-
+                          {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                          <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                          </p>
+                        )}
                           {/* Sugerencias */}
                           {showSuggestions && filteredProducts.length > 0 && (
                             <ul className="absolute z-10 mt-1 w-full max-h-56 overflow-auto bg-white border border-gray-200 shadow-lg">
@@ -427,6 +545,11 @@ const CreateProject = () => {
                                   field.handleChange(next);
                                 }}
                               />
+                              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                              <p className="text-sm text-red-500 mt-1">
+                                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                              </p>
+                              )}
                               <button
                                 type="button"
                                 className="px-3 py-1  border border-gray-300 hover:bg-gray-50"
@@ -504,7 +627,7 @@ const CreateProject = () => {
         onSubmit={(e) => {
           e.preventDefault();
           if (step < steps.length - 1) {
-            setStep(step + 1);
+            handleNext();
           } else {
             form.handleSubmit();
           }
