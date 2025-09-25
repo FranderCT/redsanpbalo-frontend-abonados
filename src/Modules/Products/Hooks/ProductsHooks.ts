@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation, useQuery, keepPreviousData } from "@tanstack/react-query";
-import { createProduct, deleteProduct, getAllProducts, searchProducts, updateProduct } from "../Services/ProductServices";
+import { createProduct, deleteProduct, getAllProducts, getProductById, searchProducts, updateProduct } from "../Services/ProductServices";
 import type { Product, ProductPaginationParams, UpdateProduct } from "../Models/CreateProduct";
 import { useEffect } from "react";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
@@ -26,6 +26,17 @@ export const useGetAllProducts = () =>{
     });
     return { products, isPending, error };
 }
+
+export const useGetProductById = (id: number) => {
+  const {data: product, isLoading,error} = useQuery({
+    queryKey: ["product", id],
+    queryFn: () => getProductById(id),
+  });
+
+  return { product, isLoading, error };
+};
+
+
 
 
 export const useUpdateProduct = () => {

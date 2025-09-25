@@ -1,25 +1,19 @@
 import { type ColumnDef } from "@tanstack/react-table";
 
-import { Edit2, Trash, Info } from "lucide-react";
+import { Edit2, Trash, Info, InfoIcon } from "lucide-react";
 import type { Product } from "../../Models/CreateProduct";
 import DeleteProductButton from "../Modals/DeleteProductModal";
 
 export const ProductColumns = (
   onEdit: (product: Product) => void,
+  onGetInfo :  (product : Product) => void
 //   onGetInfo: (product: Product) => void
 ): ColumnDef<Product>[] => [
   {
     accessorKey: "Name",
     header: "Nombre",
   },
-  {
-    accessorKey: "Type",
-    header: "Tipo",
-  },
-  {
-    accessorKey: "Observation",
-    header: "Observación",
-  },
+  
   {
     id: "Category",
     header: "Categoría",
@@ -93,4 +87,24 @@ export const ProductColumns = (
 //       );
 //     },
 //   },
+{
+    id : "Información",
+    header : "Información",
+    cell : ({row}) => {
+      const product = row.original;
+      return(
+        <button
+          onClick={() => onGetInfo(product)}
+          className="flex items-center gap-1 px-3 py-1 text-xs font-medium border
+            text-[#222] border-[#222]
+            hover:bg-[#091540] hover:text-[#f5f5f5] transtion cursor-pointer 
+          "
+        >
+          <InfoIcon className="w-4 h-4" />
+          Ver info
+        </button>
+      );
+    }
+  },
+
 ];

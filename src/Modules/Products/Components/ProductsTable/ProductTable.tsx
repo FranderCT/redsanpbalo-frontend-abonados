@@ -5,6 +5,7 @@ import { ProductColumns } from "./ProductColumns";
 import type { Product } from "../../Models/CreateProduct";
 import UpdateProductModal from "../Modals/UpdateProductModal";
 import ProductPager from "../PaginationProducts/ProductPager";
+import GetInfoProductModal from "../Modals/GetInfoProductModal";
 
 type Props = {
   data: Product[];
@@ -16,11 +17,13 @@ type Props = {
 
 export default function ProductsTable({ data, total, page, pageCount, onPageChange }: Props) {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [getInfoProduct, setGetInfoProduct] = useState<Product | null>(null);
 
   const table = useReactTable({
     data,
     columns: ProductColumns(
       (product) => setEditingProduct(product),
+      (product) => setGetInfoProduct(product),
     ),
     getCoreRowModel: getCoreRowModel(),
   });
@@ -33,6 +36,15 @@ export default function ProductsTable({ data, total, page, pageCount, onPageChan
           open={true}
           onClose={() => setEditingProduct(null)}
           onSuccess={() => setEditingProduct(null)}
+        />
+      )}
+
+      {getInfoProduct && (
+        <GetInfoProductModal 
+          product={getInfoProduct}
+          open={true}
+          onClose={() => setGetInfoProduct(null)}
+          onSuccess={() => setGetInfoProduct(null)}
         />
       )}
 

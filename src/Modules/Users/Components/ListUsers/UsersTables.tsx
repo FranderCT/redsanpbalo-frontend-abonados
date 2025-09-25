@@ -4,6 +4,7 @@ import type { User } from "../../Models/User";
 import EditUserModal from "../ListUsersModals/EditUserModal";
 import { usersColumns } from "./usersColumns";
 import CategoryPager from "../../../Category/Components/PaginationCategory/CategoryPager";
+import GetInfoUserModal from "../ListUsersModals/GetInfoUserModal";
 
 type Props = {
   data: User[];
@@ -15,10 +16,14 @@ type Props = {
 
 export default function UsersTable({ data, total, page, pageCount, onPageChange }: Props) {
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [getInfoUser, setGetInfoUser] = useState<User | null>(null);
 
   const table = useReactTable({
     data,
-    columns: usersColumns((user) => setEditingUser(user)),
+    columns: usersColumns(
+      (user) => setEditingUser(user),
+      (user) => setGetInfoUser(user),
+     ),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -32,6 +37,16 @@ export default function UsersTable({ data, total, page, pageCount, onPageChange 
           onSuccess={() => setEditingUser(null)}
         />
       )}
+
+      {getInfoUser && (
+        <GetInfoUserModal
+          user={getInfoUser}
+          open={true}
+          onClose={() => setGetInfoUser(null)}
+          onSuccess={() => setGetInfoUser(null)}
+        />
+      )
+      }
 
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>

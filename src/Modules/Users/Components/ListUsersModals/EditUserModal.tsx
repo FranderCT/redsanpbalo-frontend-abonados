@@ -210,27 +210,32 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
           {/* ===== Fin Roles ===== */}
 
           <form.Field name="IsActive">
-              {(field) => (
-                <label className="flex items-center gap-2">
-                  <span className="text-sm text-gray-700">
-                    Activo: 
-                  </span>
+            {(field) => (
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <span className="text-sm text-gray-700">Activo</span>
+
+                {/* Toggle */}
+                <div className="relative">
                   <input
                     type="checkbox"
                     checked={!!field.state.value}
                     onChange={(e) => field.handleChange(e.target.checked)}
+                    className="sr-only peer"
                   />
-                  
-                  {field.state.meta.isTouched &&
-                    field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ??
-                          String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                </label>
-              )}
-            </form.Field>
+                  <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors"></div>
+                  <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-5"></div>
+                </div>
+
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ??
+                      String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </label>
+            )}
+          </form.Field>
+
 
           <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (
