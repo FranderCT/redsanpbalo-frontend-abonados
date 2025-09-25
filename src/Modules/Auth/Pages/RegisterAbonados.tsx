@@ -408,7 +408,7 @@ const RegisterAbonados = () => {
           <p className="mt-3 text-sm md:text-lg text-[#091540] text-center">
             ¿Ya tienes una cuenta?{' '}
             <Link to="/login" className="underline text-[#1789FC] font-medium hover:text-[#091540] cursor-pointer">
-              Inicia sesión aquí
+              Iniciar sesión
             </Link>
           </p>
         </div>

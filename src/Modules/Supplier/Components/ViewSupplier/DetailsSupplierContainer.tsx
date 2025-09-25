@@ -3,13 +3,11 @@ import type { Supplier } from "../../Models/Supplier";
 
 type Props = { data: Supplier };
 
-function formatDate(d?: Date | string | null) {
-  if (!d) return "—";
-  const dt = new Date(d);
-  return isNaN(dt.getTime()) ? "—" : dt.toLocaleDateString();
-}
-
 export default function DetailsSupplierContainer({ data }: Props) {
+
+  
+
+
   return (
     <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 py-8 text-[#091540]">
       {/* bloque principal en una sola columna, limpio y amplio */}

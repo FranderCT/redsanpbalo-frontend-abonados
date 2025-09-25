@@ -36,7 +36,7 @@ export default function DeleteUserButton({ userSelected, onSuccess }: Props) {
         type="button"
         onClick={() => setOpen(true)}
         disabled={busy}
-        className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
+        className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1 cursor-pointer
           ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
         title="Inhabilitar usuario"
       >

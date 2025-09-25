@@ -8,7 +8,7 @@ import { getUserProfile, updateUserProfile, updateUserEmail, getAllUsers, delete
 
 export const useGetUserProfile = () => {
     const {data: UserProfile, isLoading, error} = useQuery({
-        queryKey: ['userProfile'],
+        queryKey: ['users'],
         queryFn: () => getUserProfile()
     });
 
@@ -95,7 +95,7 @@ export const useUpdateUser = () => {
       updateUser(id, data),
       onSuccess: () => {
         // refresca listas donde corresponda
-        qc.invalidateQueries({ queryKey: ["products"] });
+        qc.invalidateQueries({ queryKey: ["users"] });
       },
   });
 };

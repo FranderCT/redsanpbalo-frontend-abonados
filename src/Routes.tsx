@@ -8,7 +8,7 @@ import { categoryRoute } from "./Modules/Category/Routes/RoutesCategories";
 import { uniteMeasureRoute } from "./Modules/UnitMeasure/routes/RoutesUnitMeasures";
 import { productsRoutes } from "./Modules/Products/routes/ProductsRoutes";
 import { listSupplierRoute, newSupplierRoute, supplierRoute, viewSuppliertRoute } from "./Modules/Supplier/Routes/SuppliersRoutes";
-import { createProjectRoute, listProjectRoute, projectRoute, viewProjectRoute } from "./Modules/Projects/Routes/ProjectsRoutes";
+import { createProjectRoute, listProjectRoute, projectRoute, viewProjectRoute } from "./Modules/Project/Routes/ProjectsRoutes";
 
 export const rootRoute = createRootRoute();
 

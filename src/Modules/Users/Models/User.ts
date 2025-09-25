@@ -73,8 +73,8 @@ export interface UpdateUser{
     PhoneNumber?: string;
     Birthdate?: Date;
     Address?: string;
-    IsActive?: boolean
-    Roles?: Roles[]
+    IsActive?: boolean;
+    roleIds?: number[];
 }
 
 export const updateUserInitialState : UpdateUser = {

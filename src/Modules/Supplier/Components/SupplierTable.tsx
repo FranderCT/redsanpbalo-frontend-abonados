@@ -7,6 +7,7 @@ import UpdateSupplierModal from "./UpdateSupplierModal";
 import CategoryPager from "../../Category/Components/PaginationCategory/CategoryPager";
 
 
+
 type Props = {
   data: Supplier[];
   total?: number;
@@ -17,6 +18,7 @@ type Props = {
 
 export default function SupplierTable({ data, total, page, pageCount, onPageChange }: Props) {
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
+  
 
   const table = useReactTable({
     data,
