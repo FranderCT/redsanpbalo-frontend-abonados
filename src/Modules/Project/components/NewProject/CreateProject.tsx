@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import type { NewProjectProjection } from "../../Project-projection/Models/ProjectProjection";
 import { useCreateProjectProjection } from "../../Project-projection/Hooks/Project-ProjectionHooks";
 
-import { NewProductDetailInitialState, type NewProductDetail } from "../../../Product-Detail/Models/ProductDetail";
+import {  type NewProductDetail } from "../../../Product-Detail/Models/ProductDetail";
 import { useGetAllProducts } from "../../../Products/Hooks/ProductsHooks";
 import { useCreateProductDetail } from "../../../Product-Detail/Hooks/ProductDetailHooks";
 import { ProjectSchema } from "../../schemas/ProjectSchema";
@@ -94,7 +94,6 @@ const CreateProject = () => {
         Observation: "",
       },
       productDetails: [] as Array<Pick<NewProductDetail, "ProductId" | "Quantity">>,
-      ...NewProductDetailInitialState,
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -144,8 +143,8 @@ const CreateProject = () => {
               .filter(d => (d.ProductId ?? 0) > 0 && (d.Quantity ?? 0) > 0)
               .map(d =>
                 createProductDetailMutation.mutateAsync({
-                  ProductId: Number(d.ProductId),
                   Quantity: Number(d.Quantity),
+                  ProductId: Number(d.ProductId),
                   ProjectProjectionId: Number(projectProjectionId),
                 } satisfies NewProductDetail)
               )
