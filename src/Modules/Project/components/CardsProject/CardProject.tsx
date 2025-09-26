@@ -31,26 +31,35 @@ const CardProject: React.FC<Props> = ({ project, className }) => {
     >
       {/* Contenido del card: ocupa todo y empuja el footer */}
       <section className="flex grow flex-col border border-gray-200 bg-white gap-6 p-4">
-        {/* Fecha */}
-        <div className="text-sm inline-block px-2 py-1 border border-gray-200 bg-white text-gray-500 w-fit">
-          {formatDate(project.InnitialDate)}
+        {/* Encabezado con logo y fecha */}
+        <div className="flex flex-row justify-between">
+          <img src={g28} alt="Logo ASADA" className="w-10 h-10 object-contain" />
+          <div className="text-sm inline-block px-2 py-1 h-8 border border-gray-200 bg-white text-gray-500">
+            {formatDate(project.InnitialDate)}
+          </div>
         </div>
 
         {/* Título */}
-        <header className="w-full">
+        <header className="w-full min-w-0">
           <p className="text-sm text-gray-500">Proyecto:</p>
-          <h3 className="text-lg font-semibold leading-snug">{project.Name}</h3>
+          <h3
+            className="text-lg font-semibold leading-snug line-clamp-2 break-words [overflow-wrap:anywhere]"
+            title={project.Name}
+          >
+            {project.Name}
+          </h3>
         </header>
 
-        {/* Descripción */}
-        <div className="
-          w-full max-w-full text-xs text-gray-600 leading-relaxed
-          [overflow-wrap:anywhere] overflow-hidden line-clamp-3
-        ">
+        {/* Descripción (flex-grow) */}
+        <div
+          className="flex-grow text-xs text-gray-600 leading-relaxed 
+                    [overflow-wrap:anywhere] overflow-hidden line-clamp-3"
+        >
           <p className="text-sm text-gray-500">Descripción:</p>
           {project.Description}
         </div>
 
+        {/* Estado (badge fijo al final del section) */}
         <div
           className={`text-xs px-3 py-1 border w-fit font-bold
             ${stateColors[project.ProjectState?.Name] ?? "bg-gray-100 text-gray-600 border-gray-300"}`}
@@ -59,9 +68,9 @@ const CardProject: React.FC<Props> = ({ project, className }) => {
         </div>
       </section>
 
+
       {/* Footer fijo abajo */}
-      <div className="mt-auto flex justify-between pt-3 pb-3">
-        <img src={g28} alt="Logo ASADA" className="w-10 h-10 object-contain" />
+      <div className="mt-auto flex justify-end pt-3 pb-3">
         <button
           type="button"
           onClick={() =>
