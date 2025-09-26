@@ -347,6 +347,7 @@ const CreateProject = () => {
             <form.Field name="ProjectStateId">
               {(field) => (
                 <label className="grid gap-1">
+                  <span className="text-sm font-medium text-[#091540]">Estado del Proyecto</span>
                   <select
                     className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
                     value={field.state.value}
@@ -374,6 +375,7 @@ const CreateProject = () => {
             <form.Field name="UserId">
             {(field) => (
               <label className="grid gap-1">
+                <span className="text-sm font-medium text-[#091540]">Encargado del Proyecto</span>
                 <select
                   className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition rounded"
                   value={field.state.value ?? ""}

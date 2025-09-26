@@ -18,6 +18,7 @@ export const StepSchemas = [
     Observation: true,
     SpaceOfDocument: true,
     ProjectStateId: true,
+    UserId:true,
   }),
 
   // Paso 2: proyección + detalles
