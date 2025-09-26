@@ -28,9 +28,9 @@ export async function searchProjects(
   params: ProjectPaginationParams
 ): Promise<PaginatedResponse<Project>> {
   try {
-    const { page = 1, limit = 10, name, state } = params ?? {};
+    const { page = 1, limit = 10, name, state ,projectState} = params ?? {};
     const { data } = await apiAxios.get<PaginatedResponse<Project>>(`${BASE}/search`, {
-      params: { page, limit, name, state },
+      params: { page, limit, name, state, projectState },
     });
     return data;
   } catch (err) {
