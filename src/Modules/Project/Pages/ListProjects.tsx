@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import type { ProjectPaginationParams } from "../Models/Project";
 import { useSearchProjects } from "../Hooks/ProjectHooks";
 import ProjectsGrid from "../components/CardsProject/ProjectsGrid";
+import { useGetAllProjectStates } from "../../Project_State/Hooks/ProjectStateHooks";
 
 
 export default function ListProjects() {
@@ -19,6 +20,7 @@ export default function ListProjects() {
   const [search, setSearch] = useState("");
   const [name, setName] = useState<string | undefined>(undefined);
   const [state, setState] = useState<string | undefined>(undefined); // ""|"1"|"0" según tu API
+  const [projectStateId, setProjectStateId] = useState<number>();
 
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
@@ -32,6 +34,7 @@ export default function ListProjects() {
     setPage(1);
   };
 
+
   const handleCleanFilters = () => {
     setSearch("");
     setName(undefined);
@@ -40,10 +43,11 @@ export default function ListProjects() {
   };
 
   const params: ProjectPaginationParams = useMemo(
-    () => ({ page, limit, name, state }),
-    [page, limit, name, state]
+    () => ({ page, limit, name, state, projectState: projectStateId?.toString(), }),
+    [page, limit, name, state, projectStateId]
   );
 
+  const { projectStates, projectStatesLoading } = useGetAllProjectStates();
   const { data, isLoading, error } = useSearchProjects(params);
 
   const items = data?.data ?? [];
@@ -66,9 +70,13 @@ export default function ListProjects() {
         limit={meta.limit}
         total={meta.total}
         search={search}
+        projectStateId={projectStateId}
+        states={projectStates ?? []}
+        statesLoading={projectStatesLoading}
         onLimitChange={(l) => { setLimit(l); setPage(1); }}
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}
+        onProjectStateChange={(id) => { setProjectStateId(id); setPage(1); }}
         onCleanFilters={handleCleanFilters}
         rightAction={<CreateProjectModal />} // 👈 formulario rápido
       />

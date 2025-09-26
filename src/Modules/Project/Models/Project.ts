@@ -50,4 +50,5 @@ export interface ProjectPaginationParams {
   limit: number;
   name?: string;
   state?: string;
+  projectState?:string;
 }

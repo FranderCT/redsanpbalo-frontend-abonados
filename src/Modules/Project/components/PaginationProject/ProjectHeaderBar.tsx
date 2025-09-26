@@ -2,6 +2,7 @@
 import { BrushCleaning } from 'lucide-react';
 import type { ReactNode } from "react";
 import PaginationSearch from '../../../../Components/PaginationSearch';
+import type { ProjectState } from '../../../Project_State/Models/ProjectState';
 
 
 type Props = {
@@ -9,6 +10,10 @@ type Props = {
   total: number;
   search: string;
   state?: string;
+  projectStateId?: number;
+  states: ProjectState[];
+  statesLoading?: boolean;
+  onProjectStateChange: (id?: number) => void;
   onLimitChange: (n: number) => void;
   onFilterClick: (text: string) => void;
   onSearchChange: (text: string) => void;
@@ -20,6 +25,10 @@ export default function ProjectHeaderBar({
   limit,
   search,
   state,
+  projectStateId,
+  states,
+  statesLoading,
+  onProjectStateChange,
   onLimitChange,
   onFilterClick,
   onSearchChange,
@@ -53,6 +62,24 @@ export default function ProjectHeaderBar({
           <option value="">Todos</option>
           <option value="1">Activo</option>
           <option value="0">Inactivo</option>
+        </select>
+      </div>
+      {/* Estado del proyecto */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-[#091540]">Estado del proyecto:</span>
+        <select
+          className="h-9 px-3 border border-[#D9DBE9] bg-white text-sm outline-none"
+          value={projectStateId ?? ""}
+          onChange={(e) => {
+            const v = e.target.value;
+            onProjectStateChange(v ? Number(v) : undefined);
+          }}
+          disabled={!!statesLoading}
+        >
+          <option value="">{statesLoading ? "Cargando..." : "Todos"}</option>
+          {states.map(s => (
+            <option key={s.Id} value={s.Id}>{s.Name}</option>
+          ))}
         </select>
       </div>
 
