@@ -1,8 +1,12 @@
+import type { Product } from "../../Products/Models/CreateProduct";
+import type { ProjectProjection } from "../../Project/Project-projection/Models/ProjectProjection";
+
 export interface ProductDetail {
     Id: number;
     Quantity : number;
-    ProductId : number;
-    ProjectProjectionId : number;
+    Product : Product;
+    ProjectProjection : ProjectProjection;
+    // agregar actual expense 
 }
 
 export interface NewProductDetail {
