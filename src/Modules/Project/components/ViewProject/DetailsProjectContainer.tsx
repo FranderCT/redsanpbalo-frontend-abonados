@@ -78,6 +78,12 @@ export default function DetailsProjectContainer({ data }: Props) {
         </Field>
 
 
+        <Field label="Observación de la Proyección">
+          {data.ProjectProjection.ProductDetails.map((pd)=>(
+            <span>{pd.Product.Name}</span>
+          ))}
+        </Field>
+
       </section>
     </div>
   );
