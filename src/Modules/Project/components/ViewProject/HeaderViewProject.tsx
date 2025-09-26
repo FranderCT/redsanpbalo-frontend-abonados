@@ -5,7 +5,7 @@ type Props = { data: Project }
 const HeaderViewProject = ({ data }: Props) => {
   return (
     <div className="w-full h-[10%] flex flex-col items-center justify-center text-center px-4">
-      <h1 className="text-3xl sm:text-4xl font-semibold leading-tight tracking-tight text-[#091540]">
+      <h1 className="text-3xl sm:text-4xl font-semibold leading-tight tracking-tight text-[#091540] break-words">
         Proyecto {data?.Name ?? "Nombre de Proyecto no Encontrado."}
       </h1>
 

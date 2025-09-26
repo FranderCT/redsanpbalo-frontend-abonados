@@ -2,7 +2,7 @@
 import { z } from "zod";
 
 export const ProjectBase = z.object({
-  Name: z.string().trim().min(3, "El nombre debe tener al menos 3 caracteres.").max(120, "El nombre no puede superar los 120 caracteres."),
+  Name: z.string().trim().min(3, "El nombre debe tener al menos 3 caracteres.").max(400, "El nombre no puede superar los 400 caracteres."),
   Location: z.string().trim().min(5, "La ubicación debe tener al menos 5 caracteres.").max(400, "La ubicación no puede superar los 400 caracteres."),
 
   InnitialDate: z.coerce.date({ required_error: "La fecha de inicio es obligatoria.", invalid_type_error: "La fecha de inicio no es válida." }),
