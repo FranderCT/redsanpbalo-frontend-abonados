@@ -45,6 +45,20 @@ export const newProjectInitialState: newProject = {
   UserId : 1
 };
 
+export interface UpdateProject{
+  Name?: string;
+  Location?: string;
+  InnitialDate?: Date;
+  EndDate?: Date;
+  Objective?:string;
+  Description?:string;
+  Observation?:string;
+  SpaceOfDocument?:string;
+  ProjectStateId?: number;
+  UserId?: number;
+  IsActive?: boolean;
+}
+
 export interface ProjectPaginationParams {
   page: number;
   limit: number;
