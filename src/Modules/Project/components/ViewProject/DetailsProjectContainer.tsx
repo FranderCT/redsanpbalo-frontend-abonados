@@ -53,7 +53,8 @@ export default function DetailsProjectContainer({ data }: Props) {
           >
             Exportar a PDF
           </button>
-        </div>
+        </div>  
+        
       </div>
 
       {/* ⬇️ MISMO contenedor y estilos. Solo agrego ref={printRef} */}
