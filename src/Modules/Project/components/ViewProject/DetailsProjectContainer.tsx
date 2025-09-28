@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import type { Project } from "../../Models/Project";
+import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
 
 type Props = { data: Project };
 
@@ -25,14 +26,16 @@ export default function DetailsProjectContainer({ data }: Props) {
     <>
       {/* Botón fuera del área a imprimir y oculto en PDF */}
       <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 pt-6 print:hidden">
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-5">
+          <CreateProjectTraceModal ProjectId={data.Id} ButtonName="Agregar Seguimiento"/>
           <button
             onClick={handlePrint}
-            className="px-4 py-2 rounded-lg bg-[#1789FC] text-white hover:opacity-90"
+            className="px-4 py-2 bg-[#1789FC] text-white hover:opacity-90"
           >
             Exportar a PDF
           </button>
-        </div>
+        </div>  
+        
       </div>
 
       {/* ⬇️ MISMO contenedor y estilos. Solo agrego ref={printRef} */}
