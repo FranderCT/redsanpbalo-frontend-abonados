@@ -1,7 +1,8 @@
 import React, { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import type { Project } from "../../Models/Project";
-import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
+import DeleteProjectButton from "../Modals/DeleteProjectModal";
+import { Edit2 } from "lucide-react";
 
 type Props = { data: Project };
 
@@ -26,8 +27,26 @@ export default function DetailsProjectContainer({ data }: Props) {
     <>
       {/* Botón fuera del área a imprimir y oculto en PDF */}
       <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 pt-6 print:hidden">
-        <div className="flex justify-end gap-5">
-          <CreateProjectTraceModal ProjectId={data.Id} ButtonName="Agregar Seguimiento"/>
+        <div className="flex justify-between">
+          <div className="flex flex-row gap-8">
+            <button
+            //onClick={}
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+              text-[#1789FC] border-[#1789FC]
+              hover:bg-[#1789FC] hover:text-[#F9F5FF] transition0"
+          >
+            <Edit2 className="w-4 h-4" />
+            Editar
+          </button>
+          {/* ⬅️ Botón de inhabilitar, a la par del Exportar */}
+          <DeleteProjectButton
+            projectSelected={data}
+            onSuccess={() => {
+              // aquí puedes disparar un refetch, cerrar panel, etc.
+              console.log("Proyecto inhabilitado con éxito");
+            }}
+          />
+          </div>
           <button
             onClick={handlePrint}
             className="px-4 py-2 bg-[#1789FC] text-white hover:opacity-90"
