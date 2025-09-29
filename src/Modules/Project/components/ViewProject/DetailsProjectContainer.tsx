@@ -1,9 +1,9 @@
 import React, { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import type { Project } from "../../Models/Project";
-import DeleteProjectButton from "../Modals/DeleteProjectModal";
 import { Edit2 } from "lucide-react";
 import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
+import { useNavigate } from "@tanstack/react-router";
 
 type Props = { data: Project };
 
@@ -16,7 +16,8 @@ function formatDate(d?: Date | string | null) {
 export default function DetailsProjectContainer({ data }: Props) {
   // ✅ Este ref apunta al MISMO contenedor que ya tenías, con las mismas clases
   const printRef = useRef<HTMLDivElement>(null);
-
+  
+  const navigate = useNavigate();
   // ⬇️ react-to-print v3: usa contentRef
   const handlePrint = useReactToPrint({
     contentRef: printRef,
@@ -31,29 +32,24 @@ export default function DetailsProjectContainer({ data }: Props) {
         <div className="flex justify-between">
           <div className="flex flex-row gap-8">
             <button
-            //onClick={}
-            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-              text-[#1789FC] border-[#1789FC]
-              hover:bg-[#1789FC] hover:text-[#F9F5FF] transition0"
+            onClick={() =>
+              navigate({
+                to: "/dashboard/projects/$projectId/edit",
+                params: { projectId: String(data.Id) },
+              })
+            }
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border text-[#1789FC] border-[#1789FC] hover:bg-[#1789FC] hover:text-white"
           >
             <Edit2 className="w-4 h-4" />
             Editar
           </button>
-          {/* ⬅️ Botón de inhabilitar, a la par del Exportar */}
-          <DeleteProjectButton
-            projectSelected={data}
-            onSuccess={() => {
-              // aquí puedes disparar un refetch, cerrar panel, etc.
-              console.log("Proyecto inhabilitado con éxito");
-            }}
-          />
-          </div>
           <button
             onClick={handlePrint}
             className="px-4 py-2 bg-[#1789FC] text-white hover:opacity-90"
           >
             Exportar a PDF
           </button>
+          </div>
           
           <CreateProjectTraceModal ProjectId={data.Id}/>
         </div>  

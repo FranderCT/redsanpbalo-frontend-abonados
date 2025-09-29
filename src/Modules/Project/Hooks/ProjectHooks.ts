@@ -2,8 +2,8 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
-import { createProject, deleteProject, getAllProjects, getProjectById, searchProjects } from "../Services/ProjectServices";
-import type { Project, ProjectPaginationParams } from "../Models/Project";
+import { createProject, deleteProject, getAllProjects, getProjectById, searchProjects, updateProject } from "../Services/ProjectServices";
+import type { Project, ProjectPaginationParams, UpdateProject } from "../Models/Project";
 
 // Obtener todos
 export const useGetAllProjects = () => {
@@ -81,22 +81,22 @@ export const useCreateProject = () => {
 };
 
 // Actualizar
-// export const useUpdateProject = () => {
-//   const qc = useQueryClient();
+ export const useUpdateProject = () => {
+   const qc = useQueryClient();
   
-//   const mutation = useMutation<Project, Error, {id: number; data: updateProjectDto }>({
-//       mutationFn: ({id, data}) => updateProject(id, data),
-//       onSuccess :(res)=>{
-//           console.log('Proyecto Actualizado', console.log(res))
-//           qc.invalidateQueries({queryKey: [`projects`]})
-//       },
-//       onError: (err) =>{
-//           console.error(err);
-//       }
-//   })
+   const mutation = useMutation<Project, Error, {id: number; data: UpdateProject }>({
+       mutationFn: ({id, data}) => updateProject(id, data),
+       onSuccess :(res)=>{
+           console.log('Proyecto Actualizado', console.log(res))
+           qc.invalidateQueries({queryKey: [`projects`]})
+       },
+       onError: (err) =>{
+           console.error(err);
+       }
+   })
 
-//   return mutation;
-// };
+   return mutation;
+ };
 
 // Eliminar
 export const useDeleteProject = () => {
