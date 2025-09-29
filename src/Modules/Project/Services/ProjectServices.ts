@@ -1,7 +1,7 @@
 // Services/MaterialServices.ts
 import apiAxios from "../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
-import type { newProject, Project, ProjectPaginationParams } from "../Models/Project";
+import type { newProject, Project, ProjectPaginationParams, UpdateProject } from "../Models/Project";
 
 const BASE = "/project"; 
 // export async function getProjectCard(): Promise<Project> {
@@ -54,15 +54,15 @@ export async function createProject(payload: newProject): Promise<newProject> {
   }
 }
 
-// export async function updateProject(id: number, payload: updateProjectDto): Promise<Project> {
-//   try{
-//     const {data} = await apiAxios.patch<Project>(`${BASE}/${id}`, payload)
-//     return data;
-//   }catch(err){
-//     console.log('Error descondico',err)
-//     return Promise.reject(err)
-//   }
-// }
+export async function updateProject(id: number, payload: UpdateProject): Promise<Project> {
+   try{
+     const {data} = await apiAxios.put<Project>(`${BASE}/${id}`, payload)
+     return data;
+   }catch(err){
+     console.log('Error descondico',err)
+     return Promise.reject(err)
+   }
+ }
 
 export async function deleteProject(id: number): Promise<void> {
   try{
