@@ -19,7 +19,7 @@ export default function HeaderPaanee() {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0"><path d="M12 22s8-4.5 8-12a8 8 0 1 0-16 0c0 7.5 8 12 8 12Z" stroke="#1789FC" strokeWidth="2"/><circle cx="12" cy="10" r="3" stroke="#1789FC" strokeWidth="2"/></svg>
-              <span className="hidden sm:block">2072 Pinnickinick Street, WA 98370</span>
+              <span className="hidden sm:block">San Pablo, Nandayure</span>
             </div>
             <div className="flex items-center gap-2">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="shrink-0"><path d="M4 6h16v12H4z" stroke="#1789FC" strokeWidth="2"/><path d="m4 7 8 6 8-6" stroke="#1789FC" strokeWidth="2"/></svg>
