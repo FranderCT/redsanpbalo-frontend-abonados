@@ -5,6 +5,7 @@ import { useSearchSuppliers } from "../Hooks/SupplierHooks";
 import type { Supplier } from "../Models/Supplier";
 import SupplierHeaderBar from "../Components/SupplierHeaderBar";
 import CreatePhysicalSupplierModal from "../../PhysicalSupplier/Components/Modals/CreatePhysicalSupplierModal";
+import CreateLegalSupplierModal from "../../LegalSupplier/Components/Modals/CreateLegalSupplierModal";
 
 export default function ListSuppliers() {
   const [page, setPage] = useState(1);   // 1-based
@@ -58,7 +59,7 @@ export default function ListSuppliers() {
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
-        rightAction={<CreatePhysicalSupplierModal />}
+        rightAction={<CreateLegalSupplierModal />}
       />
 
       <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
