@@ -28,3 +28,20 @@ export async function getAllPhysicalSupplier (
         return Promise.reject(err);
     }
 }
+
+export async function editPhysicalSupplier (Id : number, payload: newPhysicalSupplier) : Promise<PhysicalSupplier>{
+    try{
+        const {data} = await apiAxios.put<PhysicalSupplier>(`${BASE}/${Id}`, payload)
+        return data;
+    }catch(err){
+        return Promise.reject(err);
+    }
+}
+
+export async function deletePhysicalSupplier (Id : number) : Promise<void>{
+    try{
+        await apiAxios.delete(`${BASE}/${Id}`)
+    }catch(err){
+        return Promise.reject(err);
+    }
+}

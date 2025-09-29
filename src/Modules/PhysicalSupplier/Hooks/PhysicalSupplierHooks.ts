@@ -1,8 +1,8 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createPhysicalSupplier, getAllPhysicalSupplier } from "../Services/PhysicalSupplier";
+import { createPhysicalSupplier, deletePhysicalSupplier, editPhysicalSupplier, getAllPhysicalSupplier } from "../Services/PhysicalSupplier";
 import { toast } from "react-toastify";
 import type { ProductPaginationParams } from "../../Products/Models/CreateProduct";
-import type { PhysicalSupplier } from "../Models/PhysicalSupplier";
+import type { newPhysicalSupplier, PhysicalSupplier } from "../Models/PhysicalSupplier";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
 
@@ -52,4 +52,39 @@ export const useSearchPhysicalSupplier = (params: ProductPaginationParams) => {
     }, [query.data, params]);
 
     return query;
+};
+
+
+export const useEditPhysicalSupplier= () =>{
+    const qc = useQueryClient();
+
+    const mutation = useMutation<PhysicalSupplier, Error, {id: number; data: newPhysicalSupplier }>({
+        mutationFn: ({id, data}) => editPhysicalSupplier(id, data),
+        onSuccess :(res)=>{
+            console.log('proveedor actualizado', console.log(res))
+            qc.invalidateQueries({queryKey: [`suppliers`]})
+            toast.success('Proveedor actualizado con éxito ', {position: 'top-right', autoClose: 3000})
+        },
+        onError: (err) =>{
+            console.error(err);
+            toast.error('Error al actualizar proveedor', {position: 'top-right', autoClose: 3000})
+        }
+    })
+
+    return mutation;
+}
+
+
+export const useDeletePhysicalSupplier = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (id: number) => deletePhysicalSupplier(id),
+        onSuccess: (res) => {
+            qc.invalidateQueries({ queryKey: ["products"] });
+            console.log("Producto inhabilitado", res);
+        },
+        onError: (err)=>{
+            console.error("Error al inhabilitar", err);
+        }
+    });
 };

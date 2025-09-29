@@ -2,6 +2,9 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import type { PhysicalSupplier } from "../../Models/PhysicalSupplier";
 import { PhysicalSupplierColumns } from "./PhysicalSupplierColumns";
 import ProductPager from "../../../Products/Components/PaginationProducts/ProductPager";
+import { useState } from "react";
+import EditPhysicalSupplierModal from "../Modals/EditPhysicalSupplierModal";
+import DeletePhysicalSupplierModal from "../Modals/DeletePhysicalSupplierModal";
 
 type Props = {
   data: PhysicalSupplier[];
@@ -12,18 +15,37 @@ type Props = {
 };
 
 export default function PhysicalSupplierTable({ data, total, page, pageCount, onPageChange }: Props) {
-  
+  const [editingSupplier, setEditingSupplier] = useState<PhysicalSupplier | null>(null);
+  const [deletingSupplier, setDeletingSupplier] = useState<PhysicalSupplier | null>(null);
 
   const table = useReactTable({
     data,
     columns: PhysicalSupplierColumns(
-      
+      (supplier) => setEditingSupplier(supplier),
+      (supplier) => setDeletingSupplier(supplier) // ← NUEVO
     ),
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
     <div className="w-full">
+
+      {editingSupplier && (
+        <EditPhysicalSupplierModal
+        supplier={editingSupplier}
+        open={true}
+        onClose={() => setEditingSupplier(null)}
+        onSuccess={() => setEditingSupplier(null)}
+      />
+      )}
+
+      {deletingSupplier && (
+      <DeletePhysicalSupplierModal
+        supplier={deletingSupplier}
+        onSuccess={() => setDeletingSupplier(null)}
+      />
+      )}
+
       
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
