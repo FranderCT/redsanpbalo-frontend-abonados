@@ -98,7 +98,7 @@ const CreatePhysicalSupplierModal = () => {
                             </span>
                             <input
                                 className={`${INPUTSTYLES}`}
-                                placeholder="ejm. Coopecerroazul"
+                                placeholder="ejm. José Daniel Román"
                                 value={field.state.value}
                                 onChange={(e) => field.handleChange(e.target.value)}
                             />
@@ -116,7 +116,7 @@ const CreatePhysicalSupplierModal = () => {
                             </span>
                             <input
                                 className={`${INPUTSTYLES}`}
-                                placeholder="ejm. coopecerroazul@gmail.com"
+                                placeholder="ejm. joseroman2@gmail.com"
                                 value={field.state.value}
                                 onChange={(e) => field.handleChange(e.target.value)}
                             />
