@@ -3,6 +3,7 @@ import { useState } from "react"
 import { useCreatePhysicalSupplier } from "../../Hooks/PhysicalSupplierHooks";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { toast } from "react-toastify";
+import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 
 
 const CreatePhysicalSupplierModal = () => {
@@ -10,8 +11,9 @@ const CreatePhysicalSupplierModal = () => {
     const CreateSupplierMutation = useCreatePhysicalSupplier();
     const handleClose=()=>{
           toast.warning("Seguimiento cancelado",{position:"top-right",autoClose:3000});
-          setOpen(false);  
-      } // se envia un mensaje que se cerró la creación del seguimineto
+          setOpen(false);
+          form.reset();
+    } // se envia un mensaje que se cerró la creación del seguimineto
     
     const SPANSTYLES = 'text text-[#222]';
     const LABELSTYLES = 'grid gap-1';
@@ -49,7 +51,7 @@ const CreatePhysicalSupplierModal = () => {
         <ModalBase
             open={open}
             onClose={handleClose}
-            panelClassName="w-[min(30vw,700px)] p-4 rounded-lg"
+            panelClassName="w-[min(30vw,700px)] p-4 "
         >
             <header
                 className="flex flex-col"
@@ -125,20 +127,25 @@ const CreatePhysicalSupplierModal = () => {
                     )}
                 </form.Field>
 
-                <form.Field name='PhoneNumber'>
+                <form.Field name="PhoneNumber">
                     {(field) => (
                     <>
-                        <label className={`${LABELSTYLES}`}>
-                            <span className={`${SPANSTYLES}`}>
-                                Número de teléfono del proveedor
-                            </span>
-                            <input
-                                className={`${INPUTSTYLES}`}
-                                placeholder="ejm. 86505959"
-                                value={field.state.value}
-                                onChange={(e) => field.handleChange(e.target.value)}
-                            />
-                        </label>
+                        <PhoneField
+                            value={field.state.value}            
+                            onChange={(val) => field.handleChange(val ?? "")} 
+                            defaultCountry="CR"
+                            required
+                            error={
+                                field.state.meta.isTouched && field.state.meta.errors[0]
+                                ? String(field.state.meta.errors[0])
+                                : undefined
+                            }
+                        />
+                            {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                            )}
                     </>
                     )}
                 </form.Field>
@@ -150,9 +157,10 @@ const CreatePhysicalSupplierModal = () => {
                             <span className={`${SPANSTYLES}`}>
                                 Dirección del proveedor
                             </span>
-                            <input
-                                className={`${INPUTSTYLES}`}
+                            <textarea
+                                className={`${INPUTSTYLES} resize-none min-h-[70px] leading-relaxed`}
                                 placeholder="ejm. 150 metros este del banco nacional en carmona"
+                                rows={4} 
                                 value={field.state.value}
                                 onChange={(e) => field.handleChange(e.target.value)}
                             />
