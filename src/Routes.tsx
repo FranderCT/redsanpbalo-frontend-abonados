@@ -9,12 +9,14 @@ import { uniteMeasureRoute } from "./Modules/UnitMeasure/routes/RoutesUnitMeasur
 import { productsRoutes } from "./Modules/Products/routes/ProductsRoutes";
 import { listSupplierRoute, newSupplierRoute, supplierRoute, viewSuppliertRoute } from "./Modules/Supplier/Routes/SuppliersRoutes";
 import { createProjectRoute, listProjectRoute, projectRoute, viewProjectRoute } from "./Modules/Project/Routes/ProjectsRoutes";
+import HeroPage from "./Modules/Lading/HeroPage";
 
 export const rootRoute = createRootRoute();
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
+  component: HeroPage
 })
 
 export const routeTree = rootRoute.addChildren([
