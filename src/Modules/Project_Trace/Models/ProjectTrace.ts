@@ -11,7 +11,6 @@ export interface ProjectTrace {
 
 export interface newProjectTrace {
     Name : string;
-    Date : Date;
     Observation : string; 
     ProjectId : number  
 }

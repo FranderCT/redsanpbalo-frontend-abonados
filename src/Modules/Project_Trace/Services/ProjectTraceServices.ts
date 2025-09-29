@@ -1,7 +1,7 @@
 import apiAxios from "../../../api/apiConfig";
 import type { newProjectTrace, ProjectTrace } from "../Models/ProjectTrace";
 
-const BASE = 'project-trace';
+const BASE = 'trace-project';
 
 export async function createProjectTrace (payloads : newProjectTrace) : Promise<ProjectTrace>{
     try{

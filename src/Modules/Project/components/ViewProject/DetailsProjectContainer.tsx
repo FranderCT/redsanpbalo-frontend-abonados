@@ -3,6 +3,7 @@ import { useReactToPrint } from "react-to-print";
 import type { Project } from "../../Models/Project";
 import DeleteProjectButton from "../Modals/DeleteProjectModal";
 import { Edit2 } from "lucide-react";
+import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
 
 type Props = { data: Project };
 
@@ -53,6 +54,8 @@ export default function DetailsProjectContainer({ data }: Props) {
           >
             Exportar a PDF
           </button>
+          
+          <CreateProjectTraceModal ProjectId={data.Id}/>
         </div>  
         
       </div>

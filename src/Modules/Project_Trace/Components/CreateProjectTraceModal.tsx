@@ -1,141 +1,126 @@
-import { useEffect, useState } from 'react';
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { ModalBase } from "../../../Components/Modals/ModalBase";
+import type { newProjectTrace } from "../Models/ProjectTrace";
+import { useCreateProjectTrace } from "../Hooks/ProjectTraceHooks";
+import { useForm } from "@tanstack/react-form";
 
 type Props = {
-  ProjectId?: number;
-  ButtonName: string;
-  closeOnEsc?: boolean;       // default: true
-  closeOnOutside?: boolean;   // default: true
+  ProjectId: number;
 }
 
-const CreateProjectTraceModal = ({
-  ProjectId,
-  ButtonName,
-  closeOnOutside = true,
-  closeOnEsc = true,
-}: Props) => {
-  const [open, setOpen] = useState(false);
+const CreateProjectTraceModal = ({ProjectId} : Props) => {
+  const [open, setOpen] = useState(false) // manejar estado de abierto y cerrado
+  const handleClose=()=>{
+      toast.warning("Seguimiento cancelado",{position:"top-right",autoClose:3000});
+      setOpen(false);  
+  } // se envia un mensaje que se cerró la creación del seguimineto
 
-  // Cerrar con ESC
-  useEffect(() => {
-    if (!open || !closeOnEsc) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open, closeOnEsc]);
+  const useCreateProjectTraceMutation = useCreateProjectTrace();
 
+  const form = useForm({
+    defaultValues:{
+      Name : '',
+      Observation : '',
+      ProjectId // proviene de las props
+    },
+    onSubmit: async ({value})=> {
 
+      const projectTracePayloads : newProjectTrace ={
+        Name: value.Name,
+        Observation: value.Observation,
+        ProjectId: ProjectId //-> proviene de las props
+      } // datos que espera el project trace
 
-
-  
+      try{
+        await useCreateProjectTraceMutation.mutateAsync(projectTracePayloads);
+        toast.success('Seguimineto creado', {position: 'top-right', autoClose: 3000})
+        setOpen(false);
+        form.reset;
+      }catch(err){
+        console.error(err);
+        toast.error('Error al crear el seguimiento ', {position: 'top-right', autoClose: 3000})
+      }
+    } // final del onSubmit
+  })
 
   return (
     <>
-      {/* Botón de apertura */}
       <button
         onClick={() => setOpen(true)}
-        className="px-4 py-2  bg-[#1789FC] text-white hover:opacity-90"
+        className="px-4 py-2 bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
       >
-        {ButtonName}
-      </button>
-
-      {/* Modal */}
-      {open && (
-        <div
-          className="fixed inset-0 z-50"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="trace-modal-title"
+        + Crear seguimiento de proyecto
+      </button> {/*Boton para crear un seguimiento*/}
+    
+      <ModalBase
+        open={open}
+        onClose={handleClose}
+        panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl"
+      >
+        <form 
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+          className="grid gap-3"
         >
-          {/* Overlay */}
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={closeOnOutside ? () => setOpen(false) : undefined}
-          />
 
-          {/* Contenido */}
-          <div
-            className="
-              relative mx-auto mt-24 w-full max-w-xl
-              bg-white text-[#091540]
-              border border-[#091540] rounded-none
-              shadow-lg
-            "
-            // Evita cerrar al hacer click dentro
-            onClick={(e) => e.stopPropagation()}
-          >
-            <header className="flex items-center justify-between px-4 py-3 border-b border-[#D9DBE9]">
-              <h2 id="trace-modal-title" className="text-lg font-semibold">
-                Agregar seguimiento
-              </h2>
-              <button
-                onClick={() => setOpen(false)}
-                aria-label="Cerrar"
-                className="
-                  px-2 py-1
-                  text-[#091540]
-                  border border-transparent
-                  hover:border-[#091540]
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1789FC]
-                "
-              >
-                ✕
-              </button>
-            </header>
+          <form.Field name="Name">
+            {(field) => (
+              <>
+                <label className="grid gap-1">
+                  <input
+                    className="w-full px-4 py-2 bg-gray-50 border"
+                    placeholder="Nombre del Seguimineto"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                </label>
+              </>
+            )}
+          </form.Field>
 
-            {/* aqui empieza el contenido dentro del formulario*/}
+          <form.Field name="Observation">
+            {(field) => (
+              <>
+                <label className="grid gap-1">
+                  <input
+                    className="w-full px-4 py-2 bg-gray-50 border"
+                    placeholder="Escriba la observacion a realizar"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                </label>
+              </>
+            )}
+          </form.Field>
 
-            <div className="p-4">
-              <p className="text-sm text-[#4B5563]">
-                Proyecto ID: <span className="font-medium">{ProjectId ?? '—'}</span>
-              </p>
-              {/* Aquí va tu formulario / contenido del seguimiento */}
-              <div className="mt-3 text-sm text-[#4B5563]">
-                (Formulario de seguimiento pendiente…)
-              </div>
-            </div>
+          <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+            {([canSubmit, isSubmitting]) => (
+                <div className="mt-4 flex justify-end gap-2">
+                  <button
+                    type="submit"
+                    className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
+                    disabled={!canSubmit}
+                  >
+                    {isSubmitting ? "Registrando…" : "Registrar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    className="h-10 px-4 bg-gray-200 hover:bg-gray-300">
+                    Cancelar
+                  </button>
+                </div>
+              )}
+          </form.Subscribe>
 
+        </form> {/*final del formulario*/}
+      </ModalBase>{/*final del Modal*/}
 
-
-            {/* aqui termina el contenido dentro del formulario*/}
-
-            <footer className="flex items-center justify-end gap-2 px-4 py-3 border-t border-[#D9DBE9]">
-              <button
-                onClick={() => setOpen(false)}
-                className="
-                  inline-flex items-center justify-center
-                  px-3 py-2
-                  bg-transparent text-[#091540]
-                  border border-[#091540]
-                  rounded-none
-                  hover:bg-[#091540] hover:text-white
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1789FC]
-                  transition-colors
-                "
-              >
-                Cancelar
-              </button>
-              <button
-                className="
-                  inline-flex items-center justify-center
-                  px-4 py-2
-                  bg-[#1789FC] text-white
-                  border border-[#1789FC]
-                  rounded-none
-                  hover:bg-[#0F6FD0] hover:border-[#0F6FD0]
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1789FC]
-                  transition-colors
-                "
-              >
-                Guardar
-              </button>
-            </footer>
-          </div>
-        </div>
-      )}
     </>
-  );
-};
+  )
+}
 
-export default CreateProjectTraceModal;
+export default CreateProjectTraceModal
