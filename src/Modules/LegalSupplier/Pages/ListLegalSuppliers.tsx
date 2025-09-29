@@ -1,12 +1,14 @@
 import { useState, useMemo } from "react";
 import ProductHeaderBar from "../../Products/Components/PaginationProducts/ProductHeaderBar";
-import PhysicalSupplierTable from "../Components/PhysicalSupplierTable/PhysicalSupplierTable";
-import type { PhysicalSupplier } from "../Models/PhysicalSupplier";
-import { useSearchPhysicalSupplier } from "../Hooks/PhysicalSupplierHooks";
-import CreatePhysicalSupplierModal from "../Components/Modals/CreatePhysicalSupplierModal";
+import { useSearchLegalSupplier } from "../Hooks/LegalSupplierHooks";
+import type { LegalSupplier } from "../Models/LegalSupplier";
+import LegalSupplierTable from "../Components/Table/LegalSupplierTable";
+import CreateLegalSupplierModal from "../Components/Modals/CreateLegalSupplierModal";
+import ListPhysicalSuppliers from "../../PhysicalSupplier/Pages/ListPhysicalSuppliers";
 
 
-export default function ListPhysicalSuppliers() {
+
+export default function ListLegalSuppliers() {
   const [page, setPage] = useState(1);   // 1-based
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
@@ -34,18 +36,18 @@ export default function ListPhysicalSuppliers() {
   }
   
   const params = useMemo(() => ({ page, limit, name, state }), [page, limit, name, state]);
-  const { data, isLoading, error } = useSearchPhysicalSupplier(params);
+  const { data, isLoading, error } = useSearchLegalSupplier(params);
 
-  const rows: PhysicalSupplier[] = data?.data ?? [];
+  const rows: LegalSupplier[] = data?.data ?? [];
   const meta = data?.meta ?? {
     total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false,
   };
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-[#091540]">Lista proveedores físicos</h1>
+      <h1 className="text-2xl font-bold text-[#091540]">Lista proveedores jurídicos</h1>
         <p className="text-[#091540]/70 text-md">
-            Gestione todos los proveedores físicos
+            Gestione todos los proveedores jurídicos
         </p>
         <div className="border-b border-dashed border-gray-300 mb-8"></div>
 
@@ -57,7 +59,7 @@ export default function ListPhysicalSuppliers() {
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
-        rightAction={<CreatePhysicalSupplierModal />}
+        rightAction={<CreateLegalSupplierModal />}
       />
 
       <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
@@ -66,7 +68,7 @@ export default function ListPhysicalSuppliers() {
         ) : error ? (
           <div className="p-6 text-center text-red-600">Ocurrió un error al cargar los Productos.</div>
         ) : (
-          <PhysicalSupplierTable
+          <LegalSupplierTable
             data={rows}
             total={meta.total}
             page={meta.page}               // <- pasa paginación al footer
@@ -75,6 +77,8 @@ export default function ListPhysicalSuppliers() {
           />
         )}
       </div>
+
+      <ListPhysicalSuppliers />
 
     </div>
   );
