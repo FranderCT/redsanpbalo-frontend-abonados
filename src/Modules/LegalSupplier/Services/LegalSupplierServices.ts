@@ -29,3 +29,12 @@ export async function getAllLegalSupplier (
         return Promise.reject(err);
     }
 }
+
+export async function editLegalSupplier (Id : number, payload: newLegalSupplier) : Promise<LegalSupplier>{
+    try{
+        const {data} = await apiAxios.put<LegalSupplier>(`${BASE}/${Id}`, payload)
+        return data;
+    }catch(err){
+        return Promise.reject(err);
+    }
+}

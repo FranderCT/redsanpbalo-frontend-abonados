@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createLegalSupplier, getAllLegalSupplier } from "../Services/LegalSupplierServices";
+import { createLegalSupplier, editLegalSupplier, getAllLegalSupplier } from "../Services/LegalSupplierServices";
 import { toast } from "react-toastify";
-import type { LegalSupplier } from "../Models/LegalSupplier";
+import type { LegalSupplier, newLegalSupplier } from "../Models/LegalSupplier";
 import type { ProductPaginationParams } from "../../Products/Models/CreateProduct";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
@@ -53,3 +53,23 @@ export const useSearchLegalSupplier = (params: ProductPaginationParams) => {
 
     return query;
 };
+
+
+export const useEditLegalSupplier= () =>{
+    const qc = useQueryClient();
+
+    const mutation = useMutation<LegalSupplier, Error, {id: number; data: newLegalSupplier }>({
+        mutationFn: ({id, data}) => editLegalSupplier(id, data),
+        onSuccess :(res)=>{
+            console.log('proveedor actualizado', console.log(res))
+            qc.invalidateQueries({queryKey: [`suppliers`]})
+            toast.success('Proveedor actualizado con éxito ', {position: 'top-right', autoClose: 3000})
+        },
+        onError: (err) =>{
+            console.error(err);
+            toast.error('Error al actualizar proveedor', {position: 'top-right', autoClose: 3000})
+        }
+    })
+
+    return mutation;
+}

@@ -3,6 +3,8 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import ProductPager from "../../../Products/Components/PaginationProducts/ProductPager";
 import type { LegalSupplier } from "../../Models/LegalSupplier";
 import { LegalSupplierColumns } from "./LegalSupplierColumns";
+import { useState } from "react";
+import EditLegalSupplierModal from "../Modals/EditLegalSupplierModal";
 
 type Props = {
   data: LegalSupplier[];
@@ -13,18 +15,27 @@ type Props = {
 };
 
 export default function LegalSupplierTable({ data, total, page, pageCount, onPageChange }: Props) {
-  
+  const [editingSupplier, setEditingSupplier] = useState<LegalSupplier | null>(null);
 
   const table = useReactTable({
     data,
     columns: LegalSupplierColumns(
-      
+      (supplier) => setEditingSupplier(supplier),
     ),
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
     <div className="w-full">
+
+      {editingSupplier && (
+        <EditLegalSupplierModal
+        supplier={editingSupplier}
+        open={true}
+        onClose={() => setEditingSupplier(null)}
+        onSuccess={() => setEditingSupplier(null)}
+      />
+      )}
       
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>

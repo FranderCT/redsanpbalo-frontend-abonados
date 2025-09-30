@@ -7,14 +7,16 @@ export interface LegalSupplier{
     PhoneNumber: string;
     Location: string;
     WebSite: string;
+    IsActive : boolean
 }
 
 export interface newLegalSupplier {
-    LegalID : string;
-    CompanyName : string;
-    Email : string;
-    PhoneNumber: string;
-    Location: string;
-    WebSite: string;       
+    LegalID?: string;
+    CompanyName?: string;
+    Email?: string;
+    PhoneNumber?: string;
+    Location?: string;
+    WebSite?: string;
+    IsActive? : boolean
 }
 
