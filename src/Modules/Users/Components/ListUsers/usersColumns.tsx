@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { User } from "../../Models/User";
-import { Edit2, Info, InfoIcon } from "lucide-react";
+import { Edit2, InfoIcon } from "lucide-react";
 import DeleteUserButton from "./DeleteUserButton";
 
 

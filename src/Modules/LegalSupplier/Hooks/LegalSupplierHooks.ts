@@ -1,16 +1,16 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createPhysicalSupplier, deletePhysicalSupplier, editPhysicalSupplier, getAllPhysicalSupplier } from "../Services/PhysicalSupplier";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createLegalSupplier, editLegalSupplier, getAllLegalSupplier } from "../Services/LegalSupplierServices";
 import { toast } from "react-toastify";
+import type { LegalSupplier, newLegalSupplier } from "../Models/LegalSupplier";
 import type { ProductPaginationParams } from "../../Products/Models/CreateProduct";
-import type { newPhysicalSupplier, PhysicalSupplier } from "../Models/PhysicalSupplier";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
 
-export const useCreatePhysicalSupplier = () =>{
+export const useCreateLegalSupplier = () =>{
     const qc = useQueryClient();
     const mutation = useMutation({
-        mutationKey: ['physical-supplier'],
-        mutationFn: createPhysicalSupplier,
+        mutationKey: ['legal-supplier'],
+        mutationFn: createLegalSupplier,
         onSuccess: (res) => {
             console.log(res);
             qc.invalidateQueries({queryKey: ['physical-supplier']});
@@ -25,10 +25,10 @@ export const useCreatePhysicalSupplier = () =>{
 }
 
 
-export const useSearchPhysicalSupplier = (params: ProductPaginationParams) => {
-    const query = useQuery<PaginatedResponse<PhysicalSupplier>, Error>({
-        queryKey: ["physical-supplier", "search", params],
-        queryFn: () => getAllPhysicalSupplier(params),
+export const useSearchLegalSupplier = (params: ProductPaginationParams) => {
+    const query = useQuery<PaginatedResponse<LegalSupplier>, Error>({
+        queryKey: ["legal-supplier", "search", params],
+        queryFn: () => getAllLegalSupplier(params),
         placeholderData: keepPreviousData,   // v5
         staleTime: 30_000,
     });
@@ -38,7 +38,7 @@ export const useSearchPhysicalSupplier = (params: ProductPaginationParams) => {
         if (query.data) {
         const res = query.data; // res: PaginatedResponse<Category>
         console.log(
-            "[physical-supplier fetched]",
+            "[legal-supplier fetched]",
             {
             page: res.meta.page,
             limit: res.meta.limit,
@@ -55,14 +55,14 @@ export const useSearchPhysicalSupplier = (params: ProductPaginationParams) => {
 };
 
 
-export const useEditPhysicalSupplier= () =>{
+export const useEditLegalSupplier= () =>{
     const qc = useQueryClient();
 
-    const mutation = useMutation<PhysicalSupplier, Error, {id: number; data: newPhysicalSupplier }>({
-        mutationFn: ({id, data}) => editPhysicalSupplier(id, data),
+    const mutation = useMutation<LegalSupplier, Error, {id: number; data: newLegalSupplier }>({
+        mutationFn: ({id, data}) => editLegalSupplier(id, data),
         onSuccess :(res)=>{
             console.log('proveedor actualizado', console.log(res))
-            qc.invalidateQueries({queryKey: [`physical-supplier`]})
+            qc.invalidateQueries({queryKey: [`legal-supplier`]})
             toast.success('Proveedor actualizado con éxito ', {position: 'top-right', autoClose: 3000})
         },
         onError: (err) =>{
@@ -73,18 +73,3 @@ export const useEditPhysicalSupplier= () =>{
 
     return mutation;
 }
-
-
-export const useDeletePhysicalSupplier = () => {
-    const qc = useQueryClient();
-    return useMutation({
-        mutationFn: (id: number) => deletePhysicalSupplier(id),
-        onSuccess: (res) => {
-            qc.invalidateQueries({ queryKey: ["products"] });
-            console.log("Producto inhabilitado", res);
-        },
-        onError: (err)=>{
-            console.error("Error al inhabilitar", err);
-        }
-    });
-};
