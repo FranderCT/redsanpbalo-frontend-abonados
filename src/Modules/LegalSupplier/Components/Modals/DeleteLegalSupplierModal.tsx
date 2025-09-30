@@ -2,20 +2,19 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { Trash } from "lucide-react";
-import type { PhysicalSupplier } from "../../Models/PhysicalSupplier";
-import { useDeletePhysicalSupplier } from "../../Hooks/PhysicalSupplierHooks";
+import type { LegalSupplier } from "../../Models/LegalSupplier";
 
 
 
 type Props = {
-    supplier: PhysicalSupplier;
+    legalsupplier: LegalSupplier;
     onSuccess?: () => void;
 };
 
-export default function DeletePhysicalSupplierModal({ supplier, onSuccess }: Props) {
+export default function DeletePhysicalSupplierModal({ legalsupplier, onSuccess }: Props) {
     const [open, setOpen] = useState(false);
     const [busy, setBusy] = useState(false);
-    const deleteSupplierMutation = useDeletePhysicalSupplier();
+    const deleteLegalSupplierMutation = useDeleteLegalSupplier();
     const handleClose = () =>{
     toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
     setOpen(false);
@@ -23,13 +22,13 @@ export default function DeletePhysicalSupplierModal({ supplier, onSuccess }: Pro
     const handleConfirm = async () => {
         try {
         setBusy(true);
-        await deleteSupplierMutation.mutateAsync(supplier.Id);
-        toast.success("Proveedor físico inhabilitado", {position: 'top-right', autoClose: 3000});
+        await deleteLegalSupplierMutation.mutateAsync(legalsupplier.Id);
+        toast.success("Proveedor jurídico inhabilitado", {position: 'top-right', autoClose: 3000});
         setOpen(false);
         onSuccess?.();
         } catch (err) {
-        console.error("Error al inhabilitar proveedor físico:", err);
-        toast.error("No se pudo inhabilitar el proveedor físico", {position: 'top-right', autoClose: 3000});
+        console.error("Error al inhabilitar proveedor jurídico:", err);
+        toast.error("No se pudo inhabilitar el proveedor jurídico", {position: 'top-right', autoClose: 3000});
         } finally {
         setBusy(false);
         }
@@ -53,7 +52,7 @@ export default function DeletePhysicalSupplierModal({ supplier, onSuccess }: Pro
             <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
             <InhabilityActionModal
                 title="¿Inhabilitar proveedor?"
-                description={`Se inhabilitará el proveedor "${supplier.Name ?? ""}".`}
+                description={`Se inhabilitará el proveedor "${legalsupplier.CompanyName ?? ""}".`}
                 cancelLabel="Cancelar"
                 confirmLabel="Inhabilitar"
                 onConfirm={handleConfirm}

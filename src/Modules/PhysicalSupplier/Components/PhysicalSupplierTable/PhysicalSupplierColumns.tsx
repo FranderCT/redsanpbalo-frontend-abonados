@@ -1,10 +1,11 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { PhysicalSupplier } from "../../Models/PhysicalSupplier";
 import { Edit2, InfoIcon, Trash } from "lucide-react";
+import DeletePhysicalSupplierModal from "../Modals/DeletePhysicalSupplierModal";
 
 export const PhysicalSupplierColumns = (
   onEdit: (physicalSupplier: PhysicalSupplier) => void,
-  onDelete: (physicalSupplier: PhysicalSupplier) => void,
+  //onDelete: (physicalSupplier: PhysicalSupplier) => void,
   onGetInfo :  (physicalSupplier : PhysicalSupplier) => void,
 //   onGetInfo: (product: Product) => void
 ): ColumnDef<PhysicalSupplier>[] => [
@@ -40,15 +41,9 @@ export const PhysicalSupplierColumns = (
             <Edit2 className="w-4 h-4" />
             Editar
           </button>
-           <button
-            onClick={() => onDelete(supplier)}
-            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-                       text-[#F6132D] border-[#F6132D]
-                       hover:bg-[#F6132D] hover:text-[#F9F5FF] transition"
-          >
-            <Trash className="w-4 h-4" />
-            Inhabilitar
-          </button>
+
+          {/* Desactivar */}
+          <DeletePhysicalSupplierModal supplier={supplier} />
         </div>
       );
     }

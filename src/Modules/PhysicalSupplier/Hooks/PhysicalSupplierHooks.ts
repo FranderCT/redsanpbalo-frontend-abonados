@@ -80,8 +80,8 @@ export const useDeletePhysicalSupplier = () => {
     return useMutation({
         mutationFn: (id: number) => deletePhysicalSupplier(id),
         onSuccess: (res) => {
-            qc.invalidateQueries({ queryKey: ["products"] });
-            console.log("Producto inhabilitado", res);
+            qc.invalidateQueries({ queryKey: ["physical-supplier"] });
+            console.log("Proveedor físico inhabilitado", res);
         },
         onError: (err)=>{
             console.error("Error al inhabilitar", err);

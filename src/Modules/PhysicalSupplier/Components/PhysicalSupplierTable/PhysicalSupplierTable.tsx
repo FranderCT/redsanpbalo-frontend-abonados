@@ -4,7 +4,6 @@ import { PhysicalSupplierColumns } from "./PhysicalSupplierColumns";
 import ProductPager from "../../../Products/Components/PaginationProducts/ProductPager";
 import { useState } from "react";
 import EditPhysicalSupplierModal from "../Modals/EditPhysicalSupplierModal";
-import DeletePhysicalSupplierModal from "../Modals/DeletePhysicalSupplierModal";
 import GetInfoPhysicalSupplierModal from "../Modals/GetInfoPhysicalSupplierModal";
 
 type Props = {
@@ -17,14 +16,13 @@ type Props = {
 
 export default function PhysicalSupplierTable({ data, total, page, pageCount, onPageChange }: Props) {
   const [editingSupplier, setEditingSupplier] = useState<PhysicalSupplier | null>(null);
-  const [deletingSupplier, setDeletingSupplier] = useState<PhysicalSupplier | null>(null);
+  //const [deletingSupplier, setDeletingSupplier] = useState<PhysicalSupplier | null>(null);
   const [getInfoSupplier, setGetInfoSupplier] = useState<PhysicalSupplier | null>(null);
 
   const table = useReactTable({
     data,
     columns: PhysicalSupplierColumns(
       (supplier) => setEditingSupplier(supplier),
-      (supplier) => setDeletingSupplier(supplier), // ← NUEVO
       (supplier) => setGetInfoSupplier(supplier),
     ),
     getCoreRowModel: getCoreRowModel(),
@@ -51,12 +49,12 @@ export default function PhysicalSupplierTable({ data, total, page, pageCount, on
         />
       )}
 
-      {deletingSupplier && (
+      {/* {deletingSupplier && (
       <DeletePhysicalSupplierModal
         supplier={deletingSupplier}
         onSuccess={() => setDeletingSupplier(null)}
       />
-      )}
+      )} */}
 
       
       <table className="min-w-full border-collapse border border-gray-300">
@@ -86,7 +84,7 @@ export default function PhysicalSupplierTable({ data, total, page, pageCount, on
           {table.getRowModel().rows.length === 0 && (
             <tr>
               <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-6 text-center text-gray-500 border border-gray-300">
-                No hay Productos para mostrar
+                No hay Proveedores para mostrar
               </td>
             </tr>
           )}
