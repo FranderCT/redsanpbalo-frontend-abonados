@@ -1,17 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { createAgentSupplier, deleteAgentSupplier, editAgentSupplier } from "../Services/SupplierAgentServices";
-import type { newSupplierAgent, SupplierAgent } from "../Models/SupplierAgent";
+import type { AgentSupppliers, newAgentSupppliers } from "../Models/SupplierAgent";
 
 
 export const useCreateAgentSupplier = () =>{
     const qc = useQueryClient();
     const mutation = useMutation({
-        mutationKey: ['agent-supplier'],
+        mutationKey: ['agent-suppplier' , 'legal-supplier'],
         mutationFn: createAgentSupplier,
         onSuccess: (res) => {
             console.log(res);
-            qc.invalidateQueries({queryKey: ['agent-supplier']});
+            qc.invalidateQueries({queryKey: ['agent-suppplier', 'legal-supplier']});
             toast.success('Proveedor físico creado con éxito', {autoClose: 3000, position: 'top-right'});
         },
         onError: (err) =>{
@@ -25,11 +25,11 @@ export const useCreateAgentSupplier = () =>{
 export const useEditAgentSupplier= () =>{
     const qc = useQueryClient();
 
-    const mutation = useMutation<SupplierAgent, Error, {id: number; data: newSupplierAgent }>({
+    const mutation = useMutation<AgentSupppliers, Error, {id: number; data: newAgentSupppliers }>({
         mutationFn: ({id, data}) => editAgentSupplier(id, data),
         onSuccess :(res)=>{
             console.log('proveedor actualizado', console.log(res))
-            qc.invalidateQueries({queryKey: [`agent-supplier`]})
+            qc.invalidateQueries({queryKey: [`agent-suppplier`, 'legal-supplier']})
             toast.success('Proveedor actualizado con éxito ', {position: 'top-right', autoClose: 3000})
         },
         onError: (err) =>{
@@ -47,7 +47,7 @@ export const useDeleteAgentSupplier = () => {
     return useMutation({
         mutationFn: (id: number) => deleteAgentSupplier(id),
         onSuccess: (res) => {
-            qc.invalidateQueries({ queryKey: ["agent-supplier"] });
+            qc.invalidateQueries({ queryKey: ['agent-suppplier', 'legal-supplier'] });
             console.log("Producto inhabilitado", res);
         },
         onError: (err)=>{
