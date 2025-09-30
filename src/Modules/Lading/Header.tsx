@@ -1,5 +1,5 @@
 import { useState } from "react";
-import LogoRedSanPablo from "/Documentos/RedSanPablo/Frontend/redsanpbalo-frontend-abonados/src/Modules/Auth/Assets/g28.png";
+import LogoRedSanPablo from "../../assets/images/LogoRedSanPabloHG.svg";
 
 // Paleta
 // Blanco lavanda: #F9F5FF
@@ -45,12 +45,12 @@ export default function HeaderPaanee() {
         <div className="mx-auto max-w-7xl px-4">
           <div className="flex items-center justify-between py-3 gap-4">
             {/* Logo */}
-            <a href="#" className="flex items-center gap-3">
-              <img src={LogoRedSanPablo} className="h-12 w-auto" />
-              <div className="">
-                <p className="text-xl font-bold">ASADA</p>
-                <p className="">San Pablo</p>
-              </div>
+            <a href="#" className="flex items-center gap-1">
+              <img src={LogoRedSanPablo} className="h-16 w-auto" />
+              {/* <div className="flex flex-col items-center">
+                <p className="text-xl font-bold"> ASADA </p>
+                <p className=""> San Pablo </p>
+              </div> */}
             </a>
 
             {/* Desktop nav */}
