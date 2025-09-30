@@ -1,5 +1,6 @@
 import { useState } from "react";
 import LogoRedSanPablo from "../../assets/images/LogoRedSanPabloHG.svg";
+import { Link } from "@tanstack/react-router";
 
 // Paleta
 // Blanco lavanda: #F9F5FF
@@ -43,14 +44,10 @@ export default function HeaderPaanee() {
       {/* Main navbar */}
       <header className="w-full sticky top-0 z-40 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/80 shadow-sm">
         <div className="mx-auto max-w-7xl px-4">
-          <div className="flex items-center justify-between py-3 gap-4">
+          <div className="flex items-center py-3 gap-4">
             {/* Logo */}
-            <a href="#" className="flex items-center gap-1">
+            <a href="#">
               <img src={LogoRedSanPablo} className="h-16 w-auto" />
-              {/* <div className="flex flex-col items-center">
-                <p className="text-xl font-bold"> ASADA </p>
-                <p className=""> San Pablo </p>
-              </div> */}
             </a>
 
             {/* Desktop nav */}
@@ -64,18 +61,9 @@ export default function HeaderPaanee() {
 
             {/* Actions */}
             <div className="hidden sm:flex items-center gap-3">
-              <button className="h-10 w-10 rounded-full bg-[#F9F5FF] flex items-center justify-center hover:shadow transition">
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="#1789FC" strokeWidth="2"><circle cx="11" cy="11" r="6"/><path d="m20 20-3.5-3.5"/></svg>
-              </button>
-              <button className="h-10 w-10 rounded-full bg-[#F9F5FF] flex items-center justify-center hover:shadow transition">
-                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="#1789FC" strokeWidth="2"><path d="M6 6h15l-2 9H7L6 6Z"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
-              </button>
-              <a
-                href="#"
-                className="ml-1 rounded-xl px-5 py-2.5 text-white font-semibold bg-[#1789FC] hover:bg-[#091540] transition shadow-sm"
-              >
-                Get A Quote
-              </a>
+              <Link to={"/dashboard"} className="ml-1 px-5 py-2.5 text-white font-semibold bg-[#1789FC] hover:bg-[#091540] transition shadow-sm">
+                Dashboard
+              </Link>
             </div>
 
             {/* Mobile toggle */}
@@ -107,15 +95,9 @@ export default function HeaderPaanee() {
                 </a>
               ))}
               <div className="flex items-center gap-3 pt-2">
-                <button className="h-10 w-10 rounded-full bg-[#F9F5FF] flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="#1789FC" strokeWidth="2"><circle cx="11" cy="11" r="6"/><path d="m20 20-3.5-3.5"/></svg>
-                </button>
-                <button className="h-10 w-10 rounded-full bg-[#F9F5FF] flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="#1789FC" strokeWidth="2"><path d="M6 6h15l-2 9H7L6 6Z"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
-                </button>
-                <a href="#" className="flex-1 text-center rounded-xl px-4 py-2.5 text-white font-semibold bg-[#1789FC] hover:bg-[#091540] transition">
-                  Get A Quote
-                </a>
+                <Link to={"/login"} className="ml-1 px-5 py-2.5 text-white font-semibold bg-[#1789FC] hover:bg-[#091540] transition shadow-sm">
+                  Iniciar Sesión
+                </Link>
               </div>
             </div>
           </div>

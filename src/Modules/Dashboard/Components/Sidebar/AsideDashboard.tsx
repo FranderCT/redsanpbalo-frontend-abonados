@@ -8,6 +8,7 @@ const AsideDashboard = () => {
   const navigate = useNavigate();
 
   const goLogin = () => {
+    localStorage.removeItem('token')
     navigate({ to: "/login" });
   };
 
@@ -62,7 +63,7 @@ const AsideDashboard = () => {
               { label: "Materiales", onClick: () => navigate({ to: "/dashboard/materials" }) },
               { label: "Categorías", onClick: () => navigate({ to: "/dashboard/categories" }) },
               { label: "Unidad de medidas", onClick: () => navigate({ to: "/dashboard/units-measure" }) },
-              { label: "Proveedor", onClick: () => navigate({ to: "/dashboard/supplier" }) },
+              { label: "Proveedor", onClick: () => navigate({ to: "/dashboard/legal-suppliers" }) },
             ]}
           />
         </Can>

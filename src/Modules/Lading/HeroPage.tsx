@@ -11,10 +11,7 @@ const HeroPage = () => {
 
   return (
     <div>
-      <HeaderPaanee/>
-        <h1>hola mundo</h1>
-        <button onClick={irLogin}>Ir</button>
-  
+      <HeaderPaanee/>  
     </div>
   )
 }
