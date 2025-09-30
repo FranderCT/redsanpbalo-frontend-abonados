@@ -5,6 +5,7 @@ export interface AgentSupppliers{
     Surname2: string;
     Email : string;
     PhoneNumber: string;
+    IsActive: boolean;
 }
 
 export interface newAgentSupppliers{
@@ -14,4 +15,5 @@ export interface newAgentSupppliers{
     Email?: string;
     PhoneNumber?: string;
     LegalSupplierId?: number;
+    IsActive?: boolean;
 }

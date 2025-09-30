@@ -7,11 +7,11 @@ import type { AgentSupppliers, newAgentSupppliers } from "../Models/SupplierAgen
 export const useCreateAgentSupplier = () =>{
     const qc = useQueryClient();
     const mutation = useMutation({
-        mutationKey: ['agent-supplier'],
+        mutationKey: ['agent-suppplier' , 'legal-supplier'],
         mutationFn: createAgentSupplier,
         onSuccess: (res) => {
             console.log(res);
-            qc.invalidateQueries({queryKey: ['agent-supplier']});
+            qc.invalidateQueries({queryKey: ['agent-suppplier', 'legal-supplier']});
             toast.success('Proveedor físico creado con éxito', {autoClose: 3000, position: 'top-right'});
         },
         onError: (err) =>{
@@ -29,7 +29,7 @@ export const useEditAgentSupplier= () =>{
         mutationFn: ({id, data}) => editAgentSupplier(id, data),
         onSuccess :(res)=>{
             console.log('proveedor actualizado', console.log(res))
-            qc.invalidateQueries({queryKey: [`agent-supplier`]})
+            qc.invalidateQueries({queryKey: [`agent-suppplier`, 'legal-supplier']})
             toast.success('Proveedor actualizado con éxito ', {position: 'top-right', autoClose: 3000})
         },
         onError: (err) =>{
@@ -47,7 +47,7 @@ export const useDeleteAgentSupplier = () => {
     return useMutation({
         mutationFn: (id: number) => deleteAgentSupplier(id),
         onSuccess: (res) => {
-            qc.invalidateQueries({ queryKey: ["agent-supplier"] });
+            qc.invalidateQueries({ queryKey: ['agent-suppplier', 'legal-supplier'] });
             console.log("Producto inhabilitado", res);
         },
         onError: (err)=>{
