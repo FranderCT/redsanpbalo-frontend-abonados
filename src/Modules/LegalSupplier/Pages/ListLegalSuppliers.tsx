@@ -1,16 +1,16 @@
 import { useState, useMemo } from "react";
-import CreateSupplierModal from "../Components/CreateSupplierModal";
-import SupplierTable from "../Components/SupplierTable";
-import { useSearchSuppliers } from "../Hooks/SupplierHooks";
-import type { Supplier } from "../Models/Supplier";
-import SupplierHeaderBar from "../Components/SupplierHeaderBar";
-import CreatePhysicalSupplierModal from "../../PhysicalSupplier/Components/Modals/CreatePhysicalSupplierModal";
-import CreateLegalSupplierModal from "../../LegalSupplier/Components/Modals/CreateLegalSupplierModal";
+import ProductHeaderBar from "../../Products/Components/PaginationProducts/ProductHeaderBar";
+import { useSearchLegalSupplier } from "../Hooks/LegalSupplierHooks";
+import type { LegalSupplier } from "../Models/LegalSupplier";
+import LegalSupplierTable from "../Components/Table/LegalSupplierTable";
+import CreateLegalSupplierModal from "../Components/Modals/CreateLegalSupplierModal";
+import ListPhysicalSuppliers from "../../PhysicalSupplier/Pages/ListPhysicalSuppliers";
 
-export default function ListSuppliers() {
+
+
+export default function ListLegalSuppliers() {
   const [page, setPage] = useState(1);   // 1-based
   const [limit, setLimit] = useState(10);
-  
   const [search, setSearch] = useState("");
   const [name, setName] = useState<string | undefined>(undefined);
   const [state, setState] = useState<string | undefined>(undefined);
@@ -36,22 +36,22 @@ export default function ListSuppliers() {
   }
   
   const params = useMemo(() => ({ page, limit, name, state }), [page, limit, name, state]);
-  const { data, isLoading, error } = useSearchSuppliers(params);
+  const { data, isLoading, error } = useSearchLegalSupplier(params);
 
-  const rows: Supplier[] = data?.data ?? [];
+  const rows: LegalSupplier[] = data?.data ?? [];
   const meta = data?.meta ?? {
     total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false,
   };
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-[#091540]">Lista de Proveedores</h1>
+      <h1 className="text-2xl font-bold text-[#091540]">Lista proveedores jurídicos</h1>
         <p className="text-[#091540]/70 text-md">
-            Gestione todos los proveedores
+            Gestione todos los proveedores jurídicos
         </p>
         <div className="border-b border-dashed border-gray-300 mb-8"></div>
 
-      <SupplierHeaderBar
+      <ProductHeaderBar
         limit={meta.limit}
         total={meta.total}
         search={search}
@@ -66,9 +66,9 @@ export default function ListSuppliers() {
         {isLoading ? (
           <div className="p-6 text-center text-gray-500">Cargando…</div>
         ) : error ? (
-          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar los Proveedores.</div>
+          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar los Productos.</div>
         ) : (
-          <SupplierTable
+          <LegalSupplierTable
             data={rows}
             total={meta.total}
             page={meta.page}               // <- pasa paginación al footer
@@ -77,6 +77,8 @@ export default function ListSuppliers() {
           />
         )}
       </div>
+
+      <ListPhysicalSuppliers />
 
     </div>
   );
