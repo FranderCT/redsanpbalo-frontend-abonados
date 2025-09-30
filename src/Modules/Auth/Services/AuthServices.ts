@@ -40,3 +40,15 @@ export async function ForgotPasswd(payload : ForgotPassword) : Promise<ForgotPas
   const res = await apiAxios.post<ForgotPasswordResponse>(`${BASE}/forgot-password`, payload);
   return res.data;
 }
+
+export type ValidateResponse = {
+  valid: boolean,
+  user: User
+};
+
+export async function ValidateToken(token: string): Promise<ValidateResponse> {
+  const { data } = await apiAxios.get<ValidateResponse>(`/auth/validate`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return data;
+}

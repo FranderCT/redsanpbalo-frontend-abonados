@@ -8,6 +8,7 @@ const AsideDashboard = () => {
   const navigate = useNavigate();
 
   const goLogin = () => {
+    localStorage.removeItem('token')
     navigate({ to: "/login" });
   };
 
