@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { ResetPasswordInitialState } from "../Models/ResetPassword";
 import { useResetPassword } from "../Hooks/AuthHooks";
 import { useState } from "react";
+import { ResetPasswordSchema } from "../schemas/ResetPasswordSchema";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -14,6 +15,9 @@ const ResetPassword = () => {
 
   const form = useForm({
     defaultValues: ResetPasswordInitialState,
+    validators: {
+      onChange: ResetPasswordSchema,
+    },
     onSubmit: async ({ value }) => {
       if (value.NewPassword !== value.ConfirmPassword) {
         alert("Las contraseñas no coinciden");
@@ -52,7 +56,7 @@ const ResetPassword = () => {
               Ya puedes iniciar sesión con tu nueva contraseña.
             </p>
             <button
-              onClick={() => navigate({ to: "/auth/login" })}
+              onClick={() => navigate({ to: "/login" })}
               className="w-1/2 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition cursor-pointer"
             >
               Ir a Iniciar sesión
@@ -126,7 +130,7 @@ const ResetPassword = () => {
               <button
                 type="button"
                 className="bg-[#F6132D] hover:bg-red-700 text-white font-semibold w-1/3 px-6 py-2 rounded"
-                onClick={() => navigate({ to: "/auth/login" })}
+                onClick={() => navigate({ to: "/login" })}
               >
                 Cancelar
               </button>

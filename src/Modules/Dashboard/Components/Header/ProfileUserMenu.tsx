@@ -31,10 +31,10 @@ export default function ProfileMenu({ profileOpen, setProfileOpen }: Props) {
       <button
         ref={btnRef}
         onClick={() => setProfileOpen(!profileOpen)}
-        className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center hover:ring-2 hover:ring-indigo-500 transition"
+        className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center hover:ring-1 hover:ring-[#091540] transition"
         aria-label="Abrir menú de perfil"
       >
-        <User size={20} className="text-gray-600" />
+        <User size={20} className="" />
       </button>
 
       {profileOpen &&
@@ -48,32 +48,32 @@ export default function ProfileMenu({ profileOpen, setProfileOpen }: Props) {
 
             {/* Dropdown fijo en pantalla, por encima de todo */}
             <div
-              className="fixed z-[1001] w-44 bg-white border rounded shadow-lg"
+              className="fixed z-[1001] w-44 bg-[#F9F5FF] border rounded shadow-lg"
               style={{ top: pos.top, right: pos.right }}
               onMouseDown={(e) => e.stopPropagation()} // evita cerrar al clicar dentro
             >
               <ul className="py-1 text-sm text-gray-700">
                 <li>
                   <button
-                    onMouseDown={() => go("/dashboard/users/profile")}
+                    onMouseDown={() => navigate({to: '/dashboard/users/profile'})}
                     className="w-full text-left flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
                   >
                     <User size={16} /> Mi perfil
                   </button>
                 </li>
-                <li>
+                {/* <li>
                   <button
                     onMouseDown={() => go("/dashboard/settings")}
                     className="w-full text-left flex items-center gap-2 px-4 py-2 hover:bg-gray-100"
                   >
-                    <Settings size={16} /> Configuración
+                    <Settings size={16} /> Ajustes
                   </button>
-                </li>
+                </li> */}
                 <li>
                   <button
                     onMouseDown={() => {
                       localStorage.removeItem('token')
-                      navigate({to: '/auth/login'})
+                      navigate({to: '/login'})
                       setProfileOpen(false);
                     }}
                     className="w-full text-left flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-red-500"

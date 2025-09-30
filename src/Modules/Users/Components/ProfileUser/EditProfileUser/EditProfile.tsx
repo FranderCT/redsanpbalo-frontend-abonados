@@ -1,135 +1,193 @@
+import React from "react";
 import { useForm } from "@tanstack/react-form";
-import { EditUserInitialState } from "../../../Models/EditUser";
-import { useUpdateUserProfile } from "../../../Hooks/UsersHooks";
-import type { UserProfile } from "../../../Models/User";
+import { useGetUserProfile, useUpdateUserProfile } from "../../../Hooks/UsersHooks";
+import { EditProfileSchema } from "../../../schemas/EditProfileSchema"; // <-- ajusta la ruta según tu árbol
+import ConfirmActionModal from "../../../../../Components/Modals/ConfirmActionModal";
+import { toast } from "react-toastify";
+import { updateUserMeInitialState } from "../../../Models/User";
 
-type Props = {
-  User? : UserProfile
-}
+type EditPayload = typeof updateUserMeInitialState;
 
-const EditProfile = ({User} : Props) => {
-    const useUpdateProfile = useUpdateUserProfile();
-    
-    const form = useForm({
-          defaultValues: EditUserInitialState,
-          onSubmit: async ({ value }) => {
-          try {
-            await useUpdateProfile.mutateAsync(value);
-            console.log("Actualizacion exitosa");
-            
-          } catch {
-            console.log("error al actualizar el usuario");
-          }
-        },
-      }); 
-      return (
-        <div className="bg-[#F9F5FF] flex flex-col content-center w-full max-w-6xl mx-auto px-4 md:px-25 pt-24 pb-20 gap-8">
-            <div>
-              <h1 className="text-2xl font-bold text-[#091540]">Editar información del perfil</h1>
-              <h3 className="text-[#091540]/70 text-md">Modifique aquí los datos de su perfil</h3>
-              <div className="border-b border-dashed border-gray-300 p-2"></div>
-            </div>
-            {/* Formulario */}
-            <div className="w-full max-w-md mx-auto flex flex-col items-center border border-gray-200 gap-4 shadow-xl rounded-sm bg-[#F9F5FF] p-6">
-                <h2 className="md:text-2xl font-bold text-[#091540] text-center gap-4">{User?.Name} {User?.Surname1} {User?.Surname2}</h2>
-                <img
-                src="/Image02.png"
-                className="w-40 h-40 rounded-full object-cover border border-gray-200"/>
-                <a  href="/profile" className="flex flex-row items-center gap-2 text-[#091540]">Editar foto de perfil {/* ícono lápiz */} <svg width="16" height="16" viewBox="0 0 24 24" fill="none"> <path d="M3 17.25V21h3.75L18.81 8.94l-3.75-3.75L3 17.25z" stroke="#091540" /> <path d="M14.06 5.19l3.75 3.75" stroke="#091540" /> </svg></a>
-                <form
-                    onSubmit={(e) => {
-                    e.preventDefault();
-                    form.handleSubmit();
-                    }}
-                    className="w-full max-w-md p-2 flex flex-col gap-6"
-                >
-                    <form.Field name="BirthDate">
-                      {(field) => (
-                        <>
-                          <input
-                            type="date"
-                            placeholder="Fecha de nacimiento"
-                            value={field.state.value}
-                            onFocus={(e) => (e.target.type = 'date')}
-                            onBlur={(e) => {
-                              if (!e.target.value) e.target.type = 'text';
-                            }}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                          />
-                          {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                              <p className="text-sm text-red-500 mt-1">
-                                  {(field.state.meta.errors[0] as any)?.message ??
-                                  String(field.state.meta.errors[0])}
-                              </p>
-                          )}
-                        </>
-                      )}
-                    </form.Field>
-    
-    
-                    <form.Field name="PhoneNumber">
-                      {(field) => (
-                        <>
-                          <input
-                            className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                            placeholder="Número telefónico"
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                          />
-                          {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                                <p className="text-sm text-red-500 mt-1">
-                                    {(field.state.meta.errors[0] as any)?.message ??
-                                    String(field.state.meta.errors[0])}
-                                </p>
-                          )}
-                        </>
-                      )}
-                    </form.Field>
+const EditProfile = () => {
+  const { UserProfile } = useGetUserProfile();
+  const updateProfile = useUpdateUserProfile();
 
-                    <form.Field name="Address">
-                      {(field) => (
-                        <>
-                          <input
-                            className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                            placeholder="Dirección"
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                          />
-                          {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                                <p className="text-sm text-red-500 mt-1">
-                                    {(field.state.meta.errors[0] as any)?.message ??
-                                    String(field.state.meta.errors[0])}
-                                </p>
-                          )}
-                        </>
-                      )}
-                    </form.Field>
-    
-                    <div className='flex justify-end gap-4 '>
-                    <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-                    {([canSubmit, isSubmitting]) => (
-                        <button
-                            type="submit"
-                            className="bg-[#091540] hover:bg-blue-600 text-white text-shadow-lg/30 font-semibold w-25 rounded"
-                            disabled={!canSubmit}
-                        >
-                            {isSubmitting ? '...' : 'Confirmar'}
-                        </button>
-                    )}
-                    </form.Subscribe>
-                      <button
-                      type="button"
-                      //onClick={() => navigate('/auth/login')}
-                      className="bg-[#F6132D] hover:bg-red-700 text-white text-shadow-lg/30 font-semibold w-25 p-2 rounded-sm"
-                      >
-                      Cancelar
-                      </button>
-                    </div>
-                </form>
-              </div>
+  // Estado para manejar el modal y los datos pendientes de envío
+  const [openConfirm, setOpenConfirm] = React.useState(false);
+  const pendingValuesRef = React.useRef<EditPayload | null>(null);
+
+  const form = useForm({
+    defaultValues: updateUserMeInitialState,
+    validators: { onChange: EditProfileSchema },
+    onSubmit: async ({ value }) => {
+      // No llamamos aún a la API: primero pedimos confirmación
+      pendingValuesRef.current = value as EditPayload;
+      setOpenConfirm(true);
+    },
+  });
+
+  const handleConfirmUpdate = async () => {
+  if (!pendingValuesRef.current) return;
+  try {
+    await updateProfile.mutateAsync(pendingValuesRef.current);
+    form.reset();
+    toast.success("¡Actualización exitosa!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  } catch (err) {
+    toast.error("¡Error al actualizar el perfil!", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  } finally {
+    setOpenConfirm(false);
+    pendingValuesRef.current = null;
+  }
+};
+
+const handleCancelUpdate = () => {
+  setOpenConfirm(false);
+  toast.info("¡Actualización cancelada!", {
+    position: "top-right",
+    autoClose: 3000,
+  });
+  pendingValuesRef.current = null;
+};
+
+  return (
+    <div className="bg-[#F9F5FF] flex flex-col content-center w-full max-w-6xl mx-auto px-4 md:px-25 pt-24 pb-20 gap-8">
+      <div>
+        <h1 className="text-2xl font-bold text-[#091540]">Editar información de usuario</h1>
+        <h3 className="text-[#091540]/70 text-md">Modifique los datos de su perfil</h3>
+        <div className="border-b border-dashed border-gray-300 p-2"></div>
+      </div>
+
+      <div className="w-full max-w-md mx-auto flex flex-col items-center border border-gray-200 gap-4 shadow-xl rounded-sm bg-[#F9F5FF] p-6">
+
+        <div className="p-3">
+          <h2 className="md:text-3xl font-bold text-[#091540] text-center gap-4">
+            Edición de Perfil
+          </h2>
+          <hr className="border-t-2 border-dashed border-[#091540]" />
         </div>
-  )
-}
 
-export default EditProfile
+        <h2 className="md:text-xl font-bold text-[#091540] text-center gap-4">
+          {UserProfile?.Name} {UserProfile?.Surname1} {UserProfile?.Surname2}
+        </h2>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+          className="w-full max-w-md p-2 flex flex-col gap-6"
+        >
+          {/* Birthdate */}
+          <form.Field name="Birthdate">
+            {(field) => (
+              <>
+                <input
+                  type="date"
+                  value={
+                    field.state.value instanceof Date && !Number.isNaN(field.state.value.getTime())
+                      ? field.state.value.toISOString().slice(0,10)
+                      : typeof field.state.value === 'string' ? field.state.value : ''
+                  }
+                  onChange={(e) => { field.handleChange(new Date(e.target.value)); }}
+                  className="input-base"
+                />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </>
+            )}
+          </form.Field>
+
+          {/* PhoneNumber */}
+          <form.Field name="PhoneNumber">
+            {(field) => (
+              <>
+                <input
+                  type="text"
+                  value={field.state.value ?? ""}
+                  onChange={(e) =>
+                    field.handleChange(
+                      e.target.value.trim() === "" ? undefined : e.target.value
+                    )
+                  }
+                  className="input-base"
+                  placeholder={UserProfile?.PhoneNumber}
+                />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ??
+                      String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </>
+            )}
+          </form.Field>
+
+          {/* Address */}
+          <form.Field name="Address">
+            {(field) => (
+              <>
+                <input
+                  type="text"
+                  value={field.state.value ?? ""}
+                  onChange={(e) =>
+                    field.handleChange(
+                      e.target.value.trim() === "" ? undefined : e.target.value
+                    )
+                  }
+                  className="input-base"
+                  placeholder={UserProfile?.Address}
+                />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ??
+                      String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </>
+            )}
+          </form.Field>
+
+          <div className="flex justify-end gap-4">
+            <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting, s.isDirty]}>
+              {([canSubmit, isSubmitting, isDirty]) => (
+                <button
+                  type="submit"
+                  className="bg-[#091540] hover:bg-blue-600 text-white flex justify-center items-center font-bold w-25 disabled:opacity-50 px-4 py-2"
+                  disabled={!canSubmit || !isDirty || updateProfile.isPending}
+                >
+                  {isSubmitting || updateProfile.isPending ? "..." : "Confirmar"}
+                </button>
+              )}
+            </form.Subscribe>
+          </div>
+        </form>
+      </div>
+      {openConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="presentation"
+          onClick={handleCancelUpdate}
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <ConfirmActionModal
+              onConfirm={handleConfirmUpdate}
+              onCancel={handleCancelUpdate}
+              onClose={handleCancelUpdate}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default EditProfile;

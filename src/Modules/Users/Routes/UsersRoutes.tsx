@@ -17,37 +17,40 @@ export const editProfileRoute = createRoute({
     component: EditProfile
 })*/
 
-import { createRoute, Outlet } from "@tanstack/react-router";
+
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
 import UserProfile from "../Pages/UserProfile/UserProfile";
 import EditProfile from "../Components/ProfileUser/EditProfileUser/EditProfile";
+import ListUsers from "../Pages/ListUsers";
+import { createRoute, Outlet } from "@tanstack/react-router";
+
 
 export const usersRoute = createRoute({
   getParentRoute: () => dashboardRoute,
   path: "users",
-  component: () => <Outlet />,
+  component: ()=> <Outlet/>
 });
 
-export const usersIndexRoute = createRoute({
-  getParentRoute: () => usersRoute,
-  path: "/",
-  component: () => <h1>hola</h1>,
-});
+export const listUsersRoute = createRoute({
+  getParentRoute: ()=> usersRoute,
+  path: '/',
+  component: ListUsers
+})
 
-export const userProfileRoute = createRoute({
+export const userProfilewRoute = createRoute({
   getParentRoute: () => usersRoute,
   path: "profile",
-  component: () => <Outlet />,
-});
-
-export const userProfileShowRoute = createRoute({
-  getParentRoute: () => userProfileRoute,
-  path: "/",
   component: UserProfile,
 });
 
 export const userProfileEditRoute = createRoute({
-  getParentRoute: () => userProfileRoute,
+  getParentRoute: () => usersRoute,
   path: "edit",
-  component: EditProfile
+  component: EditProfile,
 });
+
+/*export const changeEmailRoute = createRoute({
+  getParentRoute: () => usersRoute,
+  path : 'change-email',
+  component: EditEmailUser,
+})*/
