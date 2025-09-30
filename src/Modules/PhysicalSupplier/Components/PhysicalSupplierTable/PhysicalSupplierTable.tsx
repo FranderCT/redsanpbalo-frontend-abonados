@@ -5,6 +5,7 @@ import ProductPager from "../../../Products/Components/PaginationProducts/Produc
 import { useState } from "react";
 import EditPhysicalSupplierModal from "../Modals/EditPhysicalSupplierModal";
 import DeletePhysicalSupplierModal from "../Modals/DeletePhysicalSupplierModal";
+import GetInfoPhysicalSupplierModal from "../Modals/GetInfoPhysicalSupplierModal";
 
 type Props = {
   data: PhysicalSupplier[];
@@ -17,12 +18,14 @@ type Props = {
 export default function PhysicalSupplierTable({ data, total, page, pageCount, onPageChange }: Props) {
   const [editingSupplier, setEditingSupplier] = useState<PhysicalSupplier | null>(null);
   const [deletingSupplier, setDeletingSupplier] = useState<PhysicalSupplier | null>(null);
+  const [getInfoSupplier, setGetInfoSupplier] = useState<PhysicalSupplier | null>(null);
 
   const table = useReactTable({
     data,
     columns: PhysicalSupplierColumns(
       (supplier) => setEditingSupplier(supplier),
-      (supplier) => setDeletingSupplier(supplier) // ← NUEVO
+      (supplier) => setDeletingSupplier(supplier), // ← NUEVO
+      (supplier) => setGetInfoSupplier(supplier),
     ),
     getCoreRowModel: getCoreRowModel(),
   });
@@ -37,6 +40,15 @@ export default function PhysicalSupplierTable({ data, total, page, pageCount, on
         onClose={() => setEditingSupplier(null)}
         onSuccess={() => setEditingSupplier(null)}
       />
+      )}
+
+      {getInfoSupplier && (
+        <GetInfoPhysicalSupplierModal
+          supplier={getInfoSupplier}
+          open={true}
+          onClose={() => setGetInfoSupplier(null)}
+          onSuccess={() => setGetInfoSupplier(null)}
+        />
       )}
 
       {deletingSupplier && (

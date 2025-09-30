@@ -62,7 +62,7 @@ export const useEditPhysicalSupplier= () =>{
         mutationFn: ({id, data}) => editPhysicalSupplier(id, data),
         onSuccess :(res)=>{
             console.log('proveedor actualizado', console.log(res))
-            qc.invalidateQueries({queryKey: [`suppliers`]})
+            qc.invalidateQueries({queryKey: [`physical-supplier`]})
             toast.success('Proveedor actualizado con éxito ', {position: 'top-right', autoClose: 3000})
         },
         onError: (err) =>{

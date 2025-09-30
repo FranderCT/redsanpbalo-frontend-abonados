@@ -1,11 +1,11 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { PhysicalSupplier } from "../../Models/PhysicalSupplier";
-import { Edit2, Trash } from "lucide-react";
+import { Edit2, InfoIcon, Trash } from "lucide-react";
 
 export const PhysicalSupplierColumns = (
   onEdit: (physicalSupplier: PhysicalSupplier) => void,
   onDelete: (physicalSupplier: PhysicalSupplier) => void,
-  onGetInfo? :  (physicalSupplier : PhysicalSupplier) => void,
+  onGetInfo :  (physicalSupplier : PhysicalSupplier) => void,
 //   onGetInfo: (product: Product) => void
 ): ColumnDef<PhysicalSupplier>[] => [
   {
@@ -23,10 +23,6 @@ export const PhysicalSupplierColumns = (
   {
     accessorKey: "PhoneNumber",
     header: "Número de Teléfono",
-  },
-  {
-    accessorKey: "Location",
-    header : "Ubicación",
   },
   {
     id: 'Acciones',
@@ -54,6 +50,25 @@ export const PhysicalSupplierColumns = (
             Editar
           </button>
         </div>
+      );
+    }
+  },
+  {
+    id : "Información",
+    header : "Información",
+    cell : ({row}) => {
+      const supplier = row.original;
+      return(
+        <button
+          onClick={() => onGetInfo(supplier)}
+          className="flex items-center gap-1 px-3 py-1 text-xs font-medium border
+            text-[#222] border-[#222]
+            hover:bg-[#091540] hover:text-[#f5f5f5] transtion cursor-pointer 
+          "
+        >
+          <InfoIcon className="w-4 h-4" />
+          Ver info
+        </button>
       );
     }
   },

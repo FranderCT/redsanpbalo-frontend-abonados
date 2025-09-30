@@ -62,7 +62,7 @@ export const useEditLegalSupplier= () =>{
         mutationFn: ({id, data}) => editLegalSupplier(id, data),
         onSuccess :(res)=>{
             console.log('proveedor actualizado', console.log(res))
-            qc.invalidateQueries({queryKey: [`suppliers`]})
+            qc.invalidateQueries({queryKey: [`legal-supplier`]})
             toast.success('Proveedor actualizado con éxito ', {position: 'top-right', autoClose: 3000})
         },
         onError: (err) =>{
