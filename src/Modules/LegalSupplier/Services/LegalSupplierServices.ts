@@ -38,3 +38,15 @@ export async function editLegalSupplier (Id : number, payload: newLegalSupplier)
         return Promise.reject(err);
     }
 }
+
+
+export async function getLegalSupplierById(id: number) : Promise<LegalSupplier>{
+  try{
+    const {data} = await apiAxios.get<LegalSupplier>(`${BASE}/${id}`);
+    return data;
+  }catch(err){
+    console.error("Error al obtener la informacion del ususario", err);
+    return Promise.reject(err);
+  }
+}
+

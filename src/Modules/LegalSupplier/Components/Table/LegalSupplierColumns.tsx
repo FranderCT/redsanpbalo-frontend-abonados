@@ -5,7 +5,8 @@ import { Edit2, InfoIcon } from "lucide-react";
 
 export const LegalSupplierColumns = (
   onEdit: (legalSupplier: LegalSupplier) => void,
-  onGetInfo :  (legalSupplier : LegalSupplier) => void
+  onGetInfo :  (legalSupplier : LegalSupplier) => void,
+  onAgents :  (id : number) => void
 //   onGetInfo: (product: Product) => void
 ): ColumnDef<LegalSupplier>[] => [
   {
@@ -63,7 +64,25 @@ export const LegalSupplierColumns = (
       );
     }
   },
-
+  {
+    id : "Agentes",
+    header : "Gestión agentes",
+    cell : ({row}) => {
+      const supplier = row.original;
+      return(
+        <button
+          onClick={() => onAgents(supplier.Id)}
+          className="flex items-center gap-1 px-3 py-1 text-xs font-medium border
+            text-[#222] border-[#222]
+            hover:bg-[#091540] hover:text-[#f5f5f5] transtion cursor-pointer 
+          "
+        >
+          <InfoIcon className="w-4 h-4" />
+          Agentes
+        </button>
+      );
+    }
+  },
 ];
 
 
