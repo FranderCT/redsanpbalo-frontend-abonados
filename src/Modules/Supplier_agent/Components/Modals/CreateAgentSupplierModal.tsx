@@ -55,16 +55,16 @@ const CreateAgentSupplierModal = ({LegalSupplierId} : Props) => {
         <ModalBase
             open={open}
             onClose={handleClose}
-            panelClassName="w-[min(30vw,700px)] p-4 "
+            panelClassName="w-[min(25vw,700px)] p-4 "
         >
             <header
                 className="flex flex-col"
             >
                 <h2 className="text-2xl text-[#091540] font-bold">
-                    Crear proveedor físico
+                    Crear agente 
                 </h2>
                 <p className="text-md">
-                    Complete la información para crear un proveedor físico
+                    Complete la información para crear un agente
                 </p>
             </header>
 
@@ -82,11 +82,11 @@ const CreateAgentSupplierModal = ({LegalSupplierId} : Props) => {
                     <>
                         <label className={`${LABELSTYLES}`}>
                             <span className={`${SPANSTYLES}`}>
-                                Número de cédula jurídica del proveedor
+                                Nombre del agente
                             </span>
                             <input
                                 className={`${INPUTSTYLES}`}
-                                placeholder="ejm. 504440503"
+                                placeholder="ejm. José"
                                 value={field.state.value}
                                 onChange={(e) => field.handleChange(e.target.value)}
                             />
@@ -100,11 +100,11 @@ const CreateAgentSupplierModal = ({LegalSupplierId} : Props) => {
                     <>
                         <label className={`${LABELSTYLES}`}>
                             <span className={`${SPANSTYLES}`}>
-                                Nombre del proveedor
+                                Primer apellido del agente
                             </span>
                             <input
                                 className={`${INPUTSTYLES}`}
-                                placeholder="ejm. Coopecerroazul"
+                                placeholder="ejm. Daniel"
                                 value={field.state.value}
                                 onChange={(e) => field.handleChange(e.target.value)}
                             />
@@ -118,11 +118,11 @@ const CreateAgentSupplierModal = ({LegalSupplierId} : Props) => {
                     <>
                         <label className={`${LABELSTYLES}`}>
                             <span className={`${SPANSTYLES}`}>
-                                Correo electrónico del proveedor
+                                Segundo apellido del agente
                             </span>
                             <input
                                 className={`${INPUTSTYLES}`}
-                                placeholder="ejm. coopecerroazul@gmail.com"
+                                placeholder="ejm. Daniel"
                                 value={field.state.value}
                                 onChange={(e) => field.handleChange(e.target.value)}
                             />
@@ -136,12 +136,11 @@ const CreateAgentSupplierModal = ({LegalSupplierId} : Props) => {
                     <>
                         <label className={`${LABELSTYLES}`}>
                             <span className={`${SPANSTYLES}`}>
-                                Dirección del proveedor
+                                 Correo electrónico del agente
                             </span>
-                            <textarea
-                                className={`${INPUTSTYLES} resize-none min-h-[70px] leading-relaxed`}
-                                placeholder="ejm. 150 metros este del banco nacional en carmona"
-                                rows={4} 
+                            <input
+                                className={`${INPUTSTYLES}`}
+                                placeholder="ejm. joseroman02@gmail.com"
                                 value={field.state.value}
                                 onChange={(e) => field.handleChange(e.target.value)}
                             />
