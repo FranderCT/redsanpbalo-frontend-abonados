@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { Trash } from "lucide-react";
 import type { LegalSupplier } from "../../Models/LegalSupplier";
+import { useDeleteLegalSupplier } from "../../Hooks/LegalSupplierHooks";
 
 
 
