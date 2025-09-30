@@ -5,6 +5,7 @@ import type { LegalSupplier } from "../../Models/LegalSupplier";
 import { LegalSupplierColumns } from "./LegalSupplierColumns";
 import { useState } from "react";
 import EditLegalSupplierModal from "../Modals/EditLegalSupplierModal";
+import GetInfoLegalSupplierModal from "../Modals/GetInfoLegalSupplier";
 
 type Props = {
   data: LegalSupplier[];
@@ -16,11 +17,13 @@ type Props = {
 
 export default function LegalSupplierTable({ data, total, page, pageCount, onPageChange }: Props) {
   const [editingSupplier, setEditingSupplier] = useState<LegalSupplier | null>(null);
+  const [getInfoSupplier, setGetInfoSupplier] = useState<LegalSupplier | null>(null);
 
   const table = useReactTable({
     data,
     columns: LegalSupplierColumns(
       (supplier) => setEditingSupplier(supplier),
+      (supplier) => setGetInfoSupplier(supplier),
     ),
     getCoreRowModel: getCoreRowModel(),
   });
@@ -36,6 +39,16 @@ export default function LegalSupplierTable({ data, total, page, pageCount, onPag
         onSuccess={() => setEditingSupplier(null)}
       />
       )}
+
+      {getInfoSupplier && (
+      <GetInfoLegalSupplierModal
+        supplier={getInfoSupplier}
+        open={true}
+        onClose={() => setGetInfoSupplier(null)}
+        onSuccess={() => setGetInfoSupplier(null)}
+      />
+      )}
+      
       
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
