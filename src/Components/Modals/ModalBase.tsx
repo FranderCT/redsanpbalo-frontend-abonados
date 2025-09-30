@@ -13,7 +13,7 @@ export function ModalBase({
   open,
   onClose,
   children,
-  closeOnOutside = true,
+  closeOnOutside = false,
   closeOnEsc = true,
   panelClassName,
 }: ModalProps) {

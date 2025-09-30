@@ -47,7 +47,7 @@ export const PhysicalSupplierColumns = (
                        hover:bg-[#F6132D] hover:text-[#F9F5FF] transition"
           >
             <Trash className="w-4 h-4" />
-            Editar
+            Inhabilitar
           </button>
         </div>
       );
