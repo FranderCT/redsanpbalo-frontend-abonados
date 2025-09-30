@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createLegalSupplier, editLegalSupplier, getAllLegalSupplier, getLegalSupplierById } from "../Services/LegalSupplierServices";
+import { createLegalSupplier, deleteLegalSupplier, editLegalSupplier, getAllLegalSupplier, getLegalSupplierById } from "../Services/LegalSupplierServices";
 import { toast } from "react-toastify";
 import type { LegalSupplier, newLegalSupplier } from "../Models/LegalSupplier";
 import type { ProductPaginationParams } from "../../Products/Models/CreateProduct";
@@ -82,4 +82,18 @@ export const useLegalSupplierById = (id: number) => {
   });
 
   return { legalSup, isLoading, error };
+};
+
+export const useDeleteLegalSupplier = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (id: number) => deleteLegalSupplier(id),
+        onSuccess: (res) => {
+            qc.invalidateQueries({ queryKey: ["legal-supplier"] });
+            console.log("Proveedor jurídico inhabilitado", res);
+        },
+        onError: (err)=>{
+            console.error("Error al inhabilitar", err);
+        }
+    });
 };

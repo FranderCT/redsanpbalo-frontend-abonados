@@ -50,3 +50,11 @@ export async function getLegalSupplierById(id: number) : Promise<LegalSupplier>{
   }
 }
 
+export async function deleteLegalSupplier (Id : number) : Promise<void>{
+    try{
+        await apiAxios.delete(`${BASE}/${Id}`)
+    }catch(err){
+        return Promise.reject(err);
+    }
+}
+

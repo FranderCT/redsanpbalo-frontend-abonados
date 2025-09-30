@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { LegalSupplier } from "../../Models/LegalSupplier";
 import { Edit2, InfoIcon } from "lucide-react";
+import DeleteLegalSupplierModal from "../Modals/DeleteLegalSupplierModal";
 
 
 export const LegalSupplierColumns = (
@@ -41,6 +42,8 @@ export const LegalSupplierColumns = (
             <Edit2 className="w-4 h-4" />
             Editar
           </button>
+          {/* Desactivar */}
+          <DeleteLegalSupplierModal legalsupplier={supplier} />
         </div>
       );
     }
