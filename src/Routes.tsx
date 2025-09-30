@@ -17,6 +17,7 @@ export const rootRoute = createRootRoute();
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
+  component: HeroPage
 })
 
 export const routeTree = rootRoute.addChildren([
