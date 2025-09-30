@@ -6,6 +6,7 @@ import { LegalSupplierColumns } from "./LegalSupplierColumns";
 import { useState } from "react";
 import EditLegalSupplierModal from "../Modals/EditLegalSupplierModal";
 import GetInfoLegalSupplierModal from "../Modals/GetInfoLegalSupplier";
+import AgentSupplierModal from "../../../Supplier_agent/Components/AgentSupplierModal";
 
 type Props = {
   data: LegalSupplier[];
@@ -18,12 +19,14 @@ type Props = {
 export default function LegalSupplierTable({ data, total, page, pageCount, onPageChange }: Props) {
   const [editingSupplier, setEditingSupplier] = useState<LegalSupplier | null>(null);
   const [getInfoSupplier, setGetInfoSupplier] = useState<LegalSupplier | null>(null);
+  const [getAgentsId, setGetAgentsId] = useState<number | null>(null);
 
   const table = useReactTable({
     data,
     columns: LegalSupplierColumns(
       (supplier) => setEditingSupplier(supplier),
       (supplier) => setGetInfoSupplier(supplier),
+      (id) => setGetAgentsId(id) // <- ahora guarda solo el ID
     ),
     getCoreRowModel: getCoreRowModel(),
   });
@@ -46,6 +49,14 @@ export default function LegalSupplierTable({ data, total, page, pageCount, onPag
         open={true}
         onClose={() => setGetInfoSupplier(null)}
         onSuccess={() => setGetInfoSupplier(null)}
+      />
+      )}
+
+      {getAgentsId && (
+      <AgentSupplierModal
+        legalSupplierId={getAgentsId}
+        open={true}
+        onClose={() => setGetAgentsId(null)}
       />
       )}
       

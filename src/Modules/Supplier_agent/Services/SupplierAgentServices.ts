@@ -1,11 +1,12 @@
 import apiAxios from "../../../api/apiConfig";
-import type { newSupplierAgent, SupplierAgent } from "../Models/SupplierAgent";
+import type { AgentSupppliers, newAgentSupppliers } from "../Models/SupplierAgent";
+
 
 const BASE = 'agent-supplier';
 
-export async function createAgentSupplier (payloads : newSupplierAgent) : Promise<SupplierAgent>{
+export async function createAgentSupplier (payloads : newAgentSupppliers) : Promise<AgentSupppliers>{
     try{
-        const {data} = await apiAxios.post<SupplierAgent>(`${BASE}`, payloads);
+        const {data} = await apiAxios.post<AgentSupppliers>(`${BASE}`, payloads);
         return data;
     }catch(err){
         return Promise.reject(err);
@@ -13,9 +14,9 @@ export async function createAgentSupplier (payloads : newSupplierAgent) : Promis
 }
 
 
-export async function editAgentSupplier (Id : number, payload: newSupplierAgent) : Promise<SupplierAgent>{
+export async function editAgentSupplier (Id : number, payload: newAgentSupppliers) : Promise<AgentSupppliers>{
     try{
-        const {data} = await apiAxios.put<SupplierAgent>(`${BASE}/${Id}`, payload)
+        const {data} = await apiAxios.put<AgentSupppliers>(`${BASE}/${Id}`, payload)
         return data;
     }catch(err){
         return Promise.reject(err);

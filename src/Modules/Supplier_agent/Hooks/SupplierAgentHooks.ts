@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { createAgentSupplier, deleteAgentSupplier, editAgentSupplier } from "../Services/SupplierAgentServices";
-import type { newSupplierAgent, SupplierAgent } from "../Models/SupplierAgent";
+import type { AgentSupppliers, newAgentSupppliers } from "../Models/SupplierAgent";
 
 
 export const useCreateAgentSupplier = () =>{
@@ -25,7 +25,7 @@ export const useCreateAgentSupplier = () =>{
 export const useEditAgentSupplier= () =>{
     const qc = useQueryClient();
 
-    const mutation = useMutation<SupplierAgent, Error, {id: number; data: newSupplierAgent }>({
+    const mutation = useMutation<AgentSupppliers, Error, {id: number; data: newAgentSupppliers }>({
         mutationFn: ({id, data}) => editAgentSupplier(id, data),
         onSuccess :(res)=>{
             console.log('proveedor actualizado', console.log(res))

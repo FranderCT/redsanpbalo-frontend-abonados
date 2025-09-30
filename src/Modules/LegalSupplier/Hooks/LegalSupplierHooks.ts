@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createLegalSupplier, editLegalSupplier, getAllLegalSupplier } from "../Services/LegalSupplierServices";
+import { createLegalSupplier, editLegalSupplier, getAllLegalSupplier, getLegalSupplierById } from "../Services/LegalSupplierServices";
 import { toast } from "react-toastify";
 import type { LegalSupplier, newLegalSupplier } from "../Models/LegalSupplier";
 import type { ProductPaginationParams } from "../../Products/Models/CreateProduct";
@@ -13,7 +13,7 @@ export const useCreateLegalSupplier = () =>{
         mutationFn: createLegalSupplier,
         onSuccess: (res) => {
             console.log(res);
-            qc.invalidateQueries({queryKey: ['physical-supplier']});
+            qc.invalidateQueries({queryKey: ['legal-supplier']});
             toast.success('Proveedor físico creado con éxito', {autoClose: 3000, position: 'top-right'});
         },
         onError: (err) =>{
@@ -73,3 +73,13 @@ export const useEditLegalSupplier= () =>{
 
     return mutation;
 }
+
+export const useLegalSupplierById = (id: number) => {
+
+  const {data: legalSup, isLoading,error} = useQuery({
+    queryKey: ["legal-supplier", id, 'agent-supplier'],
+    queryFn: () => getLegalSupplierById(id),
+  });
+
+  return { legalSup, isLoading, error };
+};
