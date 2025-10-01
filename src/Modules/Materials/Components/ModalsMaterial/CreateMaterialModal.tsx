@@ -99,7 +99,6 @@ const CreateMaterialModal = () => {
                 </button>
                 <button
                   type="button"
-                  onClose={handleClose}
                   onClick={handleClose}
                   className="h-10 px-4  bg-gray-200 hover:bg-gray-300 transition"
                 >
