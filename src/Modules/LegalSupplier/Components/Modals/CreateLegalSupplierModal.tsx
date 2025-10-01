@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { useCreateLegalSupplier } from "../../Hooks/LegalSupplierHooks";
+import { LegalSupplierSchema } from "../../Schemas/LegalSupplierSchema";
 
 const CreateLegalSupplierModal = () => {
   const [open, setOpen] = useState(false);
@@ -17,9 +18,9 @@ const CreateLegalSupplierModal = () => {
   const limpiar = (ced: string) => ced.replace(/\D/g, "");
 
   const esCedulaJuridica = (digits: string) =>
-    digits.length === 10 && /^[34]/.test(digits); 
+    digits.length === 10 && /^[34]/.test(digits); // 10 dígitos y empieza en 3 o 4
 
-  
+  // Formateo en vivo: 1-3-6 => 3-101-354271
   const formatearCedulaJuridica = (raw: string) => {
     const d = limpiar(raw).slice(0, 10);
     if (d.length <= 1) return d;
@@ -79,61 +80,65 @@ const CreateLegalSupplierModal = () => {
       Location: "",
       WebSite: "",
     },
+    validators:{
+        onChange:LegalSupplierSchema
+    },
     onSubmit: async ({ value }) => {
       try {
         await CreateSupplierMutation.mutateAsync({
           ...value,
-          // Enviar LegalID sin guiones al backend, si así lo necesitas:
+          // Enviar LegalID sin guiones al backend (ajústalo si quieres guardarlo con guiones):
           LegalID: limpiar(value.LegalID),
         });
         form.reset();
         setOpen(false);
       } catch (err) {
         console.error("Error al crear el proveedor:", err);
-        toast.error("No se pudo crear el proveedor", {
-          position: "top-right",
-          autoClose: 3000,
-        });
       }
     },
   });
 
   const handleClose = () => {
-    toast.warning("Creación cancelada", { position: "top-right", autoClose: 3000 });
+    toast.warning("Registro cancelado", { position: "top-right", autoClose: 3000 });
     setOpen(false);
     form.reset();
   };
 
-  // -------- Handlers de LegalID (formateo + lookup) --------
+  // -------- Handlers de LegalID (sin formateo con guiones) --------
   const handleLegalIdChange =
     (field: any, form: any) =>
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      // Formatear mientras escribe
-      const formatted = formatearCedulaJuridica(e.target.value);
-      field.handleChange(formatted);
+      const raw = e.target.value;
+      field.handleChange(raw);
 
-      // Si ya hay nombre manual (no aplica en este caso porque lo deshabilitamos), no autocompletar
-      const currentName = form.getFieldValue("CompanyName");
-      if (currentName && currentName.trim().length > 0) {
+      // Cancelar debounce y fetch previos
+      if (lookupRef.current.timer) clearTimeout(lookupRef.current.timer);
+      lookupRef.current.abort?.abort();
 
+      const digits = limpiar(raw);
+
+      // ✅ Si se borra o queda incompleta (<10), limpiar inmediatamente el nombre y no consultar
+      if (digits.length === 0 || digits.length < 10) {
+        form.setFieldValue("CompanyName", "");
+        return;
       }
 
-      // Debounce
-      if (lookupRef.current.timer) clearTimeout(lookupRef.current.timer);
-
+      // Debounce de consulta
       lookupRef.current.timer = setTimeout(async () => {
-        // Cancelar request anterior
+        // Cancelar request anterior (por si acaso)
         lookupRef.current.abort?.abort();
         const ac = new AbortController();
         lookupRef.current.abort = ac;
 
-        const digits = limpiar(formatted);
-        if (!esCedulaJuridica(digits)) return;
+        if (!esCedulaJuridica(digits)) {
+          form.setFieldValue("CompanyName", "");
+          return;
+        }
 
         setLookingUp(true);
         try {
-          const nombre = await fetchNombreJuridico(formatted, ac.signal);
-          if (nombre) form.setFieldValue("CompanyName", nombre);
+          const nombre = await fetchNombreJuridico(raw, ac.signal);
+          form.setFieldValue("CompanyName", nombre ?? "");
         } finally {
           setLookingUp(false);
         }
@@ -143,20 +148,25 @@ const CreateLegalSupplierModal = () => {
   const handleLegalIdBlur =
     (field: any, form: any) =>
     async () => {
-      const raw = field.state.value;
-
-      // Cancelar request anterior
+      // Cancelar cualquier request en curso
       lookupRef.current.abort?.abort();
+
+      const raw = field.state.value;
+      const digits = limpiar(raw);
+
+      // ✅ Si está vacío o inválido, asegurar limpieza y no consultar
+      if (digits.length === 0 || !esCedulaJuridica(digits)) {
+        form.setFieldValue("CompanyName", "");
+        return;
+      }
+
       const ac = new AbortController();
       lookupRef.current.abort = ac;
-
-      const digits = limpiar(raw);
-      if (!esCedulaJuridica(digits)) return;
 
       setLookingUp(true);
       try {
         const nombre = await fetchNombreJuridico(raw, ac.signal);
-        if (nombre) form.setFieldValue("CompanyName", nombre);
+        form.setFieldValue("CompanyName", nombre ?? "");
       } finally {
         setLookingUp(false);
       }
@@ -197,10 +207,15 @@ const CreateLegalSupplierModal = () => {
                   value={field.state.value}
                   onChange={handleLegalIdChange(field, form)}
                   onBlur={handleLegalIdBlur(field, form)}
-                  maxLength={13} // 1-3-6 => 10 dígitos + 2 guiones = 12; dejamos 13 por seguridad
+                  maxLength={13} // 10 dígitos + 2 guiones = 12; dejamos 13 por seguridad
                   inputMode="numeric"
                   autoComplete="off"
                 />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
+                    )}
                 {lookingUp && <span className="text-xs text-gray-500 mt-1">Consultando…</span>}
               </label>
             )}
@@ -220,6 +235,11 @@ const CreateLegalSupplierModal = () => {
                   disabled
                   aria-disabled="true"
                 />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
+                )}
               </label>
             )}
           </form.Field>
@@ -235,6 +255,11 @@ const CreateLegalSupplierModal = () => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
+                    )}
               </label>
             )}
           </form.Field>
@@ -275,6 +300,11 @@ const CreateLegalSupplierModal = () => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                )}
               </label>
             )}
           </form.Field>
@@ -290,6 +320,11 @@ const CreateLegalSupplierModal = () => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                )}
               </label>
             )}
           </form.Field>
