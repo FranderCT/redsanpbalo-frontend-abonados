@@ -14,7 +14,7 @@ export const useCreateLegalSupplier = () =>{
         onSuccess: (res) => {
             console.log(res);
             qc.invalidateQueries({queryKey: ['legal-supplier']});
-            toast.success('Proveedor físico creado con éxito', {autoClose: 3000, position: 'top-right'});
+            toast.success('Proveedor jurídico creado con éxito', {autoClose: 3000, position: 'top-right'});
         },
         onError: (err) =>{
             console.error(err);
