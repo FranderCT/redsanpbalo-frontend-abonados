@@ -58,3 +58,12 @@ export async function deleteLegalSupplier (Id : number) : Promise<void>{
     }
 }
 
+export async function getLegalSuppliers(): Promise<LegalSupplier[]> {
+    try{
+        const res = await apiAxios.get<LegalSupplier[]>(BASE);
+        return res.data;    
+    }catch(err){
+        return Promise.reject(err);
+    }
+    
+}

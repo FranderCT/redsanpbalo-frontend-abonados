@@ -15,25 +15,18 @@ export interface Product {
   IsActive: boolean;  // Añadir IsActive
 }
 
+
 export interface NewProduct {
-  Name: string;
-  Type: string;
-  Observation: string;
-  CategoryId: number;
-  MaterialId: number;
-  UnitMeasureId: number;
-  SupplierId: number;  
+  Name?: string;
+  Type?: string;
+  Observation?: string;
+  CategoryId?: number;
+  MaterialId?: number;
+  UnitMeasureId?: number;
+  LegalSupplierId?: number;  
+  PhysicalSupplierId?: number
 }
 
-export const newProductInitialState: NewProduct = {
-  Name: "",
-  Type: "",
-  Observation: "",
-  CategoryId: 0,
-  MaterialId: 0,
-  UnitMeasureId: 0,
-  SupplierId: 0,
-};
 
 export interface UpdateProduct {
   Name?: string;

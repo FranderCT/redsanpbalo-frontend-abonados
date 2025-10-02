@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createLegalSupplier, deleteLegalSupplier, editLegalSupplier, getAllLegalSupplier, getLegalSupplierById } from "../Services/LegalSupplierServices";
+import { createLegalSupplier, deleteLegalSupplier, editLegalSupplier, getAllLegalSupplier, getLegalSupplierById, getLegalSuppliers } from "../Services/LegalSupplierServices";
 import { toast } from "react-toastify";
 import type { LegalSupplier, newLegalSupplier } from "../Models/LegalSupplier";
 import type { ProductPaginationParams } from "../../Products/Models/CreateProduct";
@@ -97,3 +97,12 @@ export const useDeleteLegalSupplier = () => {
         }
     });
 };
+
+
+export const useGetAllLegalSuppliers = () =>{
+    const { data: legalSup, isPending, error } = useQuery({
+        queryKey: ["legal-supplier"],
+        queryFn: getLegalSuppliers,
+    });
+    return { legalSup, isPending, error };
+}
