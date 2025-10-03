@@ -25,6 +25,7 @@ const CreateAgentSupplierModal = ({LegalSupplierId} : Props) => {
 
     const form = useForm({
         defaultValues: {
+            IDcard: '',
             Name: '',
             Surname1 : '',
             Surname2: '',
@@ -77,6 +78,25 @@ const CreateAgentSupplierModal = ({LegalSupplierId} : Props) => {
                 }}
                 className="grid gap-3"
             >
+
+                <form.Field name='IDcard'>
+                    {(field) => (
+                    <>
+                        <label className={`${LABELSTYLES}`}>
+                            <span className={`${SPANSTYLES}`}>
+                                Cédula del agente
+                            </span>
+                            <input
+                                className={`${INPUTSTYLES}`}
+                                placeholder="ejm. 504440503"
+                                value={field.state.value}
+                                onChange={(e) => field.handleChange(e.target.value)}
+                            />
+                        </label>
+                    </>
+                    )}
+                </form.Field>
+
                 <form.Field name='Name'>
                     {(field) => (
                     <>

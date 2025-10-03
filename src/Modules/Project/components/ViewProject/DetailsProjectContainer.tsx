@@ -34,8 +34,8 @@ export default function DetailsProjectContainer({ data }: Props) {
             <button
             onClick={() =>
               navigate({
-                // to: "/dashboard/projects/$projectId/edit",
-                // params: { projectId: String(data.Id) },
+                to: "/dashboard/projects/$projectId/edit",
+                params: { projectId: String(data.Id) },
               })
             }
             className="flex items-center gap-1 px-3 py-1 text-xs font-medium border text-[#1789FC] border-[#1789FC] hover:bg-[#1789FC] hover:text-white"

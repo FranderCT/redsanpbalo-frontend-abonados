@@ -1,6 +1,8 @@
 import type { Category } from "../../Category/Models/Category";
+import type { LegalSupplier } from "../../LegalSupplier/Models/LegalSupplier";
 import type { Material } from "../../Materials/Models/Material";
-import type { Supplier } from "../../Supplier/Models/Supplier";
+import type { PhysicalSupplier } from "../../PhysicalSupplier/Models/PhysicalSupplier";
+
 import type { Unit } from "../../UnitMeasure/Models/unit";
 
 export interface Product {
@@ -11,8 +13,9 @@ export interface Product {
   Category: Category;
   Material: Material;
   UnitMeasure: Unit;
-  Supplier: Supplier;
   IsActive: boolean;  // Añadir IsActive
+  PhysicalSupplier: PhysicalSupplier
+  LegalSupplier : LegalSupplier
 }
 
 

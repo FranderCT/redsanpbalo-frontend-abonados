@@ -101,7 +101,7 @@ export const useDeleteLegalSupplier = () => {
 
 export const useGetAllLegalSuppliers = () =>{
     const { data: legalSup, isPending, error } = useQuery({
-        queryKey: ["legal-supplier"],
+        queryKey: ["legal-supplier", 'agent-supplier'],
         queryFn: getLegalSuppliers,
     });
     return { legalSup, isPending, error };
