@@ -1,3 +1,4 @@
+import type { ActualExpense } from "../../Actual-Expense/Models/ActualExpense";
 import type { Product } from "../../Products/Models/CreateProduct";
 import type { ProjectProjection } from "../../Project/Project-projection/Models/ProjectProjection";
 
@@ -6,13 +7,14 @@ export interface ProductDetail {
     Quantity : number;
     Product : Product;
     ProjectProjection : ProjectProjection;
-    // agregar actual expense 
+    ActualExpense : ActualExpense ;
 }
 
 export interface NewProductDetail {
     Quantity? : number;
     ProductId? : number;
     ProjectProjectionId? : number;
+    ActualExpenseId? : number;
 }
 
 export const NewProductDetailInitialState : NewProductDetail = { 
