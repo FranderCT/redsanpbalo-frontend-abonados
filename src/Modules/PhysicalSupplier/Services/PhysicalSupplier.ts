@@ -24,7 +24,7 @@ export async function getAllPhysicalSupplier (
         });
         return data;
     } catch (err) {
-        console.error("Error buscando productos", err);
+        console.error("Error buscando proveedores", err);
         return Promise.reject(err);
     }
 }

@@ -64,10 +64,10 @@ export default function GetInfoPhysicalSupplierModal({
             </div>
 
             <div className={CARD}>
-              <dt className={LABEL}>Nombre</dt>
-              <dd className={`${VALUE} break-words`}>{show(supplier?.Name)}</dd>
+              <dt className={LABEL}>Nombre Completo</dt>
+              <dd className={`${VALUE} break-words`}>{show(supplier?.Name)+" "+show(supplier.Surname1)+" "+show(supplier.Surname2)}</dd>
             </div>
-
+            
             <div className={CARD}>
               <dt className={LABEL}>Correo electrónico</dt>
               <dd className={`${VALUE} break-words`}>

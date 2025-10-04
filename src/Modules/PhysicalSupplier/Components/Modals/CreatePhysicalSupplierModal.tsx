@@ -6,6 +6,38 @@ import { toast } from "react-toastify";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { PhysicalSupplierSchema } from "../../Schemas/PhysicalSupplierSchema";
 
+type CedulaLookup = {
+  name: string | null;
+  surname1: string | null;
+  surname2: string | null;
+};
+
+// Heurística para separar nombres y apellidos cuando solo viene el nombre completo.
+// Asume convención CR: [Nombres...] [Apellido1] [Apellido2]
+function splitCostaRicaFullName(full: string): CedulaLookup {
+  const clean = full
+    .replace(/\s+/g, " ")
+    .replace(/[.,]+/g, " ")
+    .trim();
+
+  if (!clean) return { name: null, surname1: null, surname2: null };
+
+  const parts = clean.split(" ").filter(Boolean);
+
+  if (parts.length === 1) {
+    return { name: parts[0], surname1: null, surname2: null };
+  }
+  if (parts.length === 2) {
+    return { name: parts[0], surname1: parts[1], surname2: null };
+  }
+
+  // 3 o más: últimos dos como apellidos, el resto como nombres
+  const surname2 = parts.pop()!;
+  const surname1 = parts.pop()!;
+  const name = parts.join(" ");
+  return { name, surname1, surname2 };
+}
+
 const CreatePhysicalSupplierModal = () => {
   const [open, setOpen] = useState(false);
   const CreateSupplierMutation = useCreatePhysicalSupplier();
@@ -17,14 +49,73 @@ const CreatePhysicalSupplierModal = () => {
   // --- Helpers ---
   const limpiar = (v: string) => v.replace(/\D/g, ""); // solo dígitos
 
-  async function fetchNombreFisico(cedula: string, signal?: AbortSignal): Promise<string | null> {
+  async function fetchPersonaFisica(
+    cedula: string,
+    signal?: AbortSignal
+  ): Promise<CedulaLookup | null> {
     const c = limpiar(cedula);
     if (c.length < 9) return null; // cédulas físicas suelen tener >= 9 dígitos
+
     const res = await fetch(`https://apis.gometa.org/cedulas/${c}`, { signal });
     if (!res.ok) throw new Error("No se encontró este número de cédula");
+
     const data = await res.json();
-    const nombre: string = data?.nombre || data?.nombre_completo || data?.name || "";
-    return nombre?.trim() ? nombre.trim() : null;
+
+    // Posibles campos que devuelva el API (defensivo):
+    const nombre =
+      data?.nombre ??
+      data?.name ??
+      data?.nombre_completo ??
+      data?.fullname ??
+      data?.titular ??
+      null;
+
+    const primer_apellido =
+      data?.primer_apellido ??
+      data?.apellido1 ??
+      data?.apellido_1 ??
+      null;
+
+    const segundo_apellido =
+      data?.segundo_apellido ??
+      data?.apellido2 ??
+      data?.apellido_2 ??
+      null;
+
+    // Si ya vienen apellidos separados, usar esos
+    if (nombre && (primer_apellido || segundo_apellido)) {
+      return {
+        name: String(nombre).trim() || null,
+        surname1: primer_apellido ? String(primer_apellido).trim() : null,
+        surname2: segundo_apellido ? String(segundo_apellido).trim() : null,
+      };
+    }
+
+    // A veces puede venir un campo "apellidos" junto:
+    const apellidos = data?.apellidos ?? data?.lastnames ?? null;
+    if (nombre && apellidos) {
+      const full = `${nombre} ${apellidos}`;
+      return splitCostaRicaFullName(full);
+    }
+
+    // Si solo viene un string con nombre completo:
+    if (typeof nombre === "string") {
+      return splitCostaRicaFullName(nombre);
+    }
+
+    // Si llegó en otra estructura, intenta "nombre_completo" u otros
+    const posibleFull =
+      data?.nombre_completo ??
+      data?.fullname ??
+      data?.completo ??
+      data?.razon_social ??
+      null;
+
+    if (typeof posibleFull === "string") {
+      return splitCostaRicaFullName(posibleFull);
+    }
+
+    return null;
   }
 
   // Debounce + cancelación
@@ -35,12 +126,14 @@ const CreatePhysicalSupplierModal = () => {
     defaultValues: {
       IDcard: "",
       Name: "",
+      Surname1: "",
+      Surname2: "",
       Email: "",
       PhoneNumber: "",
       Location: "",
     },
-    validators:{
-        onChange:PhysicalSupplierSchema
+    validators: {
+      onChange: PhysicalSupplierSchema, // <--- recuerda permitir Surname1/Surname2 si tu schema los valida
     },
     onSubmit: async ({ value }) => {
       try {
@@ -59,9 +152,9 @@ const CreatePhysicalSupplierModal = () => {
     form.reset();
   };
 
-  // --- Handler del IDcard con autocompletado de Nombre ---
+  // --- Handler del IDcard con autocompletado de Nombre + Apellidos ---
   const handleIdCardChange =
-    (field: any, form: any) =>
+    (field: any, formApi: any) =>
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value;
       field.handleChange(raw);
@@ -72,13 +165,11 @@ const CreatePhysicalSupplierModal = () => {
 
       const c = limpiar(raw);
 
-      // ✅ Si la cédula quedó vacía o es muy corta, limpiar inmediatamente el nombre y NO consultar
-      if (c.length === 0) {
-        form.setFieldValue("Name", "");
-        return;
-      }
-      if (c.length < 9) {
-        form.setFieldValue("Name", "");
+      // ✅ Si la cédula quedó vacía o es muy corta, limpiar inmediatamente y NO consultar
+      if (c.length === 0 || c.length < 9) {
+        formApi.setFieldValue("Name", "");
+        formApi.setFieldValue("Surname1", "");
+        formApi.setFieldValue("Surname2", "");
         return;
       }
 
@@ -89,15 +180,21 @@ const CreatePhysicalSupplierModal = () => {
 
         setLookingUp(true);
         try {
-          const nombre = await fetchNombreFisico(raw, ac.signal);
-          if (nombre) {
-            form.setFieldValue("Name", nombre);
+          const persona = await fetchPersonaFisica(raw, ac.signal);
+          if (persona) {
+            formApi.setFieldValue("Name", persona.name ?? "");
+            formApi.setFieldValue("Surname1", persona.surname1 ?? "");
+            formApi.setFieldValue("Surname2", persona.surname2 ?? "");
           } else {
-            form.setFieldValue("Name", "");
+            formApi.setFieldValue("Name", "");
+            formApi.setFieldValue("Surname1", "");
+            formApi.setFieldValue("Surname2", "");
           }
         } catch (err) {
           console.warn("Error buscando cédula:", err);
-          form.setFieldValue("Name", "");
+          formApi.setFieldValue("Name", "");
+          formApi.setFieldValue("Surname1", "");
+          formApi.setFieldValue("Surname2", "");
         } finally {
           setLookingUp(false);
         }
@@ -105,7 +202,7 @@ const CreatePhysicalSupplierModal = () => {
     };
 
   const handleIdCardBlur =
-    (field: any, form: any) =>
+    (field: any, formApi: any) =>
     async () => {
       const raw = field.state.value;
 
@@ -114,9 +211,11 @@ const CreatePhysicalSupplierModal = () => {
 
       const c = limpiar(raw);
 
-      // ✅ Si está vacío o corto, no consultar y asegurar nombre limpio
+      // ✅ Si está vacío o corto, no consultar y asegurar limpieza
       if (c.length === 0 || c.length < 9) {
-        form.setFieldValue("Name", "");
+        formApi.setFieldValue("Name", "");
+        formApi.setFieldValue("Surname1", "");
+        formApi.setFieldValue("Surname2", "");
         return;
       }
 
@@ -125,14 +224,20 @@ const CreatePhysicalSupplierModal = () => {
 
       setLookingUp(true);
       try {
-        const nombre = await fetchNombreFisico(raw, ac.signal);
-        if (nombre) {
-          form.setFieldValue("Name", nombre);
+        const persona = await fetchPersonaFisica(raw, ac.signal);
+        if (persona) {
+          formApi.setFieldValue("Name", persona.name ?? "");
+          formApi.setFieldValue("Surname1", persona.surname1 ?? "");
+          formApi.setFieldValue("Surname2", persona.surname2 ?? "");
         } else {
-          form.setFieldValue("Name", "");
+          formApi.setFieldValue("Name", "");
+          formApi.setFieldValue("Surname1", "");
+          formApi.setFieldValue("Surname2", "");
         }
       } catch {
-        form.setFieldValue("Name", "");
+        formApi.setFieldValue("Name", "");
+        formApi.setFieldValue("Surname1", "");
+        formApi.setFieldValue("Surname2", "");
       } finally {
         setLookingUp(false);
       }
@@ -147,8 +252,8 @@ const CreatePhysicalSupplierModal = () => {
         + Crear proveedor físico
       </button>
 
-      <ModalBase open={open} onClose={handleClose} panelClassName="w-[min(30vw,700px)] p-4 ">
-        <header className="flex flex-col">
+      <ModalBase open={open} onClose={handleClose} panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]">
+        <header className="flex-shrink-0 flex flex-col">
           <h2 className="text-2xl text-[#091540] font-bold">Crear proveedor físico</h2>
           <p className="text-md">Complete la información para crear un proveedor físico</p>
         </header>
@@ -156,11 +261,12 @@ const CreatePhysicalSupplierModal = () => {
         <div className="border-b border-[#222]/10"></div>
 
         <form
+          id="create-physical-supplier-form"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="grid gap-3"
+          className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           {/* Cédula física */}
           <form.Field name="IDcard">
@@ -178,12 +284,12 @@ const CreatePhysicalSupplierModal = () => {
                     autoComplete="off"
                   />
                   {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
                   )}
                 </label>
-                {lookingUp && <p className="text-xs text-gray-500 mt-1">Consultando nombre…</p>}
+                {lookingUp && <p className="text-xs text-gray-500 mt-1">Consultando datos…</p>}
               </>
             )}
           </form.Field>
@@ -193,10 +299,10 @@ const CreatePhysicalSupplierModal = () => {
             {(field) => (
               <>
                 <label className={LABELSTYLES}>
-                  <span className={SPANSTYLES}>Nombre del proveedor</span>
+                  <span className={SPANSTYLES}>Nombre</span>
                   <input
                     className={`${INPUTSTYLES} opacity-75 cursor-not-allowed`}
-                    placeholder="Se autocompleta según el número de cédula"
+                    placeholder="Se autocompleta según cédula"
                     value={field.state.value}
                     onChange={() => {}}
                     readOnly
@@ -204,9 +310,59 @@ const CreatePhysicalSupplierModal = () => {
                     aria-disabled="true"
                   />
                   {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                  )}
+                </label>
+              </>
+            )}
+          </form.Field>
+
+          {/* Primer apellido (autocompletado) */}
+          <form.Field name="Surname1">
+            {(field) => (
+              <>
+                <label className={LABELSTYLES}>
+                  <span className={SPANSTYLES}>Primer apellido</span>
+                  <input
+                    className={`${INPUTSTYLES} opacity-75 cursor-not-allowed`}
+                    placeholder="Se autocompleta según cédula"
+                    value={field.state.value}
+                    onChange={() => {}}
+                    readOnly
+                    disabled
+                    aria-disabled="true"
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                  )}
+                </label>
+              </>
+            )}
+          </form.Field>
+
+          {/* Segundo apellido (autocompletado) */}
+          <form.Field name="Surname2">
+            {(field) => (
+              <>
+                <label className={LABELSTYLES}>
+                  <span className={SPANSTYLES}>Segundo apellido</span>
+                  <input
+                    className={`${INPUTSTYLES} opacity-75 cursor-not-allowed`}
+                    placeholder="Se autocompleta según cédula"
+                    value={field.state.value}
+                    onChange={() => {}}
+                    readOnly
+                    disabled
+                    aria-disabled="true"
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
                   )}
                 </label>
               </>
@@ -226,10 +382,10 @@ const CreatePhysicalSupplierModal = () => {
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
                   {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                    )}
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </label>
               </>
             )}
@@ -252,8 +408,7 @@ const CreatePhysicalSupplierModal = () => {
                 />
                 {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                   <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ??
-                      String(field.state.meta.errors[0])}
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
                   </p>
                 )}
               </>
@@ -274,36 +429,38 @@ const CreatePhysicalSupplierModal = () => {
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
                   {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                    )}
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </label>
               </>
             )}
           </form.Field>
-
-          <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
-            {([canSubmit, isSubmitting]) => (
-              <div className="mt-4 flex justify-end gap-2">
-                <button
-                  type="submit"
-                  className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
-                  disabled={!canSubmit}
-                >
-                  {isSubmitting ? "Registrando…" : "Registrar"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
-                >
-                  Cancelar
-                </button>
-              </div>
-            )}
-          </form.Subscribe>
         </form>
+        {/* FOOTER (fijo) */}
+        <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+          {([canSubmit, isSubmitting]) => (
+            <div className="flex-shrink-0 mt-4 flex justify-end gap-2 border-t border-gray-200 pt-3">
+              {/* Botones fuera del form pero asociados por atributo 'form' */}
+              <button
+                form="create-physical-supplier-form"
+                type="submit"
+                className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
+                disabled={!canSubmit}
+              >
+                {isSubmitting ? "Registrando…" : "Registrar"}
+              </button>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
+        </form.Subscribe>
       </ModalBase>
     </>
   );

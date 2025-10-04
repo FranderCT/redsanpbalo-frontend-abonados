@@ -13,9 +13,8 @@ export const PhysicalSupplierColumns = (
     accessorKey: "IDcard",
     header: "Número de Cédula",
   },  
-  {
-    accessorKey: "Name",
-    header: "Nombre",
+  { accessorKey: "Name", header: "Nombre Completo", 
+    cell: ({ row }) => (row.original.Name + " " + row.original.Surname1 + " " + row.original.Surname2),
   },
   {
     accessorKey: "Email",
