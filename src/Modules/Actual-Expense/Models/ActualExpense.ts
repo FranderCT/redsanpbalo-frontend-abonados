@@ -1,10 +1,10 @@
 export interface ActualExpense {
     Id: number;
     Observation : string;
-    TraceProjectionId : number;   
+    TraceProjectId : number;   
 }
 
 export interface NewActualExpense {
     Observation? : string;
-    TraceProjectionId? : number;   
+    TraceProjectId? : number;   
 }

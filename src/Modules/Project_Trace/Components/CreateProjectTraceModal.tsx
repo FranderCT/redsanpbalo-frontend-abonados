@@ -9,6 +9,8 @@ import { useCreateProjectTrace } from "../Hooks/ProjectTraceHooks";
 import { useForm } from "@tanstack/react-form";
 import { useCreateActualExpense } from "../../Actual-Expense/Hooks/ActualExpenseHooks";
 import { useCreateProductDetail } from "../../Product-Detail/Hooks/ProductDetailHooks";
+import type { NewActualExpense } from "../../Actual-Expense/Models/ActualExpense";
+import type { NewProductDetail } from "../../Product-Detail/Models/ProductDetail";
 
 type Props = { ProjectId: number };
 
@@ -75,7 +77,7 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
     defaultValues: {
       Name: "",
       Observation: "",
-      ProjectId, // viene de props
+      ProjectId,
     },
     onSubmit: async ({ value }) => {
       const payload: newProjectTrace = {
@@ -88,25 +90,38 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
         // 1. Crear seguimiento
         const traceRes = await createTraceMutation.mutateAsync(payload);
         const traceId = (traceRes as any)?.Id ?? (traceRes as any)?.id;
+        
+        if (!traceId) {
+          throw new Error("No se pudo obtener el ID del seguimiento creado");
+        }
+        
         // 2. Crear gasto real (dummy, puedes ajustar los datos)
-        await actualExpenseMutation.mutateAsync({
+        const actualExpensePayload: NewActualExpense = {
           TraceProjectId: traceId,
           Observation: "Gasto automático"
-        } as any);
+        };
+        const actualExpenseRes = await actualExpenseMutation.mutateAsync(actualExpensePayload);
+        const actualExpenseId = (actualExpenseRes as any)?.Id ?? (actualExpenseRes as any)?.id;
+        
+        if (!actualExpenseId) {
+          throw new Error("No se pudo obtener el ID del gasto real creado");
+        }
+        
         // 3. Crear detalles de producto
         for (const { product, qty } of selectedProducts) {
-          await productDetailMutation.mutateAsync({
+          const productDetailPayload: NewProductDetail = {
             ProductId: product.Id,
             Quantity: qty,
-            ProjectProjectionId: traceId,
-          });
+            ActualExpenseId: actualExpenseId,
+          };
+          await productDetailMutation.mutateAsync(productDetailPayload);
         }
         toast.success("Seguimiento y productos registrados", { position: "top-right", autoClose: 3000 });
         form.reset();
         setSelectedProducts([]);
         setOpen(false);
       } catch (err) {
-        console.error(err);
+        console.error("Error en el proceso de creación:", err);
         toast.error("Error al crear el seguimiento o productos", { position: "top-right", autoClose: 3000 });
       }
     },
