@@ -5,6 +5,7 @@ import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { useEditPhysicalSupplier } from "../../Hooks/PhysicalSupplierHooks";
 import type { PhysicalSupplier } from "../../Models/PhysicalSupplier";
+import { UpdatePhysicalSupplierSchema } from "../../Schemas/UpdatePhysicalSupplierSchema";
 
 type Props = {
   supplier: PhysicalSupplier;
@@ -19,14 +20,16 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
   const SPANSTYLES = "text text-[#222]";
   const LABELSTYLES = "grid gap-1";
   const INPUTSTYLES = "w-full px-4 py-2 bg-gray-50 border";
-
+  
   const form = useForm({
     defaultValues: {
-      Name: supplier.Name ?? '',
       Email: supplier.Email ?? '',
       PhoneNumber: supplier.PhoneNumber ?? '',
       Location:  supplier.Location ?? '',
       IsActive : supplier.IsActive ?? true,
+    },
+    validators:{
+      onChange: UpdatePhysicalSupplierSchema
     },
     onSubmit: async ({ value }) => {
       try {
@@ -46,7 +49,6 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
   // Cuando cambia el supplier o se abre el modal, sincroniza los campos
   useEffect(() => {
     if (!supplier) return;
-    form.setFieldValue("Name", supplier.Name ?? "");
     form.setFieldValue("Email", supplier.Email ?? "");
     form.setFieldValue("PhoneNumber", supplier.PhoneNumber ?? "");
     form.setFieldValue("Location", supplier.Location ?? "");
@@ -58,6 +60,9 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
     form.reset();
     onClose();
   };
+
+  const toMsg = (e: unknown) =>
+  typeof e === 'string' ? e : (e as any)?.message ?? '';
 
   return (
     <ModalBase
@@ -79,27 +84,6 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
         }}
         className="grid gap-3"
       >
-        
-
-        {/* Nombre */}
-        <form.Field name="Name">
-          {(field) => (
-            <label className={LABELSTYLES}>
-              <span className={SPANSTYLES}>Nombre del proveedor</span>
-              <input
-                className={INPUTSTYLES}
-                placeholder="ejm. José Daniel Román"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-              {field.state.meta.isTouched && field.state.meta.errors[0] && (
-                <p className="text-sm text-red-500 mt-1">
-                  {String(field.state.meta.errors[0] as any)}
-                </p>
-              )}
-            </label>
-          )}
-        </form.Field>
 
         {/* Email */}
         <form.Field name="Email">
@@ -114,7 +98,7 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
               />
               {field.state.meta.isTouched && field.state.meta.errors[0] && (
                 <p className="text-sm text-red-500 mt-1">
-                  {String(field.state.meta.errors[0] as any)}
+                  {toMsg(field.state.meta.errors[0] as any)}
                 </p>
               )}
             </label>
@@ -132,14 +116,14 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
                 required
                 error={
                   field.state.meta.isTouched && field.state.meta.errors[0]
-                    ? String(field.state.meta.errors[0])
+                    ? toMsg(field.state.meta.errors[0])
                     : undefined
                 }
               />
               {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                 <p className="text-sm text-red-500 mt-1">
                   {(field.state.meta.errors[0] as any)?.message ??
-                    String(field.state.meta.errors[0])}
+                    toMsg(field.state.meta.errors[0])}
                 </p>
               )}
             </>
@@ -160,7 +144,7 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
               />
               {field.state.meta.isTouched && field.state.meta.errors[0] && (
                 <p className="text-sm text-red-500 mt-1">
-                  {String(field.state.meta.errors[0] as any)}
+                  {toMsg(field.state.meta.errors[0] as any)}
                 </p>
               )}
             </label>
@@ -190,7 +174,7 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
               {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                 <p className="text-sm text-red-500 mt-1">
                   {(field.state.meta.errors[0] as any)?.message ??
-                    String(field.state.meta.errors[0])}
+                    toMsg(field.state.meta.errors[0])}
                 </p>
               )}
             </label>
