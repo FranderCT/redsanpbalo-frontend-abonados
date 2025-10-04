@@ -36,8 +36,11 @@ const AsideDashboard = () => {
           </button>
         </Can>
 
-        <Can rule={{ any: ["ADMIN", "GUEST", "ABONADO"] }}>
-          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
+        <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
+          <button 
+            onClick={() => navigate({ to: "/dashboard/requests" })}
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+          >
             <FileText className="size-[23px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Solicitudes</span>
           </button>
@@ -68,14 +71,14 @@ const AsideDashboard = () => {
           />
         </Can>
 
-        <Can rule={{ any: ["ADMIN", "GUEST", "ABONADO"] }}>
+        <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
             <Bell className="size-[23px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Notificaciones</span>
           </button>
         </Can>
 
-        <Can rule={{ none: ["ADMIN", "ABONADO"] }}>
+        <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
             <OctagonAlert className="size-[23px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Reportes</span>

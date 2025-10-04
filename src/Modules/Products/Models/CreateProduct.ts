@@ -1,6 +1,8 @@
 import type { Category } from "../../Category/Models/Category";
+import type { LegalSupplier } from "../../LegalSupplier/Models/LegalSupplier";
 import type { Material } from "../../Materials/Models/Material";
-import type { Supplier } from "../../Supplier/Models/Supplier";
+import type { PhysicalSupplier } from "../../PhysicalSupplier/Models/PhysicalSupplier";
+
 import type { Unit } from "../../UnitMeasure/Models/unit";
 
 export interface Product {
@@ -11,29 +13,23 @@ export interface Product {
   Category: Category;
   Material: Material;
   UnitMeasure: Unit;
-  Supplier: Supplier;
   IsActive: boolean;  // Añadir IsActive
+  PhysicalSupplier: PhysicalSupplier
+  LegalSupplier : LegalSupplier
 }
+
 
 export interface NewProduct {
-  Name: string;
-  Type: string;
-  Observation: string;
-  CategoryId: number;
-  MaterialId: number;
-  UnitMeasureId: number;
-  SupplierId: number;  
+  Name?: string;
+  Type?: string;
+  Observation?: string;
+  CategoryId?: number;
+  MaterialId?: number;
+  UnitMeasureId?: number;
+  LegalSupplierId?: number;  
+  PhysicalSupplierId?: number
 }
 
-export const newProductInitialState: NewProduct = {
-  Name: "",
-  Type: "",
-  Observation: "",
-  CategoryId: 0,
-  MaterialId: 0,
-  UnitMeasureId: 0,
-  SupplierId: 0,
-};
 
 export interface UpdateProduct {
   Name?: string;

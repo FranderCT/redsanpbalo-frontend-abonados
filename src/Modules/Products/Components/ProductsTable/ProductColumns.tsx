@@ -32,7 +32,7 @@ export const ProductColumns = (
   {
     id: "Supplier",
     header : "Proveedor",
-    cell: ({ row }) => row.original.Supplier?.Name ?? "-",
+    cell: ({ row }) => row.original.PhysicalSupplier?.Name ?? row.original.LegalSupplier.CompanyName,
   },
   {
     id: "Acciones",

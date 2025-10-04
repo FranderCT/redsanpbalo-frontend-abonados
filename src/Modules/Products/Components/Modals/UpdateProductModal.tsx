@@ -6,8 +6,11 @@ import { useUpdateProduct } from "../../Hooks/ProductsHooks"; // 👈 igual a us
 import { useGetAllCategory } from "../../../Category/Hooks/CategoryHooks";
 import { useGetAllUnitsMeasure } from "../../../UnitMeasure/Hooks/UnitMeasureHooks";
 import { useGetAllMaterials } from "../../../Materials/Hooks/MaterialHooks";
-import { useGetAllSupplier } from "../../../Supplier/Hooks/SupplierHooks"; // Añadir hook para proveedores
 import type { Product } from "../../Models/CreateProduct";
+import { useGetAllLegalSuppliers } from "../../../LegalSupplier/Hooks/LegalSupplierHooks";
+import { useGetAllPhysicalSuppliers } from "../../../PhysicalSupplier/Hooks/PhysicalSupplierHooks";
+import { useEffect, useState } from "react";
+import type { SupplierType } from "./CreateProductModal";
 
 type Props = {
   product: Product;
@@ -17,6 +20,7 @@ type Props = {
 };
 
 export default function UpdateProductModal({ product, open, onClose, onSuccess }: Props) {
+  const [supplierType, setSupplierType] = useState<SupplierType>("legal");
   const updateProductMutation = useUpdateProduct();
 
   const { category: categories = [], isLoading: categoriesLoading } = useGetAllCategory();
@@ -26,11 +30,23 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
     isPending: materialsLoading,
     error: materialsError,
   } = useGetAllMaterials();
-  const { supplier = [], isLoading: suppliersLoading } = useGetAllSupplier();  // Hook para proveedores
+  const {
+    legalSup: legalSuppliers = [],
+    isPending: legalLoading,
+    error: legalError,
+  } = useGetAllLegalSuppliers();
+
+  const {
+    phySup: physicalSuppliers = [],
+    isPending: physicalLoading,
+    error: physicalError,
+  } = useGetAllPhysicalSuppliers();
+  
   const handleClose = () =>{
   toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
     onClose();
- }
+  }
+
   const form = useForm({
     defaultValues: {
       Name: product.Name ?? "",
@@ -39,12 +55,40 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
       CategoryId: product.Category?.Id ?? 0,
       MaterialId: product.Material?.Id ?? 0,
       UnitMeasureId: product.UnitMeasure?.Id ?? 0,
-      SupplierId: product.Supplier?.Id ?? 0,  // Asignar SupplierId
+      LegalSupplierId: product.LegalSupplier?.Id ?? 0, 
+      PhysicalSupplierId: product.PhysicalSupplier?.Id ?? 0,
       IsActive: product.IsActive ?? true,
     },
     onSubmit: async ({ value, formApi }) => {
+      const hasLegal = Number(value.LegalSupplierId) > 0;
+      const hasPhysical = Number(value.PhysicalSupplierId) > 0;
+
+      if (!hasLegal && !hasPhysical) {
+        toast.error("Selecciona un proveedor (Jurídico o Físico).");
+        return;
+      }
+      if (hasLegal && hasPhysical) {
+        toast.error("Solo puedes seleccionar un tipo de proveedor.");
+        return;
+      }
+
+      // Construimos el payload SIN enviar el campo que no aplica (evita @Min(1) con 0)
+      const base = {
+        Name: value.Name,
+        Type: value.Type,
+        Observation: value.Observation,
+        CategoryId: Number(value.CategoryId),
+        MaterialId: Number(value.MaterialId),
+        UnitMeasureId: Number(value.UnitMeasureId),
+        IsActive: value.IsActive
+      };
+
+      const payload = hasLegal
+        ? { ...base, LegalSupplierId: Number(value.LegalSupplierId) }
+        : { ...base, PhysicalSupplierId: Number(value.PhysicalSupplierId) };
+
       try {
-        await updateProductMutation.mutateAsync({ id: product.Id, data: value });
+        await updateProductMutation.mutateAsync({ id: product.Id, data: payload as any });
         toast.success("¡Producto actualizado!", { position: "top-right", autoClose: 3000 });
         formApi.reset();
         onClose();
@@ -58,6 +102,20 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
       }
     },
   });
+
+  // Al cambiar el tipo de proveedor, limpiamos el otro ID
+    useEffect(() => {
+      if (supplierType === "legal") {
+        form.setFieldValue("PhysicalSupplierId", 0);
+      } else {
+        form.setFieldValue("LegalSupplierId", 0);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [supplierType]);
+  
+    const LABEL = "grid gap-1";
+    const INPUT = "w-full px-4 py-2 bg-gray-50 border";
+    const ERROR = "text-sm text-red-500 mt-1";
 
   return (
     <ModalBase
@@ -81,10 +139,10 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
           {/* Name */}
           <form.Field name="Name">
             {(field) => (
-              <label className="grid gap-1">
+              <label className={LABEL}>
                 <span className="text-sm text-gray-700">Nombre</span>
                 <input
-                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  className={INPUT}
                   value={field.state.value ?? ""}
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="Nombre del producto"
@@ -96,10 +154,10 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
           {/* Type */}
           <form.Field name="Type">
             {(field) => (
-              <label className="grid gap-1">
+              <label className={LABEL}>
                 <span className="text-sm text-gray-700">Tipo</span>
                 <input
-                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  className={INPUT}
                   value={field.state.value ?? ""}
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="Tipo de producto"
@@ -111,10 +169,10 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
           {/* Observation */}
           <form.Field name="Observation">
             {(field) => (
-              <label className="grid gap-1">
+              <label className={LABEL}>
                 <span className="text-sm text-gray-700">Observación</span>
                 <textarea
-                  className="w-full px-4 py-2 bg-gray-50 border min-h-[96px] resize-y focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  className={INPUT}
                   value={field.state.value ?? ""}
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="Observaciones del producto"
@@ -126,10 +184,10 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
           {/* CategoryId (dropdown) */}
           <form.Field name="CategoryId">
             {(field) => (
-              <label className="grid gap-1">
+              <label className={LABEL}>
                 <span className="text-sm text-gray-700">Categoría</span>
                 <select
-                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  className={INPUT}
                   value={field.state.value ?? 0}
                   onChange={(e) => field.handleChange(Number(e.target.value))}
                   disabled={categoriesLoading}
@@ -150,10 +208,10 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
           {/* MaterialId (dropdown) */}
           <form.Field name="MaterialId">
             {(field) => (
-              <label className="grid gap-1">
+              <label className={LABEL}>
                 <span className="text-sm text-gray-700">Material</span>
                 <select
-                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  className={INPUT}
                   value={field.state.value ?? 0}
                   onChange={(e) => field.handleChange(Number(e.target.value))}
                   disabled={materialsLoading || !!materialsError}
@@ -176,42 +234,13 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
             )}
           </form.Field>
 
-          {/* SupplierId (dropdown para seleccionar proveedor) */}
-          <form.Field name="SupplierId">
-            {(field) => (
-              <label className="grid gap-1">
-                <span className="text-sm text-gray-700">Proveedor</span>
-                <select
-                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
-                  value={field.state.value ?? 0}
-                  onChange={(e) => field.handleChange(Number(e.target.value))}
-                  disabled={suppliersLoading}
-                >
-                  <option value={0} disabled>
-                    {suppliersLoading ? "Cargando proveedores..." : "Seleccione un proveedor"}
-                  </option>
-                  {supplier.map((s) => (
-                    <option key={s.Id} value={s.Id}>
-                      {s.Name}
-                    </option>
-                  ))}
-                </select>
-                {suppliersLoading && (
-                  <span className="text-xs text-red-600 mt-1">
-                    No se pudieron cargar los proveedores.
-                  </span>
-                )}
-              </label>
-            )}
-          </form.Field>
-
           {/* UnitMeasureId (dropdown para seleccionar unidad de medida) */}
           <form.Field name="UnitMeasureId">
             {(field) => (
-              <label className="grid gap-1">
+              <label className={LABEL}>
                 <span className="text-sm text-gray-700">Unidad de medida</span>
                 <select
-                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
+                  className={INPUT}
                   value={field.state.value ?? 0}
                   onChange={(e) => field.handleChange(Number(e.target.value))}
                   disabled={unitsLoading}
@@ -228,6 +257,94 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
               </label>
             )}
           </form.Field>
+          
+          {/* ======== Supplier Type (RADIOS) ======== */}
+            <div className="grid gap-2">
+              <span className="text-sm text-[#091540] font-semibold">Tipo de Proveedor</span>
+              <div className="flex items-center gap-6">
+                <label className="inline-flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="supplierType"
+                    value="legal"
+                    checked={supplierType === "legal"}
+                    onChange={() => setSupplierType("legal")}
+                  />
+                  <span>Jurídico</span>
+                </label>
+                <label className="inline-flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="supplierType"
+                    value="physical"
+                    checked={supplierType === "physical"}
+                    onChange={() => setSupplierType("physical")}
+                  />
+                  <span>Físico</span>
+                </label>
+              </div>
+            </div>
+
+            {/* ======== LegalSupplierId ======== */}
+            {supplierType === "legal" && (
+              <form.Field name="LegalSupplierId">
+                {(field) => (
+                  <label className={LABEL}>
+                    <select
+                      className={INPUT}
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(Number(e.target.value))}
+                      disabled={legalLoading || !!legalError}
+                    >
+                      <option value={0} disabled>
+                        {legalLoading ? "Cargando proveedores jurídicos..." : "Seleccione Proveedor Jurídico"}
+                      </option>
+                      {legalSuppliers.map((s: any) => (
+                        <option key={s.Id} value={s.Id}>
+                          {s.CompanyName ?? s.Name ?? `Proveedor #${s.Id}`}
+                        </option>
+                      ))}
+                    </select>
+                    {legalError && (
+                      <span className="text-xs text-red-600 mt-1">
+                        No se pudieron cargar los proveedores jurídicos.
+                      </span>
+                    )}
+                  </label>
+                )}
+              </form.Field>
+            )}
+
+            {/* ======== PhysicalSupplierId ======== */}
+            {supplierType === "physical" && (
+              <form.Field name="PhysicalSupplierId">
+                {(field) => (
+                  <label className={LABEL}>
+                    <select
+                      className={INPUT}
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(Number(e.target.value))}
+                      disabled={physicalLoading || !!physicalError}
+                    >
+                      <option value={0} disabled>
+                        {physicalLoading ? "Cargando proveedores físicos..." : "Seleccione Proveedor Físico"}
+                      </option>
+                      {physicalSuppliers.map((s: any) => (
+                        <option key={s.Id} value={s.Id}>
+                          {s.Name}
+                        </option>
+                      ))}
+                    </select>
+                    {physicalError && (
+                      <span className="text-xs text-red-600 mt-1">
+                        No se pudieron cargar los proveedores físicos.
+                      </span>
+                    )}
+                  </label>
+                )}
+              </form.Field>
+            )}
+
 
           {/* IsActive */}
           <form.Field name="IsActive">

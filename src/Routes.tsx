@@ -8,10 +8,11 @@ import { categoryRoute } from "./Modules/Category/Routes/RoutesCategories";
 import { uniteMeasureRoute } from "./Modules/UnitMeasure/routes/RoutesUnitMeasures";
 import { productsRoutes } from "./Modules/Products/routes/ProductsRoutes";
 import { listSupplierRoute, newSupplierRoute, supplierRoute, viewSuppliertRoute } from "./Modules/Supplier/Routes/SuppliersRoutes";
-import { createProjectRoute, listProjectRoute, projectRoute, viewProjectRoute } from "./Modules/Project/Routes/ProjectsRoutes";
+import { createProjectRoute, listProjectRoute, projectRoute, updateProjectRoute, viewProjectRoute } from "./Modules/Project/Routes/ProjectsRoutes";
 import { listPhysicalSuppliers, PhysicalSupplierRoute } from "./Modules/PhysicalSupplier/Routes/PhysicalSupplierRoutes";
 import { legalSupplierRoute, listLegalSuppliers } from "./Modules/LegalSupplier/Routes/LegalSupplierRoutes";
 import HeroPage from "./Modules/Lading/HeroPage";
+import { requestRoute } from "./Modules/Requests/Routes/RequestsRoutes";
 
 export const rootRoute = createRootRoute();
 
@@ -44,6 +45,7 @@ export const routeTree = rootRoute.addChildren([
     categoryRoute,
     uniteMeasureRoute,
     productsRoutes,
+    requestRoute,
     supplierRoute.addChildren([
       listSupplierRoute,
       newSupplierRoute,
@@ -52,7 +54,8 @@ export const routeTree = rootRoute.addChildren([
     projectRoute.addChildren([
       listProjectRoute,
       createProjectRoute,
-      viewProjectRoute
+      viewProjectRoute,
+      updateProjectRoute
     ])
   ]),
   PhysicalSupplierRoute.addChildren([

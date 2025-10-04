@@ -23,6 +23,7 @@ const EditAgentSupplierModal = ({ agent, open, onClose, onSuccess }: Props) => {
 
   const form = useForm({
     defaultValues: {
+      IDcard: agent?.IDcard ?? "",
       Name: agent?.Name ?? "",
       Surname1: agent?.Surname1 ?? "",
       Surname2: agent?.Surname2 ?? "",
@@ -49,6 +50,7 @@ const EditAgentSupplierModal = ({ agent, open, onClose, onSuccess }: Props) => {
   useEffect(() => {
     if (!agent || !open) return;
     form.reset({
+      IDcard: agent.IDcard ?? "",
       Name: agent.Name ?? "",
       Surname1: agent.Surname1 ?? "",
       Surname2: agent.Surname2 ?? "",
@@ -86,6 +88,25 @@ const EditAgentSupplierModal = ({ agent, open, onClose, onSuccess }: Props) => {
         className="grid gap-3"
       >
         {/* Nombre */}
+        <form.Field name='IDcard'>
+          {(field) => (
+          <>
+            <label className={`${LABELSTYLES}`}>
+                  <span className={`${SPANSTYLES}`}>
+                      Cédula del agente
+                  </span>
+                <input
+                  className={`${INPUTSTYLES}`}
+                  placeholder="ejm. 504440503"
+                  value={field.state.value ?? ""}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                />
+            </label>
+          </>
+        )}
+        </form.Field>
+
+        
         <form.Field name="Name">
           {(field) => (
             <label className={LABELSTYLES}>

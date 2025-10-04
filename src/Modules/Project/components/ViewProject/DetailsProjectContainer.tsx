@@ -137,7 +137,7 @@ export default function DetailsProjectContainer({ data }: Props) {
               </thead>
               <tbody>
                 {data.ProjectProjection.ProductDetails.map((pd) => (
-                  <tr key={pd.Product.Id}>
+                  <tr key={pd.Id}>
                     <td className="border px-2 py-1">{pd.Product.Name}</td>
                     <td className="border px-2 py-1"> {pd.Product?.Type} {pd.Product.Material?.Name}</td>
                     <td className="border px-2 py-1">{pd.Quantity} </td>
@@ -149,6 +149,10 @@ export default function DetailsProjectContainer({ data }: Props) {
           </Field>
 
           <Divider />
+
+          <h4 className="text-2xl font-semibold tracking-wide">Seguimientos del proyecto</h4>
+
+          
 
         </section>
       </div>

@@ -3,6 +3,7 @@ import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
 import ListProjects from "../Pages/ListProjects";
 import NewProject from "../Pages/NewProject";
 import ViewProject from "../Pages/ViewProject";
+import UpdateProjectContainer from "../components/UpdateProject/UpdateProjectContainer";
 
 
 
@@ -29,3 +30,9 @@ export const viewProjectRoute = createRoute({
   path: "$projectId",
   component: ViewProject,
 });
+
+export const updateProjectRoute = createRoute({
+    getParentRoute: () => projectRoute,
+    path: '$projectId/edit',
+    component: UpdateProjectContainer
+})

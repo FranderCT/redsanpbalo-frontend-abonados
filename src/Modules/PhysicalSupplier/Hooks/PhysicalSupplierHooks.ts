@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createPhysicalSupplier, deletePhysicalSupplier, editPhysicalSupplier, getAllPhysicalSupplier } from "../Services/PhysicalSupplier";
+import { createPhysicalSupplier, deletePhysicalSupplier, editPhysicalSupplier, getAllPhysicalSupplier, getPhysicalSuppliers } from "../Services/PhysicalSupplier";
 import { toast } from "react-toastify";
 import type { ProductPaginationParams } from "../../Products/Models/CreateProduct";
 import type { newPhysicalSupplier, PhysicalSupplier } from "../Models/PhysicalSupplier";
@@ -88,3 +88,11 @@ export const useDeletePhysicalSupplier = () => {
         }
     });
 };
+
+export const useGetAllPhysicalSuppliers = () =>{
+    const { data: phySup, isPending, error } = useQuery({
+        queryKey: ["physical-supplier"],
+        queryFn: getPhysicalSuppliers,
+    });
+    return { phySup, isPending, error };
+}

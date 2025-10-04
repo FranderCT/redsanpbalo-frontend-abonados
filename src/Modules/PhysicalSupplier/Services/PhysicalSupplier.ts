@@ -45,3 +45,13 @@ export async function deletePhysicalSupplier (Id : number) : Promise<void>{
         return Promise.reject(err);
     }
 }
+
+export async function getPhysicalSuppliers(): Promise<PhysicalSupplier[]> {
+    try{
+        const res = await apiAxios.get<PhysicalSupplier[]>(BASE);
+        return res.data;    
+    }catch(err){
+        return Promise.reject(err);
+    }
+    
+}
