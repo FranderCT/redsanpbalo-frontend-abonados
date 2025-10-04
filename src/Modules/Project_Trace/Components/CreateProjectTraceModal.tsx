@@ -1,14 +1,19 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../Components/Modals/ModalBase";
+import { ProductSelectionModal } from "../../Project/components/NewProject/ProductSelectionModal";
+import { useGetAllProducts } from "../../Products/Hooks/ProductsHooks";
+import type { Product } from "../../Products/Models/CreateProduct";
 import type { newProjectTrace } from "../Models/ProjectTrace";
 import { useCreateProjectTrace } from "../Hooks/ProjectTraceHooks";
 import { useForm } from "@tanstack/react-form";
+import { useCreateActualExpense } from "../../Actual-Expense/Hooks/ActualExpenseHooks";
+import { useCreateProductDetail } from "../../Product-Detail/Hooks/ProductDetailHooks";
 
 type Props = { ProjectId: number };
 
 // 🎨 Estilos centralizados
-const PANEL = "w-full max-w-xl !p-0 overflow-hidden shadow-2xl";
+const PANEL = "w-full max-w-4xl !p-0 overflow-hidden shadow-2xl";
 const WRAP = "bg-white";
 const HEADER = "px-6 py-5 border-b border-gray-200";
 const TITLE = "text-xl font-bold text-[#091540]";
@@ -32,12 +37,39 @@ const TRIGGER_BTN =
 
 const CreateProjectTraceModal = ({ ProjectId }: Props) => {
   const [open, setOpen] = useState(false);
-  const createMutation = useCreateProjectTrace();
+
+  // Hooks en orden
+  const createTraceMutation = useCreateProjectTrace();
+  const actualExpenseMutation = useCreateActualExpense();
+  const productDetailMutation = useCreateProductDetail();
+
+  // Productos
+  const { products = [], isPending: productsLoading } = useGetAllProducts();
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState<Array<{ product: Product; qty: number }>>([]);
+
+  // Agregar producto desde modal
+  const handleSelectProduct = (product: Product) => {
+    // Si ya está, no lo agrega de nuevo
+    if (selectedProducts.some((p) => p.product.Id === product.Id)) return;
+    setSelectedProducts((prev) => [...prev, { product, qty: 1 }]);
+  };
+
+  // Cambiar cantidad
+  const handleQtyChange = (id: number, qty: number) => {
+    setSelectedProducts((prev) => prev.map((p) => p.product.Id === id ? { ...p, qty } : p));
+  };
+
+  // Quitar producto
+  const handleRemoveProduct = (id: number) => {
+    setSelectedProducts((prev) => prev.filter((p) => p.product.Id !== id));
+  };
 
   const handleClose = () => {
     toast.warning("Seguimiento cancelado", { position: "top-right", autoClose: 3000 });
     setOpen(false);
   };
+
 
   const form = useForm({
     defaultValues: {
@@ -53,13 +85,29 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
       };
 
       try {
-        await createMutation.mutateAsync(payload);
-        toast.success("Seguimiento creado", { position: "top-right", autoClose: 3000 });
-        form.reset();           // 👈 importante: con paréntesis
+        // 1. Crear seguimiento
+        const traceRes = await createTraceMutation.mutateAsync(payload);
+        const traceId = (traceRes as any)?.Id ?? (traceRes as any)?.id;
+        // 2. Crear gasto real (dummy, puedes ajustar los datos)
+        await actualExpenseMutation.mutateAsync({
+          TraceProjectId: traceId,
+          Observation: "Gasto automático"
+        } as any);
+        // 3. Crear detalles de producto
+        for (const { product, qty } of selectedProducts) {
+          await productDetailMutation.mutateAsync({
+            ProductId: product.Id,
+            Quantity: qty,
+            ProjectProjectionId: traceId,
+          });
+        }
+        toast.success("Seguimiento y productos registrados", { position: "top-right", autoClose: 3000 });
+        form.reset();
+        setSelectedProducts([]);
         setOpen(false);
       } catch (err) {
         console.error(err);
-        toast.error("Error al crear el seguimiento", { position: "top-right", autoClose: 3000 });
+        toast.error("Error al crear el seguimiento o productos", { position: "top-right", autoClose: 3000 });
       }
     },
   });
@@ -76,9 +124,8 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
           {/* Header */}
           <header className={HEADER}>
             <h2 className={TITLE}>Nuevo seguimiento</h2>
-            <p className={SUB}>Registre un nuevo seguimiento para el proyecto</p>
+            <p className={SUB}>Registre un nuevo seguimiento para el proyecto y asigne productos</p>
           </header>
-
           {/* Body */}
           <section className={SECTION}>
             <form
@@ -103,7 +150,6 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
                   </label>
                 )}
               </form.Field>
-
               {/* Observación */}
               <form.Field name="Observation">
                 {(field) => (
@@ -118,6 +164,34 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
                   </label>
                 )}
               </form.Field>
+
+              {/* Productos asignados */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-[#091540]">Productos asignados</span>
+                  <button type="button" className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700" onClick={() => setShowProductModal(true)}>
+                    + Agregar producto
+                  </button>
+                </div>
+                <div className="border rounded p-2 bg-gray-50">
+                  {selectedProducts.length === 0 && <div className="text-gray-400">No hay productos asignados.</div>}
+                  {selectedProducts.map(({ product, qty }) => (
+                    <div key={product.Id} className="flex items-center gap-3 py-1">
+                      <span className="flex-1">{product.Name}</span>
+                      <input
+                        type="number"
+                        min={1}
+                        className="w-20 px-2 py-1 border border-gray-300 rounded"
+                        value={qty}
+                        onChange={e => handleQtyChange(product.Id, Number(e.target.value))}
+                      />
+                      <button type="button" className="text-red-500 hover:underline" onClick={() => handleRemoveProduct(product.Id)}>
+                        Quitar
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               {/* Footer / Acciones */}
               <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
@@ -139,6 +213,15 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
             </form>
           </section>
         </div>
+        {/* Modal de selección de productos */}
+        <ProductSelectionModal
+          open={showProductModal}
+          onClose={() => setShowProductModal(false)}
+          products={products}
+          onSelectProduct={handleSelectProduct}
+          isLoading={productsLoading}
+          selectedProductIds={selectedProducts.map(p => p.product.Id)}
+        />
       </ModalBase>
     </>
   );
