@@ -48,17 +48,52 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
   // Productos
   const { products = [], isPending: productsLoading } = useGetAllProducts();
   const [showProductModal, setShowProductModal] = useState(false);
+  const [showQuantityModal, setShowQuantityModal] = useState(false);
+  const [selectedProductForQuantity, setSelectedProductForQuantity] = useState<Product | null>(null);
+  const [tempQuantity, setTempQuantity] = useState(1);
   const [selectedProducts, setSelectedProducts] = useState<Array<{ product: Product; qty: number }>>([]);
 
-  // Agregar producto desde modal
+  // Cuando se selecciona un producto del modal, mostrar modal de cantidad
   const handleSelectProduct = (product: Product) => {
-    // Si ya está, no lo agrega de nuevo
-    if (selectedProducts.some((p) => p.product.Id === product.Id)) return;
-    setSelectedProducts((prev) => [...prev, { product, qty: 1 }]);
+    setSelectedProductForQuantity(product);
+    setTempQuantity(1);
+    setShowProductModal(false);
+    setShowQuantityModal(true);
   };
 
-  // Cambiar cantidad
+  // Confirmar agregar producto con cantidad
+  const handleConfirmAddProduct = () => {
+    if (!selectedProductForQuantity || tempQuantity <= 0) return;
+    
+    const existingIndex = selectedProducts.findIndex(p => p.product.Id === selectedProductForQuantity.Id);
+    
+    if (existingIndex >= 0) {
+      // Si ya existe, sumar la cantidad
+      setSelectedProducts(prev => prev.map((p, index) => 
+        index === existingIndex 
+          ? { ...p, qty: p.qty + tempQuantity }
+          : p
+      ));
+    } else {
+      // Si no existe, agregarlo
+      setSelectedProducts(prev => [...prev, { product: selectedProductForQuantity, qty: tempQuantity }]);
+    }
+    
+    setShowQuantityModal(false);
+    setSelectedProductForQuantity(null);
+    setTempQuantity(1);
+  };
+
+  // Cancelar agregar producto
+  const handleCancelAddProduct = () => {
+    setShowQuantityModal(false);
+    setSelectedProductForQuantity(null);
+    setTempQuantity(1);
+  };
+
+  // Cambiar cantidad directamente en la lista
   const handleQtyChange = (id: number, qty: number) => {
+    if (qty <= 0) return;
     setSelectedProducts((prev) => prev.map((p) => p.product.Id === id ? { ...p, qty } : p));
   };
 
@@ -69,6 +104,11 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
 
   const handleClose = () => {
     toast.warning("Seguimiento cancelado", { position: "top-right", autoClose: 3000 });
+    form.reset();
+    setSelectedProducts([]);
+    setShowProductModal(false);
+    setShowQuantityModal(false);
+    setSelectedProductForQuantity(null);
     setOpen(false);
   };
 
@@ -182,30 +222,72 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
 
               {/* Productos asignados */}
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-[#091540]">Productos asignados</span>
-                  <button type="button" className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700" onClick={() => setShowProductModal(true)}>
-                    + Agregar producto
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-semibold text-[#091540]">Productos para el seguimiento</span>
+                  <button 
+                    type="button" 
+                    className="px-4 py-2 bg-[#091540] text-white rounded hover:bg-[#1789FC] transition flex items-center gap-2"
+                    onClick={() => setShowProductModal(true)}
+                  >
+                    <span>+</span> Agregar producto
                   </button>
                 </div>
-                <div className="border rounded p-2 bg-gray-50">
-                  {selectedProducts.length === 0 && <div className="text-gray-400">No hay productos asignados.</div>}
-                  {selectedProducts.map(({ product, qty }) => (
-                    <div key={product.Id} className="flex items-center gap-3 py-1">
-                      <span className="flex-1">{product.Name}</span>
-                      <input
-                        type="number"
-                        min={1}
-                        className="w-20 px-2 py-1 border border-gray-300 rounded"
-                        value={qty}
-                        onChange={e => handleQtyChange(product.Id, Number(e.target.value))}
-                      />
-                      <button type="button" className="text-red-500 hover:underline" onClick={() => handleRemoveProduct(product.Id)}>
-                        Quitar
-                      </button>
+                
+                <div className="border border-gray-200 rounded-lg bg-gray-50 min-h-[120px]">
+                  {selectedProducts.length === 0 ? (
+                    <div className="flex items-center justify-center h-[120px] text-gray-500">
+                      <div className="text-center">
+                        <p className="mb-2">No hay productos agregados</p>
+                        <p className="text-sm">Haz clic en "Agregar producto" para comenzar</p>
+                      </div>
                     </div>
-                  ))}
+                  ) : (
+                    <div className="p-3 space-y-3">
+                      {selectedProducts.map(({ product, qty }) => (
+                        <div key={product.Id} className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-[#091540] mb-1">{product.Name}</h4>
+                              {product.Observation && (
+                                <p className="text-sm text-gray-600 mb-2">{product.Observation}</p>
+                              )}
+                              <div className="flex gap-4 text-xs text-gray-500">
+                                {product.Type && <span>Tipo: {product.Type}</span>}
+                                {product.Category && <span>Categoría: {product.Category.Name}</span>}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3 ml-4">
+                              <div className="flex items-center gap-2">
+                                <label className="text-sm text-gray-600">Cantidad:</label>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  className="w-20 px-2 py-1 border border-gray-300 rounded text-center focus:border-[#1789FC] focus:outline-none"
+                                  value={qty}
+                                  onChange={e => handleQtyChange(product.Id, Number(e.target.value) || 1)}
+                                />
+                              </div>
+                              <button 
+                                type="button" 
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition"
+                                onClick={() => handleRemoveProduct(product.Id)}
+                                title="Quitar producto"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
+                
+                {selectedProducts.length > 0 && (
+                  <div className="mt-2 text-sm text-gray-600 text-right">
+                    Total de productos: {selectedProducts.length} | Total cantidad: {selectedProducts.reduce((sum, p) => sum + p.qty, 0)}
+                  </div>
+                )}
               </div>
 
               {/* Footer / Acciones */}
@@ -237,6 +319,75 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
           isLoading={productsLoading}
           selectedProductIds={selectedProducts.map(p => p.product.Id)}
         />
+
+        {/* Modal de cantidad */}
+        <ModalBase 
+          open={showQuantityModal} 
+          onClose={handleCancelAddProduct}
+          panelClassName="w-full max-w-md"
+        >
+          <div className="bg-white p-6">
+            <h3 className="text-lg font-semibold text-[#091540] mb-4">
+              Especificar cantidad
+            </h3>
+            
+            {selectedProductForQuantity && (
+              <div className="mb-4">
+                <div className="bg-gray-50 p-3 rounded border mb-4">
+                  <h4 className="font-medium text-[#091540] mb-1">
+                    {selectedProductForQuantity.Name}
+                  </h4>
+                  {selectedProductForQuantity.Observation && (
+                    <p className="text-sm text-gray-600 mb-2">
+                      {selectedProductForQuantity.Observation}
+                    </p>
+                  )}
+                  <div className="flex gap-4 text-xs text-gray-500">
+                    {selectedProductForQuantity.Type && (
+                      <span>Tipo: {selectedProductForQuantity.Type}</span>
+                    )}
+                    {selectedProductForQuantity.Category && (
+                      <span>Categoría: {selectedProductForQuantity.Category.Name}</span>
+                    )}
+                  </div>
+                </div>
+                
+                <label className="block">
+                  <span className="text-sm font-medium text-[#091540] mb-2 block">
+                    Cantidad a agregar:
+                  </span>
+                  <input
+                    type="number"
+                    min={1}
+                    className="w-full px-4 py-2 border border-gray-300 rounded focus:border-[#1789FC] focus:outline-none text-center"
+                    value={tempQuantity}
+                    onChange={(e) => setTempQuantity(Number(e.target.value) || 1)}
+                    onFocus={(e) => e.target.select()}
+                    autoFocus
+                  />
+                </label>
+              </div>
+            )}
+            
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleCancelAddProduct}
+                className="px-4 py-2 bg-gray-200 text-[#091540] rounded hover:bg-gray-300 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmAddProduct}
+                className="px-4 py-2 bg-[#091540] text-white rounded hover:bg-[#1789FC] transition"
+                disabled={!tempQuantity || tempQuantity <= 0}
+              >
+                Agregar
+              </button>
+            </div>
+          </div>
+        </ModalBase>
       </ModalBase>
     </>
   );
