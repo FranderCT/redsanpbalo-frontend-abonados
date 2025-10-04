@@ -233,7 +233,7 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
                   </button>
                 </div>
                 
-                <div className="border border-gray-200 rounded-lg bg-gray-50 min-h-[120px]">
+                <div className="border border-gray-200  bg-gray-50 min-h-[120px] max-h-[300px] overflow-y-auto">
                   {selectedProducts.length === 0 ? (
                     <div className="flex items-center justify-center h-[120px] text-gray-500">
                       <div className="text-center">
@@ -244,7 +244,7 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
                   ) : (
                     <div className="p-3 space-y-3">
                       {selectedProducts.map(({ product, qty }) => (
-                        <div key={product.Id} className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
+                        <div key={product.Id} className="bg-white p-3 border border-gray-200 shadow-sm">
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <h4 className="font-medium text-[#091540] mb-1">{product.Name}</h4>
@@ -262,14 +262,14 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
                                 <input
                                   type="number"
                                   min={1}
-                                  className="w-20 px-2 py-1 border border-gray-300 rounded text-center focus:border-[#1789FC] focus:outline-none"
+                                  className="w-20 px-2 py-1 border border-gray-300 text-center focus:border-[#1789FC] focus:outline-none"
                                   value={qty}
                                   onChange={e => handleQtyChange(product.Id, Number(e.target.value) || 1)}
                                 />
                               </div>
                               <button 
                                 type="button" 
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition"
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 transition"
                                 onClick={() => handleRemoveProduct(product.Id)}
                                 title="Quitar producto"
                               >
@@ -298,11 +298,7 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
                   
                   return (
                     <div className={FOOTER}>
-                      {!hasProducts && (
-                        <p className="text-sm text-amber-600 flex-1">
-                          ⚠️ Debe agregar al menos un producto para continuar
-                        </p>
-                      )}
+                      
                       <button
                         type="submit"
                         className={BTN_PRIMARY}
@@ -344,7 +340,7 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
             
             {selectedProductForQuantity && (
               <div className="mb-4">
-                <div className="bg-gray-50 p-3 rounded border mb-4">
+                <div className="bg-gray-50 p-3  border mb-4">
                   <h4 className="font-medium text-[#091540] mb-1">
                     {selectedProductForQuantity.Name}
                   </h4>
@@ -370,7 +366,7 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
                   <input
                     type="number"
                     min={1}
-                    className="w-full px-4 py-2 border border-gray-300 rounded focus:border-[#1789FC] focus:outline-none text-center"
+                    className="w-full px-4 py-2 border border-gray-300  focus:border-[#1789FC] focus:outline-none text-center"
                     value={tempQuantity}
                     onChange={(e) => setTempQuantity(Number(e.target.value) || 1)}
                     onFocus={(e) => e.target.select()}
@@ -383,18 +379,18 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
             <div className="flex justify-end gap-2">
               <button
                 type="button"
-                onClick={handleCancelAddProduct}
-                className="px-4 py-2 bg-gray-200 text-[#091540] rounded hover:bg-gray-300 transition"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
                 onClick={handleConfirmAddProduct}
                 className="px-4 py-2 bg-[#091540] text-white rounded hover:bg-[#1789FC] transition"
                 disabled={!tempQuantity || tempQuantity <= 0}
               >
                 Agregar
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelAddProduct}
+                className="px-4 py-2 bg-gray-200 text-[#091540] rounded hover:bg-gray-300 transition"
+              >
+                Cancelar
               </button>
             </div>
           </div>
