@@ -15,6 +15,9 @@ import { ProjectSchema } from "../../schemas/ProjectSchema";
 import { StepSchemas } from "../../schemas/StepSchema";
 import z from "zod";
 import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
+import { ProductSelectionModal } from "./ProductSelectionModal";
+import type { Product } from "../../../Products/Models/CreateProduct";
+import { useNavigate } from "@tanstack/react-router";
 
 
 
@@ -29,6 +32,7 @@ type ProjectCreatePayload = typeof newProjectInitialState;
 
 const CreateProject = () => {
   const [step, setStep] = useState(0);
+  const navigate = useNavigate();
 
   const createProjectMutation = useCreateProject();
   const createProjectProjectionMutation = useCreateProjectProjection();
@@ -42,6 +46,7 @@ const CreateProject = () => {
   // 👇 NUEVO: autocomplete
     const [productInput, setProductInput] = useState("");
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [showProductModal, setShowProductModal] = useState(false);
 
     // cantidad y selección actual
     const [tempProductId, setTempProductId] = useState<number>(0);
@@ -56,6 +61,18 @@ const CreateProject = () => {
 
     const getProductName = (id?: number) =>
       products?.find(p => p.Id === id)?.Name ?? "";
+
+    // Función para manejar la selección de producto desde el modal
+    const handleProductSelection = (product: Product) => {
+      setProductInput(product.Name);
+      setTempProductId(product.Id);
+      setShowProductModal(false);
+      // Enfocar el campo de cantidad después de seleccionar
+      setTimeout(() => {
+        const qtyInput = document.querySelector('input[type="number"]') as HTMLInputElement;
+        if (qtyInput) qtyInput.focus();
+      }, 100);
+    };
   
   //Funcion para validar que se cumplan los campos requeridos para poder pasar al siguiente
   const handleNext = () => {
@@ -154,6 +171,7 @@ const CreateProject = () => {
         // 4) Éxito
         formApi.reset();
         toast.success("¡Proyecto, proyección y detalles creados!", { position: "top-right", autoClose: 3000 });
+        navigate({ to: "/dashboard/projects" });
         setStep(0);
         setTempProductId(0);
         setTempQty(0);
@@ -443,22 +461,41 @@ const CreateProject = () => {
                       <div className="md:col-span-7">
                         <label className="text-sm text-gray-600">Producto</label>
                         <div className="mt-1 relative">
-                          <input
-                            className="w-full px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                            placeholder="Escribe para buscar…"
-                            value={productInput}
-                            onChange={(e) => {
-                              setProductInput(e.target.value);
-                              setShowSuggestions(true);
-                              setTempProductId(0); // hasta seleccionar
-                            }}
-                            onFocus={() => setShowSuggestions(true)}
-                            onBlur={() => {
-                              // pequeño delay para permitir click en sugerencia
-                              setTimeout(() => setShowSuggestions(false), 120);
-                            }}
-                            disabled={productsLoading || !!productsError}
-                          />
+                          <div className="flex gap-2">
+                            <input
+                              className="flex-1 px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
+                              placeholder="Escribe para buscar o Ctrl+K para lista completa…"
+                              value={productInput}
+                              onChange={(e) => {
+                                setProductInput(e.target.value);
+                                setShowSuggestions(true);
+                                setTempProductId(0); // hasta seleccionar
+                              }}
+                              onFocus={() => setShowSuggestions(true)}
+                              onBlur={() => {
+                                // pequeño delay para permitir click en sugerencia
+                                setTimeout(() => setShowSuggestions(false), 120);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Escape') {
+                                  setShowSuggestions(false);
+                                } else if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                                  e.preventDefault();
+                                  setShowProductModal(true);
+                                }
+                              }}
+                              disabled={productsLoading || !!productsError}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowProductModal(true)}
+                              className="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition disabled:opacity-50 whitespace-nowrap"
+                              disabled={productsLoading || !!productsError}
+                              title="Buscar en lista completa (Ctrl+K)"
+                            >
+                              Ver Lista
+                            </button>
+                          </div>
                           {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                           <p className="text-sm text-red-500 mt-1">
                             {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
@@ -668,6 +705,16 @@ const CreateProject = () => {
           )}
         </form.Subscribe>
       </form>
+
+      {/* Modal de selección de productos */}
+      <ProductSelectionModal
+        open={showProductModal}
+        onClose={() => setShowProductModal(false)}
+        products={products ?? []}
+        onSelectProduct={handleProductSelection}
+        isLoading={productsLoading}
+        selectedProductIds={form.state.values.productDetails?.map(d => d.ProductId ?? 0) ?? []}
+      />
     </div>
   );
 };
