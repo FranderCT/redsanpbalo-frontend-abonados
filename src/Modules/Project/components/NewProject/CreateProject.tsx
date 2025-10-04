@@ -4,14 +4,11 @@ import { newProjectInitialState } from "../../Models/Project";
 import { useCreateProject } from "../../Hooks/ProjectHooks";
 import { useGetAllProjectStates } from "../../../Project_State/Hooks/ProjectStateHooks";
 import { toast } from "react-toastify";
-
 import type { NewProjectProjection } from "../../Project-projection/Models/ProjectProjection";
 import { useCreateProjectProjection } from "../../Project-projection/Hooks/Project-ProjectionHooks";
-
 import {  type NewProductDetail } from "../../../Product-Detail/Models/ProductDetail";
 import { useGetAllProducts } from "../../../Products/Hooks/ProductsHooks";
 import { useCreateProductDetail } from "../../../Product-Detail/Hooks/ProductDetailHooks";
-import { ProjectSchema } from "../../schemas/ProjectSchema";
 import { StepSchemas } from "../../schemas/StepSchema";
 import z from "zod";
 import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
