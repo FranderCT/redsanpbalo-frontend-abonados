@@ -156,7 +156,7 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
           };
           await productDetailMutation.mutateAsync(productDetailPayload);
         }
-        toast.success("Seguimiento y productos registrados", { position: "top-right", autoClose: 3000 });
+        toast.success(`Seguimiento creado con ${selectedProducts.length} producto(s) asignado(s)`, { position: "top-right", autoClose: 3000 });
         form.reset();
         setSelectedProducts([]);
         setOpen(false);
@@ -292,20 +292,31 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
 
               {/* Footer / Acciones */}
               <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
-                {([canSubmit, isSubmitting]) => (
-                  <div className={FOOTER}>
-                    <button
-                      type="submit"
-                      className={BTN_PRIMARY}
-                      disabled={!canSubmit || isSubmitting}
-                    >
-                      {isSubmitting ? "Registrando…" : "Registrar"}
-                    </button>
-                    <button type="button" onClick={handleClose} className={BTN_SECONDARY}>
-                      Cancelar
-                    </button>
-                  </div>
-                )}
+                {([canSubmit, isSubmitting]) => {
+                  const hasProducts = selectedProducts.length > 0;
+                  const canSubmitForm = canSubmit && hasProducts && !isSubmitting;
+                  
+                  return (
+                    <div className={FOOTER}>
+                      {!hasProducts && (
+                        <p className="text-sm text-amber-600 flex-1">
+                          ⚠️ Debe agregar al menos un producto para continuar
+                        </p>
+                      )}
+                      <button
+                        type="submit"
+                        className={BTN_PRIMARY}
+                        disabled={!canSubmitForm}
+                        title={!hasProducts ? "Agregue al menos un producto" : ""}
+                      >
+                        {isSubmitting ? "Registrando…" : "Registrar seguimiento"}
+                      </button>
+                      <button type="button" onClick={handleClose} className={BTN_SECONDARY}>
+                        Cancelar
+                      </button>
+                    </div>
+                  );
+                }}
               </form.Subscribe>
             </form>
           </section>
