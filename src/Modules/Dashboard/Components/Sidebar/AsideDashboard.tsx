@@ -25,7 +25,7 @@ const AsideDashboard = () => {
       <div className="h-px bg-black/10 mx-4 mb-2" />
 
       {/* Navegación con scroll + scrollbar estilizado */}
-      <nav className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
+      <nav className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <Can rule={{ any: ["ADMIN", "GUEST", "ABONADO"] }}>
           <button
             onClick={() => navigate({ to: "/dashboard" })}
