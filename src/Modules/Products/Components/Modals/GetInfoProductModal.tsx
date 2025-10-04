@@ -54,7 +54,7 @@ export default function GetInfoProductModal({
             <Field label="Unidad de medida" value={product?.UnitMeasure?.Name} />
             <Field label="Categoría" value={product?.Category?.Name} />
             <Field label="Material" value={product?.Material?.Name} />
-            <Field label="Proveedor" value={product?.Supplier?.Name} />
+            <Field label="Proveedor" value={product?.PhysicalSupplier?.Name ?? product?.LegalSupplier.CompanyName} />
             <div className="sm:col-span-2">
               <Field label="Observación" value={product?.Observation} />
             </div>

@@ -9,7 +9,7 @@ import { useGetAllMaterials } from "../../../Materials/Hooks/MaterialHooks";
 import { useGetAllLegalSuppliers } from "../../../LegalSupplier/Hooks/LegalSupplierHooks";
 import { useGetAllPhysicalSuppliers } from "../../../PhysicalSupplier/Hooks/PhysicalSupplierHooks";
 
-type SupplierType = "legal" | "physical";
+export type SupplierType = "legal" | "physical";
 
 export default function CreateProductModal() {
   const [open, setOpen] = useState(false);
@@ -274,92 +274,7 @@ export default function CreateProductModal() {
               )}
             </form.Field>
 
-            {/* ======== Supplier Type (RADIOS) ======== */}
-            <div className="grid gap-2">
-              <span className="text-sm text-[#091540] font-semibold">Tipo de Proveedor</span>
-              <div className="flex items-center gap-6">
-                <label className="inline-flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="supplierType"
-                    value="legal"
-                    checked={supplierType === "legal"}
-                    onChange={() => setSupplierType("legal")}
-                  />
-                  <span>Jurídico</span>
-                </label>
-                <label className="inline-flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="supplierType"
-                    value="physical"
-                    checked={supplierType === "physical"}
-                    onChange={() => setSupplierType("physical")}
-                  />
-                  <span>Físico</span>
-                </label>
-              </div>
-            </div>
-
-            {/* ======== LegalSupplierId ======== */}
-            {supplierType === "legal" && (
-              <form.Field name="LegalSupplierId">
-                {(field) => (
-                  <label className={LABEL}>
-                    <select
-                      className={INPUT}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                      disabled={legalLoading || !!legalError}
-                    >
-                      <option value={0} disabled>
-                        {legalLoading ? "Cargando proveedores jurídicos..." : "Seleccione Proveedor Jurídico"}
-                      </option>
-                      {legalSuppliers.map((s: any) => (
-                        <option key={s.Id} value={s.Id}>
-                          {s.CompanyName ?? s.Name ?? `Proveedor #${s.Id}`}
-                        </option>
-                      ))}
-                    </select>
-                    {legalError && (
-                      <span className="text-xs text-red-600 mt-1">
-                        No se pudieron cargar los proveedores jurídicos.
-                      </span>
-                    )}
-                  </label>
-                )}
-              </form.Field>
-            )}
-
-            {/* ======== PhysicalSupplierId ======== */}
-            {supplierType === "physical" && (
-              <form.Field name="PhysicalSupplierId">
-                {(field) => (
-                  <label className={LABEL}>
-                    <select
-                      className={INPUT}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                      disabled={physicalLoading || !!physicalError}
-                    >
-                      <option value={0} disabled>
-                        {physicalLoading ? "Cargando proveedores físicos..." : "Seleccione Proveedor Físico"}
-                      </option>
-                      {physicalSuppliers.map((s: any) => (
-                        <option key={s.Id} value={s.Id}>
-                          {s.Name}
-                        </option>
-                      ))}
-                    </select>
-                    {physicalError && (
-                      <span className="text-xs text-red-600 mt-1">
-                        No se pudieron cargar los proveedores físicos.
-                      </span>
-                    )}
-                  </label>
-                )}
-              </form.Field>
-            )}
+            
 
             {/* Footer (deshabilitar submit hasta que haya proveedor válido) */}
             <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
