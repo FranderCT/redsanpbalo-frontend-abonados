@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { LegalSupplier } from "../../Models/LegalSupplier";
-import { Edit2, InfoIcon } from "lucide-react";
+import { Edit2, HatGlasses, InfoIcon } from "lucide-react";
 import DeleteLegalSupplierModal from "../Modals/DeleteLegalSupplierModal";
 
 
@@ -80,7 +80,7 @@ export const LegalSupplierColumns = (
             hover:bg-[#091540] hover:text-[#f5f5f5] transtion cursor-pointer 
           "
         >
-          <InfoIcon className="w-4 h-4" />
+          <HatGlasses className="w-4 h-4" />
           Agentes
         </button>
       );
