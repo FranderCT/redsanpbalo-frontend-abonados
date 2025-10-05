@@ -16,7 +16,6 @@ export const StepSchemas = [
     Objective: true,
     Description: true,
     Observation: true,
-    SpaceOfDocument: true,
     ProjectStateId: true,
     UserId:true,
   }),
