@@ -1,10 +1,15 @@
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { ModalBase } from "../../../Components/Modals/ModalBase";
 import { useLegalSupplierById } from "../../LegalSupplier/Hooks/LegalSupplierHooks";
 import CreateAgentSupplierModal from "./Modals/CreateAgentSupplierModal";
-import type { AgentSupppliers } from "../Models/SupplierAgent";
 import EditAgentSupplierModal from "./Modals/EditAgentSupplierModal";
+import DeleteAgentSupplierButton from "./Modals/DeleteAgentSupplierButton";
 
+// Tipos
+import type { AgentSupppliers } from "../Models/SupplierAgent";
+import type { AgentSupplier as AgentSupplierModel } from "../../Supplier/Models/AgentSupplier";
+import { Edit2 } from "lucide-react";
 
 type Props = {
   legalSupplierId: number;
@@ -12,9 +17,25 @@ type Props = {
   onClose: () => void;
 };
 
+// Helper de compatibilidad de tipos (si ambos modelos tienen misma forma)
+const asAgentSupplierModel = (a: AgentSupppliers) => a as unknown as AgentSupplierModel;
+
+const isActiveFlag = (v: unknown) => {
+  if (typeof v === "boolean") return v;
+  if (typeof v === "number") return v === 1;
+  if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+  return false;
+};
 
 const AgentSupplierModal = ({ legalSupplierId, open, onClose }: Props) => {
+  const queryClient = useQueryClient();
+  // Hook que NO retorna refetch
   const { legalSup, isLoading, error } = useLegalSupplierById(legalSupplierId);
+
+  // Función para refrescar datos invalidando la query
+  const refresh = () =>
+    queryClient.invalidateQueries({ queryKey: ["legalSupplier", legalSupplierId] });
+
   const agents: AgentSupppliers[] = legalSup?.AgentSupppliers ?? [];
 
   // Estado para editar
@@ -30,8 +51,6 @@ const AgentSupplierModal = ({ legalSupplierId, open, onClose }: Props) => {
     setEditOpen(false);
     setSelectedAgent(null);
   };
-
-
 
   return (
     <>
@@ -50,6 +69,12 @@ const AgentSupplierModal = ({ legalSupplierId, open, onClose }: Props) => {
               Administra los agentes asociados a este proveedor desde este panel.
             </p>
           </div>
+
+          {/* Crear (refresca al terminar) */}
+          <CreateAgentSupplierModal
+            LegalSupplierId={legalSup?.Id}
+            //onSuccess={refresh}
+          />
         </header>
 
         {/* Contenido Scrollable */}
@@ -77,10 +102,6 @@ const AgentSupplierModal = ({ legalSupplierId, open, onClose }: Props) => {
           <section>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-[#091540]">Agentes Registrados</h3>
-              {/* Crear */}
-              <CreateAgentSupplierModal
-                LegalSupplierId={legalSup?.Id}
-              />
             </div>
 
             {isLoading && <p>Cargando...</p>}
@@ -89,41 +110,64 @@ const AgentSupplierModal = ({ legalSupplierId, open, onClose }: Props) => {
             {agents.length === 0 ? (
               <p className="text-sm text-gray-500 mt-3">No hay agentes registrados.</p>
             ) : (
-              <table className="w-full border-collapse rounded-lg overflow-hidden shadow-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="px-4 py-2">Nombre</th>
-                    <th className="px-4 py-2">Teléfono</th>
-                    <th className="px-4 py-2">Correo electrónico</th>
-                    <th className="px-4 py-2 text-center">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {agents.map((u) => (
-                    <tr key={u.Id} className="border-b hover:bg-gray-50">
-                      <td className="px-4 py-2">
-                        {[u.Name, u.Surname1, u.Surname2].filter(Boolean).join(" ") || "-"}
-                      </td>
-                      <td className="px-4 py-2">{u.PhoneNumber ?? "-"}</td>
-                      <td className="px-4 py-2">{u.Email ?? "-"}</td>
-                      <td className="px-4 py-2 text-center space-x-2">
-                        <button
-                          className="text-blue-600 hover:underline text-sm"
-                          onClick={() => openEdit(u)}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          className="text-red-600 hover:underline text-sm"
-                          // onClick={...} // aquí puedes integrar tu hook de eliminar si lo tienes
-                        >
-                          Eliminar
-                        </button>
-                      </td>
+              <div className="overflow-auto rounded-lg border border-gray-200">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-gray-100 text-left">
+                      <th className="px-4 py-2">Nombre</th>
+                      <th className="px-4 py-2">Teléfono</th>
+                      <th className="px-4 py-2">Correo electrónico</th>
+                      <th className="px-4 py-2">Estado</th>
+                      <th className="px-4 py-2 text-center">Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {agents.map((u) => {
+                      const agentModel = asAgentSupplierModel(u); // compatibilidad para el botón eliminar
+                      const active = isActiveFlag(u.IsActive);
+                      return (
+                        <tr key={u.Id} className="border-t hover:bg-gray-50">
+                          <td className="px-4 py-2">
+                            {[u.Name, u.Surname1, u.Surname2].filter(Boolean).join(" ") || "-"}
+                          </td>
+                          <td className="px-4 py-2">{u.PhoneNumber ?? "-"}</td>
+                          <td className="px-4 py-2">{u.Email ?? "-"}</td>
+                          <td className="px-4 py-2">
+                            <span
+                              className={`inline-flex w-full items-center gap-1 border px-2.5 py-0.5 text-xs font-medium
+                                ${active
+                                  ? "bg-green-50 text-green-700 border-green-200"
+                                  : "bg-red-50 text-red-700 border-red-200"
+                                }`}
+                            >
+                              
+                              {active ? "Activo" : "Inactivo"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              <button
+                                className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                                text-[#1789FC] border-[#1789FC]
+                                hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
+                                onClick={() => openEdit(u)}
+                              >
+                                <Edit2 className="w-4 h-4" />
+                                Editar
+                              </button>
+
+                              <DeleteAgentSupplierButton
+                                agent={agentModel}
+                                onSuccess={refresh}
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
         </main>
@@ -139,12 +183,16 @@ const AgentSupplierModal = ({ legalSupplierId, open, onClose }: Props) => {
         </footer>
       </ModalBase>
 
-      {/* Modal de edición */}
+      {/* Modal de edición (refresca al guardar) */}
       {selectedAgent && (
         <EditAgentSupplierModal
           agent={selectedAgent}
           open={editOpen}
           onClose={closeEdit}
+          onSuccess={() => {
+            refresh();
+            closeEdit();
+          }}
         />
       )}
     </>
