@@ -10,7 +10,7 @@ export interface AgentSupppliers{
 }
 
 export interface newAgentSupppliers{
-    IDcard: string;
+    IDcard?: string;
     Name?: string;
     Surname1?: string;
     Surname2?: string;

@@ -13,11 +13,11 @@ export const useCreateAgentSupplier = () =>{
         onSuccess: (res) => {
             console.log(res);
             qc.invalidateQueries({queryKey: [`${BASE_KEY}`]});
-            toast.success('Proveedor físico creado con éxito', {autoClose: 3000, position: 'top-right'});
+            toast.success('Agente creado con éxito', {autoClose: 3000, position: 'top-right'});
         },
         onError: (err) =>{
             console.error(err);
-            toast.error('Error al crear el Proveedor', {autoClose: 3000, position: 'top-right'});
+            toast.error('Error al crear el Agente', {autoClose: 3000, position: 'top-right'});
         }
     })
     return mutation;
@@ -29,13 +29,13 @@ export const useEditAgentSupplier= () =>{
     const mutation = useMutation<AgentSupppliers, Error, {id: number; data: newAgentSupppliers }>({
         mutationFn: ({id, data}) => editAgentSupplier(id, data),
         onSuccess :(res)=>{
-            console.log('proveedor actualizado', console.log(res))
+            console.log('agente actualizado', console.log(res))
             qc.invalidateQueries({queryKey: [`${BASE_KEY}`]});
-            toast.success('Proveedor actualizado con éxito ', {position: 'top-right', autoClose: 3000})
+            toast.success('Agente actualizado con éxito ', {position: 'top-right', autoClose: 3000})
         },
         onError: (err) =>{
             console.error(err);
-            toast.error('Error al actualizar proveedor', {position: 'top-right', autoClose: 3000})
+            toast.error('Error al actualizar agente', {position: 'top-right', autoClose: 3000})
         }
     })
 
@@ -49,7 +49,7 @@ export const useDeleteAgentSupplier = () => {
         mutationFn: (id: number) => deleteAgentSupplier(id),
         onSuccess: (res) => {
             qc.invalidateQueries({queryKey: [`${BASE_KEY}`]});
-            console.log("Producto inhabilitado", res);
+            console.log("Agente inhabilitado", res);
         },
         onError: (err)=>{
             console.error("Error al inhabilitar", err);

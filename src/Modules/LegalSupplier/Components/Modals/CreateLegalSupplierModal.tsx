@@ -105,72 +105,72 @@ const CreateLegalSupplierModal = () => {
   };
 
   // -------- Handlers de LegalID (sin formateo con guiones) --------
-  const handleLegalIdChange =
-    (field: any, form: any) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const raw = e.target.value;
-      field.handleChange(raw);
+  // const handleLegalIdChange =
+  //   (field: any, form: any) =>
+  //   (e: React.ChangeEvent<HTMLInputElement>) => {
+  //     const raw = e.target.value;
+  //     field.handleChange(raw);
 
-      // Cancelar debounce y fetch previos
-      if (lookupRef.current.timer) clearTimeout(lookupRef.current.timer);
-      lookupRef.current.abort?.abort();
+  //     // Cancelar debounce y fetch previos
+  //     if (lookupRef.current.timer) clearTimeout(lookupRef.current.timer);
+  //     lookupRef.current.abort?.abort();
 
-      const digits = limpiar(raw);
+  //     const digits = limpiar(raw);
 
-      // ✅ Si se borra o queda incompleta (<10), limpiar inmediatamente el nombre y no consultar
-      if (digits.length === 0 || digits.length < 10) {
-        form.setFieldValue("CompanyName", "");
-        return;
-      }
+  //     // ✅ Si se borra o queda incompleta (<10), limpiar inmediatamente el nombre y no consultar
+  //     if (digits.length === 0 || digits.length < 10) {
+  //       form.setFieldValue("CompanyName", "");
+  //       return;
+  //     }
 
-      // Debounce de consulta
-      lookupRef.current.timer = setTimeout(async () => {
-        // Cancelar request anterior (por si acaso)
-        lookupRef.current.abort?.abort();
-        const ac = new AbortController();
-        lookupRef.current.abort = ac;
+  //     // Debounce de consulta
+  //     lookupRef.current.timer = setTimeout(async () => {
+  //       // Cancelar request anterior (por si acaso)
+  //       lookupRef.current.abort?.abort();
+  //       const ac = new AbortController();
+  //       lookupRef.current.abort = ac;
 
-        if (!esCedulaJuridica(digits)) {
-          form.setFieldValue("CompanyName", "");
-          return;
-        }
+  //       if (!esCedulaJuridica(digits)) {
+  //         form.setFieldValue("CompanyName", "");
+  //         return;
+  //       }
 
-        setLookingUp(true);
-        try {
-          const nombre = await fetchNombreJuridico(raw, ac.signal);
-          form.setFieldValue("CompanyName", nombre ?? "");
-        } finally {
-          setLookingUp(false);
-        }
-      }, 400);
-    };
+  //       setLookingUp(true);
+  //       try {
+  //         const nombre = await fetchNombreJuridico(raw, ac.signal);
+  //         form.setFieldValue("CompanyName", nombre ?? "");
+  //       } finally {
+  //         setLookingUp(false);
+  //       }
+  //     }, 400);
+  //   };
 
-  const handleLegalIdBlur =
-    (field: any, form: any) =>
-    async () => {
-      // Cancelar cualquier request en curso
-      lookupRef.current.abort?.abort();
+  // const handleLegalIdBlur =
+  //   (field: any, form: any) =>
+  //   async () => {
+  //     // Cancelar cualquier request en curso
+  //     lookupRef.current.abort?.abort();
 
-      const raw = field.state.value;
-      const digits = limpiar(raw);
+  //     const raw = field.state.value;
+  //     const digits = limpiar(raw);
 
-      // ✅ Si está vacío o inválido, asegurar limpieza y no consultar
-      if (digits.length === 0 || !esCedulaJuridica(digits)) {
-        form.setFieldValue("CompanyName", "");
-        return;
-      }
+  //     // ✅ Si está vacío o inválido, asegurar limpieza y no consultar
+  //     if (digits.length === 0 || !esCedulaJuridica(digits)) {
+  //       form.setFieldValue("CompanyName", "");
+  //       return;
+  //     }
 
-      const ac = new AbortController();
-      lookupRef.current.abort = ac;
+  //     const ac = new AbortController();
+  //     lookupRef.current.abort = ac;
 
-      setLookingUp(true);
-      try {
-        const nombre = await fetchNombreJuridico(raw, ac.signal);
-        form.setFieldValue("CompanyName", nombre ?? "");
-      } finally {
-        setLookingUp(false);
-      }
-    };
+  //     setLookingUp(true);
+  //     try {
+  //       const nombre = await fetchNombreJuridico(raw, ac.signal);
+  //       form.setFieldValue("CompanyName", nombre ?? "");
+  //     } finally {
+  //       setLookingUp(false);
+  //     }
+  //   };
 
   return (
     <>
@@ -181,8 +181,8 @@ const CreateLegalSupplierModal = () => {
         + Crear proveedor jurídico
       </button>
 
-      <ModalBase open={open} onClose={handleClose} panelClassName="w-[min(30vw,700px)] p-4 ">
-        <header className="flex flex-col">
+      <ModalBase open={open} onClose={handleClose} panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]">
+        <header className="flex-shrink-0 flex flex-col">
           <h2 className="text-2xl text-[#091540] font-bold">Crear proveedor jurídico</h2>
           <p className="text-md">Complete la información para crear un proveedor jurídico</p>
         </header>
@@ -190,11 +190,12 @@ const CreateLegalSupplierModal = () => {
         <div className="border-b border-[#222]/10 my-2" />
 
         <form
+          id="create-legal-supplier-form"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="grid gap-3"
+          className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           {/* LegalID */}
           <form.Field name="LegalID">
@@ -205,17 +206,70 @@ const CreateLegalSupplierModal = () => {
                   className={INPUTSTYLES}
                   placeholder="ejm. 3-101-354271"
                   value={field.state.value}
-                  onChange={handleLegalIdChange(field, form)}
-                  onBlur={handleLegalIdBlur(field, form)}
-                  maxLength={13} // 10 dígitos + 2 guiones = 12; dejamos 13 por seguridad
+                  onChange={(e) => {
+                    const formatted = formatearCedulaJuridica(e.target.value);
+                    field.handleChange(formatted);
+
+                    // ---- lookup con debounce usando solo dígitos ----
+                    if (lookupRef.current.timer) clearTimeout(lookupRef.current.timer);
+                    lookupRef.current.abort?.abort();
+
+                    const digits = limpiar(formatted);
+                    if (digits.length < 10) {
+                      form.setFieldValue("CompanyName", "");
+                      return;
+                    }
+
+                    lookupRef.current.timer = setTimeout(async () => {
+                      lookupRef.current.abort?.abort();
+                      const ac = new AbortController();
+                      lookupRef.current.abort = ac;
+
+                      if (!esCedulaJuridica(digits)) {
+                        form.setFieldValue("CompanyName", "");
+                        return;
+                      }
+
+                      setLookingUp(true);
+                      try {
+                        // consulta con dígitos; mostramos el nombre, pero mantenemos LegalID con guiones
+                        const nombre = await fetchNombreJuridico(digits, ac.signal);
+                        form.setFieldValue("CompanyName", nombre ?? "");
+                      } finally {
+                        setLookingUp(false);
+                      }
+                    }, 400);
+                  }}
+                  onBlur={async () => {
+                    // cancelar request anterior
+                    lookupRef.current.abort?.abort();
+
+                    const digits = limpiar(field.state.value);
+                    if (digits.length < 10 || !esCedulaJuridica(digits)) {
+                      form.setFieldValue("CompanyName", "");
+                      return;
+                    }
+
+                    const ac = new AbortController();
+                    lookupRef.current.abort = ac;
+
+                    setLookingUp(true);
+                    try {
+                      const nombre = await fetchNombreJuridico(digits, ac.signal);
+                      form.setFieldValue("CompanyName", nombre ?? "");
+                    } finally {
+                      setLookingUp(false);
+                    }
+                  }}
+                  maxLength={12}           // "3-101-354271" = 12 caracteres (con guiones)
                   inputMode="numeric"
                   autoComplete="off"
                 />
                 {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                    )}
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
                 {lookingUp && <span className="text-xs text-gray-500 mt-1">Consultando…</span>}
               </label>
             )}
@@ -328,11 +382,12 @@ const CreateLegalSupplierModal = () => {
               </label>
             )}
           </form.Field>
-
-          <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+        </form>
+        <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (
-              <div className="mt-4 flex justify-end gap-2">
+              <div className="flex-shrink-0 mt-4 flex justify-end gap-2 border-t border-gray-200 pt-3">
                 <button
+                  form="create-legal-supplier-form"
                   type="submit"
                   className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
                   disabled={!canSubmit}
@@ -344,8 +399,7 @@ const CreateLegalSupplierModal = () => {
                 </button>
               </div>
             )}
-          </form.Subscribe>
-        </form>
+        </form.Subscribe>
       </ModalBase>
     </>
   );

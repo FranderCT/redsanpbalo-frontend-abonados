@@ -70,9 +70,9 @@ const EditLegalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) =
     <ModalBase
       open={open}
       onClose={handleClose}
-      panelClassName="w-[min(30vw,700px)] p-4"
+      panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]"
     >
-      <header className="flex flex-col">
+      <header className="flex-shrink-0 flex flex-col">
         <h2 className="text-2xl text-[#091540] font-bold">Editar proveedor jurídico</h2>
         <p className="text-md">Actualice la información del proveedor</p>
       </header>
@@ -80,11 +80,12 @@ const EditLegalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) =
       <div className="border-b border-[#222]/10 my-2" />
 
       <form
+        id="create-legal-supplier-form"
         onSubmit={(e) => {
           e.preventDefault();
           form.handleSubmit();
         }}
-        className="grid gap-3"
+        className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         {/* LegalID */}
         <form.Field name="LegalID">
@@ -240,12 +241,13 @@ const EditLegalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) =
             </label>
           )}
         </form.Field>
-
-        {/* Botones */}
+      </form>
+      {/* Botones */}
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
-            <div className="mt-4 flex justify-end gap-2">
+            <div className="flex-shrink-0 mt-4 flex justify-end gap-2 border-t border-gray-200 pt-3">
               <button
+                form="create-legal-supplier-form"
                 type="submit"
                 className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
                 disabled={!canSubmit || isSubmitting}
@@ -262,7 +264,6 @@ const EditLegalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) =
             </div>
           )}
         </form.Subscribe>
-      </form>
     </ModalBase>
   );
 };
