@@ -11,7 +11,7 @@ export interface ReqAvailWater {
   LiteralCertificateFile?: string;
   RequestLetterFile?: string;
   ConstructionPermitFile?: string;
-  IsActive: boolean;
+  IsActive: string;
 
   // Relaciones
   User: User;
@@ -49,7 +49,7 @@ export interface UpdateReqAvailWater {
   LiteralCertificateFile?: string;
   RequestLetterFile?: string;
   ConstructionPermitFile?: string;
-  IsActive?: boolean;
+  IsActive?: string;
   // Permitir cambiar FKs (en línea con UpdateProject que expone IDs)
   UserId?: number;
   StateRequestId?: number;
@@ -59,8 +59,7 @@ export interface UpdateReqAvailWater {
 export interface ReqAvailWaterPaginationParams {
   page: number;
   limit: number;
-  justification?: string;   // equivalente a 'name?' en Project
-  state?: string;           // texto libre si filtras por nombre del estado
-  stateRequestId?: number;  // o por ID concreto del estado
-  userId?: number;          // filtrar por solicitante
+  UserName?: string;          // filtrar por solicitante
+  StateRequestId?: number;  // o por ID concreto del estado
+  State?: string; 
 }

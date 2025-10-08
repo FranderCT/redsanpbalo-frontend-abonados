@@ -60,8 +60,8 @@ export default function ReqAvailWaterHeaderBar({
           onChange={(e) => onFilterClick(e.target.value || "")}
         >
           <option value="">Todos</option>
-          <option value="1">Activo</option>
-          <option value="0">Inactivo</option>
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
         </select>
       </div>
 
