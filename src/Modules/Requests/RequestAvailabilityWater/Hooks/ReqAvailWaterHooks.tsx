@@ -34,7 +34,7 @@ export const useSearchReqAvailWater = (params: ReqAvailWaterPaginationParams) =>
   } = params ?? {};
 
   const query = useQuery<PaginatedResponse<ReqAvailWater>, Error>({
-    // 👇 La clave incluye los filtros como PRIMITIVOS
+  
     queryKey: [
       "reqavailwater", "search",
       page,
