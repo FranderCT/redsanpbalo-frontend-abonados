@@ -3,7 +3,7 @@ import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCatego
 import type { NewReqAvailWater, ReqAvailWater, ReqAvailWaterPaginationParams, UpdateReqAvailWater } from "../Models/ReqAvailWater";
 
 
-const BASE = "/reques-availability-water"; 
+const BASE = "/request-availability-water"; 
 
 
 export async function getAllReqAvailWater(): Promise<ReqAvailWater[]> {
@@ -36,14 +36,15 @@ export async function getReqAvailWaterById(id: number): Promise<ReqAvailWater> {
   return res.data;
 }
 
-export async function createReqAvailWater(payload: NewReqAvailWater): Promise<NewReqAvailWater> {
-  try{
-    const {data} = await apiAxios.post<ReqAvailWater>(BASE, payload);
-    return data;
-  }catch(err){
-    console.log(err);
-    return Promise.reject(err);
-  }
+export async function createReqAvailWater(payloads: NewReqAvailWater) : Promise<NewReqAvailWater>{
+    try{
+        const {data} = await apiAxios.post<NewReqAvailWater>(BASE, payloads);
+        return data;
+    }catch(err){
+        console.log(err);
+        return Promise.reject(err);
+    }
+
 }
 
 export async function updateReqAvailWater(id: number, payload: UpdateReqAvailWater): Promise<ReqAvailWater> {

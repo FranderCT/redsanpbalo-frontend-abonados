@@ -1,45 +1,88 @@
-// src/Modules/Requests/Components/Cards/ResumeReqAvailWater.tsx
-import { FileText, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { FileText, Clock, CheckCircle2, XCircle, FileClock, FileCheck2, FileX2 } from "lucide-react";
 import React from "react";
 
-const StatCard = ({
+type Tone = "neutral" | "warning" | "success" | "danger";
+
+const toneStyles: Record<
+  Tone,
+  { iconWrap: string; badge: string; value: string; border: string }
+> = {
+  neutral: {
+    iconWrap: "bg-gray-100 text-gray-700",
+    badge: "bg-gray-100 text-gray-700",
+    value: "text-[#091540]",
+    border: "border-gray-200",
+  },
+  warning: {
+    iconWrap: "bg-yellow-100 text-yellow-700",
+    badge: "bg-yellow-100 text-yellow-800",
+    value: "text-[#091540]",
+    border: "border-yellow-100",
+  },
+  success: {
+    iconWrap: "bg-green-100 text-green-700",
+    badge: "bg-green-100 text-green-800",
+    value: "text-[#091540]",
+    border: "border-green-100",
+  },
+  danger: {
+    iconWrap: "bg-red-100 text-red-700",
+    badge: "bg-red-100 text-red-800",
+    value: "text-[#091540]",
+    border: "border-red-100",
+  },
+};
+
+function StatCard({
   title,
   value,
   subtitle,
   icon,
-  badgeClass,
+  tone = "neutral",
+  loading = false,
 }: {
   title: string;
-  value: React.ReactNode;         // <- antes: string | number
-  subtitle?: string;
+  value: number;
+  subtitle: string;
   icon: React.ReactNode;
-  badgeClass?: string;
-}) => {
+  tone?: Tone;
+  loading?: boolean;
+}) {
+  const t = toneStyles[tone];
   return (
-    <div className="flex flex-col items-start justify-between gap-4 border border-[#E6E8F0] bg-white p-4 shadow-sm hover:shadow transition-shadow">
-      <div className="space-y-1">
-        <p className="text-sm text-[#6B7280]">{title}</p>
-        <div className="flex items-center gap-2">
-          <span className="text-2xl font-semibold text-[#091540] leading-none">
-            {value}
-          </span>
-          {subtitle && (
-            <span
-              className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${
-                badgeClass ?? "bg-gray-100 text-gray-700"
-              }`}
-            >
-              {subtitle}
-            </span>
-          )}
-        </div>
+    <div
+      className={`group h-full border ${t.border} bg-white p-5 shadow-sm transition
+                  hover:shadow-md`}
+    >
+      <div className="flex items-start justify-between">
+        <p className="text-sm font-medium text-[#6B7280]">{title}</p>
+        <span
+          className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${t.iconWrap}`}
+        >
+          {icon}
+        </span>
       </div>
-      <div className="grid place-items-center border border-[#E6E8F0] p-2 text-[#091540]/70 bg-[#F8FAFF]">
-        {icon}
+
+      <div className="mt-3 flex items-end justify-between">
+        <div className="flex flex-col">
+          <span
+            className={`leading-none text-3xl font-bold ${t.value} ${
+              loading ? "animate-pulse text-transparent bg-gray-100 rounded-md px-2" : ""
+            }`}
+          >
+            {loading ? "00" : value}
+          </span>
+
+          <span
+            className={`mt-2 inline-flex w-fit items-center gap-1  px-2.5 py-1 text-xs font-semibold ${t.badge}`}
+          >
+            {subtitle}
+          </span>
+        </div>
       </div>
     </div>
   );
-};
+}
 
 export default function ResumeReqAvailWater({
   total,
@@ -54,35 +97,39 @@ export default function ResumeReqAvailWater({
   rejected: number;
   loading?: boolean;
 }) {
-  const sk = loading ? "animate-pulse bg-gray-100 text-transparent select-none" : "";
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <StatCard
         title="Total de solicitudes"
-        value={<span className={sk}>{total}</span>}
-        subtitle="Registradas"
-        icon={<FileText size={20} />}
+        value={total}
+        subtitle="Registradas en el sistema"
+        icon={<FileText size={18} />}
+        tone="neutral"
+        loading={!!loading}
       />
       <StatCard
         title="Pendientes"
-        value={<span className={sk}>{pending}</span>}
+        value={pending}
         subtitle="Requieren atención"
-        badgeClass="bg-yellow-100 text-yellow-800"
-        icon={<Clock size={20} />}
+        icon={<FileClock size={18} />}
+        tone="warning"
+        loading={!!loading}
       />
       <StatCard
         title="Aprobadas"
-        value={<span className={sk}>{approved}</span>}
-        subtitle="Procesadas"
-        badgeClass="bg-green-100 text-green-800"
-        icon={<CheckCircle2 size={20} />}
+        value={approved}
+        subtitle="Procesadas exitosamente"
+        icon={<FileCheck2 size={18} />}
+        tone="success"
+        loading={!!loading}
       />
       <StatCard
         title="Rechazadas"
-        value={<span className={sk}>{rejected}</span>}
+        value={rejected}
         subtitle="No cumplen requisitos"
-        badgeClass="bg-red-100 text-red-800"
-        icon={<XCircle size={20} />}
+        icon={<FileX2 size={18} />}
+        tone="danger"
+        loading={!!loading}
       />
     </div>
   );
