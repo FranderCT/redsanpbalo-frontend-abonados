@@ -8,6 +8,7 @@ import ReqSupervisionMeterHeaderBar from "../Components/PaginationReqSupervision
 import ReqSupervisionMeterTable from "../Components/ReqSupervisionMeterTable/ReqSupervisonMeterTable";
 import CreateRequestSupervisionMeter from "../../../Request-Abonados/Components/Supervision-Meter/CreateRequestSupervisionMeter";
 import CreateChangeMeterModal from "../../../Request-Abonados/Components/Change-Meter/CreateChangeMeterModal";
+import CreateAssociatedRqModal from "../../../Request-Abonados/Components/Associated-rq/CreateAssociatedRqModal";
 
 export default function ListReqSupervisionMeter() {
   const [page, setPage] = useState(1);
@@ -138,6 +139,7 @@ export default function ListReqSupervisionMeter() {
 
       <CreateRequestSupervisionMeter />
       <CreateChangeMeterModal />
+      <CreateAssociatedRqModal />
     </div>
   );
 }

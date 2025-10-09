@@ -6,4 +6,4 @@ export interface ChangeMeter {
     UserId: number;
 }
 
-export interface PartialChangeMeter extends Partial<ChangeMeter> {}
+export type PartialChangeMeter = Partial<ChangeMeter>;
