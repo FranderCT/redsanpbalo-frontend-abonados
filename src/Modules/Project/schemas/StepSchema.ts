@@ -26,6 +26,9 @@ export const StepSchemas = [
     productDetails: ProjectBase.shape.productDetails,
   }),
 
-  // Paso 3: confirmación (sin validación adicional)
+  // Paso 3: documentos (opcional, sin validación estricta)
+  z.any(),
+
+  // Paso 4: confirmación (sin validación adicional)
   z.any(),
 ] as const;
