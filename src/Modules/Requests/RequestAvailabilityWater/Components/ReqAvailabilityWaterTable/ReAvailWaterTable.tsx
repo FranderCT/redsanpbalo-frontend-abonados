@@ -79,9 +79,9 @@ export default function ReqAvailWaterTable({
               className="px-4 py-3 border border-gray-300"
             >
               <div className="w-full flex items-center justify-between gap-3">
-                <span className="flex-none text-sm">
+                {/* <span className="flex-none text-sm">
                   Total registros: <b>{total ?? data.length}</b>
-                </span>
+                </span> */}
                 <div className="flex-1 flex justify-center">
                   <ReqAvailWaterPager
                     page={page}

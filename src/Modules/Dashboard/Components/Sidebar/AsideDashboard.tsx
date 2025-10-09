@@ -37,13 +37,24 @@ const AsideDashboard = () => {
         </Can>
 
         <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
-          <button 
+          <SidebarDropdown
+            icon={<FileText className="size-[23px] transition-colors group-hover:text-white" />}
+            label="Solicitudes"
+            items={[
+              { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests" }) },
+              { label: "Revisión de Medidor", onClick: () => navigate({ to: "/dashboard/requests" }) },
+              { label: "Cambio de Medidor", onClick: () => navigate({ to: "/dashboard/requests" }) },
+              { label: "Cambio Nombre de Medidor", onClick: () => navigate({ to: "/dashboard/requests" }) },
+              { label: "Asociado", onClick: () => navigate({ to: "/dashboard/requests" }) },
+            ]}
+          />
+          {/* <button 
             onClick={() => navigate({ to: "/dashboard/requests" })}
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
           >
             <FileText className="size-[23px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Solicitudes</span>
-          </button>
+          </button> */}
         </Can>
 
         <Can rule={{ all: ["ADMIN"] }}>

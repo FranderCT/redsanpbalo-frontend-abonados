@@ -56,8 +56,8 @@ export default function ReqAvailWaterHeaderBar({
         <span className="text-sm text-[#091540]">Estado:</span>
         <select
           className="h-9 px-3 border border-[#D9DBE9] bg-white text-sm outline-none"
-          value={state}
-          onChange={(e) => onFilterClick(e.target.value || "")}
+          value={state ?? ""} // <-- aquí se mantiene string ("true", "false" o "")
+          onChange={(e) => onFilterClick(e.target.value)}
         >
           <option value="">Todos</option>
           <option value="true">Activo</option>
