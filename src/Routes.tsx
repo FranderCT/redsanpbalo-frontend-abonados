@@ -11,8 +11,8 @@ import { listSupplierRoute, newSupplierRoute, supplierRoute, viewSuppliertRoute 
 import { createProjectRoute, listProjectRoute, projectRoute, updateProjectRoute, viewProjectRoute } from "./Modules/Project/Routes/ProjectsRoutes";
 import { listPhysicalSuppliers, PhysicalSupplierRoute } from "./Modules/PhysicalSupplier/Routes/PhysicalSupplierRoutes";
 import { legalSupplierRoute, listLegalSuppliers } from "./Modules/LegalSupplier/Routes/LegalSupplierRoutes";
-import HeroPage from "./Modules/Lading/HeroPage";
-import { requestRoute } from "./Modules/Requests/Routes/RequestsRoutes";
+import {  requestAvailWaterRoute } from "./Modules/Requests/RequestAvailabilityWater/Routes/RequestsAvailWaterRoute";
+import { requestSupervisionRoute } from "./Modules/Requests/RequestSupervisionMeter/Routes/RequestsSupervisionWaterRoute";
 
 export const rootRoute = createRootRoute();
 
@@ -45,7 +45,8 @@ export const routeTree = rootRoute.addChildren([
     categoryRoute,
     uniteMeasureRoute,
     productsRoutes,
-    requestRoute,
+    requestAvailWaterRoute,
+    requestSupervisionRoute,
     supplierRoute.addChildren([
       listSupplierRoute,
       newSupplierRoute,

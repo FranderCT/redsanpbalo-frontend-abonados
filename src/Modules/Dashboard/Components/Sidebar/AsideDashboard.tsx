@@ -41,11 +41,11 @@ const AsideDashboard = () => {
             icon={<FileText className="size-[23px] transition-colors group-hover:text-white" />}
             label="Solicitudes"
             items={[
-              { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests" }) },
-              { label: "Revisión de Medidor", onClick: () => navigate({ to: "/dashboard/requests" }) },
-              { label: "Cambio de Medidor", onClick: () => navigate({ to: "/dashboard/requests" }) },
-              { label: "Cambio Nombre de Medidor", onClick: () => navigate({ to: "/dashboard/requests" }) },
-              { label: "Asociado", onClick: () => navigate({ to: "/dashboard/requests" }) },
+              { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requestsAvailWater" }) },
+              { label: "Revisión de Medidor", onClick: () => navigate({ to: "/dashboard/requestsSupervisionMeter" }) },
+              //{ label: "Cambio de Medidor", onClick: () => navigate({ to: "/dashboard/requests" }) },
+              //{ label: "Cambio Nombre de Medidor", onClick: () => navigate({ to: "/dashboard/requests" }) },
+              //{ label: "Asociado", onClick: () => navigate({ to: "/dashboard/requests" }) },
             ]}
           />
           {/* <button 

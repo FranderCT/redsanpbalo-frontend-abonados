@@ -3,7 +3,7 @@ import React from "react";
 
 type Tone = "neutral" | "warning" | "success" | "danger"; // se mantiene por compatibilidad
 
-// Estilos monocromos (sin colores por tono)
+// Estilos monocromos 
 const monoStyles = {
   card: "group h-full border border-gray-200/80 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-[1px]",
   headerText: "text-sm font-medium text-gray-500",
@@ -23,7 +23,6 @@ function StatCard({
   value,
   subtitle,
   icon,
-  tone = "neutral", // ignorado, se mantiene por compatibilidad
   loading = false,
 }: {
   title: string;
