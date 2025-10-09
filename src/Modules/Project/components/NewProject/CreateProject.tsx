@@ -15,6 +15,7 @@ import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
 import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
 import { useNavigate } from "@tanstack/react-router";
+import { uploadProjectFiles } from "../../../Project-files/Services/ProjectFileServices";
 
 
 
@@ -111,6 +112,8 @@ const CreateProject = () => {
         Observation: "",
       },
       productDetails: [] as Array<Pick<NewProductDetail, "ProductId" | "Quantity">>,
+      subfolder: "",
+      files: [] as File[],
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -167,6 +170,7 @@ const CreateProject = () => {
           );
         }
 
+        await uploadProjectFiles(projectId, value.files, value.subfolder);
         // 4) Éxito
         formApi.reset();
         toast.success("¡Proyecto, proyección y detalles creados!", { position: "top-right", autoClose: 3000 });
@@ -341,6 +345,38 @@ const CreateProject = () => {
                 </label>
               )}
             </form.Field>
+
+            {/* Subfolder */}
+            <form.Field
+              name="subfolder"
+              children={(field) => (
+                <div>
+                  <label>Carpeta destino (opcional)</label>
+                  <input
+                    type="text"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    className="border px-2 py-1 rounded w-full"
+                  />
+                </div>
+              )}
+            />
+
+            {/* Files */}
+            <form.Field
+              name="files"
+              children={(field) => (
+                <div>
+                  <label>Seleccionar archivos</label>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) => field.handleChange(Array.from(e.target.files ?? []))}
+                    className="block"
+                  />
+                </div>
+              )}
+            />
 
             <form.Field name="ProjectStateId">
               {(field) => (
