@@ -27,7 +27,6 @@ export interface newProject{
   Objective:string;
   Description:string;
   Observation:string;
-  SpaceOfDocument:File;
   ProjectStateId : number;
   UserId : number;
 }
@@ -41,7 +40,6 @@ export const newProjectInitialState: newProject = {
   Objective:"",
   Description:"",
   Observation:"",
-  SpaceOfDocument: null as unknown as File,
   ProjectStateId : 1,
   UserId : 1
 };

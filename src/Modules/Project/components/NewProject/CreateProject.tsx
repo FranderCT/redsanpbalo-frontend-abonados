@@ -40,7 +40,7 @@ const CreateProject = () => {
   const { products, isPending: productsLoading, error: productsError } = useGetAllProducts();
 
   // Estado local para múltiples documentos
-  const [projectDocuments, setProjectDocuments] = useState<File[]>([]);
+
 
   // UI local para el picker de detalles
   // 👇 NUEVO: autocomplete
@@ -123,7 +123,6 @@ const CreateProject = () => {
           Objective: value.Objective,
           Description: value.Description,
           Observation: value.Observation, // Observation del PROYECTO
-          SpaceOfDocument: value.SpaceOfDocument,
           ProjectStateId: value.ProjectStateId,
           UserId : value.UserId
         };
@@ -175,7 +174,7 @@ const CreateProject = () => {
         setStep(0);
         setTempProductId(0);
         setTempQty(0);
-        setProjectDocuments([]);
+
         
       } catch (err) {
         console.error("Error al crear proyecto/proyección/detalles", err);
@@ -341,120 +340,6 @@ const CreateProject = () => {
                   )}
                 </label>
               )}
-            </form.Field>
-
-            {/* Campo de documentos usando estado local */}
-            <div className="flex flex-col gap-3">
-              <span className="text-sm font-medium text-[#091540]">Documentos del proyecto</span>
-              
-              {/* Área de subida */}
-              <div className="relative">
-                <input
-                  type="file"
-                  id="spaceOfDocument"
-                  multiple
-                  accept=".pdf,.doc,.docx,.txt,.jpg,.png,.jpeg"
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      const newFiles = Array.from(e.target.files);
-                      setProjectDocuments(prev => [...prev, ...newFiles]);
-                      // Limpiar el input para permitir seleccionar los mismos archivos de nuevo
-                      e.target.value = '';
-                    }
-                  }}
-                />
-                <div className="flex items-center gap-3 px-4 py-3 border-2 border-gray-300 rounded-lg border-dashed hover:border-blue-400 hover:bg-blue-50/50 transition-colors cursor-pointer">
-                  {/* Ícono de subir archivo */}
-                  <svg 
-                    className="w-6 h-6 text-gray-400" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
-                    />
-                  </svg>
-                  
-                  <div className="flex-1">
-                    <div className="text-sm text-gray-500">
-                      <span className="font-medium text-gray-700">Haz clic para agregar documentos</span>
-                      <span className="block text-xs">o arrastra y suelta aquí (PDF, DOC, IMG)</span>
-                    </div>
-                  </div>
-                  
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-sm bg-[#091540] text-white rounded hover:bg-[#1789FC] transition-colors"
-                    onClick={() => document.getElementById('spaceOfDocument')?.click()}
-                  >
-                    + Agregar
-                  </button>
-                </div>
-              </div>
-
-              {/* Lista de documentos agregados */}
-              {projectDocuments.length > 0 && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">
-                      Documentos agregados ({projectDocuments.length})
-                    </span>
-                    <button
-                      type="button"
-                      className="text-xs text-red-600 hover:text-red-800 underline"
-                      onClick={() => setProjectDocuments([])}
-                    >
-                      Quitar todos
-                    </button>
-                  </div>
-                  
-                  <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg">
-                    {projectDocuments.map((file: File, index: number) => (
-                      <div key={`${file.name}-${index}-${file.lastModified}`} className="flex items-center justify-between p-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {file.name}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {Math.round(file.size / 1024)} KB
-                          </p>
-                        </div>
-                        
-                        <button
-                          type="button"
-                          className="flex-shrink-0 ml-3 p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-                          onClick={() => {
-                            setProjectDocuments(prev => prev.filter((_, i) => i !== index));
-                          }}
-                          title="Quitar documento"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Campo oculto para mantener compatibilidad con el formulario */}
-            <form.Field name="SpaceOfDocument">
-              {(field) => {
-                // Sincronizar el primer documento con el formulario para compatibilidad
-                if (projectDocuments.length > 0 && !field.state.value) {
-                  field.handleChange(projectDocuments[0]);
-                } else if (projectDocuments.length === 0 && field.state.value) {
-                  field.handleChange(undefined as any);
-                }
-                return null;
-              }}
             </form.Field>
 
             <form.Field name="ProjectStateId">
