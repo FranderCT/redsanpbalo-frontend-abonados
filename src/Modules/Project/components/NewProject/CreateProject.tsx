@@ -15,6 +15,7 @@ import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
 import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
 import { useNavigate } from "@tanstack/react-router";
+import { uploadProjectFiles } from "../../../Project-files/Services/ProjectFileServices";
 
 
 
@@ -22,6 +23,7 @@ const steps = [
   { label: "Datos Básicos" },
   { label: "Detalles" },
   { label: "Proyección" },
+  { label: "Documentos" },
   { label: "Confirmación" },
 ];
 
@@ -111,6 +113,8 @@ const CreateProject = () => {
         Observation: "",
       },
       productDetails: [] as Array<Pick<NewProductDetail, "ProductId" | "Quantity">>,
+      subfolder: "",
+      files: [] as File[],
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -167,7 +171,13 @@ const CreateProject = () => {
           );
         }
 
-        // 4) Éxito
+        // 4) Subir archivos si existen
+        if (value.files && value.files.length > 0) {
+          await uploadProjectFiles(projectId, value.files, value.subfolder || 'Complementarios');
+          toast.success(`${value.files.length} archivo(s) subido(s) exitosamente`, { position: "top-right", autoClose: 2000 });
+        }
+
+        // 5) Éxito
         formApi.reset();
         toast.success("¡Proyecto, proyección y detalles creados!", { position: "top-right", autoClose: 3000 });
         navigate({ to: "/dashboard/projects" });
@@ -241,7 +251,30 @@ const CreateProject = () => {
                       type="date"
                       className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
                       value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
-                      onChange={(e) => field.handleChange(new Date(e.target.value))}
+                      onChange={(e) => {
+                        const selectedStartDate = new Date(e.target.value);
+                        field.handleChange(selectedStartDate);
+                        
+                        // SIEMPRE actualizar la fecha de fin cuando cambie la fecha de inicio
+                        const currentEndDate = form.state.values.EndDate;
+                        
+                        if (currentEndDate) {
+                          const endDate = new Date(currentEndDate);
+                          // Si la fecha de fin es menor O IGUAL, actualizar a la fecha de inicio
+                          if (endDate <= selectedStartDate) {
+                            form.setFieldValue('EndDate', selectedStartDate);
+                          }
+                        } else {
+                          // Si no hay fecha de fin, establecer la fecha de inicio como fecha de fin
+                          form.setFieldValue('EndDate', selectedStartDate);
+                        }
+                        
+                        // Siempre limpiar errores del campo de fecha de fin
+                        form.setFieldMeta('EndDate', (prev: any) => ({
+                          ...prev,
+                          errors: []
+                        }));
+                      }}
                       required
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
@@ -254,23 +287,69 @@ const CreateProject = () => {
               </form.Field>
 
               <form.Field name="EndDate">
-                {(field) => (
-                  <label className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-[#091540]">Fecha de fin</span>
-                    <input
-                      type="date"
-                      className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                      value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
-                      onChange={(e) => field.handleChange(new Date(e.target.value))}
-                      required
-                    />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
-                    )}
-                  </label>
-                )}
+                {(field) => {
+                  // Obtener la fecha de inicio para validación (se actualiza automáticamente)
+                  const startDate = form.state.values.InnitialDate;
+                  const minEndDate = startDate ? new Date(startDate).toISOString().split("T")[0] : "";
+                  
+                  return (
+                    <label className="flex flex-col gap-1">
+                      <span className="text-sm font-medium text-[#091540]">Fecha de fin</span>
+                      <input
+                        type="date"
+                        className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
+                        value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
+                        min={minEndDate} // Se actualiza automáticamente cuando cambia startDate
+                        onChange={(e) => {
+                          const selectedDate = new Date(e.target.value);
+                          
+                          // Validación continua cada vez que se selecciona una fecha
+                          if (startDate && selectedDate < new Date(startDate)) {
+                            // Mostrar error si la fecha es menor
+                            field.setMeta((prev: any) => ({
+                              ...prev,
+                              errors: ["La fecha de fin no puede ser anterior a la fecha de inicio"],
+                              isTouched: true
+                            }));
+                            // No actualizar el valor si es inválido
+                            return;
+                          }
+                          
+                          // Limpiar errores y actualizar valor si la fecha es válida
+                          field.setMeta((prev: any) => ({
+                            ...prev,
+                            errors: [],
+                            isTouched: true
+                          }));
+                          field.handleChange(selectedDate);
+                        }}
+                        onFocus={() => {
+                          // Al hacer focus, asegurar que el min se actualice
+                          const input = document.querySelector('input[name="EndDate"]') as HTMLInputElement;
+                          if (input && minEndDate) {
+                            input.setAttribute('min', minEndDate);
+                          }
+                        }}
+                        required
+                      />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                      {startDate && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Fecha mínima permitida: {new Date(startDate).toLocaleDateString('es-ES', {
+                            weekday: 'short',
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric'
+                          })}
+                        </p>
+                      )}
+                    </label>
+                  );
+                }}
               </form.Field>
             </div>
           </div>
@@ -599,8 +678,165 @@ const CreateProject = () => {
           </div>
         );
 
-      // Paso 3: Confirmación
+      // Paso 3: Documentos
       case 3:
+        return (
+          <div className="flex flex-col gap-6" key="step-3">
+            <div className="text-center">
+              <h3 className="text-xl font-semibold text-[#091540] mb-2">
+                Documentos del Proyecto
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Adjunta documentos complementarios para el proyecto (opcional)
+              </p>
+            </div>
+
+            <form.Field name="files">
+              {(field) => (
+                <div className="space-y-4">
+                  {/* Zona de drag & drop mejorada */}
+                  <div
+                    className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-200 group"
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const files = Array.from(e.dataTransfer.files);
+                      const currentFiles = field.state.value || [];
+                      field.handleChange([...currentFiles, ...files]);
+                    }}
+                  >
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                        <svg
+                          className="w-8 h-8 text-blue-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-lg font-medium text-gray-900 mb-2">
+                          Arrastra archivos aquí o{" "}
+                          <label className="text-blue-600 cursor-pointer hover:text-blue-700 underline">
+                            selecciona archivos
+                            <input
+                              type="file"
+                              multiple
+                              className="hidden"
+                              onChange={(e) => {
+                                const files = Array.from(e.target.files || []);
+                                const currentFiles = field.state.value || [];
+                                field.handleChange([...currentFiles, ...files]);
+                              }}
+                              accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.txt,.zip,.rar"
+                            />
+                          </label>
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          PDF, DOC, DOCX, XLS, XLSX, imágenes, archivos de texto
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Máximo 10MB por archivo
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Lista de archivos seleccionados mejorada */}
+                  {field.state.value && field.state.value.length > 0 && (
+                    <div className="bg-gray-50 rounded-xl p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-semibold text-gray-900">
+                          Archivos seleccionados ({field.state.value.length})
+                        </h4>
+                        <button
+                          type="button"
+                          onClick={() => field.handleChange([])}
+                          className="text-sm text-red-600 hover:text-red-700 font-medium"
+                        >
+                          Limpiar todo
+                        </button>
+                      </div>
+                      
+                      <div className="grid gap-3 max-h-64 overflow-y-auto">
+                        {field.state.value.map((file: File, index: number) => (
+                          <div
+                            key={`${file.name}-${index}`}
+                            className="flex items-center gap-4 p-3 bg-white rounded-lg border hover:shadow-sm transition-shadow"
+                          >
+                            <div className="flex-shrink-0">
+                              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg
+                                  className="w-5 h-5 text-blue-600"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                  />
+                                </svg>
+                              </div>
+                            </div>
+                            
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-gray-900 truncate">
+                                {file.name}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {(file.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                            </div>
+                            
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newFiles = field.state.value.filter((_: File, i: number) => i !== index);
+                                field.handleChange(newFiles);
+                              }}
+                              className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </form.Field>
+          </div>
+        );
+
+      // Paso 4: Confirmación
+      case 4:
         return (
           <div className="text-[#091540] space-y-2 px-2" key="step-3">
             <h3 className="text-lg font-semibold mb-2">Confirma los datos:</h3>
@@ -631,6 +867,21 @@ const CreateProject = () => {
                       )}
                     </ul>
                   </div>
+
+                  <div className="mt-4">
+                    <div className="font-semibold">Documentos:</div>
+                    {values.files && values.files.length > 0 ? (
+                      <ul className="list-disc pl-5">
+                        {values.files.map((file: File, i: number) => (
+                          <li key={i} className="text-sm">
+                            {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-gray-500 pl-5">Sin documentos adjuntos.</p>
+                    )}
+                  </div>
                 </div>
               )}
             </form.Subscribe>
@@ -644,9 +895,66 @@ const CreateProject = () => {
 
   return (
     <div className="w-full max-w-3xl mx-auto p-8">
-      <h2 className="text-2xl font-bold mb-2 text-[#091540] text-center tracking-tight">
-        {steps[step].label}
+      <h2 className="text-2xl font-bold mb-6 text-[#091540] text-center tracking-tight">
+        Crear Nuevo Proyecto
       </h2>
+
+      {/* Indicador de pasos con pelotitas */}
+      <div className="mb-8">
+        <div className="flex items-center justify-center mb-4">
+          {steps.map((stepItem, index) => (
+            <div key={index} className="flex items-center">
+              {/* Pelotita del paso */}
+              <div className="flex flex-col items-center">
+                <div
+                    className={`w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs transition-all duration-200 ${
+                      index < step
+                        ? 'bg-[#1789FC] text-white'     // color completado
+                        : index === step
+                        ? 'bg-[#091540] text-white'     // color actual
+                        : 'bg-gray-200 text-gray-500'   // pendiente
+                    }`}
+                  >
+                  {index < step ? (
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    index + 1
+                  )}
+                </div>
+                <span
+                  className={`mt-2 text-xs font-medium text-center max-w-20 ${
+                    index === step
+                      ? 'text-[#091540]'
+                      : index < step
+                      ? 'text-[#1789FC]'
+                      : 'text-gray-500'
+                  }`}
+                >
+                  {stepItem.label}
+                </span>
+              </div>
+
+              {/* Línea conectora */}
+              {index < steps.length - 1 && (
+                <div
+                  className={`h-0.5 w-12 mx-2 transition-colors duration-200 ${
+                    index < step ? 'bg-[#1789FC]' : 'bg-gray-200'
+                  }`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+        
+        {/* Título del paso actual */}
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-[#091540]">
+            {steps[step].label}
+          </h3>
+        </div>
+      </div>
 
       <form
         onSubmit={(e) => {
