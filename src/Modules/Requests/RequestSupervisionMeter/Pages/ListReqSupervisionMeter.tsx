@@ -6,6 +6,8 @@ import type { ReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
 import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
 import ReqSupervisionMeterHeaderBar from "../Components/PaginationReqSupervisionMeter/ReqSupervisionMeterHeaderBar";
 import ReqSupervisionMeterTable from "../Components/ReqSupervisionMeterTable/ReqSupervisonMeterTable";
+import CreateRequestSupervisionMeter from "../../../Request-Abonados/Components/Supervision-Meter/CreateRequestSupervisionMeter";
+import CreateChangeMeterModal from "../../../Request-Abonados/Components/Change-Meter/CreateChangeMeterModal";
 
 export default function ListReqSupervisionMeter() {
   const [page, setPage] = useState(1);
@@ -133,6 +135,9 @@ export default function ListReqSupervisionMeter() {
           />
         )}
       </div>
+
+      <CreateRequestSupervisionMeter />
+      <CreateChangeMeterModal />
     </div>
   );
 }
