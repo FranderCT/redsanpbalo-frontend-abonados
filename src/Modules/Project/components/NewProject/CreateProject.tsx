@@ -255,12 +255,25 @@ const CreateProject = () => {
                         const selectedStartDate = new Date(e.target.value);
                         field.handleChange(selectedStartDate);
                         
-                        // Validar fecha de fin si ya está seleccionada
-                        const endDate = form.state.values.EndDate;
-                        if (endDate && new Date(endDate) < selectedStartDate) {
-                          // Limpiar la fecha de fin si es menor que la nueva fecha de inicio
+                        // SIEMPRE actualizar la fecha de fin cuando cambie la fecha de inicio
+                        const currentEndDate = form.state.values.EndDate;
+                        
+                        if (currentEndDate) {
+                          const endDate = new Date(currentEndDate);
+                          // Si la fecha de fin es menor O IGUAL, actualizar a la fecha de inicio
+                          if (endDate <= selectedStartDate) {
+                            form.setFieldValue('EndDate', selectedStartDate);
+                          }
+                        } else {
+                          // Si no hay fecha de fin, establecer la fecha de inicio como fecha de fin
                           form.setFieldValue('EndDate', selectedStartDate);
                         }
+                        
+                        // Siempre limpiar errores del campo de fecha de fin
+                        form.setFieldMeta('EndDate', (prev: any) => ({
+                          ...prev,
+                          errors: []
+                        }));
                       }}
                       required
                     />
@@ -275,7 +288,7 @@ const CreateProject = () => {
 
               <form.Field name="EndDate">
                 {(field) => {
-                  // Obtener la fecha de inicio para validación
+                  // Obtener la fecha de inicio para validación (se actualiza automáticamente)
                   const startDate = form.state.values.InnitialDate;
                   const minEndDate = startDate ? new Date(startDate).toISOString().split("T")[0] : "";
                   
@@ -286,24 +299,36 @@ const CreateProject = () => {
                         type="date"
                         className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
                         value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
-                        min={minEndDate} // Establecer fecha mínima
+                        min={minEndDate} // Se actualiza automáticamente cuando cambia startDate
                         onChange={(e) => {
                           const selectedDate = new Date(e.target.value);
-                          // Validación adicional en el cliente
+                          
+                          // Validación continua cada vez que se selecciona una fecha
                           if (startDate && selectedDate < new Date(startDate)) {
                             // Mostrar error si la fecha es menor
-                            field.setMeta(prev => ({
+                            field.setMeta((prev: any) => ({
                               ...prev,
-                              errors: ["La fecha de fin no puede ser anterior a la fecha de inicio"]
+                              errors: ["La fecha de fin no puede ser anterior a la fecha de inicio"],
+                              isTouched: true
                             }));
+                            // No actualizar el valor si es inválido
                             return;
                           }
-                          // Limpiar errores si la fecha es válida
-                          field.setMeta(prev => ({
+                          
+                          // Limpiar errores y actualizar valor si la fecha es válida
+                          field.setMeta((prev: any) => ({
                             ...prev,
-                            errors: []
+                            errors: [],
+                            isTouched: true
                           }));
                           field.handleChange(selectedDate);
+                        }}
+                        onFocus={() => {
+                          // Al hacer focus, asegurar que el min se actualice
+                          const input = document.querySelector('input[name="EndDate"]') as HTMLInputElement;
+                          if (input && minEndDate) {
+                            input.setAttribute('min', minEndDate);
+                          }
                         }}
                         required
                       />
@@ -314,7 +339,12 @@ const CreateProject = () => {
                       )}
                       {startDate && (
                         <p className="text-xs text-gray-500 mt-1">
-                          Fecha mínima: {new Date(startDate).toLocaleDateString()}
+                          Fecha mínima permitida: {new Date(startDate).toLocaleDateString('es-ES', {
+                            weekday: 'short',
+                            year: 'numeric', 
+                            month: 'short', 
+                            day: 'numeric'
+                          })}
                         </p>
                       )}
                     </label>
