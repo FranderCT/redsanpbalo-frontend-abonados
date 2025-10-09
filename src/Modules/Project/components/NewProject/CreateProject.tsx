@@ -15,9 +15,6 @@ import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
 import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
 import { useNavigate } from "@tanstack/react-router";
-import { useUploadProjectFiles } from "../../../Project-files/Hooks/ProjectFileHooks";
-import { FileUploadProgress } from "./FileUploadProgress";
-import { logDropboxError, getFileUploadErrorMessage } from "../../../Project-files/Utils/DebugUtils";
 
 
 
@@ -37,14 +34,13 @@ const CreateProject = () => {
   const createProjectMutation = useCreateProject();
   const createProjectProjectionMutation = useCreateProjectProjection();
   const createProductDetailMutation = useCreateProductDetail();
-  const uploadFilesMutation = useUploadProjectFiles();
   const { userAdmin = [], isPending: UserAdminIsLoading} = useGetUsersByRoleAdmin();
 
   const { projectStates, projectStatesLoading } = useGetAllProjectStates();
   const { products, isPending: productsLoading, error: productsError } = useGetAllProducts();
 
   // Estado local para múltiples documentos
-  const [projectDocuments, setProjectDocuments] = useState<File[]>([]);
+
 
   // UI local para el picker de detalles
   // 👇 NUEVO: autocomplete
@@ -87,13 +83,8 @@ const CreateProject = () => {
       return;
     }
 
-    console.log('🔍 Validando paso:', step);
-    console.log('📋 Valores del formulario:', form.state.values);
-    console.log('📁 Documentos:', projectDocuments.length);
-
     const res = schema.safeParse(form.state.values);
     if (!res.success) {
-      console.log('❌ Errores de validación:', res.error.issues);
       // Marca como "touched" los campos con error del paso, para que se muestren mensajes
       res.error.issues.forEach((iss) => {
         const path = iss.path.join("."); // ej: "projection.Observation"
@@ -105,7 +96,6 @@ const CreateProject = () => {
       return;
     }
 
-    console.log('✅ Validación exitosa, avanzando al paso:', step + 1);
     //válido → avanza
     setStep(step + 1);
   };
@@ -133,7 +123,6 @@ const CreateProject = () => {
           Objective: value.Objective,
           Description: value.Description,
           Observation: value.Observation, // Observation del PROYECTO
-          SpaceOfDocument: value.SpaceOfDocument,
           ProjectStateId: value.ProjectStateId,
           UserId : value.UserId
         };
@@ -178,43 +167,14 @@ const CreateProject = () => {
           );
         }
 
-        // 4) Subir archivos si existen
-        if (projectDocuments.length > 0) {
-          try {
-            await uploadFilesMutation.mutateAsync({
-              projectId: Number(projectId),
-              files: projectDocuments,
-              subfolder: 'Complementarios',
-              uploadedByUserId: value.UserId // Usar el mismo userId del proyecto
-            });
-            console.log('✅ Archivos subidos correctamente');
-          } catch (fileError: any) {
-            console.error('❌ Error al subir archivos:', fileError);
-            
-            // Log detallado para debugging
-            logDropboxError(fileError);
-            
-            // Mensaje específico basado en el tipo de error
-            const errorMessage = `Proyecto creado exitosamente, pero no se pudieron subir los archivos: ${getFileUploadErrorMessage(fileError)}`;
-            
-            // No fallar todo el proceso si falla la subida de archivos
-            toast.warn(errorMessage, { 
-              position: "top-right", 
-              autoClose: 10000 
-            });
-          }
-        }
-        // 5) Éxito
+        // 4) Éxito
         formApi.reset();
-        toast.success("¡Proyecto, proyección y detalles creados correctamente!", { 
-          position: "top-right", 
-          autoClose: 3000 
-        });
+        toast.success("¡Proyecto, proyección y detalles creados!", { position: "top-right", autoClose: 3000 });
         navigate({ to: "/dashboard/projects" });
         setStep(0);
         setTempProductId(0);
         setTempQty(0);
-        setProjectDocuments([]);
+
         
       } catch (err) {
         console.error("Error al crear proyecto/proyección/detalles", err);
@@ -380,167 +340,6 @@ const CreateProject = () => {
                   )}
                 </label>
               )}
-            </form.Field>
-
-            {/* Campo de documentos usando estado local */}
-            <div className="flex flex-col gap-3">
-              <span className="text-sm font-medium text-[#091540]">Documentos del proyecto</span>
-              
-              {/* Área de subida con drag & drop */}
-              <div 
-                className="relative"
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.classList.add('border-blue-400', 'bg-blue-50/50');
-                }}
-                onDragLeave={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.classList.remove('border-blue-400', 'bg-blue-50/50');
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.classList.remove('border-blue-400', 'bg-blue-50/50');
-                  
-                  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                    const newFiles = Array.from(e.dataTransfer.files);
-                    // Filtrar solo archivos permitidos
-                    const allowedTypes = [
-                      'application/pdf',
-                      'application/msword',
-                      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                      'text/plain',
-                      'image/jpeg',
-                      'image/jpg',
-                      'image/png'
-                    ];
-                    const validFiles = newFiles.filter(file => allowedTypes.includes(file.type));
-                    
-                    if (validFiles.length > 0) {
-                      setProjectDocuments(prev => [...prev, ...validFiles]);
-                    }
-                    
-                    if (validFiles.length !== newFiles.length) {
-                      toast.warn('Algunos archivos no tienen un formato válido', { 
-                        position: "top-right", 
-                        autoClose: 3000 
-                      });
-                    }
-                  }
-                }}
-              >
-                <input
-                  type="file"
-                  id="spaceOfDocument"
-                  multiple
-                  accept=".pdf,.doc,.docx,.txt,.jpg,.png,.jpeg"
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      const newFiles = Array.from(e.target.files);
-                      setProjectDocuments(prev => [...prev, ...newFiles]);
-                      // Limpiar el input para permitir seleccionar los mismos archivos de nuevo
-                      e.target.value = '';
-                    }
-                  }}
-                />
-                <div className="flex items-center gap-3 px-4 py-3 border-2 border-gray-300 rounded-lg border-dashed hover:border-blue-400 hover:bg-blue-50/50 transition-colors cursor-pointer">
-                  {/* Ícono de subir archivo */}
-                  <svg 
-                    className="w-6 h-6 text-gray-400" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
-                    />
-                  </svg>
-                  
-                  <div className="flex-1">
-                    <div className="text-sm text-gray-500">
-                      <span className="font-medium text-gray-700">Haz clic para agregar documentos</span>
-                      <span className="block text-xs">o arrastra y suelta aquí (PDF, DOC, IMG)</span>
-                    </div>
-                  </div>
-                  
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-sm bg-[#091540] text-white rounded hover:bg-[#1789FC] transition-colors"
-                    onClick={() => document.getElementById('spaceOfDocument')?.click()}
-                  >
-                    + Agregar
-                  </button>
-                </div>
-              </div>
-
-              {/* Lista de documentos agregados */}
-              {projectDocuments.length > 0 && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">
-                      Documentos agregados ({projectDocuments.length})
-                    </span>
-                    <button
-                      type="button"
-                      className="text-xs text-red-600 hover:text-red-800 underline"
-                      onClick={() => setProjectDocuments([])}
-                    >
-                      Quitar todos
-                    </button>
-                  </div>
-                  
-                  <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-lg">
-                    {projectDocuments.map((file: File, index: number) => (
-                      <div key={`${file.name}-${index}-${file.lastModified}`} className="flex items-center justify-between p-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {file.name}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {Math.round(file.size / 1024)} KB
-                          </p>
-                        </div>
-                        
-                        <button
-                          type="button"
-                          className="flex-shrink-0 ml-3 p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-                          onClick={() => {
-                            setProjectDocuments(prev => prev.filter((_, i) => i !== index));
-                          }}
-                          title="Quitar documento"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Campo oculto para mantener compatibilidad con el formulario */}
-            <form.Field name="SpaceOfDocument">
-              {(field) => {
-                // Sincronizar con nombres de archivos como string (siempre asegurar que no esté vacío)
-                if (projectDocuments.length > 0) {
-                  // Crear una lista de nombres de archivos separados por comas
-                  const fileNames = projectDocuments.map(f => f.name).join(', ');
-                  if (field.state.value !== fileNames) {
-                    field.handleChange(fileNames);
-                  }
-                } else {
-                  // Asegurar que el campo tenga un valor válido aunque no haya documentos
-                  if (field.state.value !== 'Sin documentos') {
-                    field.handleChange('Sin documentos');
-                  }
-                }
-                return null;
-              }}
             </form.Field>
 
             <form.Field name="ProjectStateId">
@@ -832,21 +631,6 @@ const CreateProject = () => {
                       )}
                     </ul>
                   </div>
-
-                  <div className="mt-4">
-                    <div className="font-semibold">Documentos adjuntos:</div>
-                    {projectDocuments.length > 0 ? (
-                      <ul className="list-disc pl-5">
-                        {projectDocuments.map((file, i) => (
-                          <li key={i} className="text-sm">
-                            {file.name} ({Math.round(file.size / 1024)} KB)
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <span className="text-sm text-gray-500">Sin documentos adjuntos.</span>
-                    )}
-                  </div>
                 </div>
               )}
             </form.Subscribe>
@@ -911,14 +695,6 @@ const CreateProject = () => {
         onSelectProduct={handleProductSelection}
         isLoading={productsLoading}
         selectedProductIds={form.state.values.productDetails?.map(d => d.ProductId ?? 0) ?? []}
-      />
-
-      {/* Modal de progreso de subida de archivos */}
-      <FileUploadProgress
-        isUploading={uploadFilesMutation.isPending}
-        uploadedFiles={uploadFilesMutation.isSuccess ? projectDocuments.length : 0}
-        totalFiles={projectDocuments.length}
-        error={uploadFilesMutation.error?.message ?? null}
       />
     </div>
   );
