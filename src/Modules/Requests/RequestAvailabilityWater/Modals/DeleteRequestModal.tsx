@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { Trash } from "lucide-react";
-import type { ReqAvailWater } from "../RequestAvailabilityWater/Models/ReqAvailWater";
-import { useDeleteReqAvailWater } from "../RequestAvailabilityWater/Hooks/ReqAvailWaterHooks";
-import InhabilityActionModal from "../../../Components/Modals/InhabilyActionModal";
+import type { ReqAvailWater } from "../Models/ReqAvailWater";
+import { useDeleteReqAvailWater } from "../Hooks/ReqAvailWaterHooks";
+import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 
 
 type Props = {
@@ -52,7 +52,7 @@ export default function DeleteRequestModal({ reqAvailWater, onSuccess }: Props) 
         {open && (
             <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
             <InhabilityActionModal
-                title="¿Inhabilitar categoría?"
+                title="¿Inhabilitar solicitud?"
                 description={`¿Está seguro de inhabilitar esta solicitud?`}
                 cancelLabel="Cancelar"
                 confirmLabel="Inhabilitar"

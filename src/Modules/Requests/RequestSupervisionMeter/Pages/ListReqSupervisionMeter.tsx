@@ -1,23 +1,20 @@
 import { useMemo, useState } from "react";
-import { useSearchReqAvailWater } from "../Hooks/ReqAvailWaterHooks";
-import type { ReqAvailWater } from "../Models/ReqAvailWater";
-import ReqAvailWaterTable from "../Components/ReqAvailabilityWaterTable/ReAvailWaterTable";
-
-// Cards
-import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
-// Filtros de estado
-import { useGetAllRequestStates } from "../../StateRequest/Hooks/RequestStateHook";
-import ReqAvailWaterHeaderBar from "../Components/PaginationReqAvailabilityWater/ReqAvailWaterHeaderBar";
 import type { RequestState } from "../../StateRequest/Model/RequestState";
+import { useGetAllRequestStates } from "../../StateRequest/Hooks/RequestStateHook";
+import { useSearchReqSupervisionMeter } from "../Hooks/ReqSupervisionMeterHooks";
+import type { ReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
+import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
+import ReqSupervisionMeterHeaderBar from "../Components/PaginationReqSupervisionMeter/ReqSupervisionMeterHeaderBar";
+import ReqSupervisionMeterTable from "../Components/ReqSupervisionMeterTable/ReqSupervisonMeterTable";
 
-export default function ListReqAvailWater() {
+export default function ListReqSupervisionMeter() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
   // 🔎 Texto visible en el input
   const [search, setSearch] = useState("");
 
-  // 🧾 Filtros reales que se envían al backend
+  
   const [UserName, setUserName] = useState<string | undefined>(undefined);       // ★ se llena desde `search`
   const [Justification, setJustification] = useState<string | undefined>(undefined);
   const [State, setState] = useState<string | undefined>(undefined);             // "true" | "false" | undefined
@@ -69,8 +66,8 @@ export default function ListReqAvailWater() {
     [page, limit, Justification, State, UserName, StateRequestId]
   );
 
-  const { data, isLoading, error } = useSearchReqAvailWater(params);
-  const rows: ReqAvailWater[] = data?.data ?? [];
+  const { data, isLoading, error } = useSearchReqSupervisionMeter(params);
+  const rows: ReqSupervisionMeter[] = data?.data ?? [];
   const meta =
     data?.meta ?? { total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false };
 
@@ -88,7 +85,7 @@ export default function ListReqAvailWater() {
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-[#091540]">Lista de Solicitudes de Disponibilidad de Agua</h1>
+      <h1 className="text-2xl font-bold text-[#091540]">Lista de Solicitudes de Revisón de Medidor</h1>
       <p className="text-[#091540]/70 text-md">Gestione todas las solicitudes</p>
       <div className="border-b border-dashed border-gray-300 mb-2"></div>
 
@@ -103,7 +100,7 @@ export default function ListReqAvailWater() {
 
       <div className="border-b border-dashed border-gray-300 mt-4 mb-6"></div>
 
-      <ReqAvailWaterHeaderBar
+      <ReqSupervisionMeterHeaderBar
         limit={meta.limit}
         total={meta.total}
         search={search}                       // ★ valor visible del input
@@ -127,7 +124,7 @@ export default function ListReqAvailWater() {
         ) : error ? (
           <div className="p-6 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
         ) : (
-          <ReqAvailWaterTable
+          <ReqSupervisionMeterTable
             data={rows}
             total={meta.total}
             page={meta.page}
