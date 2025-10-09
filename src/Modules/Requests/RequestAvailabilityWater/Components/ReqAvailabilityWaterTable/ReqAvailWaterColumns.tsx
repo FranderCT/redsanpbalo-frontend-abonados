@@ -1,7 +1,34 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { Edit2 } from "lucide-react";
 import type { ReqAvailWater } from "../../Models/ReqAvailWater";
+import DeleteRequestModal from "../../../Modals/DeleteRequestModal";
+// ---- helpers ----
+const normalizeState = (s: string) =>
+  s
+    ?.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 
+// 🎨 Estilos de estado adaptados a tu paleta
+const stateColorsDict: Record<string, string> = {
+  "pendiente": "bg-[#E9F2FF] text-[#1789FC] border border-[#1789FC]/20", // azul suave
+  "en proceso": "bg-[#E9F2FF] text-[#1789FC] border border-[#1789FC]/20",
+  "aprobado": "bg-[#E8F8F0] text-[#068A53] border border-[#68D89B]/30", // verde menta
+  "rechazado": "bg-[#FFE8E8] text-[#F6132D] border border-[#F6132D]/30", // rojo claro
+  "finalizado": "bg-[#F9F5FF] text-[#091540] border border-[#091540]/20",
+};
+
+// Fallback por coincidencias
+const guessStateColor = (normalized: string) => {
+  if (stateColorsDict[normalized]) return stateColorsDict[normalized];
+  if (normalized.includes("aproba")) return stateColorsDict["aprobado"];
+  if (normalized.includes("rechaz")) return stateColorsDict["rechazado"];
+  if (normalized.includes("pend") || normalized.includes("proce"))
+    return stateColorsDict["pendiente"];
+};
 export const ReqAvailWaterColumns = (
   onEdit: (req: ReqAvailWater) => void
   // onGetInfo?: (req: ReqAvailWater) => void
@@ -9,7 +36,8 @@ export const ReqAvailWaterColumns = (
   {
     id: "Name",
     header: "Nombre del Solicitante",
-    cell: ({ row }) => row.original.User?.Name +' '+ row.original.User?.Surname1 + ' ' + row.original.User?.Surname2 ?? "-",
+    cell: ({ row }) =>   `${row.original.User?.Name ?? ""} ${row.original.User?.Surname1 ?? ""} ${row.original.User?.Surname2 ?? ""}`.trim() ||
+      "-",
   },
   {
     id: "Address",
@@ -29,7 +57,21 @@ export const ReqAvailWaterColumns = (
   {
     id: "RequestState",
     header: "Estado",
-    cell: ({ row }) => row.original.StateRequest?.Name ?? "-",
+    cell: ({ row }) => {
+      const raw = row.original.StateRequest?.Name ?? "-";
+      const normalized = normalizeState(raw);
+      const colorClass = guessStateColor(normalized || "");
+
+      return (
+        <div className="flex justify-center">
+          <span
+            className={`min-w-[90px] px-3 py-1.5  text-sm  tracking-wide uppercase ${colorClass}`}
+          >
+            {raw}
+          </span>
+        </div>
+      );
+    },
   },
   {
     id: "Acciones",
@@ -47,6 +89,8 @@ export const ReqAvailWaterColumns = (
             <Edit2 className="w-4 h-4" />
             Editar
           </button>
+
+          <DeleteRequestModal reqAvailWater={req} />
         </div>
       );
     },

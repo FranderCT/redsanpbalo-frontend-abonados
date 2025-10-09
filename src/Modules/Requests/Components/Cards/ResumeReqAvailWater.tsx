@@ -1,36 +1,21 @@
-import { FileText, Clock, CheckCircle2, XCircle, FileClock, FileCheck2, FileX2 } from "lucide-react";
+import { FileText, FileClock, FileCheck2, FileX2 } from "lucide-react";
 import React from "react";
 
-type Tone = "neutral" | "warning" | "success" | "danger";
+type Tone = "neutral" | "warning" | "success" | "danger"; // se mantiene por compatibilidad
 
-const toneStyles: Record<
-  Tone,
-  { iconWrap: string; badge: string; value: string; border: string }
-> = {
-  neutral: {
-    iconWrap: "bg-gray-100 text-gray-700",
-    badge: "bg-gray-100 text-gray-700",
-    value: "text-[#091540]",
-    border: "border-gray-200",
-  },
-  warning: {
-    iconWrap: "bg-yellow-100 text-yellow-700",
-    badge: "bg-yellow-100 text-yellow-800",
-    value: "text-[#091540]",
-    border: "border-yellow-100",
-  },
-  success: {
-    iconWrap: "bg-green-100 text-green-700",
-    badge: "bg-green-100 text-green-800",
-    value: "text-[#091540]",
-    border: "border-green-100",
-  },
-  danger: {
-    iconWrap: "bg-red-100 text-red-700",
-    badge: "bg-red-100 text-red-800",
-    value: "text-[#091540]",
-    border: "border-red-100",
-  },
+// Estilos monocromos (sin colores por tono)
+const monoStyles = {
+  card: "group h-full border border-gray-200/80 bg-white p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-[1px]",
+  headerText: "text-sm font-medium text-gray-500",
+  iconWrap:
+    "bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-200/70  h-9 w-9 inline-flex items-center justify-center",
+  value: "leading-none text-[28px] font-semibold text-gray-900 tracking-tight",
+  valueLoading:
+    "animate-pulse text-transparent bg-gray-100  px-2 leading-none inline-block",
+  badge:
+    "mt-2 inline-flex w-fit items-center gap-2  border border-gray-200/70 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600",
+  dot: "h-1.5 w-1.5 bg-gray-400",
+  footerRow: "mt-4 flex items-end justify-between",
 };
 
 function StatCard({
@@ -38,7 +23,7 @@ function StatCard({
   value,
   subtitle,
   icon,
-  tone = "neutral",
+  tone = "neutral", // ignorado, se mantiene por compatibilidad
   loading = false,
 }: {
   title: string;
@@ -48,34 +33,23 @@ function StatCard({
   tone?: Tone;
   loading?: boolean;
 }) {
-  const t = toneStyles[tone];
+  const nfmt = new Intl.NumberFormat(); // formato de miles
+
   return (
-    <div
-      className={`group h-full border ${t.border} bg-white p-5 shadow-sm transition
-                  hover:shadow-md`}
-    >
+    <div className={monoStyles.card}>
       <div className="flex items-start justify-between">
-        <p className="text-sm font-medium text-[#6B7280]">{title}</p>
-        <span
-          className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${t.iconWrap}`}
-        >
-          {icon}
-        </span>
+        <p className={monoStyles.headerText}>{title}</p>
+        <span className={monoStyles.iconWrap}>{icon}</span>
       </div>
 
-      <div className="mt-3 flex items-end justify-between">
-        <div className="flex flex-col">
-          <span
-            className={`leading-none text-3xl font-bold ${t.value} ${
-              loading ? "animate-pulse text-transparent bg-gray-100 rounded-md px-2" : ""
-            }`}
-          >
-            {loading ? "00" : value}
+      <div className={monoStyles.footerRow}>
+        <div className="flex flex-col gap-4">
+          <span className={`${monoStyles.value} ${loading ? monoStyles.valueLoading : ""}`}>
+            {loading ? "00" : nfmt.format(value)}
           </span>
 
-          <span
-            className={`mt-2 inline-flex w-fit items-center gap-1  px-2.5 py-1 text-xs font-semibold ${t.badge}`}
-          >
+          <span className={monoStyles.badge}>
+            <span className={monoStyles.dot} />
             {subtitle}
           </span>
         </div>
@@ -104,7 +78,6 @@ export default function ResumeReqAvailWater({
         value={total}
         subtitle="Registradas en el sistema"
         icon={<FileText size={18} />}
-        tone="neutral"
         loading={!!loading}
       />
       <StatCard
@@ -112,7 +85,6 @@ export default function ResumeReqAvailWater({
         value={pending}
         subtitle="Requieren atención"
         icon={<FileClock size={18} />}
-        tone="warning"
         loading={!!loading}
       />
       <StatCard
@@ -120,7 +92,6 @@ export default function ResumeReqAvailWater({
         value={approved}
         subtitle="Procesadas exitosamente"
         icon={<FileCheck2 size={18} />}
-        tone="success"
         loading={!!loading}
       />
       <StatCard
@@ -128,7 +99,6 @@ export default function ResumeReqAvailWater({
         value={rejected}
         subtitle="No cumplen requisitos"
         icon={<FileX2 size={18} />}
-        tone="danger"
         loading={!!loading}
       />
     </div>
