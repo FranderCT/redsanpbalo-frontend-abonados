@@ -16,13 +16,20 @@ export async function getAllReqAvailWater(): Promise<ReqAvailWater[]> {
   }
 }
 
+// --- service (sin cambiar tu firma) ---
 export async function searchReqAvailWater(
   params: ReqAvailWaterPaginationParams
 ): Promise<PaginatedResponse<ReqAvailWater>> {
   try {
-    const { page = 1, limit = 10, justification, state, stateRequestId, userId } = params ?? {};
+    const { page = 1, limit = 10, State, StateRequestId, UserName } = params ?? {};
+
+    const q: Record<string, any> = { page, limit };
+    if (UserName) q.UserName = UserName;
+    if (State !== undefined && State !== null && State !== "") q.State = State;          // "true"/"false"
+    if (typeof StateRequestId === "number") q.StateRequestId = StateRequestId;
+
     const { data } = await apiAxios.get<PaginatedResponse<ReqAvailWater>>(`${BASE}/search`, {
-      params: { page, limit, justification, state, stateRequestId, userId },
+      params: q,
     });
     return data;
   } catch (err) {
@@ -30,6 +37,7 @@ export async function searchReqAvailWater(
     return Promise.reject(err);
   }
 }
+
 
 export async function getReqAvailWaterById(id: number): Promise<ReqAvailWater> {
   const res = await apiAxios.get<ReqAvailWater>(`${BASE}/${id}`);
@@ -47,15 +55,15 @@ export async function createReqAvailWater(payloads: NewReqAvailWater) : Promise<
 
 }
 
-export async function updateReqAvailWater(id: number, payload: UpdateReqAvailWater): Promise<ReqAvailWater> {
-   try{
-     const {data} = await apiAxios.put<ReqAvailWater>(`${BASE}/${id}`, payload)
-     return data;
-   }catch(err){
-     console.log('Error descondico',err)
-     return Promise.reject(err)
-   }
- }
+  export async function updateReqAvailWater(id: number, payload: UpdateReqAvailWater): Promise<ReqAvailWater> {
+    try{
+      const {data} = await apiAxios.put<ReqAvailWater>(`${BASE}/${id}`, payload)
+      return data;
+    }catch(err){
+      console.log('Error descondico',err)
+      return Promise.reject(err)
+    }
+  }
 
 export async function deleteReqAvailWater(id: number): Promise<void> {
   try{

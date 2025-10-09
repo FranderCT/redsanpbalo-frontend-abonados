@@ -1,4 +1,5 @@
 import type { ProjectState } from "../../Project_State/Models/ProjectState";
+import type { ProjectTrace } from "../../Project_Trace/Models/ProjectTrace";
 import type { User } from "../../Users/Models/User";
 import type { ProjectProjection } from "../Project-projection/Models/ProjectProjection";
 
@@ -11,10 +12,10 @@ export interface Project {
   Objective:string;
   Description:string;
   Observation:string;
-  SpaceOfDocument: File;
   IsActive: boolean;
   ProjectState : ProjectState;
   ProjectProjection : ProjectProjection;
+  ProjectTrace: ProjectTrace;
   User : User;
 }
 
@@ -26,7 +27,7 @@ export interface newProject{
   Objective:string;
   Description:string;
   Observation:string;
-  SpaceOfDocument:File;
+  SpaceOfDocument: string;
   ProjectStateId : number;
   UserId : number;
 }
@@ -40,7 +41,7 @@ export const newProjectInitialState: newProject = {
   Objective:"",
   Description:"",
   Observation:"",
-  SpaceOfDocument: null as unknown as File,
+  SpaceOfDocument: "",
   ProjectStateId : 1,
   UserId : 1
 };

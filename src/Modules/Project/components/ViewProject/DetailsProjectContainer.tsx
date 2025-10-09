@@ -105,9 +105,15 @@ export default function DetailsProjectContainer({ data }: Props) {
 
           <Divider />
 
-          <Field label="Espacio de documento">
-            {data?.SpaceOfDocument || <Placeholder />}
-          </Field>
+          {/* <Field label="Espacio de documento">
+            {data?.SpaceOfDocument
+              ? typeof data.SpaceOfDocument === "string"
+                ? data.SpaceOfDocument
+                : data.SpaceOfDocument instanceof File
+                  ? data.SpaceOfDocument.name
+                  : <Placeholder />
+              : <Placeholder />}
+          </Field> */}
 
           <Divider />
 
@@ -152,7 +158,8 @@ export default function DetailsProjectContainer({ data }: Props) {
 
           <h4 className="text-2xl font-semibold tracking-wide">Seguimientos del proyecto</h4>
 
-          
+
+                
 
         </section>
       </div>

@@ -15,9 +15,9 @@ export default function ListReqAvailWater() {
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
 
-  const [justification, setJustification] = useState<string | undefined>(undefined);
-  const [state, setState] = useState<string | undefined>(undefined); // "1" | "0" | undefined
-  const [stateRequestId, setStateRequestId] = useState<number | undefined>(undefined);
+  const [Justification, setJustification] = useState<string | undefined>(undefined);
+  const [State, setState] = useState<string | undefined>(undefined); // "1" | "0" | undefined
+  const [StateRequestId, setStateRequestId] = useState<number | undefined>(undefined);
 
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
@@ -54,8 +54,8 @@ export default function ListReqAvailWater() {
 
   // Data de la tabla
   const params = useMemo(
-    () => ({ page, limit, justification, state, stateRequestId }),
-    [page, limit, justification, state, stateRequestId]
+    () => ({ page, limit, Justification, State, StateRequestId }),
+    [page, limit, Justification, State, StateRequestId]
   );
   const { data, isLoading, error } = useSearchReqAvailWater(params);
   const rows: ReqAvailWater[] = data?.data ?? [];
@@ -96,8 +96,8 @@ export default function ListReqAvailWater() {
         limit={meta.limit}
         total={meta.total}
         search={search}
-        state={state}
-        requestStateId={stateRequestId}
+        state={State}
+        requestStateId={StateRequestId}
         states={requestStates}
         statesLoading={requestStatesLoading}
         onStateRequestChange={handleStateRequestChange}

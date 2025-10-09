@@ -23,18 +23,35 @@ export const useGetAllReqAvailWater = () => {
 //     return { ProjectCard, isLoading, error };
 // }
 
+// --- hook (misma estructura, con useEffect para el log) ---
 export const useSearchReqAvailWater = (params: ReqAvailWaterPaginationParams) => {
+  const {
+    page = 1,
+    limit = 10,
+    UserName,
+    State,
+    StateRequestId,
+  } = params ?? {};
+
   const query = useQuery<PaginatedResponse<ReqAvailWater>, Error>({
-    queryKey: ["reqavailwater", "search", params],
-    queryFn: () => searchReqAvailWater(params),
-    placeholderData: keepPreviousData,   // v5
+  
+    queryKey: [
+      "reqavailwater", "search",
+      page,
+      limit,
+      UserName ?? "",
+      State ?? "",
+      StateRequestId ?? null,
+    ],
+    queryFn: () => searchReqAvailWater({ page, limit, UserName, State, StateRequestId }),
+    placeholderData: keepPreviousData,
     staleTime: 30_000,
+    refetchOnWindowFocus: false,   // opcional
   });
 
-  // ⬇️ Log en cada fetch/refetch exitoso
   useEffect(() => {
     if (query.data) {
-      const res = query.data; 
+      const res = query.data;
       console.log(
         "[Requests fetched]",
         {
@@ -42,15 +59,16 @@ export const useSearchReqAvailWater = (params: ReqAvailWaterPaginationParams) =>
           limit: res.meta.limit,
           total: res.meta.total,
           pageCount: res.meta.pageCount,
-          params,
+          params: { page, limit, UserName, State, StateRequestId },
         },
-        res.data 
+        res.data
       );
     }
-  }, [query.data, params]);
+  }, [query.data, page, limit, UserName, State, StateRequestId]);
 
   return query;
 };
+
 
 
 // Obtener por ID
