@@ -251,7 +251,17 @@ const CreateProject = () => {
                       type="date"
                       className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
                       value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
-                      onChange={(e) => field.handleChange(new Date(e.target.value))}
+                      onChange={(e) => {
+                        const selectedStartDate = new Date(e.target.value);
+                        field.handleChange(selectedStartDate);
+                        
+                        // Validar fecha de fin si ya está seleccionada
+                        const endDate = form.state.values.EndDate;
+                        if (endDate && new Date(endDate) < selectedStartDate) {
+                          // Limpiar la fecha de fin si es menor que la nueva fecha de inicio
+                          form.setFieldValue('EndDate', selectedStartDate);
+                        }
+                      }}
                       required
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
@@ -264,23 +274,52 @@ const CreateProject = () => {
               </form.Field>
 
               <form.Field name="EndDate">
-                {(field) => (
-                  <label className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-[#091540]">Fecha de fin</span>
-                    <input
-                      type="date"
-                      className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                      value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
-                      onChange={(e) => field.handleChange(new Date(e.target.value))}
-                      required
-                    />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
-                    )}
-                  </label>
-                )}
+                {(field) => {
+                  // Obtener la fecha de inicio para validación
+                  const startDate = form.state.values.InnitialDate;
+                  const minEndDate = startDate ? new Date(startDate).toISOString().split("T")[0] : "";
+                  
+                  return (
+                    <label className="flex flex-col gap-1">
+                      <span className="text-sm font-medium text-[#091540]">Fecha de fin</span>
+                      <input
+                        type="date"
+                        className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
+                        value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
+                        min={minEndDate} // Establecer fecha mínima
+                        onChange={(e) => {
+                          const selectedDate = new Date(e.target.value);
+                          // Validación adicional en el cliente
+                          if (startDate && selectedDate < new Date(startDate)) {
+                            // Mostrar error si la fecha es menor
+                            field.setMeta(prev => ({
+                              ...prev,
+                              errors: ["La fecha de fin no puede ser anterior a la fecha de inicio"]
+                            }));
+                            return;
+                          }
+                          // Limpiar errores si la fecha es válida
+                          field.setMeta(prev => ({
+                            ...prev,
+                            errors: []
+                          }));
+                          field.handleChange(selectedDate);
+                        }}
+                        required
+                      />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                      {startDate && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Fecha mínima: {new Date(startDate).toLocaleDateString()}
+                        </p>
+                      )}
+                    </label>
+                  );
+                }}
               </form.Field>
             </div>
           </div>
@@ -838,14 +877,14 @@ const CreateProject = () => {
               {/* Pelotita del paso */}
               <div className="flex flex-col items-center">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-200 ${
-                    index < step
-                      ? 'bg-green-500 text-white' // Completado
-                      : index === step
-                      ? 'bg-[#091540] text-white' // Actual
-                      : 'bg-gray-200 text-gray-500' // Pendiente
-                  }`}
-                >
+                    className={`w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs transition-all duration-200 ${
+                      index < step
+                        ? 'bg-[#1789FC] text-white'     // color completado
+                        : index === step
+                        ? 'bg-[#091540] text-white'     // color actual
+                        : 'bg-gray-200 text-gray-500'   // pendiente
+                    }`}
+                  >
                   {index < step ? (
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -859,7 +898,7 @@ const CreateProject = () => {
                     index === step
                       ? 'text-[#091540]'
                       : index < step
-                      ? 'text-green-600'
+                      ? 'text-[#1789FC]'
                       : 'text-gray-500'
                   }`}
                 >
@@ -871,7 +910,7 @@ const CreateProject = () => {
               {index < steps.length - 1 && (
                 <div
                   className={`h-0.5 w-12 mx-2 transition-colors duration-200 ${
-                    index < step ? 'bg-green-500' : 'bg-gray-200'
+                    index < step ? 'bg-[#1789FC]' : 'bg-gray-200'
                   }`}
                 />
               )}
