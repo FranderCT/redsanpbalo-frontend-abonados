@@ -137,11 +137,13 @@ export default function ListReqSupervisionMeter() {
           />
         )}
       </div>
-
-      <CreateRequestSupervisionMeter />
-      <CreateChangeMeterModal />
-      <CreateAssociatedRqModal />
-      <CreateAvailabilityWaterRqModal />
+      <div className="flex flex-row  gap-15 items-center justify-center mt-4">
+        <CreateRequestSupervisionMeter />
+        <CreateChangeMeterModal />
+        <CreateAssociatedRqModal />
+        <CreateAvailabilityWaterRqModal />
+      </div>
+      
     </div>
   );
 }
