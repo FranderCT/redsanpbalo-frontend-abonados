@@ -120,6 +120,7 @@ export default function ListReqSupervisionMeter() {
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}   // ★ propaga cambios de input
         onCleanFilters={handleCleanFilters}
+        rightAction={<CreateRequestSupervisionMeter />}
       />
 
       <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
@@ -137,12 +138,9 @@ export default function ListReqSupervisionMeter() {
           />
         )}
       </div>
-      <div className="flex flex-row  gap-15 items-center justify-center mt-4">
+      {/* <div className="flex flex-row  gap-15 items-center justify-center mt-4">
         <CreateRequestSupervisionMeter />
-        <CreateChangeMeterModal />
-        <CreateAssociatedRqModal />
-        <CreateAvailabilityWaterRqModal />
-      </div>
+      </div> */}
       
     </div>
   );
