@@ -13,6 +13,9 @@ import { listPhysicalSuppliers, PhysicalSupplierRoute } from "./Modules/Physical
 import { legalSupplierRoute, listLegalSuppliers } from "./Modules/LegalSupplier/Routes/LegalSupplierRoutes";
 import {  requestAvailWaterRoute } from "./Modules/Requests/RequestAvailabilityWater/Routes/RequestsAvailWaterRoute";
 import { requestSupervisionRoute } from "./Modules/Requests/RequestSupervisionMeter/Routes/RequestsSupervisionWaterRoute";
+import { requestChangeMeterRoute } from "./Modules/Requests/RequestChangeMeterr/Routes/RequestChangeMeterRoute";
+import { requestChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
+import { requestsRoute } from "./Modules/Requests/Routes/RequestRoutes";
 
 export const rootRoute = createRootRoute();
 
@@ -45,8 +48,6 @@ export const routeTree = rootRoute.addChildren([
     categoryRoute,
     uniteMeasureRoute,
     productsRoutes,
-    requestAvailWaterRoute,
-    requestSupervisionRoute,
     supplierRoute.addChildren([
       listSupplierRoute,
       newSupplierRoute,
@@ -57,6 +58,12 @@ export const routeTree = rootRoute.addChildren([
       createProjectRoute,
       viewProjectRoute,
       updateProjectRoute
+    ]),
+    requestsRoute.addChildren([
+      requestAvailWaterRoute,
+      requestSupervisionRoute,
+      requestChangeMeterRoute,
+      requestChangeNameMeterRoute,
     ])
   ]),
   PhysicalSupplierRoute.addChildren([

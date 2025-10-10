@@ -1,9 +1,9 @@
 import { createRoute } from "@tanstack/react-router";
-import { dashboardRoute } from "../../../Dashboard/Routes/DashboardRoutes";
 import ListReqSupervisionMeter from "../Pages/ListReqSupervisionMeter";
+import { requestsRoute } from "../../Routes/RequestRoutes";
 
 export const requestSupervisionRoute = createRoute({
-    getParentRoute: ()=> dashboardRoute,
-    path: 'requestsSupervisionMeter',
+    getParentRoute: ()=> requestsRoute,
+    path: 'supervision-meter',
     component: ListReqSupervisionMeter
 })
