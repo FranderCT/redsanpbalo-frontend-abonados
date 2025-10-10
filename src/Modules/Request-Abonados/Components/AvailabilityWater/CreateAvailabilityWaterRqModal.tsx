@@ -374,9 +374,6 @@ const CreateAvailabilityWaterRqModal = () => {
                                 description="Autorización municipal para la instalación del servicio"
                             />
                         </div>
-                        <p className="text-xs text-gray-500 mt-4 italic">
-                            Nota: Los documentos son opcionales pero recomendados para agilizar el proceso de evaluación.
-                        </p>
                     </div>
 
                     {/* Progreso de subida */}
@@ -394,14 +391,6 @@ const CreateAvailabilityWaterRqModal = () => {
                         {([canSubmit, isSubmitting]) => (
                             <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-4 border-t border-gray-200">
                                 <button
-                                    type="button"
-                                    onClick={handleClose}
-                                    className="h-10 px-6 bg-gray-200 text-gray-700 hover:bg-gray-300 transition font-medium"
-                                    disabled={isSubmitting || isUploading}
-                                >
-                                    Cancelar
-                                </button>
-                                <button
                                     type="submit"
                                     className="h-10 px-6 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60 transition font-medium flex items-center justify-center gap-2"
                                     disabled={!canSubmit || isSubmitting || isUploading}
@@ -414,6 +403,15 @@ const CreateAvailabilityWaterRqModal = () => {
                                         "Crear Solicitud"
                                     }
                                 </button>
+                                <button
+                                    type="button"
+                                    onClick={handleClose}
+                                    className="h-10 px-6 bg-gray-200 text-gray-700 hover:bg-gray-300 transition font-medium"
+                                    disabled={isSubmitting || isUploading}
+                                >
+                                    Cancelar
+                                </button>
+                               
                             </div>
                         )}
                     </form.Subscribe>
