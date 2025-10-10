@@ -2,7 +2,7 @@ import { Droplets, Facebook, Instagram, Mail } from "lucide-react"
 
 export function Footer() {
     return (
-        <footer className="text-white py-16 px-6 bg-gradient-to-b from-[#091540] to-[#1789FC]">
+        <footer className="text-white py-16 px-6 bg-gradient-to-b from-[#091540] to-[#091540]">
             <div className="max-w-7xl mx-auto">
                 {/* Grid */}
                 <div className="grid md:grid-cols-4 gap-10 mb-10">

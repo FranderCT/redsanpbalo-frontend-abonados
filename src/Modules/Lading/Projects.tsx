@@ -29,7 +29,7 @@ export function Projects() {
     ]
 
     return (
-        <section id="proyectos" className="bg-[#0b4e78] px-6 py-20 md:py-24">
+        <section id="proyectos" className="bg-[#091540] px-6 py-20 md:py-24">
         <div className="mx-auto max-w-7xl">
             {/* Encabezado */}
             <div className="mb-16 text-center text-white">
