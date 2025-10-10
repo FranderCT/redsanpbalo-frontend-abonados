@@ -16,6 +16,7 @@ import { requestSupervisionRoute } from "./Modules/Requests/RequestSupervisionMe
 import { requestChangeMeterRoute } from "./Modules/Requests/RequestChangeMeterr/Routes/RequestChangeMeterRoute";
 import { requestChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
 import { requestsRoute } from "./Modules/Requests/Routes/RequestRoutes";
+import { requestAssociatedRoute } from "./Modules/Requests/RequestAssociated/Routes/ReqAssociatedRoutes";
 
 export const rootRoute = createRootRoute();
 
@@ -64,6 +65,7 @@ export const routeTree = rootRoute.addChildren([
       requestSupervisionRoute,
       requestChangeMeterRoute,
       requestChangeNameMeterRoute,
+      requestAssociatedRoute
     ])
   ]),
   PhysicalSupplierRoute.addChildren([
