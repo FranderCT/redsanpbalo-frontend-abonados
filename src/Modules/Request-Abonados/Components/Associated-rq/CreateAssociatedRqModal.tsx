@@ -226,49 +226,50 @@ const CreateAssociatedRqModal = () => {
                     {/* Campo de archivos para evidencia de boleta firmada */}
                     <form.Field name="evidenciaBoletaFirmada">
                         {(field) => (
-                            <div className="space-y-3">
-                                <div>
-                                    <h4 className="text-sm font-semibold text-gray-800">Evidencia de boleta firmada</h4>
-                                    <p className="text-xs text-gray-600">Adjunte la boleta de agua firmada como evidencia (Opcional)</p>
-                                </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Evidencia de boleta firmada <span className="text-gray-500 text-xs">(Opcional)</span>
+                                </label>
                                 
-                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 hover:bg-blue-50/30 transition-all">
-                                    <div className="text-center">
-                                        <label className="cursor-pointer">
-                                            <div className="flex flex-col items-center gap-2">
-                                                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                                </svg>
-                                                <span className="text-sm text-gray-700">Seleccionar archivos</span>
+                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer">
+                                    <label className="cursor-pointer block">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <div>
+                                                <span className="text-sm font-medium text-gray-700">Seleccionar archivos</span>
+                                                <p className="text-xs text-gray-500 mt-1">PDF, DOC, JPG, PNG (Máx. 10MB c/u)</p>
                                             </div>
-                                            <input
-                                                type="file"
-                                                multiple
-                                                className="hidden"
-                                                onChange={(e) => {
-                                                    if (e.target.files) {
-                                                        const newFiles = Array.from(e.target.files);
-                                                        const validFiles = newFiles.filter(file => {
-                                                            if (file.size > 10 * 1024 * 1024) {
-                                                                toast.error(`El archivo "${file.name}" excede el tamaño máximo de 10MB`);
-                                                                return false;
-                                                            }
-                                                            return true;
-                                                        });
-                                                        field.handleChange(validFiles);
-                                                    }
-                                                }}
-                                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
-                                            />
-                                        </label>
-                                    </div>
+                                        </div>
+                                        <input
+                                            type="file"
+                                            multiple
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                if (e.target.files) {
+                                                    const newFiles = Array.from(e.target.files);
+                                                    const validFiles = newFiles.filter(file => {
+                                                        if (file.size > 10 * 1024 * 1024) {
+                                                            toast.error(`El archivo "${file.name}" excede el tamaño máximo de 10MB`);
+                                                            return false;
+                                                        }
+                                                        return true;
+                                                    });
+                                                    field.handleChange(validFiles);
+                                                }
+                                            }}
+                                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
+                                        />
+                                    </label>
                                 </div>
 
-                                {/* Lista de archivos */}
+                                {/* Lista de archivos seleccionados */}
                                 {field.state.value.length > 0 && (
-                                    <div className="space-y-2">
+                                    <div className="mt-3 space-y-2">
+                                        <p className="text-sm font-medium text-gray-700">Archivos seleccionados:</p>
                                         {field.state.value.map((file: File, index: number) => (
-                                            <div key={`${file.name}-${index}`} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg border">
+                                            <div key={`${file.name}-${index}`} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
                                                     <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
@@ -279,11 +280,9 @@ const CreateAssociatedRqModal = () => {
                                                         const newFiles = field.state.value.filter((_: File, i: number) => i !== index);
                                                         field.handleChange(newFiles);
                                                     }}
-                                                    className="text-red-500 hover:text-red-700 p-1"
+                                                    className="ml-3 text-red-500 hover:text-red-700 transition-colors"
                                                 >
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
+                                                    ✕
                                                 </button>
                                             </div>
                                         ))}

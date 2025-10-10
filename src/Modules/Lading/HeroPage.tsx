@@ -1,5 +1,5 @@
-import { useNavigate } from "@tanstack/react-router"
 import HeaderPaanee from "./Header"
+import Hero from "./HeroNew"
 import { About } from "./About"
 import { Footer } from "./Footer"
 import { Services } from "./Services"
@@ -8,24 +8,23 @@ import { Projects } from "./Projects"
 import { FAQ } from "./FAQ"
 import { Contact } from "./Contact"
 
-
 const HeroPage = () => {
-  const navigate = useNavigate()
-
-  const irLogin = () => {
-    navigate({ to: '/login' }) // Navega a la ruta raíz
-  }
-
   return (
-    <div>
-      <HeaderPaanee/>
-      <About/>
-      <Services/>
-      <MissionVision/>
-      <Projects/>
-      <FAQ/>
-      <Contact/>
-      <Footer/>
+    <div className="min-h-screen">
+      {/* Header fijo siempre visible */}
+      <HeaderPaanee />
+      
+      {/* Hero Section */}
+      <Hero />
+      
+      {/* Resto de secciones de la landing */}
+      <About />
+      <Services />
+      <MissionVision />
+      <Projects />
+      <FAQ />
+      <Contact />
+      <Footer />
     </div>
   )
 }
