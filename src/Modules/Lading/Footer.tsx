@@ -1,4 +1,5 @@
-import { Droplets, Facebook, Instagram, Mail } from "lucide-react"
+import { Facebook, Mail } from "lucide-react"
+import LogoRedSanPablo from "../../assets/images/LogoRedSanPabloHG.svg"
 
 export function Footer() {
     return (
@@ -8,12 +9,14 @@ export function Footer() {
                 <div className="grid md:grid-cols-4 gap-10 mb-10">
                 {/* Brand */}
                 <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                    <Droplets className="h-8 w-8" />
-                    <span className="text-2xl font-bold tracking-wide">ASADA</span>
+                    <div className="flex items-center gap-3">
+                        <div>
+
+                            <span className="text-xl font-bold text-white/80">RedSanPablo</span>
+                        </div>
                     </div>
                     <p className="leading-relaxed text-white/80 text-sm max-w-xs">
-                    Comprometidos con el suministro de agua potable de calidad para nuestra comunidad.
+                        Comprometidos con el suministro de agua potable de calidad para la comunidad de San Pablo, Nandayure.
                     </p>
                 </div>
 
@@ -59,33 +62,30 @@ export function Footer() {
                 <div>
                     <h3 className="font-bold text-lg mb-4">Contacto</h3>
                     <ul className="space-y-2 text-sm">
-                    <li className="text-white/80">Tel: 2XXX-XXXX</li>
-                    <li className="text-white/80">Emergencias: 8XXX-XXXX</li>
-                    <li className="text-white/80">info@asada.cr</li>
+                        <li className="text-white/80"> San Pablo, Nandayure</li>
+                        <li className="text-white/80"> Teléfono: 2685-XXXX</li>
+                        <li className="text-white/80"> Emergencias: 8XXX-XXXX</li>
+                        <li className="text-white/80"> info@asadasanpablo.cr</li>
                     </ul>
 
                     <div className="flex gap-4 mt-5">
-                    <a
-                        href="#"
-                        className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-                        aria-label="Facebook"
-                    >
-                        <Facebook className="h-5 w-5" />
-                    </a>
-                    <a
-                        href="#"
-                        className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-                        aria-label="Instagram"
-                    >
-                        <Instagram className="h-5 w-5" />
-                    </a>
-                    <a
-                        href="#"
-                        className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-                        aria-label="Email"
-                    >
-                        <Mail className="h-5 w-5" />
-                    </a>
+                        <a
+                            href="https://www.facebook.com/asadasanpablo"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                            aria-label="Facebook ASADA Red San Pablo"
+                        >
+                            <Facebook className="h-5 w-5" />
+                        </a>
+                        
+                        <a
+                            href="mailto:info@asadasanpablo.cr"
+                            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                            aria-label="Correo electrónico"
+                        >
+                            <Mail className="h-5 w-5" />
+                        </a>
                     </div>
                 </div>
                 </div>

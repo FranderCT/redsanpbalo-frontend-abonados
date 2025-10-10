@@ -53,7 +53,8 @@ export function MissionVision() {
             {/* Imagen */}
             <div className="mt-16 overflow-hidden rounded-2xl ring-1 ring-black/10 shadow-lg">
             <img
-                src="src/assets/images/community-water-project-people-working-together.jpg"
+                // src="src/assets/images/community-water-project-people-working-together.jpg"
+                src="https://dynamoprojects.com/wp-content/uploads/2022/12/no-image.jpg"
                 alt="Comunidad trabajando junta"
                 className="h-[420px] w-full object-cover"
                 loading="lazy"

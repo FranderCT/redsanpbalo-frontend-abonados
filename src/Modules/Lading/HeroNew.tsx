@@ -67,10 +67,6 @@ const Hero = () => {
                 <div className="text-2xl md:text-3xl font-bold text-[#091540]">24/7</div>
                 <div className="text-sm text-[#091540]/70">Servicio Continuo</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-3xl font-bold text-[#091540]">15+</div>
-                <div className="text-sm text-[#091540]/70">Años de Experiencia</div>
-              </div>
             </div>
           </div>
 
