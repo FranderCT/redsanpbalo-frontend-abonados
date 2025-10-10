@@ -1,9 +1,9 @@
-// Hooks/MaterialHooks.ts
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
 import { createReqAvailWater, deleteReqAvailWater, getAllReqAvailWater, getReqAvailWaterById, searchReqAvailWater, updateReqAvailWater } from "../Services/ReqAvilWaterServices";
 import type { ReqAvailWater, ReqAvailWaterPaginationParams, UpdateReqAvailWater } from "../Models/ReqAvailWater";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import { useEffect } from "react";
+
 
 // Obtener todos
 export const useGetAllReqAvailWater = () => {

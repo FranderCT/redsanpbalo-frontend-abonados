@@ -1,22 +1,21 @@
 import { useState } from "react";
-import type { ReqAvailWater } from "../Models/ReqAvailWater";
-import { useDeleteReqAvailWater } from "../Hooks/ReqAvailWaterHooks";
 import { toast } from "react-toastify";
 import { Trash } from "lucide-react";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
-
+import type { ReqChangeMeter } from "../Models/RequestChangeMeter";
+import { useDeleteReqChangeMeter } from "../Hooks/RequestChangeMeter";
 
 
 type Props = {
-    reqAvailWater: ReqAvailWater;
+    reqChangeMeter: ReqChangeMeter;
     onSuccess?: () => void;
   
 };
 
-export default function DeleteRequestModal({ reqAvailWater, onSuccess }: Props) {
+export default function DeleteRequestModal({ reqChangeMeter, onSuccess }: Props) {
     const [open, setOpen] = useState(false);
     const [busy, setBusy] = useState(false);
-    const deleteReqAvailWaterMutation = useDeleteReqAvailWater();
+    const deleteReqChangeMeterMutation = useDeleteReqChangeMeter();
     const handleClose = () =>{
     toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
     setOpen(false);
@@ -24,7 +23,7 @@ export default function DeleteRequestModal({ reqAvailWater, onSuccess }: Props) 
     const handleConfirm = async () => {
         try {
         setBusy(true);
-        await deleteReqAvailWaterMutation.mutateAsync(reqAvailWater.Id);
+        await deleteReqChangeMeterMutation.mutateAsync(reqChangeMeter.Id);
         toast.success("Solicitud inhabilitada");
         setOpen(false);
         onSuccess?.();

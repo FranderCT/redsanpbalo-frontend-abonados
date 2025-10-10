@@ -3,6 +3,7 @@ import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCatego
 import type { NewReqAvailWater, ReqAvailWater, ReqAvailWaterPaginationParams, UpdateReqAvailWater } from "../Models/ReqAvailWater";
 
 
+
 const BASE = "/request-availability-water"; 
 
 

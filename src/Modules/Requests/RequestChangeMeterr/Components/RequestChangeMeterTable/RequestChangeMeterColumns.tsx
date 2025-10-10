@@ -1,7 +1,7 @@
-import type { ColumnDef } from "@tanstack/react-table";
-import type { ReqAvailWater } from "../../Models/ReqAvailWater";
+import { type ColumnDef } from "@tanstack/react-table";
 import { Edit2 } from "lucide-react";
-import DeleteRequestModal from "../../Modals/DeleteRequestModal";
+import type { ReqChangeMeter } from "../../Models/RequestChangeMeter";
+import DeleteChangeMeterModal from "../../Modals/DeleteChangeMeterModal";
 
 // ---- helpers ----
 const normalizeState = (s: string) =>
@@ -30,10 +30,10 @@ const guessStateColor = (normalized: string) => {
   if (normalized.includes("pend") || normalized.includes("proce"))
     return stateColorsDict["pendiente"];
 };
-export const ReqAvailWaterColumns = (
-  onEdit: (req: ReqAvailWater) => void
+export const ReqChangeMeterColumns = (
+  onEdit: (req: ReqChangeMeter) => void
   // onGetInfo?: (req: ReqAvailWater) => void
-): ColumnDef<ReqAvailWater>[] => [
+): ColumnDef<ReqChangeMeter>[] => [
   {
     id: "Name",
     header: "Nombre del Solicitante",
@@ -41,19 +41,15 @@ export const ReqAvailWaterColumns = (
       "-",
   },
   {
+    id: "NIS",
+    header: "NIS",
+    cell: ({ row }) =>   row.original.NIS ??
+      "-",
+  },
+  {
     id: "Address",
-    header: "Dirección del Solicitante",
-    cell: ({ row }) => row.original.User?.Address ?? "-",
-  },
-  {
-    id: "Date",
-    header: "Fecha Solicitud",
-    cell: ({ row }) => row.original.Date ?? "-",
-  },
-  {
-    id: "Justification",
-    header: "Justificación",
-    cell: ({ row }) => row.original.Justification ?? "-",
+    header: "Dirección cambio medidor",
+    cell: ({ row }) => row.original.Location ?? "-",
   },
   {
     id: "RequestState",
@@ -66,7 +62,7 @@ export const ReqAvailWaterColumns = (
       return (
         <div className="flex justify-center">
           <span
-            className={`min-w-[80px] px-3 py-1.5  text-sm  tracking-wide uppercase ${colorClass}`}
+            className={`min-w-[90px] px-3 py-1.5  text-sm  tracking-wide uppercase ${colorClass}`}
           >
             {raw}
           </span>
@@ -91,7 +87,7 @@ export const ReqAvailWaterColumns = (
             Editar
           </button>
 
-          <DeleteRequestModal reqAvailWater={req} />
+         <DeleteChangeMeterModal reqChangeMeter={req} />  
         </div>
       );
     },

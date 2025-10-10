@@ -1,6 +1,7 @@
-
 import type { User } from "../../../Users/Models/User";
+import type { CommentRequest } from "../../CommentRequest/Models/CommentRequest";
 import type { RequestState } from "../../StateRequest/Model/RequestState";
+
 
 export interface ReqAvailWater {
   Id: number;
@@ -16,6 +17,7 @@ export interface ReqAvailWater {
   // Relaciones
   User: User;
   StateRequest: RequestState;
+  commentRquest?: CommentRequest[];
 }
 
 export interface NewReqAvailWater {
