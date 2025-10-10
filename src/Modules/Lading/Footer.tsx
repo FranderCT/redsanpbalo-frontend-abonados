@@ -1,0 +1,100 @@
+import { Droplets, Facebook, Instagram, Mail } from "lucide-react"
+
+export function Footer() {
+    return (
+        <footer className="text-white py-16 px-6 bg-gradient-to-b from-[#091540] to-[#1789FC]">
+            <div className="max-w-7xl mx-auto">
+                {/* Grid */}
+                <div className="grid md:grid-cols-4 gap-10 mb-10">
+                {/* Brand */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                    <Droplets className="h-8 w-8" />
+                    <span className="text-2xl font-bold tracking-wide">ASADA</span>
+                    </div>
+                    <p className="leading-relaxed text-white/80 text-sm max-w-xs">
+                    Comprometidos con el suministro de agua potable de calidad para nuestra comunidad.
+                    </p>
+                </div>
+
+                {/* Quick Links */}
+                <div>
+                    <h3 className="font-bold text-lg mb-4">Enlaces Rápidos</h3>
+                    <ul className="space-y-2 text-sm">
+                    <li>
+                        <a href="#inicio" className="text-white/80 hover:text-white transition-colors">
+                        Inicio
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#nosotros" className="text-white/80 hover:text-white transition-colors">
+                        Nosotros
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#servicios" className="text-white/80 hover:text-white transition-colors">
+                        Servicios
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#proyectos" className="text-white/80 hover:text-white transition-colors">
+                        Proyectos
+                        </a>
+                    </li>
+                    </ul>
+                </div>
+
+                {/* Services */}
+                <div>
+                    <h3 className="font-bold text-lg mb-4">Servicios</h3>
+                    <ul className="space-y-2 text-sm">
+                    <li className="text-white/80">Suministro de Agua</li>
+                    <li className="text-white/80">Mantenimiento</li>
+                    <li className="text-white/80">Atención al Cliente</li>
+                    <li className="text-white/80">Emergencias 24/7</li>
+                    </ul>
+                </div>
+
+                {/* Contact */}
+                <div>
+                    <h3 className="font-bold text-lg mb-4">Contacto</h3>
+                    <ul className="space-y-2 text-sm">
+                    <li className="text-white/80">Tel: 2XXX-XXXX</li>
+                    <li className="text-white/80">Emergencias: 8XXX-XXXX</li>
+                    <li className="text-white/80">info@asada.cr</li>
+                    </ul>
+
+                    <div className="flex gap-4 mt-5">
+                    <a
+                        href="#"
+                        className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                        aria-label="Facebook"
+                    >
+                        <Facebook className="h-5 w-5" />
+                    </a>
+                    <a
+                        href="#"
+                        className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                        aria-label="Instagram"
+                    >
+                        <Instagram className="h-5 w-5" />
+                    </a>
+                    <a
+                        href="#"
+                        className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                        aria-label="Email"
+                    >
+                        <Mail className="h-5 w-5" />
+                    </a>
+                    </div>
+                </div>
+                </div>
+
+                {/* Divider + copyright */}
+                <div className="border-t border-white/20 pt-8 text-center text-sm text-white/80">
+                <p>© {new Date().getFullYear()} RedSanPablo. Todos los derechos reservados. Desarrrollado por @BinarySoftwareTeam</p>
+                </div>
+            </div>
+        </footer>
+    )
+}

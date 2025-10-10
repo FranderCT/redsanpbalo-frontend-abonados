@@ -105,7 +105,7 @@ export default function HeaderPaanee() {
       </header>
 
       {/* Demo page padding */}
-      <main className="mx-auto max-w-7xl px-4 py-16">
+      {/* <main className="mx-auto max-w-7xl px-4 py-16">
         <div className="grid gap-6">
           <div className="rounded-2xl p-6 shadow-sm bg-white">
             <h2 className="text-xl font-semibold mb-2">Demo contenido</h2>
@@ -115,7 +115,7 @@ export default function HeaderPaanee() {
             <p className="text-sm">Tip: Puedes reemplazar el botón azul por uno verde <span className="inline-block rounded px-2 py-0.5 bg-[#68D89B] text-white ml-1">#68D89B</span> si deseas enfatizar éxito/confirmación, o usar el rojo <span className="inline-block rounded px-2 py-0.5 bg-[#F6132D] text-white ml-1">#F6132D</span> para alertas.</p>
           </div>
         </div>
-      </main>
+      </main> */}
     </div>
   );
 }
