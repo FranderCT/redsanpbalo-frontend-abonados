@@ -1,31 +1,29 @@
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import type { ReqAvailWater } from "../../Models/ReqAvailWater";
-import { ReqAvailWaterColumns } from "./ReqAvailWaterColumns";
 import { useState } from "react";
-import ReqAvailWaterPager from "../PaginationReqAvailabilityWater/ReqAvailWaterPager";
-
+import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
+import type { ReqChangeMeter } from "../../Models/RequestChangeMeter";
+import { ReqChangeMeterColumns } from "./RequestChangeMeterColumns";
+import ReqChangeMeterPager from "../PaginationRequestChangeMeter/RequestChangeMeterPager";
 
 type Props = {
-  data: ReqAvailWater[];
+  data: ReqChangeMeter[];
   total?: number;
   page: number;
   pageCount: number;
   onPageChange: (p: number) => void;
 };
 
-export default function ReqAvailWaterTable({
+export default function ReqChangeMeterTable({
   data,
-  total,
   page,
   pageCount,
   onPageChange,
 }: Props) {
-  const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
+  const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqChangeMeter | null>(null);
   // const [getInfoReqAvailWater, setGetInfoReqAvailWater] = useState<ReqAvailWater | null>(null);
 
   const table = useReactTable({
     data,
-    columns: ReqAvailWaterColumns((req) => setEditingReqAvailWater(req)),
+    columns: ReqChangeMeterColumns((req) => setEditingReqAvailWater(req)),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -84,7 +82,7 @@ export default function ReqAvailWaterTable({
                   Total registros: <b>{total ?? data.length}</b>
                 </span> */}
                 <div className="flex-1 flex justify-center">
-                  <ReqAvailWaterPager
+                  <ReqChangeMeterPager
                     page={page}
                     pageCount={pageCount}
                     onPageChange={onPageChange}

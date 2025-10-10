@@ -1,28 +1,26 @@
+// Modules/Requests/RequestChangeMeterr/Pages/ListRequestChangeMeter.tsx
 import { useMemo, useState } from "react";
 import type { RequestState } from "../../StateRequest/Model/RequestState";
 import { useGetAllRequestStates } from "../../StateRequest/Hooks/RequestStateHook";
-import { useSearchReqAvailWater } from "../Hooks/ReqAvailWaterHooks";
-import type { ReqAvailWater } from "../Models/ReqAvailWater";
+import { useSearchReqChangeMeter } from "../Hooks/RequestChangeMeter"; // Asegúrate que el path/nombre coincidan
 import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
-import ReqAvailWaterHeaderBar from "../Components/PaginationReqAvailabilityWater/ReqAvailWaterHeaderBar";
-import ReqAvailWaterTable from "../Components/ReqAvailabilityWaterTable/ReAvailWaterTable";
+import ReqChangeMeterTable from "../Components/RequestChangeMeterTable/RequestChangeMeterTable";
+import ReqChangeMeterHeaderBar from "../Components/PaginationRequestChangeMeter/RequestChangeMeterHeaderBar";
+import type { ReqChangeMeter } from "../Models/RequestChangeMeter";
 
-
-
-export default function ListReqAvailWater() {
+export default function ListReqChangeMeter() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
-  // 🔎 Texto visible en el input
+  // Texto visible en el input
   const [search, setSearch] = useState("");
 
-  // 🧾 Filtros reales que se envían al backend
-  const [UserName, setUserName] = useState<string | undefined>(undefined);       // ★ se llena desde `search`
-  const [Justification, setJustification] = useState<string | undefined>(undefined);
-  const [State, setState] = useState<string | undefined>(undefined);             // "true" | "false" | undefined
+  // Filtros que van al backend
+  const [UserName, setUserName] = useState<string | undefined>(undefined);
+  const [State, setState] = useState<string | undefined>(undefined); // "true" | "false" | undefined
   const [StateRequestId, setStateRequestId] = useState<number | undefined>(undefined);
 
-  // ★ Cuando cambia el texto del buscador, mapeamos a UserName y reiniciamos la paginación
+  // Buscador → UserName
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
     const trimmed = txt.trim();
@@ -31,8 +29,8 @@ export default function ListReqAvailWater() {
   };
 
   const handleStateChange = (newState: string) => {
-     setState(newState === "" ? undefined : newState); // guardamos tal cual el valor del select
-     setPage(1);
+    setState(newState === "" ? undefined : newState); // "" -> undefined
+    setPage(1);
   };
 
   const handleStateRequestChange = (id?: number) => {
@@ -42,14 +40,13 @@ export default function ListReqAvailWater() {
 
   const handleCleanFilters = () => {
     setSearch("");
-    setUserName(undefined);          
-    setJustification(undefined);
+    setUserName(undefined);
     setState(undefined);
     setStateRequestId(undefined);
     setPage(1);
   };
 
-  // Estados disponibles (para el dropdown)
+  // Estados disponibles (usa los nombres reales del hook)
   const {
     reqAvailWaterStates = [],
     reqAvailWaterStatesLoading,
@@ -57,22 +54,24 @@ export default function ListReqAvailWater() {
   const requestStates: RequestState[] = reqAvailWaterStates;
   const requestStatesLoading: boolean = reqAvailWaterStatesLoading;
 
+ 
   const params = useMemo(
-    () => ({ page, limit, Justification, State:
-      State === undefined
-        ? undefined
-        : State === "true"
-        ? "1"
-        : "0", // ← conversión aquí antes de enviar
-     UserName, StateRequestId }),
-    [page, limit, Justification, State, UserName, StateRequestId]
+    () => ({
+      page,
+      limit,
+      UserName,
+      State: State ?? "", 
+      StateRequestId,
+    }),
+    [page, limit, UserName, State, StateRequestId]
   );
 
-  const { data, isLoading, error } = useSearchReqAvailWater(params);
-  const rows: ReqAvailWater[] = data?.data ?? [];
+  const { data, isLoading, error } = useSearchReqChangeMeter(params);
+  const rows: ReqChangeMeter[] = data?.data ?? [];
   const meta =
     data?.meta ?? { total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false };
 
+  // Totales de la página actual (opcional)
   const pageTotals = useMemo(() => {
     const acc = { total: 0, approved: 0, rejected: 0, pending: 0 };
     for (const r of rows) {
@@ -87,11 +86,10 @@ export default function ListReqAvailWater() {
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-[#091540]">Lista de Solicitudes de Disponibilidad de Agua</h1>
+      <h1 className="text-2xl font-bold text-[#091540]">Lista de Solicitudes de Cambio de Medidor</h1>
       <p className="text-[#091540]/70 text-md">Gestione todas las solicitudes</p>
       <div className="border-b border-dashed border-gray-300 mb-2"></div>
 
-      {/* Cards (con totales de la página actual) */}
       <ResumeReqAvailWater
         total={pageTotals.total}
         pending={pageTotals.pending}
@@ -102,10 +100,10 @@ export default function ListReqAvailWater() {
 
       <div className="border-b border-dashed border-gray-300 mt-4 mb-6"></div>
 
-      <ReqAvailWaterHeaderBar
+      <ReqChangeMeterHeaderBar
         limit={meta.limit}
         total={meta.total}
-        search={search}                       // ★ valor visible del input
+        search={search}
         state={State}
         requestStateId={StateRequestId}
         states={requestStates}
@@ -116,7 +114,7 @@ export default function ListReqAvailWater() {
           setPage(1);
         }}
         onFilterClick={handleStateChange}
-        onSearchChange={handleSearchChange}   // ★ propaga cambios de input
+        onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
       />
 
@@ -126,7 +124,7 @@ export default function ListReqAvailWater() {
         ) : error ? (
           <div className="p-6 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
         ) : (
-          <ReqAvailWaterTable
+          <ReqChangeMeterTable
             data={rows}
             total={meta.total}
             page={meta.page}
