@@ -16,13 +16,15 @@ import { requestSupervisionRoute } from "./Modules/Requests/RequestSupervisionMe
 import { requestChangeMeterRoute } from "./Modules/Requests/RequestChangeMeterr/Routes/RequestChangeMeterRoute";
 import { requestChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
 import { requestsRoute } from "./Modules/Requests/Routes/RequestRoutes";
+import { requestAssociatedRoute } from "./Modules/Requests/RequestAssociated/Routes/ReqAssociatedRoutes";
+import HeroPage from "./Modules/Lading/HeroPage";
 
 export const rootRoute = createRootRoute();
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  //component: HeroPage
+  component: HeroPage
 })
 
 export const routeTree = rootRoute.addChildren([
@@ -64,6 +66,7 @@ export const routeTree = rootRoute.addChildren([
       requestSupervisionRoute,
       requestChangeMeterRoute,
       requestChangeNameMeterRoute,
+      requestAssociatedRoute
     ])
   ]),
   PhysicalSupplierRoute.addChildren([
