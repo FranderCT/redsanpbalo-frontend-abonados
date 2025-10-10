@@ -105,9 +105,9 @@ const CreateAvailabilityWaterRqModal = () => {
                 }
                 if (value.permisoMatricula.length > 0) {
                     uploadTasks.push({
-                        name: 'Permiso de Matrícula',
+                        name: 'Permiso de construcción',
                         files: value.permisoMatricula,
-                        subfolder: 'Permiso-Matricula'
+                        subfolder: 'Permiso-Construcción'
                     });
                 }
                 if (value.permisoMunicipal.length > 0) {
