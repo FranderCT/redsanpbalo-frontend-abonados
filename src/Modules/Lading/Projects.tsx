@@ -55,7 +55,7 @@ export function Projects() {
                 {/* Imagen */}
                 <div className="aspect-video overflow-hidden">
                     <img
-                    src={p.image || "/placeholder.svg"}
+                    src={"https://dynamoprojects.com/wp-content/uploads/2022/12/no-image.jpg"}
                     alt={p.title}
                     loading="lazy"
                     className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
