@@ -15,7 +15,7 @@ import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
 import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
 import { useNavigate } from "@tanstack/react-router";
-import { uploadProjectFiles } from "../../../Project-files/Services/ProjectFileServices";
+import { uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";
 
 
 
