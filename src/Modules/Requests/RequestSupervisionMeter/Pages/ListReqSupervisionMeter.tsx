@@ -9,6 +9,7 @@ import ReqSupervisionMeterTable from "../Components/ReqSupervisionMeterTable/Req
 import CreateRequestSupervisionMeter from "../../../Request-Abonados/Components/Supervision-Meter/CreateRequestSupervisionMeter";
 import CreateChangeMeterModal from "../../../Request-Abonados/Components/Change-Meter/CreateChangeMeterModal";
 import CreateAssociatedRqModal from "../../../Request-Abonados/Components/Associated-rq/CreateAssociatedRqModal";
+import CreateAvailabilityWaterRqModal from "../../../Request-Abonados/Components/AvailabilityWater/CreateAvailabilityWaterRqModal";
 
 export default function ListReqSupervisionMeter() {
   const [page, setPage] = useState(1);
@@ -140,6 +141,7 @@ export default function ListReqSupervisionMeter() {
       <CreateRequestSupervisionMeter />
       <CreateChangeMeterModal />
       <CreateAssociatedRqModal />
+      <CreateAvailabilityWaterRqModal />
     </div>
   );
 }
