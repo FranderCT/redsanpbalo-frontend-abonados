@@ -1,30 +1,27 @@
+// Modules/Requests/RequestChangeMeterr/Pages/ListRequestChangeMeter.tsx
 import { useMemo, useState } from "react";
 import type { RequestState } from "../../StateRequest/Model/RequestState";
 import { useGetAllRequestStates } from "../../StateRequest/Hooks/RequestStateHook";
-import { useSearchReqSupervisionMeter } from "../Hooks/ReqSupervisionMeterHooks";
-import type { ReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
+import type { ReqChangeNameMeter } from "../Models/RequestChangeNameMeter";
+import { useSearchReqChangeNameMeter } from "../Hooks/RequestChangeNameMeterHooks";
 import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
-import ReqSupervisionMeterHeaderBar from "../Components/PaginationReqSupervisionMeter/ReqSupervisionMeterHeaderBar";
-import ReqSupervisionMeterTable from "../Components/ReqSupervisionMeterTable/ReqSupervisonMeterTable";
-import CreateRequestSupervisionMeter from "../../../Request-Abonados/Components/Supervision-Meter/CreateRequestSupervisionMeter";
-import CreateChangeMeterModal from "../../../Request-Abonados/Components/Change-Meter/CreateChangeMeterModal";
-import CreateAssociatedRqModal from "../../../Request-Abonados/Components/Associated-rq/CreateAssociatedRqModal";
-import CreateAvailabilityWaterRqModal from "../../../Request-Abonados/Components/AvailabilityWater/CreateAvailabilityWaterRqModal";
+import ReqChangeNameMeterHeaderBar from "../Components/PaginationChangeNameMeter/ReqChangeNameMeterHeaderBar";
+import ReqChangeNameMeterTable from "../Components/ReqChangeNameMeterTable/ReqChangeNameMeterTable";
 
-export default function ListReqSupervisionMeter() {
+
+export default function ListReqChangeNameMeter() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
-  // 🔎 Texto visible en el input
+  // Texto visible en el input
   const [search, setSearch] = useState("");
 
-  
-  const [UserName, setUserName] = useState<string | undefined>(undefined);       // ★ se llena desde `search`
-  const [Justification, setJustification] = useState<string | undefined>(undefined);
-  const [State, setState] = useState<string | undefined>(undefined);             // "true" | "false" | undefined
+  // Filtros que van al backend
+  const [UserName, setUserName] = useState<string | undefined>(undefined);
+  const [State, setState] = useState<string | undefined>(undefined); // "true" | "false" | undefined
   const [StateRequestId, setStateRequestId] = useState<number | undefined>(undefined);
 
-  // ★ Cuando cambia el texto del buscador, mapeamos a UserName y reiniciamos la paginación
+  // Buscador → UserName
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
     const trimmed = txt.trim();
@@ -33,8 +30,8 @@ export default function ListReqSupervisionMeter() {
   };
 
   const handleStateChange = (newState: string) => {
-     setState(newState === "" ? undefined : newState); // guardamos tal cual el valor del select
-     setPage(1);
+    setState(newState === "" ? undefined : newState); // "" -> undefined
+    setPage(1);
   };
 
   const handleStateRequestChange = (id?: number) => {
@@ -44,14 +41,13 @@ export default function ListReqSupervisionMeter() {
 
   const handleCleanFilters = () => {
     setSearch("");
-    setUserName(undefined);          
-    setJustification(undefined);
+    setUserName(undefined);
     setState(undefined);
     setStateRequestId(undefined);
     setPage(1);
   };
 
-  // Estados disponibles (para el dropdown)
+  // Estados disponibles (usa los nombres reales del hook)
   const {
     reqAvailWaterStates = [],
     reqAvailWaterStatesLoading,
@@ -59,22 +55,24 @@ export default function ListReqSupervisionMeter() {
   const requestStates: RequestState[] = reqAvailWaterStates;
   const requestStatesLoading: boolean = reqAvailWaterStatesLoading;
 
+ 
   const params = useMemo(
-    () => ({ page, limit, Justification, State:
-      State === undefined
-        ? undefined
-        : State === "true"
-        ? "1"
-        : "0", // ← conversión aquí antes de enviar
-     UserName, StateRequestId }),
-    [page, limit, Justification, State, UserName, StateRequestId]
+    () => ({
+      page,
+      limit,
+      UserName,
+      State: State ?? "", 
+      StateRequestId,
+    }),
+    [page, limit, UserName, State, StateRequestId]
   );
 
-  const { data, isLoading, error } = useSearchReqSupervisionMeter(params);
-  const rows: ReqSupervisionMeter[] = data?.data ?? [];
+  const { data, isLoading, error } = useSearchReqChangeNameMeter(params);
+  const rows: ReqChangeNameMeter[] = data?.data ?? [];
   const meta =
     data?.meta ?? { total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false };
 
+  // Totales de la página actual (opcional)
   const pageTotals = useMemo(() => {
     const acc = { total: 0, approved: 0, rejected: 0, pending: 0 };
     for (const r of rows) {
@@ -89,11 +87,10 @@ export default function ListReqSupervisionMeter() {
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-[#091540]">Lista de Solicitudes de Revisión de Medidor</h1>
+      <h1 className="text-2xl font-bold text-[#091540]">Lista de Solicitudes de Cambio de Nombre del Medidor</h1>
       <p className="text-[#091540]/70 text-md">Gestione todas las solicitudes</p>
       <div className="border-b border-dashed border-gray-300 mb-2"></div>
 
-      {/* Cards (con totales de la página actual) */}
       <ResumeReqAvailWater
         total={pageTotals.total}
         pending={pageTotals.pending}
@@ -104,10 +101,10 @@ export default function ListReqSupervisionMeter() {
 
       <div className="border-b border-dashed border-gray-300 mt-4 mb-6"></div>
 
-      <ReqSupervisionMeterHeaderBar
+      <ReqChangeNameMeterHeaderBar
         limit={meta.limit}
         total={meta.total}
-        search={search}                       // ★ valor visible del input
+        search={search}
         state={State}
         requestStateId={StateRequestId}
         states={requestStates}
@@ -118,7 +115,7 @@ export default function ListReqSupervisionMeter() {
           setPage(1);
         }}
         onFilterClick={handleStateChange}
-        onSearchChange={handleSearchChange}   // ★ propaga cambios de input
+        onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
       />
 
@@ -128,7 +125,7 @@ export default function ListReqSupervisionMeter() {
         ) : error ? (
           <div className="p-6 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
         ) : (
-          <ReqSupervisionMeterTable
+          <ReqChangeNameMeterTable
             data={rows}
             total={meta.total}
             page={meta.page}
@@ -137,13 +134,6 @@ export default function ListReqSupervisionMeter() {
           />
         )}
       </div>
-      <div className="flex flex-row  gap-15 items-center justify-center mt-4">
-        <CreateRequestSupervisionMeter />
-        <CreateChangeMeterModal />
-        <CreateAssociatedRqModal />
-        <CreateAvailabilityWaterRqModal />
-      </div>
-      
     </div>
   );
 }

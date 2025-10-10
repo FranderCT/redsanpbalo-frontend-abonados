@@ -1,7 +1,8 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { Edit2 } from "lucide-react";
-import type { ReqSupervisionMeter } from "../../Models/ReqSupervisionMeter";
-import DeleteSupervisionMeterModal from "../../Modals/DeleteReqSupervisionMeterModal";
+import type { ReqChangeNameMeter } from "../../Models/RequestChangeNameMeter";
+import DeleteChangeNameMeterModal from "../Modals/DeleteChangeNameMeterModal";
+
 // ---- helpers ----
 const normalizeState = (s: string) =>
   s
@@ -29,26 +30,15 @@ const guessStateColor = (normalized: string) => {
   if (normalized.includes("pend") || normalized.includes("proce"))
     return stateColorsDict["pendiente"];
 };
-export const ReqSupervisionMeterColumns = (
-  onEdit: (req: ReqSupervisionMeter) => void
+export const ReqChangeNameMeterColumns = (
+  onEdit: (req: ReqChangeNameMeter) => void
   // onGetInfo?: (req: ReqAvailWater) => void
-): ColumnDef<ReqSupervisionMeter>[] => [
+): ColumnDef<ReqChangeNameMeter>[] => [
   {
     id: "Name",
     header: "Nombre del Solicitante",
     cell: ({ row }) =>   `${row.original.User?.Name ?? ""} ${row.original.User?.Surname1 ?? ""} ${row.original.User?.Surname2 ?? ""}`.trim() ||
       "-",
-  },
-  {
-    id: "NIS",
-    header: "NIS",
-    cell: ({ row }) =>   row.original.NIS ??
-      "-",
-  },
-  {
-    id: "Address",
-    header: "Dirección supervisión medidor",
-    cell: ({ row }) => row.original.Location ?? "-",
   },
   {
     id: "Date",
@@ -91,7 +81,7 @@ export const ReqSupervisionMeterColumns = (
             Editar
           </button>
 
-          <DeleteSupervisionMeterModal reqSupervisionMeter={req} /> 
+         <DeleteChangeNameMeterModal reqChangeNameMeter={req} />  
         </div>
       );
     },

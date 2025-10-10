@@ -1,10 +1,12 @@
 import { createRoute } from "@tanstack/react-router";
-import { dashboardRoute } from "../../../Dashboard/Routes/DashboardRoutes";
 import ListReqChangeMeter from "../Pages/ListRequestChangeMeter";
+import { requestsRoute } from "../../Routes/RequestRoutes";
 
 
 export const requestChangeMeterRoute = createRoute({
-    getParentRoute: ()=> dashboardRoute,
-    path: 'ChangeMeter',
+    getParentRoute: ()=> requestsRoute,
+    path: 'change-meter',
     component: ListReqChangeMeter
 })
+
+
