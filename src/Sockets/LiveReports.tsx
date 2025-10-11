@@ -22,7 +22,7 @@ function normalize(r: ReportEvt): ReportEvt {
 }
 
 export default function LiveReports() {
-  const [reports, setReports] = useState<ReportEvt[]>(() => {
+  const [, setReports] = useState<ReportEvt[]>(() => {
     const saved = localStorage.getItem('liveReports');
     return saved ? (JSON.parse(saved) as ReportEvt[]) : [];
   });
