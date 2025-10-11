@@ -7,6 +7,7 @@ import { MissionVision } from "./Mission-Vision"
 import { Projects } from "./Projects"
 import { FAQ } from "./FAQ"
 import { Contact } from "./Contact"
+import { Feedback } from "./Feedback"
 
 const HeroPage = () => {
   return (
@@ -23,6 +24,7 @@ const HeroPage = () => {
       <MissionVision />
       <Projects />
       <FAQ />
+      <Feedback />
       <Contact />
       <Footer />
     </div>
