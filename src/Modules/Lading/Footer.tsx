@@ -1,5 +1,5 @@
 import { Facebook, Mail } from "lucide-react"
-import LogoRedSanPablo from "../../assets/images/LogoRedSanPabloHG.svg"
+import LogoRedSanPablo from "../../assets/images/LogoRedSanPabloHB.svg"
 
 export function Footer() {
     return (
@@ -11,8 +11,7 @@ export function Footer() {
                 <div className="space-y-4">
                     <div className="flex items-center gap-3">
                         <div>
-
-                            <span className="text-xl font-bold text-white/80">RedSanPablo</span>
+                            <img src={LogoRedSanPablo} className="h-12 w-auto" alt="Red San Pablo Logo" />
                         </div>
                     </div>
                     <p className="leading-relaxed text-white/80 text-sm max-w-xs">

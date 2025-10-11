@@ -11,13 +11,13 @@ import { listSupplierRoute, newSupplierRoute, supplierRoute, viewSuppliertRoute 
 import { createProjectRoute, listProjectRoute, projectRoute, updateProjectRoute, viewProjectRoute } from "./Modules/Project/Routes/ProjectsRoutes";
 import { listPhysicalSuppliers, PhysicalSupplierRoute } from "./Modules/PhysicalSupplier/Routes/PhysicalSupplierRoutes";
 import { legalSupplierRoute, listLegalSuppliers } from "./Modules/LegalSupplier/Routes/LegalSupplierRoutes";
-import {  requestAvailWaterRoute } from "./Modules/Requests/RequestAvailabilityWater/Routes/RequestsAvailWaterRoute";
 import { requestSupervisionRoute } from "./Modules/Requests/RequestSupervisionMeter/Routes/RequestsSupervisionWaterRoute";
-import { requestChangeMeterRoute } from "./Modules/Requests/RequestChangeMeterr/Routes/RequestChangeMeterRoute";
 import { requestChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
 import { requestsRoute } from "./Modules/Requests/Routes/RequestRoutes";
-import { requestAssociatedRoute } from "./Modules/Requests/RequestAssociated/Routes/ReqAssociatedRoutes";
 import HeroPage from "./Modules/Lading/HeroPage";
+import { requestListAvailWaterRoute, requestUserAvailWaterRoute } from "./Modules/Requests/RequestAvailabilityWater/Routes/RequestsAvailWaterRoute";
+import { requestListAssociatedRoute, requestUserAssociatedRoute } from "./Modules/Requests/RequestAssociated/Routes/ReqAssociatedRoutes";
+import { requestListChangeMeterRoute, requestUserChangeMeterRoute } from "./Modules/Requests/RequestChangeMeterr/Routes/RequestChangeMeterRoute";
 
 export const rootRoute = createRootRoute();
 
@@ -62,11 +62,13 @@ export const routeTree = rootRoute.addChildren([
       updateProjectRoute
     ]),
     requestsRoute.addChildren([
-      requestAvailWaterRoute,
+      requestUserAvailWaterRoute,
+      requestListAvailWaterRoute,
       requestSupervisionRoute,
-      requestChangeMeterRoute,
-      requestChangeNameMeterRoute,
-      requestAssociatedRoute
+      requestUserChangeMeterRoute,
+      requestListChangeMeterRoute,
+      requestUserAssociatedRoute,
+      requestListAssociatedRoute
     ])
   ]),
   PhysicalSupplierRoute.addChildren([

@@ -20,7 +20,7 @@ export function About() {
             {/* Comunidad */}
             <div className="text-center">
                 <div className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-6 bg-[#1789FC]/10">
-                <Users className="h-12 w-12 text-[#091540]" />
+                <Users className="h-12 w-12 text-[#1789FC]" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-[#091540]">Comunidad</h3>
                 <p className="leading-relaxed max-w-xs mx-auto text-[#091540]/80">
@@ -32,7 +32,7 @@ export function About() {
             {/* Compromiso */}
             <div className="text-center">
                 <div className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-6 bg-[#68D89B]/20">
-                <Heart className="h-12 w-12 text-[#091540]" />
+                <Heart className="h-12 w-12 text-[#68D89B]" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4 text-[#091540]">Compromiso</h3>
                 <p className="leading-relaxed max-w-xs mx-auto text-[#091540]/80">
