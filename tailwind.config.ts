@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-import scrollbar from "tailwind-scrollbar";
 
 export default {
   content: [
@@ -11,6 +10,11 @@ export default {
       fontFamily: {
         montserrat: ["Montserrat", "sans-serif"],
         oswald: ["Oswald", "sans-serif"],
+      },
+      colors: {
+        primary: '#1B6DF5',    // azul (ícono Comunidad)
+        accent: '#3DDA7E',     // verde (ícono Compromiso)
+        secondary: '#041D35',  // azul oscuro (ícono Confianza)
       },
     },
   },

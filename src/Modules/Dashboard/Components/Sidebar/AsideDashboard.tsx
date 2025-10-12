@@ -36,7 +36,7 @@ const AsideDashboard = () => {
           </button>
         </Can>
 
-        <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
+        <Can rule={{ any: ["ABONADO"] }}>
           <SidebarDropdown
             icon={<FileText className="size-[23px] transition-colors group-hover:text-white" />}
             label="Solicitudes"
@@ -44,7 +44,7 @@ const AsideDashboard = () => {
               { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests/availability-water" }) },
               { label: "Revisión de Medidor", onClick: () => navigate({ to: "/dashboard/requests/supervision-meter" }) },
               { label: "Cambio de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-meter" }) },
-              { label: "Cambio Nombre de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-name-meter" }) },
+              { label: "Cambio Nombre de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-meter" }) },
               { label: "Asociado", onClick: () => navigate({ to: "/dashboard/requests/associated" }) },
             ]}
           />
@@ -55,6 +55,20 @@ const AsideDashboard = () => {
             <FileText className="size-[23px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Solicitudes</span>
           </button> */}
+        </Can>
+
+        <Can rule={{ any: ["ADMIN"] }}>
+          <SidebarDropdown
+            icon={<FileText className="size-[23px] transition-colors group-hover:text-white" />}
+            label="Solicitudes"
+            items={[
+              { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests/availability-water/admin" }) },
+              { label: "Revisión de Medidor", onClick: () => navigate({ to: "/dashboard/requests/supervision-meter" }) },
+              { label: "Cambio de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-meter/admin" }) },
+              { label: "Cambio Nombre de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-meter/admin" }) },
+              { label: "Asociado", onClick: () => navigate({ to: "/dashboard/requests/associated/admin" }) },
+            ]}
+          />
         </Can>
 
         <Can rule={{ all: ["ADMIN"] }}>

@@ -7,6 +7,7 @@ import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
 import ReqChangeMeterTable from "../Components/RequestChangeMeterTable/RequestChangeMeterTable";
 import ReqChangeMeterHeaderBar from "../Components/PaginationRequestChangeMeter/RequestChangeMeterHeaderBar";
 import type { ReqChangeMeter } from "../Models/RequestChangeMeter";
+import CreateChangeMeterModal from "../../../Request-Abonados/Components/Change-Meter/CreateChangeMeterModal";
 
 export default function ListReqChangeMeter() {
   const [page, setPage] = useState(1);
@@ -116,6 +117,7 @@ export default function ListReqChangeMeter() {
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
+        rightAction={<CreateChangeMeterModal />}
       />
 
       <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">

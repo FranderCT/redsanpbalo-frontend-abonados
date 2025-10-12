@@ -7,7 +7,7 @@ import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { uploadRequestAvailabilityWaterFile } from "../../../Upload-files/Services/ProjectFileServices";
 
 // Helper function para manejar retry con rate limiting y respeto al Retry-After
-const uploadWithRetry = async (
+export const uploadWithRetry = async (
     uploadFn: () => Promise<any>,
     maxRetries: number = 3,
     baseDelay: number = 1000

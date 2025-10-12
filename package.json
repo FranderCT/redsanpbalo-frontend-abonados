@@ -20,6 +20,7 @@
     "@tanstack/router-vite-plugin": "^1.129.8",
     "@tanstack/zod-form-adapter": "^0.42.1",
     "axios": "^1.11.0",
+    "clsx": "^2.1.1",
     "jwt-decode": "^4.0.0",
     "libphonenumber-js": "^1.12.17",
     "lucide-react": "^0.541.0",
@@ -28,6 +29,8 @@
     "react-phone-number-input": "^3.4.12",
     "react-to-print": "^3.1.1",
     "react-toastify": "^11.0.5",
+    "socket.io-client": "^4.8.1",
+    "tailwind-merge": "^3.3.1",
     "zod": "^3.25.76"
   },
   "devDependencies": {

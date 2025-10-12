@@ -2,6 +2,7 @@ import { useState } from "react";
 import AsideDashboard from "../../Dashboard/Components/Sidebar/AsideDashboard";
 import HeaderDashboard from "../../Dashboard/Components/Header/HeaderDashboard";
 import { Outlet } from "@tanstack/react-router";
+import LiveReports from "../../../Sockets/LiveReports";
 
 const DashboardLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -43,6 +44,7 @@ const DashboardLayout = () => {
         />
         <main className="flex-1 p-6 overflow-y-auto">
           <Outlet/>
+          <LiveReports />
         </main>
       </div>
     </div>
