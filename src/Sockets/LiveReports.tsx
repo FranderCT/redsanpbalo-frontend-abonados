@@ -2,9 +2,19 @@ import { useEffect, useState } from 'react';
 import { socket } from './Sockets';
 import { ModalBase } from '../Components/Modals/ModalBase';
 
+type ReportLocationEvt = {
+  Id: number;
+  Neighborhood: string;
+};
+
+type ReportTypeEvt = {
+  Id: number;
+  Name: string;
+};
+
 type ReportEvt = {
   Id: number;
-  Location: string;
+  Location: string; // puede venir ya compuesto “BARRIO - DIRECCIÓN”
   Description: string;
   User: {
     Id: number;
@@ -12,35 +22,52 @@ type ReportEvt = {
     Email: string;
     FullName: string;
   };
-  CreatedAt: string; // llega como string; lo normalizamos a ISO
+  ReportLocation?: ReportLocationEvt | null;
+  ReportType?: ReportTypeEvt; // 👈 nuevo
+  CreatedAt: string | Date;
 };
 
-function normalize(r: ReportEvt): ReportEvt {
-  // Garantiza que CreatedAt sea ISO string válida
-  const iso = new Date(r.CreatedAt as any).toISOString();
-  return { ...r, CreatedAt: iso };
+// Para UI: añadimos displayLocation normalizado y CreatedAt en ISO
+type ReportUI = ReportEvt & { displayLocation: string; CreatedAt: string };
+
+function toISO(value: string | Date): string {
+  const d = value instanceof Date ? value : new Date(value);
+  return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+}
+
+function buildDisplayLocation(r: ReportEvt): string {
+  if (r.ReportLocation?.Neighborhood) {
+    return `${r.ReportLocation.Neighborhood} - ${r.Location}`.trim();
+  }
+  return r.Location;
+}
+
+function normalize(r: ReportEvt): ReportUI {
+  return {
+    ...r,
+    CreatedAt: toISO(r.CreatedAt),
+    displayLocation: buildDisplayLocation(r),
+  };
 }
 
 export default function LiveReports() {
-  const [, setReports] = useState<ReportEvt[]>(() => {
+  const [, setReports] = useState<ReportUI[]>(() => {
     const saved = localStorage.getItem('liveReports');
-    return saved ? (JSON.parse(saved) as ReportEvt[]) : [];
+    return saved ? (JSON.parse(saved) as ReportUI[]) : [];
   });
 
   const [showModal, setShowModal] = useState(false);
-  const [newReport, setNewReport] = useState<ReportEvt | null>(null);
+  const [newReport, setNewReport] = useState<ReportUI | null>(null);
 
   useEffect(() => {
     const handler = (payload: ReportEvt) => {
       const report = normalize(payload);
 
-      // mostrar modal
       setNewReport(report);
       setShowModal(true);
 
-      // agregar a la lista, deduplicando por Id
-      setReports(prev => {
-        const next = [report, ...prev.filter(r => r.Id !== report.Id)];
+      setReports((prev) => {
+        const next = [report, ...prev.filter((r) => r.Id !== report.Id)];
         localStorage.setItem('liveReports', JSON.stringify(next));
         return next;
       });
@@ -54,9 +81,8 @@ export default function LiveReports() {
 
   return (
     <div>
-      {/* Modal para nuevo reporte */}
-      <ModalBase 
-        open={showModal} 
+      <ModalBase
+        open={showModal}
         onClose={() => setShowModal(false)}
         panelClassName="w-full max-w-2xl !p-0 overflow-hidden shadow-2xl"
       >
@@ -64,12 +90,18 @@ export default function LiveReports() {
           <>
             {/* Header */}
             <div className="px-6 py-4 text-[#091540] border-b border-gray-200 bg-white">
-              <h3 className="text-xl font-semibold flex items-center gap-2">
-                🚨 Nuevo Reporte Recibido
-              </h3>
-              <p className="text-sm opacity-80 mt-1">
-                Se ha registrado un nuevo reporte en el sistema
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    Nuevo Reporte Recibido
+                  </h3>
+                  <p className="text-sm opacity-80 mt-1">
+                    Se ha registrado un nuevo reporte en el sistema
+                  </p>
+                </div>
+
+               
+              </div>
             </div>
 
             {/* Body */}
@@ -81,16 +113,36 @@ export default function LiveReports() {
                     Reporte #{newReport.Id}
                   </h4>
                   <span className="text-xs text-red-600 bg-red-100 px-2 py-1 rounded">
-                    {new Date(newReport.CreatedAt).toLocaleString()}
+                    {new Date(newReport.CreatedAt).toLocaleString('es-CR')}
                   </span>
                 </div>
-                
+
+                {/* Chip de barrio si existe */}
+                {newReport.ReportLocation?.Neighborhood && (
+                  <div className="mb-3">
+                    <span className="inline-flex items-center text-xs font-medium px-2 py-1 l border border-red-300 bg-white text-red-700">
+                      BARRIO DEL REPORTE: {newReport.ReportLocation.Neighborhood}
+                    </span>
+                  </div>
+                )}
+
+                 {/* Chip de tipo de reporte (si viene) */}
+                {newReport.ReportType?.Name && (
+                  <div className="mb-3">
+                    <span className="inline-flex items-center text-xs font-medium px-2 py-1  border border-red-300 bg-white text-red-700">
+                      TIPO DE REPORTE: {newReport.ReportType.Name}
+                    </span>
+                  </div>
+                )}
+
                 <div className="space-y-3">
                   <div>
                     <span className="text-xs text-red-600 font-medium">UBICACIÓN</span>
-                    <p className="text-sm text-red-800 font-medium">{newReport.Location}</p>
+                    <p className="text-sm text-red-800 font-medium">
+                      {newReport.displayLocation}
+                    </p>
                   </div>
-                  
+
                   <div>
                     <span className="text-xs text-red-600 font-medium">DESCRIPCIÓN</span>
                     <p className="text-sm text-red-800">{newReport.Description}</p>
