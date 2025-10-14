@@ -38,3 +38,8 @@ export async function getCommentById(id: number): Promise<Comment> {
     const res = await apiAxios.get<Comment>(`${BASE}/${id}`);
     return res.data;
 }
+
+export async function updateComment(id: number): Promise<Comment> {
+    const res = await apiAxios.patch<Comment>(`${BASE}/${id}`);
+    return res.data;
+}

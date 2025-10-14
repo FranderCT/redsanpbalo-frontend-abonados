@@ -28,14 +28,12 @@ export function Feedback() {
         <section id="retroalimentacion" className="py-24 px-6 bg-[#091540]">
         <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/10 mb-6">
-                <MessageSquare className="h-8 w-8 text-white" />
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-balance text-white">Retroalimentación Anónima</h2>
-            <p className="text-xl text-white/80 max-w-2xl mx-auto text-pretty">
-                Comparta sus comentarios, sugerencias o inquietudes de forma completamente anónima. Su opinión nos ayuda a
-                mejorar nuestros servicios.
-            </p>
+                <h2 className="text-4xl md:text-5xl font-bold mb-4 text-balance text-white">Retroalimentación Anónima</h2>
+
+                {/* <p className="text-xl text-white/80 max-w-2xl mx-auto text-pretty">
+                    Comparta sus comentarios, sugerencias o inquietudes de forma completamente anónima. Su opinión nos ayuda a
+                    mejorar nuestros servicios.
+                </p> */}
             </div>
 
             <Card className="shadow-lg !bg-[#f9f5ff] border-none">
@@ -99,8 +97,8 @@ export function Feedback() {
                         className="
                         w-full inline-flex items-center justify-center gap-2
                         rounded-md px-4 py-3 text-base font-medium
-                        bg-[#1789fc]/90 text-white shadow-sm
-                        hover:bg-[#091540]/90
+                        bg-[#091540]/90 text-white shadow-sm
+                        hover:bg-[#1789fc]/90
                         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1789FC]
                         disabled:opacity-50 disabled:cursor-not-allowed
                         "

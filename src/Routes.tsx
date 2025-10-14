@@ -18,6 +18,7 @@ import HeroPage from "./Modules/Lading/HeroPage";
 import { requestListAvailWaterRoute, requestUserAvailWaterRoute } from "./Modules/Requests/RequestAvailabilityWater/Routes/RequestsAvailWaterRoute";
 import { requestListAssociatedRoute, requestUserAssociatedRoute } from "./Modules/Requests/RequestAssociated/Routes/ReqAssociatedRoutes";
 import { requestListChangeMeterRoute, requestUserChangeMeterRoute } from "./Modules/Requests/RequestChangeMeterr/Routes/RequestChangeMeterRoute";
+import { commentRoute } from "./Modules/Comment/Routes/CommentRoutes";
 
 export const rootRoute = createRootRoute();
 
@@ -69,7 +70,8 @@ export const routeTree = rootRoute.addChildren([
       requestListChangeMeterRoute,
       requestUserAssociatedRoute,
       requestListAssociatedRoute
-    ])
+    ]),
+    commentRoute
   ]),
   PhysicalSupplierRoute.addChildren([
     listPhysicalSuppliers

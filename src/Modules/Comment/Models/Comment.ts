@@ -1,6 +1,8 @@
 export interface Comment {
     Id: number;
     Message: string;
+    CreatedAt: Date;
+    IsRead: boolean;
     IsActive: boolean;
 }
 
