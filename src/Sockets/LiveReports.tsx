@@ -99,8 +99,7 @@ export default function LiveReports() {
                     Se ha registrado un nuevo reporte en el sistema
                   </p>
                 </div>
-
-               
+                
               </div>
             </div>
 
