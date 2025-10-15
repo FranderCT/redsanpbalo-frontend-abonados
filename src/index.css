@@ -5,6 +5,11 @@
   background-color: #fff;
   color:#091540;
   font-family: 'Montserrat', sans-serif;
+  --chart-1: 221 83% 53%; /* azul */
+  --chart-2: 188 94% 42%; /* cyan */
+  --chart-3: 142 76% 36%; /* green */
+  --chart-4: 262 83% 58%; /* violet */
+  --chart-5: 14 90% 57%;  /* orange */
 }
 
 .input-base {

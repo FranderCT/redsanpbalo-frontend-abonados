@@ -2,6 +2,7 @@ import { createRoute, redirect } from "@tanstack/react-router";
 import { rootRoute } from "../../../Routes";
 import DashboardLayout from "../Layouts/DashboardLayout";
 import { ValidateToken } from "../../Auth/Services/AuthServices";
+import PrincipalAdminDashboard from "../../DashboardPrincipal-Admin/Pages/PrincipalAdminDashboard";
 
 export const dashboardRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -24,5 +25,5 @@ export const dashboardRoute = createRoute({
 export const dashboardIndexRoute = createRoute({
   getParentRoute: () => dashboardRoute,
   path: "/",                    
-  component: () => <h1>Dashboard</h1>,
+  component: PrincipalAdminDashboard,
 });
