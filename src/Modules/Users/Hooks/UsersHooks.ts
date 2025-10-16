@@ -5,7 +5,8 @@ import { useEffect } from "react";
 import type { UsersPaginationParams, User, UpdateUser } from "../Models/User";
 import { getUserProfile, updateUserProfile, updateUserEmail, getAllUsers, deleteUser, 
   createUserModal, getAllRoles, updateUser, getUserById, deteleUserById, searchUsers, 
-  getUserByRoleAdmin} from "../Services/UsersServices";
+  getUserByRoleAdmin,
+  getAllAbonados} from "../Services/UsersServices";
 
 export const useGetUserProfile = () => {
     const {data: UserProfile, isLoading, error} = useQuery({
@@ -45,6 +46,16 @@ export const useGetAllUsers = () => {
     
   });
   return { usersProfiles, isPending, error };
+};
+
+export const useGetAllAbonados = () => {
+  const { data: totalAbonados, isPending, error } = useQuery({
+    queryKey: ["abonados"],
+    queryFn: getAllAbonados,
+    
+  });
+  console.log("Total Abonados:", totalAbonados);
+  return { totalAbonados, isPending, error };
 };
 
 export function useDeleteUser() {
