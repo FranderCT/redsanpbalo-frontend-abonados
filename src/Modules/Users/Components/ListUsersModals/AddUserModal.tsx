@@ -12,7 +12,7 @@ export default function RegisterAbonadosModal() {
   const [open, setOpen] = useState(false);
   const createUserMutation = useCreateUser();
   const { roles } = useGetAllRoles();
-  // const [isAbonado, setIsAbonado] = useState<boolean>(AdminUserInitialState.IsAbonado);
+
 
 
   const form = useForm({
@@ -22,7 +22,8 @@ export default function RegisterAbonadosModal() {
     },
     onSubmit: async ({ value }) => {
       try {
-        await createUserMutation.mutateAsync(value);
+        const { IsAbonado, ...userData } = value;
+        await createUserMutation.mutateAsync(userData);
         toast.success("¡Registro exitoso!", { position: "top-right", autoClose: 3000 });
         setOpen(false);
 
@@ -187,51 +188,60 @@ export default function RegisterAbonadosModal() {
                 </div>
 
                {/* Soy abonado + NIS */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {/* Checkbox controlado por useState (y sincronizado con el form) */}
-                  {/* <label className="group flex items-center cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={isAbonado}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        setIsAbonado(checked);                    // estado local para re-render inmediato
-                        form.setFieldValue("IsAbonado", checked); // opcional: mantiene el valor en el form
-                        if (!checked) form.setFieldValue("Nis", ""); // limpia NIS al desmarcar
-                      }}
-                      className="hidden peer"
-                    />
-                    <span className="relative w-4 h-4 flex justify-center items-center bg-gray-100 border-2 border-gray-400 rounded-md transition-all duration-300 peer-checked:border-blue-500 peer-checked:bg-blue-500" />
-                    <span className="ml-3 text-gray-700 group-hover:text-blue-500 font-medium transition-colors duration-300">
-                      Soy abonado
-                    </span>
-                  </label> */}
-
-                  <form.Field name="Nis">
-                    {(field) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 min-w-0">
+                <form.Field name="IsAbonado">
+                  {(field) => (
+                    <label className="group flex items-center cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={!!field.state.value}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          field.handleChange(checked);
+                          if (!checked) form.setFieldValue('Nis', '');
+                        }}
+                        className="hidden peer"
+                      />
+                      <span className="relative w-4 h-4 flex justify-center items-center bg-gray-100 border-2 border-gray-400 rounded-md transition-all duration-300 peer-checked:border-blue-500 peer-checked:bg-blue-500" />
+                      <span className="ml-3 text-gray-700 font-medium duration-300">
+                        Soy abonado
+                      </span>
+                    </label>
+                  )}
+                </form.Field>
+                  {/* Suscripción: Nis se re-renderiza cuando cambia IsAbonado */}
+                <form.Subscribe selector={(s) => s.values.IsAbonado ?? false}>
+                  {(isAbonado) => (
+                <form.Field name="Nis">
+                  {(field) => {
+                    const isAbonado = form.getFieldValue('IsAbonado');
+                    const disabled = !isAbonado;
+                    return (
                       <>
-                      <label className="grid gap-1">
                         <input
-                          className={`w-full px-4 py-2 border`}
+                          className={`input-base ${
+                            isAbonado ? '' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          }`}
                           placeholder="NIS"
                           value={field.state.value}
                           inputMode="numeric"
-                          pattern="[0-9]*"
-                          onChange={(e) => field.handleChange(e.target.value.replace(/\D/g, ""))}
-                          // disabled={!isAbonado}
-                          // aria-disabled={!isAbonado}
-                          // required={isAbonado}
+                          pattern="\d*"
+                          onChange={(e) => field.handleChange(e.target.value.replace(/\D/g, ''))}
+                          disabled={disabled}
+                          aria-disabled={disabled}
                         />
-                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && isAbonado && (
                           <p className="text-sm text-red-500 mt-1">
                             {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
                           </p>
                         )}
-                      </label>
                       </>
-                    )}
-                  </form.Field>
-                </div>
+                    );
+                  }}
+                </form.Field>
+                )}
+                </form.Subscribe>
+              </div>
 
 
                 {/* Email */}

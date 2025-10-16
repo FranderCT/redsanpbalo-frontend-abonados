@@ -14,7 +14,7 @@ export const AddUserSchema = z.object({
 
     Surname2: z.string().refine(val => val.length === 0 || val.length >= 2, {
     message: 'Debe tener al menos 2 caracteres si se proporciona',}),
-
+    IsAbonado: z.boolean(),
     Nis: z
     .string()
     .trim()
