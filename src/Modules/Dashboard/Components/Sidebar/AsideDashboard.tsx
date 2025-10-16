@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import g28 from "../../../Auth/Assets/g28.png";
-import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, UserCog, Forklift } from "lucide-react";
+import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, UserCog, Forklift, MessageSquare } from "lucide-react";
 import { Can } from "../../../Auth/Components/Can";
 import SidebarDropdown from "./SidebarDropdown";
 
@@ -17,8 +17,8 @@ const AsideDashboard = () => {
     <div className="bg-[#F9F5FF] h-dvh min-h-0 flex flex-col">
       {/* Branding */}
       <div className="flex items-center gap-3 px-4 pt-6 pb-4 flex-col">
-        <img src={g28} alt="Logo ASADA" className="w-20 h-20 object-contain" />
-        <h1 className="text-3xl text-[#091540] font-bold leading-tight font">RedSanPablo</h1>
+        <img src={g28} alt="Logo ASADA" className="w-16 h-16 object-contain" />
+        <h1 className="text-2xl text-[#091540] font-bold leading-tight font">RedSanPablo</h1>
       </div>
 
       {/* Línea separadora */}
@@ -31,14 +31,14 @@ const AsideDashboard = () => {
             onClick={() => navigate({ to: "/dashboard" })}
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
           >
-            <Home className="size-[23px] transition-colors group-hover:text-white" />
+            <Home className="size-[20px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Principal</span>
           </button>
         </Can>
 
         <Can rule={{ any: ["ABONADO"] }}>
           <SidebarDropdown
-            icon={<FileText className="size-[23px] transition-colors group-hover:text-white" />}
+            icon={<FileText className="size-[20px] transition-colors group-hover:text-white" />}
             label="Solicitudes"
             items={[
               { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests/availability-water" }) },
@@ -59,7 +59,7 @@ const AsideDashboard = () => {
 
         <Can rule={{ any: ["ADMIN"] }}>
           <SidebarDropdown
-            icon={<FileText className="size-[23px] transition-colors group-hover:text-white" />}
+            icon={<FileText className="size-[20px] transition-colors group-hover:text-white" />}
             label="Solicitudes"
             items={[
               { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests/availability-water/admin" }) },
@@ -76,7 +76,7 @@ const AsideDashboard = () => {
             onClick={() => navigate({ to: "/dashboard/users" })}
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
           >
-            <UserCog className="size-[23px] transition-colors group-hover:text-white" />
+            <UserCog className="size-[20px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Usuarios</span>
           </button>
         </Can>
@@ -84,7 +84,7 @@ const AsideDashboard = () => {
         {/* Dropdown Productos */}
         <Can rule={{ all: ["ADMIN"] }}>
           <SidebarDropdown
-            icon={<Forklift className="size-[23px] transition-colors group-hover:text-white" />}
+            icon={<Forklift className="size-[20px] transition-colors group-hover:text-white" />}
             label="Productos"
             items={[
               { label: "Productos", onClick: () => navigate({ to: "/dashboard/products" }) },
@@ -98,14 +98,14 @@ const AsideDashboard = () => {
 
         <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
-            <Bell className="size-[23px] transition-colors group-hover:text-white" />
+            <Bell className="size-[20px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Notificaciones</span>
           </button>
         </Can>
 
         <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
-            <OctagonAlert className="size-[23px] transition-colors group-hover:text-white" />
+            <OctagonAlert className="size-[20px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Reportes</span>
           </button>
         </Can>
@@ -113,15 +113,23 @@ const AsideDashboard = () => {
         <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
             onClick={() => navigate({ to: "/dashboard/projects" })}>
-            <Hammer className="size-[23px] transition-colors group-hover:text-white" />
+            <Hammer className="size-[20px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Proyectos</span>
+          </button>
+        </Can>
+
+        <Can rule={{ all: ["ADMIN"] }}>
+          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+            onClick={() => navigate({ to: "/dashboard/comments" })}>
+            <MessageSquare className="size-[20px] transition-colors group-hover:text-white" />
+            <span className="transition-colors">Comentarios</span>
           </button>
         </Can>
 
         {/* Dropdown Ajustes */}
         <Can rule={{ any: ["ADMIN", "GUEST", "ABONADO"] }}>
           <SidebarDropdown
-            icon={<Settings className="size-[23px] transition-colors group-hover:text-white" />}
+            icon={<Settings className="size-[20px] transition-colors group-hover:text-white" />}
             label="Ajustes"
             items={[
               { label: "Cambio de contraseña", onClick: () => navigate({ to: "/dashboard/settings/change-password" }) },
@@ -139,7 +147,7 @@ const AsideDashboard = () => {
           type="button"
           className="group flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#F6132D] hover:text-white"
         >
-          <LogOut className="size-[23px] text-[#F6132D] group-hover:text-white" />
+          <LogOut className="size-[20px] text-[#F6132D] group-hover:text-white" />
           <span className="text-[#F6132D] group-hover:text-white">Cerrar sesión</span>
         </button>
       </div>

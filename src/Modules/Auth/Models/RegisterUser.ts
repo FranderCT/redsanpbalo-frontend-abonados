@@ -50,7 +50,7 @@ export type createAdminUserForm = createAdminUser & {
   IsAbonado: boolean;
 };
 
-export const AdminUserInitialState: createAdminUser = {
+export const AdminUserInitialState: createAdminUserForm = {
   IDcard: '',
   Name: '',
   Surname1: '',
@@ -61,4 +61,5 @@ export const AdminUserInitialState: createAdminUser = {
   Birthdate: '' as unknown as Date,
   Address: '',
   roleIds: [],
+  IsAbonado: false
 }

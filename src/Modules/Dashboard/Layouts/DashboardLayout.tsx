@@ -3,6 +3,7 @@ import AsideDashboard from "../../Dashboard/Components/Sidebar/AsideDashboard";
 import HeaderDashboard from "../../Dashboard/Components/Header/HeaderDashboard";
 import { Outlet } from "@tanstack/react-router";
 import LiveReports from "../../../Sockets/LiveReports";
+import { Can } from "../../Auth/Components/Can";
 
 const DashboardLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -44,7 +45,9 @@ const DashboardLayout = () => {
         />
         <main className="flex-1 p-6 overflow-y-auto">
           <Outlet/>
-          <LiveReports />
+          <Can rule={{ any: [ "ADMIN"] }}>
+            <LiveReports />
+          </Can>
         </main>
       </div>
     </div>
