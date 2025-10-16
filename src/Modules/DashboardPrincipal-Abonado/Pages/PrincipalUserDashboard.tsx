@@ -1,8 +1,9 @@
-import { AlertCircle, Bell, FileText, MessageSquare, Wrench } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "../../DashboardPrincipal-Admin/Components/card"
+import { Bell, FileText, MessageSquare, OctagonAlert } from "lucide-react"
 import { QuickActionCardPro } from "../../DashboardPrincipal-Admin/Components/quick-action-card"
 import { StatCardPro } from "../../DashboardPrincipal-Admin/Components/stat-card"
-import { RecentActivity } from "../Components/recent-activity"
+import { RecentActivityUser } from "../Components/recent-activity"
+import { NotificationCard } from "../Components/notifications-card"
+import { QuickActionSolicitudes } from "../Components/quick-action-solicitudes"
 
 
 // Si luego conectas a tu API, reemplaza este array por los datos reales.
@@ -34,20 +35,27 @@ const myActivities = [
 ]
 
 export default function UserDashboard() {
+  const handleSolicitudClick = () => {
+    console.log("Solicitud seleccionada");
+  }
   return (
     <div className="min-h-screen bg-background p-6 space-y-6">
       {/* Encabezado */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Mi Panel</h1>
-          <p className="text-muted-foreground">Bienvenido, Juan Pérez - Abonado #1234</p>
+        <div className="space-y-4">
+          <h1 className="text-3xl font-bold tracking-tight">
+            Panel Principal
+          </h1>
+          <p className="text-[#091540]/70 text-md">
+            Bienvenido, Juan Pérez al sistema de gestión RedSanPablo
+          </p>
         </div>
+        <div className="border-b border-dashed border-gray-300 mb-8"></div>
       </div>
-
       {/* KPIs del usuario */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCardPro title="Mis Solicitudes" value="2" description="1 en proceso" icon={FileText} />
-        <StatCardPro title="Mis Reportes" value="3" description="1 activo" icon={AlertCircle} />
+        <StatCardPro title="Mis Reportes" value="3" description="1 activo" icon={OctagonAlert} />
         <StatCardPro title="Mis Comentarios" value="8" description="Este mes" icon={MessageSquare} />
         <StatCardPro title="Notificaciones" value="5" description="3 sin leer" icon={Bell} />
       </div>
@@ -56,16 +64,16 @@ export default function UserDashboard() {
       <section>
         <h2 className="text-xl font-semibold mb-4">Acciones Rápidas</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <QuickActionCardPro
+          <QuickActionSolicitudes
             title="Nueva Solicitud"
-            description="Crear una solicitud"
+            description="Selecciona el tipo de solicitud"
             icon={FileText}
-            onClick={() => console.log("Nueva Solicitud")}
+            onClick={handleSolicitudClick}
           />
           <QuickActionCardPro
             title="Reportar Problema"
             description="Informar una incidencia"
-            icon={AlertCircle}
+            icon={OctagonAlert}
             onClick={() => console.log("Reportar Problema")}
           />
           <QuickActionCardPro
@@ -84,39 +92,10 @@ export default function UserDashboard() {
       </section>
 
       {/* Notificaciones importantes */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" />
-            Notificaciones Importantes
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-start gap-4 p-4 rounded-lg bg-accent/50">
-            <Wrench className="h-5 w-5 text-primary mt-0.5" />
-            <div className="flex-1">
-              <p className="font-medium">Mantenimiento Programado</p>
-              <p className="text-sm text-muted-foreground">
-                Corte de agua el sábado 20 de julio de 8:00 AM a 12:00 PM en su sector
-              </p>
-              <span className="text-xs text-muted-foreground">Hace 2 horas</span>
-            </div>
-          </div>
-          <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50">
-            <MessageSquare className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div className="flex-1">
-              <p className="font-medium">Respuesta a tu comentario</p>
-              <p className="text-sm text-muted-foreground">
-                La administración ha respondido a tu comentario sobre el servicio
-              </p>
-              <span className="text-xs text-muted-foreground">Hace 1 día</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <NotificationCard />
 
       {/* Mi actividad reciente */}
-      <RecentActivity activities={myActivities} title="Mi Actividad Reciente" />
+      <RecentActivityUser activities={myActivities} title="Mi Actividad Reciente" />
     </div>
   )
 }
