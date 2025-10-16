@@ -1,39 +1,67 @@
 import { useForm } from '@tanstack/react-form';
-import { UserInitialState } from '../Models/User';
-import { useCreateUser } from '../Hooks/AuthHooks';
+import { RegisterUserInitialState } from '../Models/RegisterUser';
+
 import { RegisterSchema } from '../schemas/RegisterSchemas';
+import { toast } from 'react-toastify';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { useCreateAbonado } from '../Hooks/AuthHooks';
+import PhoneField from '../../../Components/PhoneNumber/PhoneField';
 
 const RegisterAbonados = () => {
-    const createUserMutation = useCreateUser();
+  const createUserMutation = useCreateAbonado();
+  const navigate = useNavigate();
 
-    const form = useForm({
-      defaultValues: UserInitialState,
-      validators: {
-          onChange: RegisterSchema,
-      },
-      onSubmit: async ({ value }) => {
-        if (value.Password !== value.confirmPassword) {
-          alert('Las contraseñas no coinciden');
-          return;
-        }
-        await createUserMutation.mutateAsync(value);
-        console.log('Usuario creado:', value);
-      },
-    });
+  const form = useForm({
+    defaultValues: RegisterUserInitialState,
+    validators: { onChange: RegisterSchema },
+    onSubmit: async ({ value }) => {
+      if (value.Password !== value.ConfirmPassword) {
+        alert('Las contraseñas no coinciden');
+        return;
+      }
+      try {
+        const { IsAbonado, ...userData } = value;
+        await createUserMutation.mutateAsync(userData);
+        toast.success('¡Registro exitoso!', { position: 'top-right', autoClose: 3000 });
+        navigate({ to: '/login' });
+        form.reset();
+      } catch (error: any) {
+        console.log('error', error);
+        toast.error('¡Registro denegado!', { position: 'top-right', autoClose: 3000 });
+        form.reset();
+      }
+    },
+  });
 
-    return (
-      <div className="bg-white w-full max-w-4xl rounded-2xl shadow-lg p-4 flex flex-col md:flex-row gap-4 mx-auto min-h-screen md:min-h-fit border ">
-
-
-        {/* Título para mobile */}
-        <div className="md:hidden flex flex-col items-center justify-center mb-4">
+  return (
+    <div className="grid min-h-svh place-items-center bg-gray-100 p-4 overflow-x-hidden">
+      <div
+        className="
+          bg-white w-full
+          max-w-[560px] md:max-w-4xl
+          shadow-lg
+          p-4 md:p-6
+          flex flex-col md:flex-row gap-4 md:gap-6
+          mx-auto
+          overflow-hidden
+          md:h-[600px]
+        "
+      >
+        {/* Título mobile */}
+        <div className="md:hidden flex flex-col items-center justify-center mb-2">
           <h1 className="text-4xl font-extrabold text-[#091540]">ASADA</h1>
           <h2 className="text-2xl font-semibold text-[#2F6690]">San Pablo</h2>
         </div>
 
-        {/* Imagen y texto: solo escritorio */}
+        {/* Panel imagen (solo desktop) */}
         <div
-          className="hidden md:flex w-1/2 h-auto bg-cover bg-center bg-no-repeat flex-col justify-between items-center px-4 py-8 relative shadow-xl/30"
+          className="
+            hidden md:flex
+            basis-1/2 shrink-0
+            bg-cover bg-center bg-no-repeat
+            flex-col justify-between items-center
+            px-4 py-8 relative shadow-xl/30 
+          "
           style={{ backgroundImage: "url('/Image01.jpg')" }}
         >
           <div className="flex-grow flex items-center justify-center">
@@ -43,169 +71,277 @@ const RegisterAbonados = () => {
             </div>
           </div>
           <p className="relative z-10 text-white text-sm md:text-base font-medium text-center">
-            Registrate para continuar
+            Regístrese para continuar
           </p>
         </div>
 
-        {/* Formulario */}
-        <div className="w-full md:w-1/2 flex flex-col items-center justify-center px-2 py-4 md:py-6">
-        <h2 className="text-3xl md:text-5xl font-bold text-[#091540] mb-3 text-center drop-shadow-lg">Crear cuenta</h2>
-          <div className="flex flex-col justify-center items-center flex-grow w-full">
-            
+        {/* Columna formulario */}
+        <div
+          className="
+            basis-full md:basis-1/2
+            flex flex-col items-center
+            min-w-0
+          "
+        >
+          <h2 className="text-xl md:text-3xl font-bold text-[#091540] mb-2 text-center md:text-left drop-shadow-lg">
+            Crear cuenta
+          </h2>
 
+          {/* En móvil deja scrollear a la página; en desktop, esta columna scrollea */}
+          <div className="w-full min-w-0 md:flex md:flex-col md:flex-1 md:overflow-y-auto md:pr-2">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 form.handleSubmit();
               }}
-              className="w-full max-w-md p-2 flex flex-col gap-3"
+              className="w-full max-w-md p-2 flex flex-col gap-3 min-w-0 mx-auto"
             >
-              {/* Nombre y Apellidos */}
-              <div className="flex gap-2">
-                <div className="flex flex-col w-1/2">
-                  <form.Field name="nombre">
-                    {(field) => (
-                      <>
-                        <input
-                          className="px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                          placeholder="Nombre"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                            <p className="text-sm text-red-500 mt-1">
-                                {(field.state.meta.errors[0] as any)?.message ??
-                                String(field.state.meta.errors[0])}
-                            </p>
-                        )}
-                      </>
-                    )}
-                  </form.Field>
-                </div>
-
-                <div className="flex flex-col w-1/2">
-                  <form.Field name="apellidos">
-                    {(field) => (
-                      <>
-                        <input
-                          className="px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                          placeholder="Apellidos"
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                        />
-                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                            <p className="text-sm text-red-500 mt-1">
-                                {(field.state.meta.errors[0] as any)?.message ??
-                                String(field.state.meta.errors[0])}
-                            </p>
-                        )}
-                      </>
-                    )}
-                  </form.Field>
-                </div>
-              </div>
-
               {/* Cédula */}
-              <form.Field name="cedula">
+              <form.Field name="IDcard">
                 {(field) => (
                   <>
                     <input
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="input-base"
                       placeholder="Cédula"
                       value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
+                      onChange={async (e) => {
+                        const cedula = e.target.value;
+                        field.handleChange(cedula);
+
+                        if (cedula.length >= 9) {
+                          try {
+                            const res = await fetch(`https://apis.gometa.org/cedulas/${cedula}`);
+                            if (!res.ok) throw new Error('No se encontró este número de cédula');
+                            const data = await res.json();
+
+                            if (data?.nombre) {
+                              const partes = data.nombre.trim().split(/\s+/);
+                              const apellido2 = partes.pop() || '';
+                              const apellido1 = partes.pop() || '';
+                              const nombre = partes.join(' ');
+
+                              form.setFieldValue('Name', nombre);
+                              form.setFieldValue('Surname1', apellido1);
+                              form.setFieldValue('Surname2', apellido2);
+                            }
+                          } catch (err) {
+                            console.warn('Error buscando cédula:', err);
+                            form.setFieldValue('Name', '');
+                            form.setFieldValue('Surname1', '');
+                            form.setFieldValue('Surname2', '');
+                          }
+                        }
+                      }}
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                              {(field.state.meta.errors[0] as any)?.message ??
-                              String(field.state.meta.errors[0])}
-                          </p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
                     )}
                   </>
                 )}
               </form.Field>
 
-              {/* NIS */}
-              <form.Field name="nis">
+              {/* Nombre */}
+              <form.Field name="Name">
                 {(field) => (
                   <>
                     <input
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                      placeholder="NIS"
+                      className="input-base"
+                      placeholder="Nombre"
                       value={field.state.value}
+                      disabled
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                              {(field.state.meta.errors[0] as any)?.message ??
-                              String(field.state.meta.errors[0])}
-                          </p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
                     )}
                   </>
                 )}
               </form.Field>
+
+              {/* Apellidos */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 min-w-0">
+                <form.Field name="Surname1">
+                  {(field) => (
+                    <>
+                      <input
+                        className="input-base"
+                        placeholder="Apellido1"
+                        value={field.state.value}
+                        disabled
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                    </>
+                  )}
+                </form.Field>
+
+                <form.Field name="Surname2">
+                  {(field) => (
+                    <>
+                      <input
+                        className="input-base"
+                        placeholder="Apellido2"
+                        value={field.state.value}
+                        disabled
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
+                    </>
+                  )}
+                </form.Field>
+              </div>
+
+              {/* Soy abonado + NIS */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 min-w-0">
+                <form.Field name="IsAbonado">
+                  {(field) => (
+                    <label className="group flex items-center cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={!!field.state.value}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          field.handleChange(checked);
+                          if (!checked) form.setFieldValue('Nis', '');
+                        }}
+                        className="hidden peer"
+                      />
+                      <span className="relative w-4 h-4 flex justify-center items-center bg-gray-100 border-2 border-gray-400 rounded-md transition-all duration-300 peer-checked:border-blue-500 peer-checked:bg-blue-500" />
+                      <span className="ml-3 text-gray-700 font-medium duration-300">
+                        Soy abonado
+                      </span>
+                    </label>
+                  )}
+                </form.Field>
+                  {/* Suscripción: Nis se re-renderiza cuando cambia IsAbonado */}
+                <form.Subscribe selector={(s) => s.values.IsAbonado ?? false}>
+                  {(isAbonado) => (
+                <form.Field name="Nis">
+                  {(field) => {
+                    const isAbonado = form.getFieldValue('IsAbonado');
+                    const disabled = !isAbonado;
+                    return (
+                      <>
+                        <input
+                          className={`input-base ${
+                            isAbonado ? '' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                          }`}
+                          placeholder="NIS"
+                          value={field.state.value}
+                          inputMode="numeric"
+                          pattern="\d*"
+                          onChange={(e) => field.handleChange(e.target.value.replace(/\D/g, ''))}
+                          disabled={disabled}
+                          aria-disabled={disabled}
+                        />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && isAbonado && (
+                          <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                          </p>
+                        )}
+                      </>
+                    );
+                  }}
+                </form.Field>
+                )}
+                </form.Subscribe>
+              </div>
 
               {/* Email */}
-              <form.Field name="email">
+              <form.Field name="Email">
                 {(field) => (
                   <>
                     <input
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="input-base"
                       placeholder="Correo electrónico"
                       type="email"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                              {(field.state.meta.errors[0] as any)?.message ??
-                              String(field.state.meta.errors[0])}
-                          </p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
                     )}
                   </>
                 )}
               </form.Field>
 
               {/* Teléfono */}
-              <form.Field name="telefono">
+              <form.Field name="PhoneNumber">
                 {(field) => (
                   <>
-                    <input
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                      placeholder="Número telefónico"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
+                  <PhoneField
+                    value={field.state.value}            
+                    onChange={(val) => field.handleChange(val ?? "")} 
+                    defaultCountry="CR"
+                    required
+                    error={
+                      field.state.meta.isTouched && field.state.meta.errors[0]
+                        ? String(field.state.meta.errors[0])
+                        : undefined
+                    }
+                  />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                              {(field.state.meta.errors[0] as any)?.message ??
-                              String(field.state.meta.errors[0])}
-                          </p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
                     )}
                   </>
                 )}
               </form.Field>
 
               {/* Fecha de nacimiento */}
-              <form.Field name="fechaNacimiento">
+              <form.Field name="Birthdate">
                 {(field) => (
                   <>
+                    <span className='text-sm mt-1'>Fecha de nacimiento</span>
                     <input
-                      type="text"
-                      placeholder="Fecha de nacimiento"
-                      value={field.state.value}
-                      onFocus={(e) => (e.target.type = 'date')}
-                      onBlur={(e) => {
-                        if (!e.target.value) e.target.type = 'text';
-                      }}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      type="date"
+                      value={
+                        field.state.value instanceof Date && !Number.isNaN(field.state.value.getTime())
+                          ? field.state.value.toISOString().slice(0,10)
+                          : typeof field.state.value === 'string' ? field.state.value : ''
+                      }
+                      onChange={(e) => { field.handleChange(new Date(e.target.value)); }}
+                      className="input-base"
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                            {(field.state.meta.errors[0] as any)?.message ??
-                            String(field.state.meta.errors[0])}
-                        </p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
+                    )}
+                  </>
+                )}
+              </form.Field>
+
+              {/* Dirección */}
+              <form.Field name="Address">
+                {(field) => (
+                  <>
+                    <textarea
+                      className="input-base"
+                      placeholder="Dirección"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ??
+                          String(field.state.meta.errors[0])}
+                      </p>
                     )}
                   </>
                 )}
@@ -216,50 +352,48 @@ const RegisterAbonados = () => {
                 {(field) => (
                   <>
                     <input
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="input-base"
                       placeholder="Contraseña"
                       type="password"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                              {(field.state.meta.errors[0] as any)?.message ??
-                              String(field.state.meta.errors[0])}
-                          </p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
                     )}
                   </>
                 )}
               </form.Field>
 
-              {/* Confirmar Contraseña */}
-              <form.Field name="confirmPassword">
+              {/* Confirmar contraseña */}
+              <form.Field name="ConfirmPassword">
                 {(field) => (
                   <>
                     <input
-                      className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
+                      className="input-base"
                       placeholder="Confirmar contraseña"
                       type="password"
                       value={field.state.value}
                       onChange={(e) => field.handleChange(e.target.value)}
                     />
                     {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                              {(field.state.meta.errors[0] as any)?.message ??
-                              String(field.state.meta.errors[0])}
-                          </p>
+                      <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
                     )}
                   </>
                 )}
               </form.Field>
 
-              {/* Botón de enviar */}
+              {/* Botón */}
               <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                 {([canSubmit, isSubmitting]) => (
-                  <div className="flex justify-end">
+                  <div className="flex flex-col md:flex-row md:justify-end">
                     <button
                       type="submit"
-                      className="w-1/3 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition"
+                      className="w-full md:w-1/3 bg-[#091540] shadow-xl text-white py-2 font-semibold hover:bg-[#1789FC] transition disabled:opacity-60"
                       disabled={!canSubmit}
                     >
                       {isSubmitting ? '...' : 'Registrar'}
@@ -270,15 +404,17 @@ const RegisterAbonados = () => {
             </form>
           </div>
 
-          <p className="mt-4 text-sm md:text-lg text-[#3A7CA5] text-center">
-            ¿Ya tenés una cuenta?{' '}
-            <a href="/auth/login" className="underline font-medium hover:text-[#091540] cursor-pointer">
-              Inicia sesión aquí
-            </a>
+          {/* Footer */}
+          <p className="mt-3 text-sm md:text-lg text-[#091540] text-center">
+            ¿Ya tienes una cuenta?{' '}
+            <Link to="/login" className="underline text-[#1789FC] font-medium hover:text-[#091540] cursor-pointer">
+              Iniciar sesión
+            </Link>
           </p>
         </div>
       </div>
-    );
+    </div>
+  );
 };
 
 export default RegisterAbonados;
