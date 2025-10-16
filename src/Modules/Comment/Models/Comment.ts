@@ -13,3 +13,9 @@ export interface NewComment{
 export const CommentInitialState: NewComment = {
     Message: '',
 }
+
+export type CommentPaginationParams = {
+    page?: number;
+    limit?: number;
+    read?: string;
+};
