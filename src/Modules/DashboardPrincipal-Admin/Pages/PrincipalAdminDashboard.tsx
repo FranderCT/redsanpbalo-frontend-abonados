@@ -12,10 +12,12 @@ import { StatCardPro } from "../Components/stat-card"
 import { QuickActionCardPro } from "../Components/quick-action-card"
 import { RecentActivityPro } from "../Components/recent-activity"
 import { ChartCard } from "../Components/chart-card"
+import { useGetAllAbonados } from "../../Users/Hooks/UsersHooks"
 
 
 
 export default function AdminDashboard() {
+  const {totalAbonados} = useGetAllAbonados();
   // Datos de ejemplo (simulados)
   const solicitudesData = [
     { name: "Lun", value: 12 },
@@ -81,11 +83,11 @@ export default function AdminDashboard() {
 
       {/* Métricas principales */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCardPro title="Total Abonados" value="1,284" description="+12 este mes" icon={Users} trend={{ value: 2.5, isPositive: true }} accentColorClass="from-indigo-500/10 to-indigo-500/0" />
+        <StatCardPro title="Total Abonados" value={totalAbonados?.toString() || "20"} description="+12 este mes" icon={Users} trend={{ value: 2.5, isPositive: true }} accentColorClass="from-indigo-500/10 to-indigo-500/0" />
         <StatCardPro title="Solicitudes Pendientes" value="23" description="Requieren atención" icon={FileText} trend={{ value: -5.2, isPositive: false }} accentColorClass="from-rose-500/10 to-rose-500/0" />
         <StatCardPro title="Reportes Activos" value="8" description="3 urgentes" icon={AlertCircle} accentColorClass="from-amber-500/10 to-amber-500/0" />
         <StatCardPro title="Proyectos en Curso" value="5" description="2 por finalizar" icon={Wrench} accentColorClass="from-emerald-500/10 to-emerald-500/0" />
-     </div>
+      </div>
 
       {/* Métricas secundarias */}
       <div className="grid gap-4 md:grid-cols-3">
@@ -102,7 +104,7 @@ export default function AdminDashboard() {
           value="156"
           description="Este mes"
           icon={Bell}
-         
+        
         />
         <StatCardPro
           title="Solicitudes Resueltas"
