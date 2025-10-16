@@ -26,9 +26,18 @@ const AsideDashboard = () => {
 
       {/* Navegación con scroll + scrollbar estilizado */}
       <nav className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        <Can rule={{ any: ["ADMIN", "GUEST", "ABONADO"] }}>
+        <Can rule={{ any: ["ADMIN"] }}>
           <button
-            onClick={() => navigate({ to: "/dashboard" })}
+            onClick={() => navigate({ to: "/dashboard/principal-admin" })}
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+          >
+            <Home className="size-[20px] transition-colors group-hover:text-white" />
+            <span className="transition-colors">Principal</span>
+          </button>
+        </Can>
+        <Can rule={{ any: ["ABONADO"] }}>
+          <button
+            onClick={() => navigate({ to: "/dashboard/principal-user" })}
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
           >
             <Home className="size-[20px] transition-colors group-hover:text-white" />
