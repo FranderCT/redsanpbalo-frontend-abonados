@@ -1,5 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createComment, getAllComments, getCommentById, updateComment } from "../Services/commentServices";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createComment, getAllComments, getCommentById, searchComments, updateComment } from "../Services/commentServices";
+import type { Comment, CommentPaginationParams } from "../Models/Comment";
+import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
+import { useEffect } from "react";
 
 export const useCreateComment = () =>{
     const qc = useQueryClient();
@@ -46,4 +49,33 @@ export const useGetCommentById = (id: number) => {
     });
 
     return { comment, isLoading, error };
+};
+
+export const useSearchComments = (params: CommentPaginationParams) => {
+    const query = useQuery<PaginatedResponse<Comment>, Error>({
+        queryKey: ["comments", "search", params],
+        queryFn: () => searchComments(params),
+        placeholderData: keepPreviousData,   // v5
+        staleTime: 30_000,
+    });
+
+    // ⬇️ Log en cada fetch/refetch exitoso
+    useEffect(() => {
+        if (query.data) {
+        const res = query.data; // res: PaginatedResponse<Category>
+        console.log(
+            "[Comments fetched]",
+            {
+            page: res.meta.page,
+            limit: res.meta.limit,
+            total: res.meta.total,
+            pageCount: res.meta.pageCount,
+            params,
+            },
+            res.data // array de Category
+        );
+        }
+    }, [query.data, params]);
+
+    return query;
 };
