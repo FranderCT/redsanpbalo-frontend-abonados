@@ -136,5 +136,13 @@ export async function getUserByRoleAdmin () : Promise<User[]>{
   }catch(err){
     return Promise.reject(err);
   }
-  
+}
+
+export async function getUsersByRoleFontanero(): Promise<User[]> {
+  try {
+    const { data } = await apiAxios.get<User[]>(`${BASE}/role-fontanero`);
+    return data;
+  } catch (err) {
+    return Promise.reject(err);
+  }
 }

@@ -4,11 +4,8 @@ import { getPendingRequests } from '../Services/dashboardService'
 
 export const useGetAllReqPendingsDashboard = () => {
   const { data, error, isPending } = useQuery({
-    queryKey: ['dashboard', 'pending-requests'],
+    queryKey: ['dashboard','reqavailwater','changeMeters'],
     queryFn: getPendingRequests,
-    retry: 2,
-    staleTime: 5 * 60 * 1000, // 5 min
-    gcTime: 10 * 60 * 1000,   
   })
 
   return { data, error, isPending }

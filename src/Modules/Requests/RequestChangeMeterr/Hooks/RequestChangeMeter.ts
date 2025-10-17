@@ -9,7 +9,6 @@ import {
 } from "../Services/RequestChangeMeterServices";
 import type {
   ReqChangeMeter,
-  newReqChangeMeter,
   UpdateReqChangeMeter,
   ReqChangeMeterPaginationParams,
 } from "../Models/RequestChangeMeter";
@@ -18,7 +17,7 @@ import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCatego
 // Listado simple
 export const useGetAllReqChangeMeter = () => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["request-change-meter"],
+    queryKey: ["changeMeters"],
     queryFn: getAllReqChangeMeter,
     staleTime: 30_000,
   });
@@ -27,22 +26,18 @@ export const useGetAllReqChangeMeter = () => {
 
 // Búsqueda paginada
 export const useSearchReqChangeMeter = (params: ReqChangeMeterPaginationParams) => {
-  const { page = 1, limit = 10, UserName, StateRequestId, State } = params ?? {};
+  //const { page = 1, limit = 10, UserName, StateRequestId, State } = params ?? {};
 
   const query = useQuery<PaginatedResponse<ReqChangeMeter>, Error>({
     queryKey: [
-      "request-change-meter",
+      "changeMeters",
       "search",
-      page,
-      limit,
-      UserName ?? "",
-      StateRequestId ?? null,
-      State ?? "",
+      params, // { page, limit, UserName, StateRequestId, State }
     ],
-    queryFn: () => searchReqChangeMeter({ page, limit, UserName, StateRequestId, State }),
+    queryFn: () => searchReqChangeMeter(params),
     placeholderData: keepPreviousData,
     staleTime: 30_000,
-    refetchOnWindowFocus: false,
+   // refetchOnWindowFocus: false,
   });
 
   return query;
@@ -51,7 +46,7 @@ export const useSearchReqChangeMeter = (params: ReqChangeMeterPaginationParams) 
 // Detalle
 export const useGetReqChangeMeterById = (id?: number) => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["request-change-meter", id],
+    queryKey: ["changeMeters", id],
     queryFn: () => getReqChangeMeterById(id as number),
     enabled: typeof id === "number" && id > 0,
   });
@@ -61,14 +56,15 @@ export const useGetReqChangeMeterById = (id?: number) => {
 // Crear
 export const useCreateReqChangeMeter = () => {
   const qc = useQueryClient();
-  return useMutation<ReqChangeMeter, Error, newReqChangeMeter>({
+  const mutation = useMutation({
     mutationFn: createReqChangeMeter,
     onSuccess: (res) => {
       console.log("Cambio de medidor creado", res);
-      qc.invalidateQueries({ queryKey: ["request-change-meter"] });
+      qc.invalidateQueries({ queryKey: ['changeMeters','dashboard'] });
     },
     onError: (err) => console.error("Error creando cambio de medidor", err),
   });
+  return mutation;
 };
 
 // Actualizar
@@ -78,8 +74,8 @@ export const useUpdateReqChangeMeter = () => {
     mutationFn: ({ id, data }) => updateReqChangeMeter(id, data),
     onSuccess: (res) => {
       console.log("Cambio de medidor actualizado", res);
-      qc.invalidateQueries({ queryKey: ["request-change-meter"] });
-      qc.invalidateQueries({ queryKey: ["request-change-meter", res.Id] });
+      qc.invalidateQueries({ queryKey: ['changeMeters','dashboard'] });
+      qc.invalidateQueries({ queryKey: ['changeMeters','dashboard', res.Id] });
     },
     onError: (err) => console.error("Error actualizando cambio de medidor", err),
   });
@@ -92,7 +88,7 @@ export const useDeleteReqChangeMeter = () => {
     mutationFn: (id) => deleteReqChangeMeter(id),
     onSuccess: (res) => {
       console.log("Cambio de medidor eliminado", res);
-      qc.invalidateQueries({ queryKey: ["request-change-meter"] });
+      qc.invalidateQueries({ queryKey: ["changeMeters"] });
     },
     onError: (err) => console.error("Error eliminando cambio de medidor", err),
   });
