@@ -19,6 +19,7 @@ import { requestListAvailWaterRoute, requestUserAvailWaterRoute } from "./Module
 import { requestListAssociatedRoute, requestUserAssociatedRoute } from "./Modules/Requests/RequestAssociated/Routes/ReqAssociatedRoutes";
 import { requestListChangeMeterRoute, requestUserChangeMeterRoute } from "./Modules/Requests/RequestChangeMeterr/Routes/RequestChangeMeterRoute";
 import { commentRoute } from "./Modules/Comment/Routes/CommentRoutes";
+import { reportIndexRoute, reportRoutes } from "./Modules/Reports/Routes/ReportRoutes";
 
 export const rootRoute = createRootRoute();
 
@@ -78,6 +79,8 @@ export const routeTree = rootRoute.addChildren([
   ]),
   legalSupplierRoute.addChildren([
     listLegalSuppliers
+  ]),
+  reportRoutes.addChildren([
+    reportIndexRoute
   ])
-  
 ]);

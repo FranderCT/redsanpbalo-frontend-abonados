@@ -104,7 +104,9 @@ const AsideDashboard = () => {
         </Can>
 
         <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
-          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
+          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+            onClick={() => navigate({ to: "/dashboard/reports" })}
+          >
             <OctagonAlert className="size-[20px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Reportes</span>
           </button>

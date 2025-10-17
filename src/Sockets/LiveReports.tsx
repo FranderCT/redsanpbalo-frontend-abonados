@@ -12,19 +12,28 @@ type ReportTypeEvt = {
   Name: string;
 };
 
+type ReportStateEvt = {
+  Id: number;
+  Name: string;
+};
+
+type UserEvt = {
+  Id: number;
+  Name: string;
+  Email: string;
+  FullName: string;
+};
+
 type ReportEvt = {
   Id: number;
   Location: string; // puede venir ya compuesto “BARRIO - DIRECCIÓN”
   Description: string;
-  User: {
-    Id: number;
-    Name: string;
-    Email: string;
-    FullName: string;
-  };
+  User: UserEvt;
   ReportLocation?: ReportLocationEvt | null;
-  ReportType?: ReportTypeEvt; // 👈 nuevo
+  ReportType?: ReportTypeEvt;
   CreatedAt: string | Date;
+  ReportState: ReportStateEvt;
+  UserInCharge?: UserEvt | null;
 };
 
 // Para UI: añadimos displayLocation normalizado y CreatedAt en ISO
@@ -99,7 +108,6 @@ export default function LiveReports() {
                     Se ha registrado un nuevo reporte en el sistema
                   </p>
                 </div>
-                
               </div>
             </div>
 
@@ -133,6 +141,14 @@ export default function LiveReports() {
                     </span>
                   </div>
                 )}
+                
+                {newReport.ReportState?.Name && (
+                  <div className="mb-3">
+                    <span className="inline-flex items-center text-xs font-medium px-2 py-1  border border-red-300 bg-white text-red-700">
+                      ESTADO DEL REPORTE: {newReport.ReportState.Name}
+                    </span>
+                  </div>
+                )}
 
                 <div className="space-y-3">
                   <div>
@@ -146,6 +162,7 @@ export default function LiveReports() {
                     <span className="text-xs text-red-600 font-medium">DESCRIPCIÓN</span>
                     <p className="text-sm text-red-800">{newReport.Description}</p>
                   </div>
+                  
                 </div>
               </div>
 
@@ -163,6 +180,23 @@ export default function LiveReports() {
                   </div>
                 </div>
               </div>
+
+              {/* Información del usuario a cargo (si existe) */}
+              {newReport.UserInCharge && (
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Usuario a cargo</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <span className="text-xs text-gray-500">Nombre completo</span>
+                      <p className="text-sm font-medium text-gray-800">{newReport.UserInCharge.FullName}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-gray-500">Email</span>
+                      <p className="text-sm font-medium text-gray-800">{newReport.UserInCharge.Email}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Footer */}
