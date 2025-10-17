@@ -6,7 +6,8 @@ import type { UsersPaginationParams, User, UpdateUser } from "../Models/User";
 import { getUserProfile, updateUserProfile, updateUserEmail, getAllUsers, deleteUser, 
   createUserModal, getAllRoles, updateUser, getUserById, deteleUserById, searchUsers, 
   getUserByRoleAdmin,
-  getAllAbonados} from "../Services/UsersServices";
+  getAllAbonados,
+  getUsersByRoleFontanero} from "../Services/UsersServices";
 
 export const useGetUserProfile = () => {
     const {data: UserProfile, isLoading, error} = useQuery({
