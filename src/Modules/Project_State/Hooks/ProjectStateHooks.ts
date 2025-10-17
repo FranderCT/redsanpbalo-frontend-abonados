@@ -1,6 +1,6 @@
 // Project_State/Hooks/ProjectStateHooks.ts
 import { useQuery } from "@tanstack/react-query";
-import { getAllProjectStates } from "../Services/ProjectStateServices";
+import { getAllProjectStates, getProjectsInProcessCount, type ProjectsInProcessResponse } from "../Services/ProjectStateServices";
 import type { ProjectState } from "../Models/ProjectState";
 
 export const useGetAllProjectStates = () => {
@@ -19,5 +19,19 @@ export const useGetAllProjectStates = () => {
     projectStates: data ?? [],
     projectStatesLoading: isPending,
     error,
+  };
+};
+
+export const useProjectsInProcessCount = () => {
+  const q = useQuery<ProjectsInProcessResponse>({
+    queryKey: ["dashboard", "projects-in-process", "count"],
+    queryFn: getProjectsInProcessCount,
+  });
+
+  return {
+    totalProjectsInProcess: q.data?.totalProjectsInProcess ?? 0,
+    isPending: q.isPending,
+    error: (q.error as Error) ?? null,
+    refetch: q.refetch,
   };
 };

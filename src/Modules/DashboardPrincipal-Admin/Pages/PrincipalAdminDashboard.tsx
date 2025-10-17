@@ -7,6 +7,8 @@ import {
   Plus,
   ClipboardList,
   MessageSquare,
+  OctagonAlert,
+  Hammer,
 } from "lucide-react"
 import { StatCardPro } from "../Components/stat-card"
 import { QuickActionCardPro } from "../Components/quick-action-card"
@@ -14,10 +16,12 @@ import { RecentActivityPro } from "../Components/recent-activity"
 import { ChartCard } from "../Components/chart-card"
 import { useGetAllAbonados } from "../../Users/Hooks/UsersHooks"
 import { useGetAllReqPendingsDashboard } from "../Hooks/dashboardHooks"
+import { useProjectsInProcessCount } from "../../Project_State/Hooks/ProjectStateHooks"
 
 export default function AdminDashboard() {
   const {totalAbonados} = useGetAllAbonados();
-   const { data} = useGetAllReqPendingsDashboard();
+  const { data} = useGetAllReqPendingsDashboard();
+  const { totalProjectsInProcess} = useProjectsInProcessCount();
 
   const totalReqPendings = data?.totalPendingRequests ?? 0;
   // Datos de ejemplo (simulados)
@@ -87,8 +91,8 @@ export default function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCardPro title="Total Abonados" value={totalAbonados?.toString() || "20"} description="Abonados registrados" icon={Users} trend={{ value: 2.5, isPositive: true }} accentColorClass="from-indigo-500/10 to-indigo-500/0" />
         <StatCardPro title="Solicitudes Pendientes" value={totalReqPendings.toString()} description="Requieren atención" icon={FileText} trend={{ value: -5.2, isPositive: false }} accentColorClass="from-rose-500/10 to-rose-500/0" />
-        <StatCardPro title="Reportes Activos" value="8" description="3 urgentes" icon={AlertCircle} accentColorClass="from-amber-500/10 to-amber-500/0" />
-        <StatCardPro title="Proyectos en Curso" value="5" description="2 por finalizar" icon={Wrench} accentColorClass="from-emerald-500/10 to-emerald-500/0" />
+        <StatCardPro title="Reportes Activos" value="5" description="3 urgentes" icon={OctagonAlert} accentColorClass="from-amber-500/10 to-amber-500/0" />
+        <StatCardPro title="Proyectos en Curso" value={totalProjectsInProcess.toString()} description="Actualmente en ejecución" icon={Hammer} accentColorClass="from-emerald-500/10 to-emerald-500/0" />
       </div>
 
       {/* Métricas secundarias */}
