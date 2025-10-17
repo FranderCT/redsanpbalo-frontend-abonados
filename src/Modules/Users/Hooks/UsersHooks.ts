@@ -174,3 +174,12 @@ export const useGetUsersByRoleAdmin = () => {
 
   return { userAdmin, isPending, error };
 };
+
+export const useGetUsersByRoleFontanero = () => {
+  const { data: fontaneros = [], isPending, error } = useQuery({
+    queryKey: ["users", "role-fontanero"],
+    queryFn: getUsersByRoleFontanero,
+  });
+
+  return { fontaneros, isPending, error };
+};
