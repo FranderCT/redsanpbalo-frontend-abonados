@@ -1,8 +1,6 @@
 import {
   Users,
   FileText,
-  AlertCircle,
-  Wrench,
   Bell,
   Plus,
   ClipboardList,
@@ -15,15 +13,19 @@ import { QuickActionCardPro } from "../Components/quick-action-card"
 import { RecentActivityPro } from "../Components/recent-activity"
 import { ChartCard } from "../Components/chart-card"
 import { useGetAllAbonados } from "../../Users/Hooks/UsersHooks"
-import { useGetAllReqPendingsDashboard } from "../Hooks/dashboardHooks"
+import { useGetAllReqApprovedDashboard, useGetAllReqPendingsDashboard } from "../Hooks/dashboardHooks"
 import { useProjectsInProcessCount } from "../../Project_State/Hooks/ProjectStateHooks"
 
 export default function AdminDashboard() {
   const {totalAbonados} = useGetAllAbonados();
-  const { data} = useGetAllReqPendingsDashboard();
+
+  const { data: pendingData } = useGetAllReqPendingsDashboard()
+  const { data: approvedData } = useGetAllReqApprovedDashboard()
+
   const { totalProjectsInProcess} = useProjectsInProcessCount();
 
-  const totalReqPendings = data?.totalPendingRequests ?? 0;
+  const totalReqPendings = pendingData?.totalPendingRequests ?? 0
+  const totalReqApproved = approvedData?.totalApprovedRequests ?? 0
   // Datos de ejemplo (simulados)
   const solicitudesData = [
     { name: "Lun", value: 12 },
@@ -108,14 +110,14 @@ export default function AdminDashboard() {
         <StatCardPro
           title="Notificaciones Enviadas"
           value="156"
-          description="Este mes"
+          description="Hasta hoy"
           icon={Bell}
         
         />
         <StatCardPro
           title="Solicitudes Resueltas"
-          value="89"
-          description="Este mes"
+          value={totalReqApproved.toString()}
+          description="Hasta hoy"
           icon={FileText}
           trend={{ value: 15.8, isPositive: true }}
           
