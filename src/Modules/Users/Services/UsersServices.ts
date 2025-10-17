@@ -51,6 +51,16 @@ export async function getAllUsers(): Promise<User[]> {
   
 }
 
+export async function getAllAbonados(): Promise<number> {
+  try{
+    const res = await apiAxios.get<number>(`${BASE}/role-abonado`);
+    return res.data;
+  }catch(err){
+    console.error(err);
+    return Promise.reject(err);
+  }
+}
+
 export async function deleteUser(id: number): Promise<void> {
   try{
     await apiAxios.delete(`${BASE}/${id}`);
