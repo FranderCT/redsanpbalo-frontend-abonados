@@ -34,7 +34,7 @@ export function StatCardPro({
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <CardTitle className="text-sm text-neutral-700">{title}</CardTitle>
+            <CardTitle className="text-sm">{title}</CardTitle>
             {description && <CardDescription>{description}</CardDescription>}
           </div>
 
@@ -53,19 +53,6 @@ export function StatCardPro({
 
       <CardContent>
         <div className="text-3xl font-bold tracking-tight">{value}</div>
-
-        {typeof trend?.value === "number" && (
-          <div className="mt-3 inline-flex items-center gap-2 text-sm">
-            {trend.isPositive ? (
-              <TrendingUp className="h-4 w-4 text-emerald-600" />
-            ) : (
-              <TrendingDown className="h-4 w-4 text-red-600" />
-            )}
-            <span className={trend.isPositive ? "text-emerald-700" : "text-red-700"}>
-              {trend.value}% {trend.isPositive ? "▲" : "▼"}
-            </span>
-          </div>
-        )}
       </CardContent>
     </Card>
   )

@@ -139,9 +139,9 @@ const LoginUser = () => {
           </div>
 
           <p className="mt-6 text-sm md:text-lg text-[#091540] text-center">
-            ¿Ya tienes una cuenta?{' '}
+            ¿No tienes una cuenta?{' '}
             <Link to="/register" className="underline font-medium text-[#1789FC] hover:text-[#091540] cursor-pointer">
-              Resgistrarse
+              Regístrarse
             </Link>
           </p>
         </div>
