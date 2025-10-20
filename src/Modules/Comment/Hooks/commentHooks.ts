@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createComment, getAllComments, getCommentById, searchComments, updateComment } from "../Services/commentServices";
-import type { Comment, CommentPaginationParams } from "../Models/Comment";
+import { createComment, getAllComments, getCommentById, getRecentCommentsCount, searchComments, updateComment } from "../Services/commentServices";
+import type { Comment, CommentPaginationParams, RecentCountParams, RecentCountResponse } from "../Models/Comment";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
 
@@ -78,4 +78,12 @@ export const useSearchComments = (params: CommentPaginationParams) => {
     }, [query.data, params]);
 
     return query;
+};
+
+export const useRecentCommentsCount = (params?: RecentCountParams) => {
+  return useQuery<RecentCountResponse>({
+    queryKey: ['comments', 'recentcount', params ?? {}],
+    queryFn: () => getRecentCommentsCount(params),
+    staleTime: 30_000,
+  });
 };
