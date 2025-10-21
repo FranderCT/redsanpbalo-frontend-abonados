@@ -5,11 +5,11 @@
   background-color: #fff;
   color:#091540;
   font-family: 'Montserrat', sans-serif;
-  --chart-1: 221 83% 53%; /* azul */
-  --chart-2: 188 94% 42%; /* cyan */
-  --chart-3: 142 76% 36%; /* green */
-  --chart-4: 262 83% 58%; /* violet */
-  --chart-5: 14 90% 57%;  /* orange */
+    --chart-1: 211 98% 54%;  /* Azul brillante (#1789FC) */
+  --chart-2: 149 60% 63%;  /* Verde menta (#68D89B) */
+  --chart-3: 352 92% 53%;  /* Rojo (#F6132D) */
+  --chart-4: 264 100% 98%; /* Lila claro (#F9F5FF) */
+  --chart-5: 229 80% 14%;  /* Azul oscuro (#091540) */
 }
 
 .input-base {

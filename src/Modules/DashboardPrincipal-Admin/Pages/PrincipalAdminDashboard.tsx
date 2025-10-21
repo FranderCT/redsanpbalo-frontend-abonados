@@ -1,8 +1,6 @@
 import {
   Users,
   FileText,
-  AlertCircle,
-  Wrench,
   Bell,
   Plus,
   ClipboardList,
@@ -13,17 +11,36 @@ import {
 import { StatCardPro } from "../Components/stat-card"
 import { QuickActionCardPro } from "../Components/quick-action-card"
 import { RecentActivityPro } from "../Components/recent-activity"
-import { ChartCard } from "../Components/chart-card"
+import { BarChartCard } from "../Components/chart-card"
 import { useGetAllAbonados } from "../../Users/Hooks/UsersHooks"
-import { useGetAllReqPendingsDashboard } from "../Hooks/dashboardHooks"
+import { useGetAllReqApprovedDashboard, useGetAllReqPendingsDashboard } from "../Hooks/dashboardHooks"
 import { useProjectsInProcessCount } from "../../Project_State/Hooks/ProjectStateHooks"
+import { useRecentCommentsCount } from "../../Comment/Hooks/commentHooks"
 
 export default function AdminDashboard() {
+  // comentarios recientes este mes //
+  // const { data: recentComments30d, isLoading: loadingRecent } =
+  //   useRecentCommentsCount({ days: 30 }); // <-- “Este mes” (30 días)
+
+  // const recentCountValue = loadingRecent
+  //   ? "..."
+  //   : String(recentComments30d?.count ?? 0);
+
+  //comentarios las 24 horas no leidos
+const { data: recentUnread24h, isLoading: loadingUnread } =
+useRecentCommentsCount({ hours: 24, unread: true });
+
+const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count ?? 0);
+    
   const {totalAbonados} = useGetAllAbonados();
-  const { data} = useGetAllReqPendingsDashboard();
+
+  const { data: pendingData } = useGetAllReqPendingsDashboard()
+  const { data: approvedData } = useGetAllReqApprovedDashboard()
+
   const { totalProjectsInProcess} = useProjectsInProcessCount();
 
-  const totalReqPendings = data?.totalPendingRequests ?? 0;
+  const totalReqPendings = pendingData?.totalPendingRequests ?? 0
+  const totalReqApproved = approvedData?.totalApprovedRequests ?? 0
   // Datos de ejemplo (simulados)
   const solicitudesData = [
     { name: "Lun", value: 12 },
@@ -99,42 +116,39 @@ export default function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-3">
         <StatCardPro
           title="Comentarios Recientes"
-          value="47"
-          description="Este mes"
+          value={recentUnreadValue}
+          description="Últimas 24 horas"
           icon={MessageSquare}
-          trend={{ value: 12.3, isPositive: true }}
           
         />
         <StatCardPro
           title="Notificaciones Enviadas"
           value="156"
-          description="Este mes"
+          description="Hasta hoy"
           icon={Bell}
         
         />
         <StatCardPro
           title="Solicitudes Resueltas"
-          value="89"
-          description="Este mes"
+          value={totalReqApproved.toString()}
+          description="Hasta hoy"
           icon={FileText}
-          trend={{ value: 15.8, isPositive: true }}
-          
         />
       </div>
 
       {/* Gráficos */}
       <div className="grid gap-4 md:grid-cols-2">
-        <ChartCard
-            title="Reportes por Día"
-            description="Última semana"
-            data={reportesData}
-            color={`hsl(var(--chart-3))`}
+        <BarChartCard
+          title="Reportes por Día"
+          description="Última semana"
+          data={reportesData}
+          color="hsl(var(--chart-1))"
         />
-        <ChartCard
-            title="Solicitudes por Día"
-            description="Última semana"
-            data={solicitudesData}
-            color={`hsl(var(--chart-2))`} 
+        <BarChartCard
+          title="Solicitudes por Día"
+          description="Última semana"
+          data={solicitudesData}
+          color="hsl(var(--chart-2))"
         />
       </div>
 

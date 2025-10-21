@@ -1,11 +1,15 @@
 // src/Modules/DashboardPrincipal-Admin/Services/dashboardService.ts
 import apiAxios from '../../../api/apiConfig'
-
-export type DashboardResponse = { totalPendingRequests: number }
+import type { ApprovedDashboardResponse, PendingDashboardResponse } from '../Models/dashboard'
 
 const BASE = '/dashboard'
 
-export const getPendingRequests = async (): Promise<DashboardResponse> => {
-  const { data } = await apiAxios.get<DashboardResponse>(`${BASE}/pending-requests`)
+export const getPendingRequests = async (): Promise<PendingDashboardResponse> => {
+  const { data } = await apiAxios.get<PendingDashboardResponse>(`${BASE}/pending-requests`)
+  return data
+}
+
+export const getApprovedRequests = async (): Promise<ApprovedDashboardResponse> => {
+  const { data } = await apiAxios.get<ApprovedDashboardResponse>(`${BASE}/approved-requests`)
   return data
 }
