@@ -7,6 +7,8 @@ import {
   MessageSquare,
   OctagonAlert,
   Hammer,
+  Forklift,
+  UserRoundCog,
 } from "lucide-react"
 import { StatCardPro } from "../Components/stat-card"
 import { QuickActionCardPro } from "../Components/quick-action-card"
@@ -16,6 +18,7 @@ import { useGetAllAbonados } from "../../Users/Hooks/UsersHooks"
 import { useGetAllReqApprovedDashboard, useGetAllReqPendingsDashboard } from "../Hooks/dashboardHooks"
 import { useProjectsInProcessCount } from "../../Project_State/Hooks/ProjectStateHooks"
 import { useRecentCommentsCount } from "../../Comment/Hooks/commentHooks"
+import { useNavigate } from "@tanstack/react-router"
 
 export default function AdminDashboard() {
   // comentarios recientes este mes //
@@ -41,6 +44,8 @@ const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count 
 
   const totalReqPendings = pendingData?.totalPendingRequests ?? 0
   const totalReqApproved = approvedData?.totalApprovedRequests ?? 0
+
+  const navigate = useNavigate();
   // Datos de ejemplo (simulados)
   const solicitudesData = [
     { name: "Lun", value: 12 },
@@ -156,9 +161,13 @@ const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count 
       <section>
         <h2 className="text-xl font-semibold mb-4">Acciones Rápidas</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <QuickActionCardPro title="Enviar Notificación" description="Enviar mensaje a todos los abonados" icon={Bell} />
-            <QuickActionCardPro title="Nueva Solicitud" description="Registrar solicitud manualmente" icon={Plus} />
-            <QuickActionCardPro title="Ver Reportes Críticos" description="Revisar reportes urgentes" icon={ClipboardList} />
+            <QuickActionCardPro title="Usuarios" description="Revisar todos los usuarios" icon={UserRoundCog } onClick={() => navigate({ to: "/dashboard/users" })}/>
+            <QuickActionCardPro title="Notificaciones" description="Crear notificación" icon={Bell}/>
+            <QuickActionCardPro title="Solicitudes" description="Revisar todas la solicitudes" icon={FileText} />
+            <QuickActionCardPro title="Reportes" description="Revisar todos los reportes" icon={OctagonAlert} onClick={() => navigate({ to: "/dashboard/reports" })}/>
+            <QuickActionCardPro title="Productos" description="Revisar todos los productos" icon={Forklift} />
+            <QuickActionCardPro title="Proyectos" description="Revisar todos los proyectos" icon={Hammer} onClick={() => navigate({ to: "/dashboard/projects" })}/>
+            <QuickActionCardPro title="Comentarios" description="Revisar todos los comentarios" icon={MessageSquare} onClick={() => navigate({ to: "/dashboard/comments" })}/>
         </div>
       </section>
 
