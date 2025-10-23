@@ -2,8 +2,6 @@ import {
   Users,
   FileText,
   Bell,
-  Plus,
-  ClipboardList,
   MessageSquare,
   OctagonAlert,
   Hammer,
@@ -19,6 +17,7 @@ import { useGetAllReqApprovedDashboard, useGetAllReqPendingsDashboard } from "..
 import { useProjectsInProcessCount } from "../../Project_State/Hooks/ProjectStateHooks"
 import { useRecentCommentsCount } from "../../Comment/Hooks/commentHooks"
 import { useNavigate } from "@tanstack/react-router"
+import { useReportsInProcessCount } from "../../Reports/Hooks/ReportStatesHooks"
 
 export default function AdminDashboard() {
   // comentarios recientes este mes //
@@ -44,6 +43,7 @@ const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count 
 
   const totalReqPendings = pendingData?.totalPendingRequests ?? 0
   const totalReqApproved = approvedData?.totalApprovedRequests ?? 0
+  const { totalReportsInProcess } = useReportsInProcessCount();
 
   const navigate = useNavigate();
   // Datos de ejemplo (simulados)
@@ -113,12 +113,12 @@ const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCardPro title="Total Abonados" value={totalAbonados?.toString() || "20"} description="Abonados registrados" icon={Users} trend={{ value: 2.5, isPositive: true }} accentColorClass="from-indigo-500/10 to-indigo-500/0" />
         <StatCardPro title="Solicitudes Pendientes" value={totalReqPendings.toString()} description="Requieren atención" icon={FileText} trend={{ value: -5.2, isPositive: false }} accentColorClass="from-rose-500/10 to-rose-500/0" />
-        <StatCardPro title="Reportes Activos" value="5" description="3 urgentes" icon={OctagonAlert} accentColorClass="from-amber-500/10 to-amber-500/0" />
-        <StatCardPro title="Proyectos en Curso" value={totalProjectsInProcess.toString()} description="Actualmente en ejecución" icon={Hammer} accentColorClass="from-emerald-500/10 to-emerald-500/0" />
+        <StatCardPro title="Reportes en Proceso" value={totalReportsInProcess.toString()} description="En sitio (ruta / reparación / pruebas)" icon={OctagonAlert} accentColorClass="from-amber-500/10 to-amber-500/0" />
+        <StatCardPro title="Proyectos en Proceso" value={totalProjectsInProcess.toString()} description="Actualmente en ejecución" icon={Hammer} accentColorClass="from-emerald-500/10 to-emerald-500/0" />
       </div>
 
       {/* Métricas secundarias */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <StatCardPro
           title="Comentarios Recientes"
           value={recentUnreadValue}
@@ -126,13 +126,13 @@ const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count 
           icon={MessageSquare}
           
         />
-        <StatCardPro
+        {/* <StatCardPro
           title="Notificaciones Enviadas"
           value="156"
           description="Hasta hoy"
           icon={Bell}
         
-        />
+        /> */}
         <StatCardPro
           title="Solicitudes Resueltas"
           value={totalReqApproved.toString()}
