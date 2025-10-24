@@ -10,7 +10,6 @@ import {
 } from "lucide-react"
 import { StatCardPro } from "../Components/stat-card"
 import { QuickActionCardPro } from "../Components/quick-action-card"
-import { RecentActivityPro } from "../Components/recent-activity"
 import { BarChartCard } from "../Components/chart-card"
 import { useGetAllAbonados } from "../../Users/Hooks/UsersHooks"
 import { useGetAllReqApprovedDashboard, useGetAllReqPendingsDashboard, useMonthlyAllRequests, useMonthlyReports } from "../Hooks/dashboardHooks"
@@ -21,18 +20,18 @@ import { useReportsInProcessCount } from "../../Reports/Hooks/ReportStatesHooks"
 
 export default function AdminDashboard() {
   // comentarios recientes este mes //
-  // const { data: recentComments30d, isLoading: loadingRecent } =
-  //   useRecentCommentsCount({ days: 30 }); // <-- “Este mes” (30 días)
+  const { data: recentComments30d, isLoading: loadingRecent } =
+      useRecentCommentsCount({ days: 30 }); // <-- “Este mes” (30 días)
 
-  // const recentCountValue = loadingRecent
-  //   ? "..."
-  //   : String(recentComments30d?.count ?? 0);
+   const recentCountValue = loadingRecent
+     ? "..."
+     : String(recentComments30d?.count ?? 0);
 
   //comentarios las 24 horas no leidos
-const { data: recentUnread24h, isLoading: loadingUnread } =
+//const { data: recentUnread24h, isLoading: loadingUnread } =
 useRecentCommentsCount({ hours: 24, unread: true });
 
-const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count ?? 0);
+//const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count ?? 0);
     
   const {totalAbonados} = useGetAllAbonados();
 
@@ -46,15 +45,7 @@ const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count 
   const { totalReportsInProcess } = useReportsInProcessCount();
 
   const navigate = useNavigate();
-  // const solicitudesData = [
-  //   { name: "Lun", value: 12 },
-  //   { name: "Mar", value: 19 },
-  //   { name: "Mié", value: 15 },
-  //   { name: "Jue", value: 22 },
-  //   { name: "Vie", value: 18 },
-  //   { name: "Sáb", value: 8 },
-  //   { name: "Dom", value: 5 },
-  // ]
+
   // Solicitudes por mes (últimos 12 meses)
 const { chartData: solicitudesMensuales, isLoading: loadingReqMonthly } = useMonthlyAllRequests({ 
   months: 12 });
@@ -63,43 +54,6 @@ const { chartData: solicitudesMensuales, isLoading: loadingReqMonthly } = useMon
 const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyReports({
   months: 12,
 });
-
-  // const reportesData = [
-  //   { name: "Lun", value: 3 },
-  //   { name: "Mar", value: 5 },
-  //   { name: "Mié", value: 2 },
-  //   { name: "Jue", value: 7 },
-  //   { name: "Vie", value: 4 },
-  //   { name: "Sáb", value: 6 },
-  //   { name: "Dom", value: 2 },
-  // ]
-
-  const recentActivities = [
-    {
-      id: "1",
-      type: "solicitud" as const,
-      title: "Nueva solicitud de conexión",
-      description: "Juan Pérez - Sector Los Ángeles",
-      time: "Hace 5 min",
-      status: "pendiente" as const,
-    },
-    {
-      id: "2",
-      type: "reporte" as const,
-      title: "Reporte de fuga",
-      description: "María González - Calle Principal #45",
-      time: "Hace 15 min",
-      status: "urgente" as const,
-    },
-    {
-      id: "3",
-      type: "proyecto" as const,
-      title: "Proyecto de tubería completado",
-      description: "Sector San José - Fase 2",
-      time: "Hace 1 hora",
-      status: "completado" as const,
-    },
-  ]
 
   return (
     <div className="min-h-screen bg-background p-6 space-y-8">
@@ -128,8 +82,8 @@ const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyRe
       <div className="grid gap-4 md:grid-cols-2">
         <StatCardPro
           title="Comentarios Recientes"
-          value={recentUnreadValue}
-          description="Últimas 24 horas"
+          value={recentCountValue}
+          description="Este mes"
           icon={MessageSquare}
           
         />
@@ -160,7 +114,7 @@ const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyRe
           title="Solicitudes por Mes"
           description={loadingReqMonthly ? "Cargando..." : "Últimos 12 meses"}
           data={solicitudesMensuales}
-          color="hsl(var(--chart-2))"
+          color="hsl(var(--chart-1))"
         />
       </div>
 
@@ -176,9 +130,6 @@ const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyRe
             <QuickActionCardPro title="Comentarios" description="Revisar todos los comentarios" icon={MessageSquare} onClick={() => navigate({ to: "/dashboard/comments" })}/>
         </div>
       </section>
-
-      {/* Actividad reciente */}
-      <RecentActivityPro activities={recentActivities} />
     </div>
   )
 }
