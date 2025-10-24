@@ -13,7 +13,7 @@ import { QuickActionCardPro } from "../Components/quick-action-card"
 import { RecentActivityPro } from "../Components/recent-activity"
 import { BarChartCard } from "../Components/chart-card"
 import { useGetAllAbonados } from "../../Users/Hooks/UsersHooks"
-import { useGetAllReqApprovedDashboard, useGetAllReqPendingsDashboard } from "../Hooks/dashboardHooks"
+import { useGetAllReqApprovedDashboard, useGetAllReqPendingsDashboard, useMonthlyAllRequests, useMonthlyReports } from "../Hooks/dashboardHooks"
 import { useProjectsInProcessCount } from "../../Project_State/Hooks/ProjectStateHooks"
 import { useRecentCommentsCount } from "../../Comment/Hooks/commentHooks"
 import { useNavigate } from "@tanstack/react-router"
@@ -46,26 +46,33 @@ const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count 
   const { totalReportsInProcess } = useReportsInProcessCount();
 
   const navigate = useNavigate();
-  // Datos de ejemplo (simulados)
-  const solicitudesData = [
-    { name: "Lun", value: 12 },
-    { name: "Mar", value: 19 },
-    { name: "Mié", value: 15 },
-    { name: "Jue", value: 22 },
-    { name: "Vie", value: 18 },
-    { name: "Sáb", value: 8 },
-    { name: "Dom", value: 5 },
-  ]
+  // const solicitudesData = [
+  //   { name: "Lun", value: 12 },
+  //   { name: "Mar", value: 19 },
+  //   { name: "Mié", value: 15 },
+  //   { name: "Jue", value: 22 },
+  //   { name: "Vie", value: 18 },
+  //   { name: "Sáb", value: 8 },
+  //   { name: "Dom", value: 5 },
+  // ]
+  // Solicitudes por mes (últimos 12 meses)
+const { chartData: solicitudesMensuales, isLoading: loadingReqMonthly } = useMonthlyAllRequests({ 
+  months: 12 });
 
-  const reportesData = [
-    { name: "Lun", value: 3 },
-    { name: "Mar", value: 5 },
-    { name: "Mié", value: 2 },
-    { name: "Jue", value: 7 },
-    { name: "Vie", value: 4 },
-    { name: "Sáb", value: 6 },
-    { name: "Dom", value: 2 },
-  ]
+  // Reportes por mes (últimos 12 meses)
+const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyReports({
+  months: 12,
+});
+
+  // const reportesData = [
+  //   { name: "Lun", value: 3 },
+  //   { name: "Mar", value: 5 },
+  //   { name: "Mié", value: 2 },
+  //   { name: "Jue", value: 7 },
+  //   { name: "Vie", value: 4 },
+  //   { name: "Sáb", value: 6 },
+  //   { name: "Dom", value: 2 },
+  // ]
 
   const recentActivities = [
     {
@@ -144,15 +151,15 @@ const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count 
       {/* Gráficos */}
       <div className="grid gap-4 md:grid-cols-2">
         <BarChartCard
-          title="Reportes por Día"
-          description="Última semana"
-          data={reportesData}
+          title="Reportes por Mes"
+          description={loadingMonthly ? "Cargando..." : "Últimos 12 meses"}
+          data={reportesMensuales}
           color="hsl(var(--chart-1))"
         />
         <BarChartCard
-          title="Solicitudes por Día"
-          description="Última semana"
-          data={solicitudesData}
+          title="Solicitudes por Mes"
+          description={loadingReqMonthly ? "Cargando..." : "Últimos 12 meses"}
+          data={solicitudesMensuales}
           color="hsl(var(--chart-2))"
         />
       </div>
@@ -163,9 +170,8 @@ const recentUnreadValue = loadingUnread ? "..." : String(recentUnread24h?.count 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <QuickActionCardPro title="Usuarios" description="Revisar todos los usuarios" icon={UserRoundCog } onClick={() => navigate({ to: "/dashboard/users" })}/>
             <QuickActionCardPro title="Notificaciones" description="Crear notificación" icon={Bell}/>
-            <QuickActionCardPro title="Solicitudes" description="Revisar todas la solicitudes" icon={FileText} />
             <QuickActionCardPro title="Reportes" description="Revisar todos los reportes" icon={OctagonAlert} onClick={() => navigate({ to: "/dashboard/reports" })}/>
-            <QuickActionCardPro title="Productos" description="Revisar todos los productos" icon={Forklift} />
+            <QuickActionCardPro title="Productos" description="Revisar todos los productos" icon={Forklift} onClick={() => navigate({ to: "/dashboard/products" })}/>
             <QuickActionCardPro title="Proyectos" description="Revisar todos los proyectos" icon={Hammer} onClick={() => navigate({ to: "/dashboard/projects" })}/>
             <QuickActionCardPro title="Comentarios" description="Revisar todos los comentarios" icon={MessageSquare} onClick={() => navigate({ to: "/dashboard/comments" })}/>
         </div>

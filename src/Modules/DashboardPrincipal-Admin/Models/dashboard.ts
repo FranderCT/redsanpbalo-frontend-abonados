@@ -5,3 +5,5 @@ export interface PendingDashboardResponse {
 export interface ApprovedDashboardResponse {
   totalApprovedRequests: number;
 }
+
+export interface MonthlyPoint { year: number; month: number; count: number };
