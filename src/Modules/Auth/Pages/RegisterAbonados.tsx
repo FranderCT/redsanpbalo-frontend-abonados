@@ -88,7 +88,8 @@ const RegisterAbonados = () => {
           </h2>
 
           {/* En móvil deja scrollear a la página; en desktop, esta columna scrollea */}
-          <div className="w-full min-w-0 md:flex md:flex-col md:flex-1 md:overflow-y-auto md:pr-2">
+          <div className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+            >
             <form
               onSubmit={(e) => {
                 e.preventDefault();
