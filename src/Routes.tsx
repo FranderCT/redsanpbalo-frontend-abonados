@@ -11,8 +11,7 @@ import { listSupplierRoute, newSupplierRoute, supplierRoute, viewSuppliertRoute 
 import { createProjectRoute, listProjectRoute, projectRoute, updateProjectRoute, viewProjectRoute } from "./Modules/Project/Routes/ProjectsRoutes";
 import { listPhysicalSuppliers, PhysicalSupplierRoute } from "./Modules/PhysicalSupplier/Routes/PhysicalSupplierRoutes";
 import { legalSupplierRoute, listLegalSuppliers } from "./Modules/LegalSupplier/Routes/LegalSupplierRoutes";
-import { requestSupervisionRoute } from "./Modules/Requests/RequestSupervisionMeter/Routes/RequestsSupervisionWaterRoute";
-import { requestChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
+import {requestListSupervisionRoute, requestSupervisionUserRoute } from "./Modules/Requests/RequestSupervisionMeter/Routes/RequestsSupervisionWaterRoute";
 import { requestsRoute } from "./Modules/Requests/Routes/RequestRoutes";
 import HeroPage from "./Modules/Lading/HeroPage";
 import { requestListAvailWaterRoute, requestUserAvailWaterRoute } from "./Modules/Requests/RequestAvailabilityWater/Routes/RequestsAvailWaterRoute";
@@ -68,7 +67,8 @@ export const routeTree = rootRoute.addChildren([
     requestsRoute.addChildren([
       requestUserAvailWaterRoute,
       requestListAvailWaterRoute,
-      requestSupervisionRoute,
+      requestSupervisionUserRoute,
+      requestListSupervisionRoute,
       requestUserChangeMeterRoute,
       requestListChangeMeterRoute,
       requestUserAssociatedRoute,
