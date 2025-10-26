@@ -115,22 +115,22 @@ export default function CreateProductModal() {
       <ModalBase
         open={open}
         onClose={handleClose}
-        panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl"
-      >
+        panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl max-h-[90vh] flex flex-col"
+        >
         {/* Header */}
         <div className="px-6 py-5 text-[#091540]">
           <h3 className="text-xl font-bold">Crear Producto</h3>
           <p className="text-sm opacity-90">Complete los campos requeridos</p>
         </div>
-
+    
         {/* Body */}
-        <div className="p-6">
+        <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden px-6 py-4">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               form.handleSubmit();
             }}
-            className="grid gap-3"
+            className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           >
             {/* Name */}
             <form.Field name="Name">
