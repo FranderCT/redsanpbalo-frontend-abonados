@@ -215,7 +215,7 @@ const AsideDashboard = () => {
       </select>
 
       {/* Flecha hacia abajo */}
-      <span className="pointer-events-none absolute right-12 top-1/2 -translate-y-1/2 text-[#091540]/60 text-xs">
+      <span className="pointer-events-none absolute right-10 top-1/2 -translate-y-1/2 text-[#091540]/60 text-xs">
         ▼
       </span>
     </div>
