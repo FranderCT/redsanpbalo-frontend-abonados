@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { getAllReportStates } from "../Services/ReportStateSV"
+import { getAllReportStates, getReportsInProcessCount } from "../Services/ReportStateSV"
 
 
 export const useGetAllReportStates = () => {
@@ -9,3 +9,17 @@ export const useGetAllReportStates = () => {
     })
     return {reportStates, error, isLoading}
 }
+
+export const useReportsInProcessCount = () => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["reports", "in-process", "count"],
+    queryFn: getReportsInProcessCount,
+  });
+
+  return {
+    totalReportsInProcess: data ?? 0,
+    isLoading,
+    isError,
+    error,
+  };
+};

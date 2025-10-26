@@ -35,7 +35,8 @@ const AsideDashboard = () => {
             <span className="transition-colors">Principal</span>
           </button>
         </Can>
-        <Can rule={{ any: ["ABONADO"] }}>
+        
+        <Can rule={{ any: ["ABONADO", "GUEST"] }}>
           <button
             onClick={() => navigate({ to: "/dashboard/principal-user" })}
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
@@ -43,6 +44,16 @@ const AsideDashboard = () => {
             <Home className="size-[20px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Principal</span>
           </button>
+        </Can>
+
+        <Can rule={{ any: ["GUEST"] }}>
+          <SidebarDropdown
+            icon={<FileText className="size-[20px] transition-colors group-hover:text-white" />}
+            label="Solicitudes"
+            items={[
+              { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests/availability-water" }) },
+            ]}
+          />
         </Can>
 
         <Can rule={{ any: ["ABONADO"] }}>
@@ -57,13 +68,6 @@ const AsideDashboard = () => {
               { label: "Asociado", onClick: () => navigate({ to: "/dashboard/requests/associated" }) },
             ]}
           />
-          {/* <button 
-            onClick={() => navigate({ to: "/dashboard/requests" })}
-            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
-          >
-            <FileText className="size-[23px] transition-colors group-hover:text-white" />
-            <span className="transition-colors">Solicitudes</span>
-          </button> */}
         </Can>
 
         <Can rule={{ any: ["ADMIN"] }}>
@@ -72,7 +76,7 @@ const AsideDashboard = () => {
             label="Solicitudes"
             items={[
               { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests/availability-water/admin" }) },
-              { label: "Revisión de Medidor", onClick: () => navigate({ to: "/dashboard/requests/supervision-meter" }) },
+              { label: "Revisión de Medidor", onClick: () => navigate({ to: "/dashboard/requests/supervision-meter/admin" }) },
               { label: "Cambio de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-meter/admin" }) },
               { label: "Cambio Nombre de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-meter/admin" }) },
               { label: "Asociado", onClick: () => navigate({ to: "/dashboard/requests/associated/admin" }) },
@@ -105,14 +109,14 @@ const AsideDashboard = () => {
           />
         </Can>
 
-        <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
+        <Can rule={{ any: ["ADMIN", "ABONADO", "GUEST"] }}>
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
             <Bell className="size-[20px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Notificaciones</span>
           </button>
         </Can>
 
-        <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
+        <Can rule={{ any: ["ADMIN", "ABONADO", "GUEST"] }}>
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
             onClick={() => navigate({ to: "/dashboard/reports" })}
           >

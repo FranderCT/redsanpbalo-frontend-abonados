@@ -4,6 +4,7 @@ import type { CommentRequest } from "../../CommentRequest/Models/CommentRequest"
 
 export interface ReqChangeMeter{
     Id: number;
+    Date: Date;
     Location: string;
     NIS: number;
     Justification : string;
