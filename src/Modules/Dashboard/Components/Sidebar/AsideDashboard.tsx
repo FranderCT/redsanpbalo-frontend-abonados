@@ -1,24 +1,49 @@
 import { useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import g28 from "../../../Auth/Assets/g28.png";
-import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, UserCog, Forklift, MessageSquare } from "lucide-react";
+import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, UserCog, Forklift, MessageSquare, UserCircle } from "lucide-react";
 import { Can } from "../../../Auth/Components/Can";
+
 import SidebarDropdown from "./SidebarDropdown";
+import { useRole } from "../../../Auth/Components/RolesContext";
+import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 
 const AsideDashboard = () => {
   const navigate = useNavigate();
+  const { activeRole, setActiveRole, setAvailableRoles } = useRole();
+  const { UserProfile } = useGetUserProfile();
+
+  // Configurar roles disponibles cuando se carga el perfil
+  useEffect(() => {
+    if (UserProfile?.Roles) {
+      const roles = UserProfile.Roles.map(r => r.Rolname);
+      setAvailableRoles(roles);
+      
+      // Si no hay rol activo, establecer el primero por defecto (prioridad: ADMIN > ABONADO > GUEST)
+      if (!activeRole && roles.length > 0) {
+        const priorityRole = roles.includes('ADMIN') ? 'ADMIN' 
+                           : roles.includes('ABONADO') ? 'ABONADO' 
+                           : roles[0];
+        setActiveRole(priorityRole);
+      }
+    }
+  }, [UserProfile, activeRole, setActiveRole, setAvailableRoles]);
 
   const goLogin = () => {
-    localStorage.removeItem('token')
+    localStorage.removeItem('token');
+    localStorage.removeItem('activeRole');
     navigate({ to: "/login" });
   };
 
+  const availableRoles = UserProfile?.Roles?.map(r => r.Rolname) ?? [];
+  const showRoleSelector = availableRoles.length > 1;
+
   return (
-    // min-h-0 permite que overflow-y-auto funcione dentro del flex container
     <div className="bg-[#F9F5FF] h-dvh min-h-0 flex flex-col">
       {/* Branding */}
       <div className="flex items-center gap-3 px-4 pt-6 pb-4 flex-col">
         <img src={g28} alt="Logo ASADA" className="w-16 h-16 object-contain" />
-        <h1 className="text-2xl text-[#091540] font-bold leading-tight font">RedSanPablo</h1>
+        <h1 className="text-2xl text-[#091540] font-bold leading-tight">RedSanPablo</h1>
       </div>
 
       {/* Línea separadora */}
@@ -94,7 +119,6 @@ const AsideDashboard = () => {
           </button>
         </Can>
 
-        {/* Dropdown Productos */}
         <Can rule={{ all: ["ADMIN"] }}>
           <SidebarDropdown
             icon={<Forklift className="size-[20px] transition-colors group-hover:text-white" />}
@@ -117,7 +141,8 @@ const AsideDashboard = () => {
         </Can>
 
         <Can rule={{ any: ["ADMIN", "ABONADO", "GUEST"] }}>
-          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+          <button 
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
             onClick={() => navigate({ to: "/dashboard/reports" })}
           >
             <OctagonAlert className="size-[20px] transition-colors group-hover:text-white" />
@@ -126,22 +151,25 @@ const AsideDashboard = () => {
         </Can>
 
         <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
-          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
-            onClick={() => navigate({ to: "/dashboard/projects" })}>
+          <button 
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+            onClick={() => navigate({ to: "/dashboard/projects" })}
+          >
             <Hammer className="size-[20px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Proyectos</span>
           </button>
         </Can>
 
         <Can rule={{ all: ["ADMIN"] }}>
-          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
-            onClick={() => navigate({ to: "/dashboard/comments" })}>
+          <button 
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+            onClick={() => navigate({ to: "/dashboard/comments" })}
+          >
             <MessageSquare className="size-[20px] transition-colors group-hover:text-white" />
             <span className="transition-colors">Comentarios</span>
           </button>
         </Can>
 
-        {/* Dropdown Ajustes */}
         <Can rule={{ any: ["ADMIN", "GUEST", "ABONADO"] }}>
           <SidebarDropdown
             icon={<Settings className="size-[20px] transition-colors group-hover:text-white" />}
@@ -154,6 +182,47 @@ const AsideDashboard = () => {
           />
         </Can>
       </nav>
+
+{/* Selector de Rol */}
+{showRoleSelector && (
+  <div className="w-full mt-3">
+    <label className="block text-xs text-[#091540]/70 mb-1 text-center">
+      Rol activo
+    </label>
+
+    <div className="relative">
+      <select
+        value={activeRole || ''}
+        onChange={(e) => setActiveRole(e.target.value)}
+        className="
+          w-full text-center
+          bg-transparent
+          text-[#091540] font-medium
+          border-none
+          focus:outline-none
+          focus:ring-0
+          appearance-none
+          cursor-pointer
+          hover:text-[#1789FC]
+          transition-colors
+        "
+      >
+        {availableRoles.map((role) => (
+          <option key={role} value={role} className="text-[#091540]">
+            {role}
+          </option>
+        ))}
+      </select>
+
+      {/* Flecha hacia abajo */}
+      <span className="pointer-events-none absolute right-12 top-1/2 -translate-y-1/2 text-[#091540]/60 text-xs">
+        ▼
+      </span>
+    </div>
+  </div>
+)}
+
+
 
       {/* Cerrar sesión siempre visible */}
       <div className="px-2 pb-4 pt-2 shrink-0">
