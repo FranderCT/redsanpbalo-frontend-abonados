@@ -48,28 +48,25 @@ export default function RegisterAbonadosModal() {
       <ModalBase
         open={open}
         onClose={() => setOpen(false)}
-        panelClassName="w-full max-w-xl !p-0 overflow-hidden l shadow-2xl"
+        panelClassName="w-full max-w-xl !p-0 max-h-[90vh] flex flex-col overflow-hidden shadow-2xl"
       >
         {/* Header */}
-        <div className=" px-6 py-5 text-[#091540]]">
+          <div className="px-6 py-5 text-[#091540] flex-shrink-0">
           <h3 className="text-xl font-bold">Crear cuenta</h3>
           <p className="text-sm/6 opacity-90">Complete los datos para registrarse</p>
         </div>
 
         {/* Body */}
-        <div className="p-6">
-          {/* Contenedor con un panel lateral decorativo en md+ */}
-          <div className="grid md:grid-cols-[1fr,1.3fr] gap-6">
-            
-
+        <div className="p-6 flex-1 min-h-0 flex flex-col">
+          <div className="grid md:grid-cols-[1fr,1.3fr] gap-6 min-h-0 flex-1">
+            <div className="min-w-0 min-h-0 flex flex-col">
             {/* Formulario */}
-            <div className="min-w-0">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   form.handleSubmit();
                 }}
-                className="grid gap-3"
+              className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               >
                 {/* Cédula */}
                 <form.Field name="IDcard">
