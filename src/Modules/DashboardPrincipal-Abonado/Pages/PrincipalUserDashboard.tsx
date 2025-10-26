@@ -1,12 +1,14 @@
-import { Bell, FileText, MessageSquare, OctagonAlert, Loader2 } from "lucide-react";
+import { Bell, FileText, OctagonAlert, Loader2 } from "lucide-react";
 import { QuickActionCardPro } from "../../DashboardPrincipal-Admin/Components/quick-action-card";
 import { StatCardPro } from "../../DashboardPrincipal-Admin/Components/stat-card";
 import { QuickActionSolicitudes } from "../Components/quick-action-solicitudes";
 import { useMyReportsSummary, useMyRequestsSummary } from "../Hooks/dashboardUserHooks";
 import { useGetUserProfile } from "../../Users/Hooks/UsersHooks";
+import { useNavigate } from "@tanstack/react-router";
 
 
 export default function UserDashboard() {
+  const navigate = useNavigate();
   // KPIs Solicitudes
   const {
     summary: reqSummary,
@@ -145,13 +147,7 @@ export default function UserDashboard() {
             title="Reportar Problema"
             description="Informar una incidencia"
             icon={OctagonAlert}
-            onClick={() => console.log("Reportar Problema")}
-          />
-          <QuickActionCardPro
-            title="Nuevo Comentario"
-            description="Dejar un comentario"
-            icon={MessageSquare}
-            onClick={() => console.log("Nuevo Comentario")}
+            onClick={() => navigate({ to: "/dashboard/reports" })}
           />
           <QuickActionCardPro
             title="Ver Notificaciones"
