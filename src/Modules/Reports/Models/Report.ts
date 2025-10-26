@@ -18,7 +18,18 @@ export interface Report {
 export interface ReportPaginationParams {
     page: number;
     limit: number;
+    search?: string;
     stateId?: number;
     locationId?: number;
     ReportTypeId?: number;
+}
+
+export interface CreateReportPayload {
+    Location: string;
+    Description: string;
+    UserId: number;
+    LocationId: number;
+    ReportTypeId: number;
+    ReportStateId?: number;
+    UserInChargeId?: number;
 }

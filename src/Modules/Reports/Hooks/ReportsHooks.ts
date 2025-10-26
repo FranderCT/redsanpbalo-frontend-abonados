@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { useEffect } from "react";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import type { Report, ReportPaginationParams } from "../Models/Report";
-import { getAllReports, searchReports, createReportByAdmin, type CreateReportPayload } from "../Services/ReportSV"
+import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge } from "../Services/ReportSV"
 
 export const useGetAllReports = () => {
     const {data: reports, error, isLoading} = useQuery({
@@ -53,6 +53,37 @@ export const useCreateReportByAdmin = () => {
         },
         onError: (error) => {
             console.error("Error al crear el reporte:", error);
+        }
+    });
+};
+
+export const useCreateReportByUser = () => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: createReportByUser,
+        onSuccess: () => {
+            console.log("Reporte creado exitosamente por usuario");
+            queryClient.invalidateQueries({ queryKey: ["reports"] });
+        },
+        onError: (error) => {
+            console.error("Error al crear el reporte:", error);
+        }
+    });
+};
+
+export const useAssignUserInCharge = () => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: ({ reportId, userInChargeId }: { reportId: string; userInChargeId: number }) =>
+            assignUserInCharge(reportId, userInChargeId),
+        onSuccess: () => {
+            console.log("Usuario asignado exitosamente");
+            queryClient.invalidateQueries({ queryKey: ["reports"] });
+        },
+        onError: (error) => {
+            console.error("Error al asignar usuario:", error);
         }
     });
 }; 
