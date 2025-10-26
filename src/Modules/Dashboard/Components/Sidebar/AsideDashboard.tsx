@@ -14,20 +14,35 @@ const AsideDashboard = () => {
   const { UserProfile } = useGetUserProfile();
 
   // Configurar roles disponibles cuando se carga el perfil
-  useEffect(() => {
-    if (UserProfile?.Roles) {
-      const roles = UserProfile.Roles.map(r => r.Rolname);
-      setAvailableRoles(roles);
-      
-      // Si no hay rol activo, establecer el primero por defecto (prioridad: ADMIN > ABONADO > GUEST)
-      if (!activeRole && roles.length > 0) {
-        const priorityRole = roles.includes('ADMIN') ? 'ADMIN' 
-                           : roles.includes('ABONADO') ? 'ABONADO' 
-                           : roles[0];
-        setActiveRole(priorityRole);
-      }
+useEffect(() => {
+  // 1️⃣ Evita recalcular si UserProfile no tiene roles
+  if (!UserProfile?.Roles) return;
+
+  const newRoles = UserProfile.Roles.map(r => r.Rolname);
+
+  // 2️⃣ Solo actualiza availableRoles si realmente cambió
+  setAvailableRoles(prev => {
+    const isSame =
+      prev.length === newRoles.length &&
+      prev.every((r, i) => r === newRoles[i]);
+    return isSame ? prev : newRoles;
+  });
+
+  // 3️⃣ Solo cambia el rol activo si aún no hay uno válido
+  if (!activeRole || !newRoles.includes(activeRole)) {
+    const defaultRole =
+      newRoles.includes("ADMIN")
+        ? "ADMIN"
+        : newRoles.includes("ABONADO")
+        ? "ABONADO"
+        : newRoles[0];
+
+    // ⚠️ Evita setear el mismo valor repetidamente
+    if (activeRole !== defaultRole) {
+      setActiveRole(defaultRole);
     }
-  }, [UserProfile, activeRole, setActiveRole, setAvailableRoles]);
+  }
+}, [UserProfile, activeRole]);
 
   const goLogin = () => {
     localStorage.removeItem('token');

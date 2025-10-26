@@ -4,7 +4,7 @@
     activeRole: string | null;
     setActiveRole: (role: string) => void;
     availableRoles: string[];
-    setAvailableRoles: (roles: string[]) => void;
+    setAvailableRoles: React.Dispatch<React.SetStateAction<string[]>>;
     }
 
     const RoleContext = createContext<RoleContextType | undefined>(undefined);
