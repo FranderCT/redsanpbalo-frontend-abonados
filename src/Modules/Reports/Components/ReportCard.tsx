@@ -3,9 +3,10 @@ import type { Report } from "../Models/Report";
 type Props = {
   report: Report;
   onViewDetails?: (report: Report) => void;
+  onEditReport?: (report: Report) => void;
 };
 
-const ReportCard = ({ report, onViewDetails }: Props) => {
+const ReportCard = ({ report, onViewDetails, onEditReport }: Props) => {
   return (
     <div className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 overflow-hidden group">
         {/* Header Section */}
@@ -73,14 +74,25 @@ const ReportCard = ({ report, onViewDetails }: Props) => {
             )}
         </div>
         
-        {/* Footer Action */}
-        <div 
-            className="border-t border-gray-100 group-hover:bg-gray-50 transition-all duration-300 p-3 text-center cursor-pointer"
-            onClick={() => onViewDetails?.(report)}
-        >
-            <span className="text-sm font-medium text-gray-600 group-hover:text-[#091540] transition-colors duration-300 flex items-center justify-center">
-                Ver detalles
-            </span>
+        {/* Footer Actions */}
+        <div className="border-t border-gray-100 group-hover:bg-gray-50 transition-all duration-300 p-3">
+            <div className="flex gap-2">
+                {onEditReport && (
+                    <button
+                        className="flex-1 text-sm font-medium text-white bg-[#091540] hover:bg-[#1789FC] transition-colors duration-300 py-2 px-3"
+                        onClick={() => onEditReport(report)}
+                    >
+                        Gestionar
+                    </button>
+                )}
+                <button
+                    className="flex-1 text-sm font-medium text-gray-600 hover:text-[#091540] transition-colors duration-300 py-2 px-3 border border-gray-200 hover:border-[#091540] hover:bg-white"
+                    onClick={() => onViewDetails?.(report)}
+                >
+                    Ver detalles
+                </button>
+                
+            </div>
         </div>
     </div>
 );

@@ -1,6 +1,6 @@
 import apiAxios from "../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
-import type { CreateReportPayload, Report, ReportPaginationParams } from "../Models/Report";
+import type { CreateReportPayload, UpdateReportPayload, Report, ReportPaginationParams } from "../Models/Report";
 
 const BASE_URL = '/reports';
 
@@ -74,6 +74,16 @@ export async function assignUserInCharge(reportId: string, userInChargeId: numbe
         return data;
     } catch (error) {
         console.error("Error assigning user in charge:", error);
+        throw error;
+    }
+}
+
+export async function updateReport(reportId: string, payload: UpdateReportPayload): Promise<Report> {
+    try {
+        const { data } = await apiAxios.patch<Report>(`${BASE_URL}/${reportId}`, payload);
+        return data;
+    } catch (error) {
+        console.error("Error updating report:", error);
         throw error;
     }
 }

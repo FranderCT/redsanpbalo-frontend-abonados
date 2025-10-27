@@ -19,6 +19,8 @@ import { requestListAssociatedRoute, requestUserAssociatedRoute } from "./Module
 import { requestListChangeMeterRoute, requestUserChangeMeterRoute } from "./Modules/Requests/RequestChangeMeterr/Routes/RequestChangeMeterRoute";
 import { commentRoute } from "./Modules/Comment/Routes/CommentRoutes";
 import { reportIndexRoute, reportRoutes } from "./Modules/Reports/Routes/ReportRoutes";
+import { requestListChangeNameMeter, requestUserChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
+
 
 export const rootRoute = createRootRoute();
 
@@ -71,6 +73,8 @@ export const routeTree = rootRoute.addChildren([
       requestListSupervisionRoute,
       requestUserChangeMeterRoute,
       requestListChangeMeterRoute,
+      requestUserChangeNameMeterRoute,
+      requestListChangeNameMeter,
       requestUserAssociatedRoute,
       requestListAssociatedRoute
     ]),

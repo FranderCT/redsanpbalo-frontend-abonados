@@ -4,12 +4,14 @@ import ReportCard from "./ReportCard";
 type Props = {
   reports: Report[];
   onViewDetails?: (report: Report) => void;
+  onEditReport?: (report: Report) => void;
   emptyText?: string;
 };
 
 export default function ReportsGrid({
   reports,
   onViewDetails,
+  onEditReport,
   emptyText = "No se encontraron reportes.",
 }: Props) {
   if (reports.length === 0) {
@@ -24,12 +26,13 @@ export default function ReportsGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {reports.map((report) => (
         <ReportCard 
           key={report.Id} 
           report={report} 
           onViewDetails={onViewDetails}
+          onEditReport={onEditReport}
         />
       ))}
     </div>

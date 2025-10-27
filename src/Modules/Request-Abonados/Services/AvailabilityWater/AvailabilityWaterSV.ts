@@ -5,6 +5,7 @@ import type { AvailabilityWater, PartialAvailabilityWater } from "../../Models/A
 
 const BASE = "/request-availability-water"; 
 
+
 export async function createAvailabilityWaterRq(payload: PartialAvailabilityWater): Promise<AvailabilityWater> {
   const { data } = await apiAxios.post<AvailabilityWater>(`${BASE}`, payload);
   return data;
