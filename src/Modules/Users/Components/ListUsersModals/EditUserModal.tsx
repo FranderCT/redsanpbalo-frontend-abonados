@@ -25,6 +25,7 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
   const form = useForm({
     defaultValues: {
       PhoneNumber: user.PhoneNumber ?? "",
+      Nis: user.Nis ?? "",
       Address: user.Address ?? "",
       roleIds: initialRoleIds as number[], // 👈 importante
       IsActive: user.IsActive ?? true,
@@ -85,6 +86,27 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
           }}
           className="grid gap-4"
         >
+<form.Field name="Nis">
+  {(field) => (
+    <>
+      <input
+        type="text"
+        value={field.state.value ?? ""}
+        onChange={(e) => field.handleChange(e.target.value)}
+        placeholder="Ingresa el NIS"
+        className="w-full rounded border px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+        required
+      />
+      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+        <p className="text-sm text-red-500 mt-1">
+          {(field.state.meta.errors[0] as any)?.message ??
+            String(field.state.meta.errors[0])}
+        </p>
+      )}
+    </>
+  )}
+</form.Field>
+
           <form.Field name="PhoneNumber">
             {(field) => (
               <>
