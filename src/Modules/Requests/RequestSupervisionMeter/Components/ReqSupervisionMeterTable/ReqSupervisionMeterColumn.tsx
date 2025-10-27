@@ -2,6 +2,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Edit2 } from "lucide-react";
 import type { ReqSupervisionMeter } from "../../Models/ReqSupervisionMeter";
 import DeleteSupervisionMeterModal from "../../Modals/DeleteReqSupervisionMeterModal";
+
 // ---- helpers ----
 const normalizeState = (s: string) =>
   s
@@ -84,8 +85,8 @@ export const ReqSupervisionMeterColumns = (
           <button
             onClick={() => onEdit(req)}
             className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-                       text-[#1789FC] border-[#1789FC]
-                       hover:bg-[#1789FC] hover:text-white transition"
+                      text-[#1789FC] border-[#1789FC]
+                      hover:bg-[#1789FC] hover:text-white transition"
           >
             <Edit2 className="w-4 h-4" />
             Editar

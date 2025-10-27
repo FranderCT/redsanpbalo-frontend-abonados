@@ -25,7 +25,8 @@ export interface MyReqAvailWaterParams {
   StateRequestId?: number;
   /** Texto de búsqueda */
   q?: string;
-export async function createAvailabilityWaterRq(payloads: PartialAvailabilityWater) : Promise<AvailabilityWater> {
+}
+export async function createAvailabilityWaterRqAbonado(payloads: PartialAvailabilityWater) : Promise<AvailabilityWater> {
     try {
         const { data: response } = await apiAxios.post<AvailabilityWater>("/request-availability-water", payloads);
         return response;

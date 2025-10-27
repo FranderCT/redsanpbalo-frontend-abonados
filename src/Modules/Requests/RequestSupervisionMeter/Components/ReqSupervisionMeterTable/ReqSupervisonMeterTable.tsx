@@ -3,6 +3,7 @@ import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-tabl
 import type { ReqSupervisionMeter } from "../../Models/ReqSupervisionMeter";
 import { ReqSupervisionMeterColumns } from "./ReqSupervisionMeterColumn";
 import ReqSupervisionMeterPager from "../PaginationReqSupervisionMeter/ReqSupervisionMeterPager";
+import UpdateReqSupervisionMeterStateModal from "../../Modals/UpdateReqSupervicionMeterModal";
 
 type Props = {
   data: ReqSupervisionMeter[];
@@ -15,22 +16,27 @@ type Props = {
 export default function ReqSupervisionMeterTable({
   data,
   page,
-  pageCount,
+  pageCount,  
   onPageChange,
 }: Props) {
-  const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqSupervisionMeter | null>(null);
+  const [editingReq, setEditingReq] = useState<ReqSupervisionMeter | null>(null);
   // const [getInfoReqAvailWater, setGetInfoReqAvailWater] = useState<ReqAvailWater | null>(null);
 
   const table = useReactTable({
     data,
-    columns: ReqSupervisionMeterColumns((req) => setEditingReqAvailWater(req)),
+    columns: ReqSupervisionMeterColumns((req) => setEditingReq(req)),
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
     <div className="w-full">
-      {/* Si no tienes modal, evita JSX vacío */}
-      {editingReqAvailWater && null}
+      {/* ✅ Renderiza el modal controlado */}
+        <UpdateReqSupervisionMeterStateModal
+          open={!!editingReq}
+          req={editingReq}
+          onClose={() => setEditingReq(null)}
+          onSuccess={() => setEditingReq(null)}
+        />
 
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>

@@ -1,10 +1,27 @@
 // Services/RequestSupervisionMeterServices.ts
 import apiAxios from "../../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import type { RequestState } from "../../StateRequest/Model/RequestState";
 import type { newReqSupervisionMeter, ReqSupervisionMeter, ReqSupervisionMeterPaginationParams, UpdateReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
 
-
 const BASE = "/requestsupervision-meter";
+
+// Obtener todos los estados de solicitud
+export async function getAllRequestStates(): Promise<RequestState[]> {
+  try {
+    const { data } = await apiAxios.get<RequestState[]>('/state-request');
+    
+    console.log('✅ Estados recibidos de la API:', data);
+    
+    // ✅ La API ya devuelve el formato correcto con Id
+    return data ?? [];
+  } catch (err: any) {
+    console.error("❌ Error obteniendo estados:", err);
+    console.error("URL intentada:", err?.config?.url);
+    console.error("Status:", err?.response?.status);
+    return Promise.reject(err);
+  }
+}
 
 // Listado simple (IsActive = true según el back)
 export async function getAllReqSupervisionMeter(): Promise<ReqSupervisionMeter[]> {
@@ -23,13 +40,11 @@ export async function searchReqSupervisionMeter(
 ): Promise<PaginatedResponse<ReqSupervisionMeter>> {
   try {
     const { page = 1, limit = 10, UserName, StateRequestId, NIS, State } = params ?? {};
-
     const q: Record<string, any> = { page, limit };
     if (UserName && UserName.trim() !== "") q.UserName = UserName.trim();
     if (typeof StateRequestId === "number") q.StateRequestId = StateRequestId;
     if (typeof NIS === "number" && !Number.isNaN(NIS)) q.NIS = NIS;
-    if (State !== undefined && State !== null && State !== "") q.State = State; // backend espera "true"/"false"
-
+    if (State !== undefined && State !== null && State !== "") q.State = State;
     const { data } = await apiAxios.get<PaginatedResponse<ReqSupervisionMeter>>(`${BASE}/search`, {
       params: q,
     });
@@ -67,17 +82,10 @@ export async function createReqSupervisionMeter(
 // Actualizar
 export async function updateReqSupervisionMeter(
   id: number,
-  payload: UpdateReqSupervisionMeter
+  payload: UpdateReqSupervisionMeter  
 ): Promise<ReqSupervisionMeter> {
   try {
-    // Tu interfaz tiene NIS:string; conviértelo a number si viene como string
-    const body: any = { ...payload };
-    if (typeof payload.NIS === "string" && payload.NIS.trim() !== "") {
-      const n = Number(payload.NIS);
-      if (!Number.isNaN(n)) body.NIS = n;
-    }
-
-    const { data } = await apiAxios.put<ReqSupervisionMeter>(`${BASE}/${id}`, body);
+    const { data } = await apiAxios.put<ReqSupervisionMeter>(`${BASE}/${id}`, payload);
     return data;
   } catch (err) {
     console.error(`Error actualizando supervision ${id}`, err);

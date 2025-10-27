@@ -32,10 +32,6 @@ export const newReqSupervisionMeterInitialState: newReqSupervisionMeter = {
 };
 
 export interface UpdateReqSupervisionMeter {
-  Location?: string;
-  NIS: string;
-  Justification?: string;
-  UserId?: number;
   StateRequestId?: number;
 }
 
