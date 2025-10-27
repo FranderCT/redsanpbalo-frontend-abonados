@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { useEffect } from "react";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import type { Report, ReportPaginationParams } from "../Models/Report";
-import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge } from "../Services/ReportSV"
+import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport } from "../Services/ReportSV"
 
 export const useGetAllReports = () => {
     const {data: reports, error, isLoading} = useQuery({
@@ -84,6 +84,22 @@ export const useAssignUserInCharge = () => {
         },
         onError: (error) => {
             console.error("Error al asignar usuario:", error);
+        }
+    });
+};
+
+export const useUpdateReport = () => {
+    const queryClient = useQueryClient();
+    
+    return useMutation({
+        mutationFn: ({ reportId, payload }: { reportId: string; payload: any }) =>
+            updateReport(reportId, payload),
+        onSuccess: () => {
+            console.log("Reporte actualizado exitosamente");
+            queryClient.invalidateQueries({ queryKey: ["reports"] });
+        },
+        onError: (error) => {
+            console.error("Error al actualizar el reporte:", error);
         }
     });
 }; 
