@@ -2,6 +2,8 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import ReqAvailWaterPager from "../../../Requests/RequestAvailabilityWater/Components/PaginationReqAvailabilityWater/ReqAvailWaterPager";
 import { ReqChangeMeterUserColumns } from "./ReqChangeMeterUserColumns";
 import type { ReqChangeMeter } from "../../../Requests/RequestChangeMeterr/Models/RequestChangeMeter";
+import { useState } from "react";
+import RequestDetailModal from "../Modals/RequestDetailModal";
 
 type Props = {
   data: ReqChangeMeter[];
@@ -16,8 +18,21 @@ export default function ReqChangeMeterUserTable({
   pageCount,
   onPageChange,
 }: Props) {
+  const [selectedRequest, setSelectedRequest] = useState<ReqChangeMeter | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  const handleGetInfo = (req: ReqChangeMeter) => {
+    setSelectedRequest(req);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedRequest(null);
+  };
+
   // Use the same column definitions as the main table, but wired to this table's edit handler
-  const columns = ReqChangeMeterUserColumns();
+  const columns = ReqChangeMeterUserColumns(handleGetInfo);
 
   // const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
 
@@ -92,6 +107,15 @@ export default function ReqChangeMeterUserTable({
           </tr>
         </tfoot>
       </table>
+
+      {selectedRequest && (
+        <RequestDetailModal
+          open={showDetailModal}
+          onClose={handleCloseModal}
+          title="Detalles de Solicitud de Cambio de Medidor"
+          data={selectedRequest}
+        />
+      )}
     </div>
   );
 }

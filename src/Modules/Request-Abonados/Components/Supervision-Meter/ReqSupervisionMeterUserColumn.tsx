@@ -1,22 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ReqSupervisionMeter } from "../../../Requests/RequestSupervisionMeter/Models/ReqSupervisionMeter";
+import { InfoIcon } from "lucide-react";
 
-// ---- helpers ----
-const formatDateOnly = (value?: string | Date) => {
-  if (!value) return "-";
-  try {
-    if (typeof value === "string") {
-      const t = value.indexOf("T");
-      if (t > 0) return value.slice(0, t);
-      const d = new Date(value);
-      if (!isNaN(d.getTime())) return d.toLocaleDateString("es-CR");
-      return value;
-    }
-    const d = value instanceof Date ? value : new Date(value);
-    if (!isNaN(d.getTime())) return d.toLocaleDateString("es-CR");
-  } catch {}
-  return "-";
-};
 
 const normalizeState = (s: string) =>
   s
@@ -46,13 +31,12 @@ const guessStateColor = (normalized: string) => {
 };
 
 export const ReqSupervisionMeterUserColumns = (
-  // onEdit: (req: ReqAvailWater) => void
-  // onGetInfo?: (req: ReqAvailWater) => void
+  onGetInfo?: (req: ReqSupervisionMeter) => void
 ): ColumnDef<ReqSupervisionMeter>[] => [
   {
     id: "Date",
     header: "Fecha Solicitud",
-    cell: ({ row }) => formatDateOnly(row.original.Date),
+    cell: ({ row }) => (row.original.Date),
   },
   {
     id: "Justification",
@@ -77,5 +61,20 @@ export const ReqSupervisionMeterUserColumns = (
         </div>
       );
     },
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <button
+          onClick={() => onGetInfo?.(row.original)}
+          className="flex items-center gap-1 px-3 py-1 text-xs font-medium border text-[#222] border-[#222] hover:bg-[#091540] hover:text-[#f5f5f5] transition cursor-pointer"
+        >
+          <InfoIcon className="w-4 h-4" />
+          Ver más
+        </button>
+      </div>
+    ),
   },
 ];

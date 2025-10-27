@@ -2,6 +2,8 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import ReqAvailWaterPager from "../../../Requests/RequestAvailabilityWater/Components/PaginationReqAvailabilityWater/ReqAvailWaterPager";
 import type { ReqAssociated } from "../../../Requests/RequestAssociated/Models/RequestAssociated";
 import { ReqAssociatedUserColumns } from "./ReqAssociatedUserColumns";
+import { useState } from "react";
+import RequestDetailModal from "../Modals/RequestDetailModal";
 
 
 type Props = {
@@ -17,8 +19,21 @@ export default function ReqAssociatedUserTable({
   pageCount,
   onPageChange,
 }: Props) {
+  const [selectedRequest, setSelectedRequest] = useState<ReqAssociated | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  const handleGetInfo = (req: ReqAssociated) => {
+    setSelectedRequest(req);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedRequest(null);
+  };
+
   // Use the same column definitions as the main table, but wired to this table's edit handler
-  const columns = ReqAssociatedUserColumns();
+  const columns = ReqAssociatedUserColumns(handleGetInfo);
 
   // const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
 
@@ -93,6 +108,15 @@ export default function ReqAssociatedUserTable({
           </tr>
         </tfoot>
       </table>
+
+      {selectedRequest && (
+        <RequestDetailModal
+          open={showDetailModal}
+          onClose={handleCloseModal}
+          title="Detalles de Solicitud de Asociación"
+          data={selectedRequest}
+        />
+      )}
     </div>
   );
 }

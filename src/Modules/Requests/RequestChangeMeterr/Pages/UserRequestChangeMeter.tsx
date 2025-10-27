@@ -43,12 +43,12 @@ export function UserRequestChangeMeter () {
                     <p className="text-xs text-[#091540]/70">Cree una nueva solicitud o revise su historial</p>
                 </div>
 
-                <div className="inline-flex items-center rounded-md bg-gray-100 p-1 border border-gray-200 shadow-sm">
+                <div className="inline-flex items-center  bg-gray-100 p-1 border border-gray-200 shadow-sm">
                     <button
                         type="button"
                         onClick={() => setViewMode('create')}
                         aria-pressed={viewMode === 'create'}
-                        className={`h-9 px-4 rounded-md text-sm font-medium transition-all ${viewMode === 'create' ? 'bg-[#091540] text-white shadow' : 'bg-transparent text-[#091540] hover:bg-white'}`}
+                        className={`h-9 px-4  text-sm font-medium transition-all ${viewMode === 'create' ? 'bg-[#091540] text-white shadow' : 'bg-transparent text-[#091540] hover:bg-white'}`}
                     >
                         Nueva solicitud
                     </button>
@@ -56,7 +56,7 @@ export function UserRequestChangeMeter () {
                         type="button"
                         onClick={() => setViewMode('list')}
                         aria-pressed={viewMode === 'list'}
-                        className={`h-9 px-4 rounded-md text-sm font-medium transition-all ${viewMode === 'list' ? 'bg-[#091540] text-white shadow' : 'bg-transparent text-[#091540] hover:bg-white'}`}
+                        className={`h-9 px-4  text-sm font-medium transition-all ${viewMode === 'list' ? 'bg-[#091540] text-white shadow' : 'bg-transparent text-[#091540] hover:bg-white'}`}
                     >
                         Ver mis solicitudes
                     </button>

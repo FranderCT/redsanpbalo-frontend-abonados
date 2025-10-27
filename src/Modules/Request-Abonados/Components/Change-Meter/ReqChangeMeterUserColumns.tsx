@@ -1,19 +1,43 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ReqChangeMeter } from "../../../Requests/RequestChangeMeterr/Models/RequestChangeMeter";
+import { InfoIcon } from "lucide-react";
 
 // ---- helpers ----
 const formatDateOnly = (value?: string | Date) => {
   if (!value) return "-";
   try {
+    // 1) Si ya viene como YYYY-MM-DD, no la toques
     if (typeof value === "string") {
-      const t = value.indexOf("T");
-      if (t > 0) return value.slice(0, t);
+      const onlyDate = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (onlyDate) return value;
+
+      // 2) Si trae tiempo/zona (T, Z o ±hh:mm), parsea y usa UTC
+      const hasTZ = /[Tt].*(Z|[+\-]\d{2}:?\d{2})$/.test(value);
       const d = new Date(value);
-      if (!isNaN(d.getTime())) return d.toLocaleDateString("es-CR");
-      return value;
+      if (isNaN(d.getTime())) return "-";
+
+      if (hasTZ) {
+        const y = d.getUTCFullYear();
+        const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+        const day = String(d.getUTCDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      } else {
+        // 3) Cadena sin zona: trata como local
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
+      }
     }
-    const d = value instanceof Date ? value : new Date(value);
-    if (!isNaN(d.getTime())) return d.toLocaleDateString("es-CR");
+
+    // 4) Si es Date: elige cómo mostrar (aquí: local)
+    const d = value as Date;
+    if (!isNaN(d.getTime())) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
   } catch {}
   return "-";
 };
@@ -46,8 +70,7 @@ const guessStateColor = (normalized: string) => {
 };
 
 export const ReqChangeMeterUserColumns = (
-  // onEdit: (req: ReqAvailWater) => void
-  // onGetInfo?: (req: ReqAvailWater) => void
+  onGetInfo?: (req: ReqChangeMeter) => void
 ): ColumnDef<ReqChangeMeter>[] => [
   {
     id: "Date",
@@ -77,5 +100,20 @@ export const ReqChangeMeterUserColumns = (
         </div>
       );
     },
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <button
+          onClick={() => onGetInfo?.(row.original)}
+          className="flex items-center gap-1 px-3 py-1 text-xs font-medium border text-[#222] border-[#222] hover:bg-[#091540] hover:text-[#f5f5f5] transition cursor-pointer"
+        >
+          <InfoIcon className="w-4 h-4" />
+          Ver más
+        </button>
+      </div>
+    ),
   },
 ];

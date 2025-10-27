@@ -2,6 +2,8 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import type { ReqAvailWater } from "../../../Requests/RequestAvailabilityWater/Models/ReqAvailWater";
 import ReqAvailWaterPager from "../../../Requests/RequestAvailabilityWater/Components/PaginationReqAvailabilityWater/ReqAvailWaterPager";
 import { ReqAvailWaterUserColumns } from "./ReqAvailWaterUserColumns";
+import { useState } from "react";
+import RequestDetailModal from "../Modals/RequestDetailModal";
 
 type Props = {
   data: ReqAvailWater[];
@@ -16,8 +18,21 @@ export default function ReqAvailWaterUserTable({
   pageCount,
   onPageChange,
 }: Props) {
+  const [selectedRequest, setSelectedRequest] = useState<ReqAvailWater | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  const handleGetInfo = (req: ReqAvailWater) => {
+    setSelectedRequest(req);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedRequest(null);
+  };
+
   // Use the same column definitions as the main table, but wired to this table's edit handler
-  const columns = ReqAvailWaterUserColumns();
+  const columns = ReqAvailWaterUserColumns(handleGetInfo);
 
   // const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
 
@@ -92,6 +107,15 @@ export default function ReqAvailWaterUserTable({
           </tr>
         </tfoot>
       </table>
+
+      {selectedRequest && (
+        <RequestDetailModal
+          open={showDetailModal}
+          onClose={handleCloseModal}
+          title="Detalles de Solicitud de Disponibilidad de Agua"
+          data={selectedRequest}
+        />
+      )}
     </div>
   );
 }
