@@ -243,14 +243,14 @@ export default function UserRequestAvailWater (){
                                                     <button
                                                         type="button"
                                                         onClick={() => setViewMode('create')}
-                                                        className={`h-9 px-4 rounded ${viewMode === 'create' ? 'bg-[#091540] text-white' : 'bg-gray-100 text-gray-700'}`}
+                                                        className={`h-9 px-4  ${viewMode === 'create' ? 'bg-[#091540] text-white' : 'bg-gray-100 text-gray-700'}`}
                                                     >
                                                         Nueva solicitud
                                                     </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => setViewMode('list')}
-                                                        className={`h-9 px-4 rounded ${viewMode === 'list' ? 'bg-[#091540] text-white' : 'bg-gray-100 text-gray-700'}`}
+                                                        className={`h-9 px-4  ${viewMode === 'list' ? 'bg-[#091540] text-white' : 'bg-gray-100 text-gray-700'}`}
                                                     >
                                                         Ver mis solicitudes
                                                     </button>
@@ -268,8 +268,8 @@ export default function UserRequestAvailWater (){
                         }}
                         className="px-6 py-4 space-y-6"
                     >
-                        <h1 className="text-2xl font-bold text-[#091540]">Solicitar Disponibilidad de Agua</h1>
-                        <p className="text-[#091540]/70 text-md">Crear una nueva solicitud</p>
+                        <h1 className="text-2xl font-bold text-[#091540]">Solicitud de disponibilidad de agua</h1>
+                        <p className="text-[#091540]/70 text-md">Complete la información y adjunte los documentos requeridos</p>
                               <div className="border-b border-dashed border-gray-300 mb-2"></div>
                         {/* Datos del solicitante */}
                         {UserProfile && (
