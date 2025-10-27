@@ -75,7 +75,7 @@ export default function ResumeReqAvailWater({
       <StatCard
         title="Total de solicitudes"
         value={total}
-        subtitle="Registradas en el sistema"
+        subtitle="Registradas"
         icon={<FileText size={18} />}
         loading={!!loading}
       />
