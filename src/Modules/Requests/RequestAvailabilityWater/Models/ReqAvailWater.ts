@@ -43,17 +43,7 @@ export const newReqAvailWaterInitialState: NewReqAvailWater = {
   StateRequestId: 0,
 };
 
-export interface UpdateReqAvailWater {
-  Justification?: string;
-  Date?: Date;
-  IdCardFiles?: string[];
-  PlanoPrintFiles?: string[];
-  LiteralCertificateFile?: string;
-  RequestLetterFile?: string;
-  ConstructionPermitFile?: string;
-  IsActive?: string;
-  // Permitir cambiar FKs (en línea con UpdateProject que expone IDs)
-  UserId?: number;
+export interface UpdateReqAvailabilityWater {
   StateRequestId?: number;
 }
 

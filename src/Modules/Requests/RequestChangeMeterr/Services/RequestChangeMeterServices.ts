@@ -1,21 +1,31 @@
 import apiAxios from "../../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import type { RequestState } from "../../StateRequest/Model/RequestState";
 import type {
   ReqChangeMeter,
   newReqChangeMeter,
-  UpdateReqChangeMeter,
+  UpdateReqChangeMeterr,
   ReqChangeMeterPaginationParams,
 } from "../Models/RequestChangeMeter";
 
 const BASE = "/request-change-meter";
 
+// Obtener todos los estados de solicitud
+export async function getAllRequestStates(): Promise<RequestState[]> {
+  try {
+    const { data } = await apiAxios.get<RequestState[]>('/state-request');
+    
+    return data ?? [];
+  } catch (err: any) {
+    return Promise.reject(err);
+  }
+}
 
 export async function getAllReqChangeMeter(): Promise<ReqChangeMeter[]> {
   try {
     const { data } = await apiAxios.get<ReqChangeMeter[]>(BASE);
     return data;
   } catch (err) {
-    console.error("Error obteniendo cambios de medidor", err);
     return Promise.reject(err);
   }
 }
@@ -67,22 +77,15 @@ export async function createReqChangeMeter(
 }
 
 // Actualizar
-export async function updateReqChangeMeter(
+export async function UpdateReqChangeMeter(
   id: number,
-  payload: UpdateReqChangeMeter
+  payload: UpdateReqChangeMeterr
 ): Promise<ReqChangeMeter> {
   try {
-    // Tu interfaz Update tiene NIS: string; conviértelo si viene como texto
-    const body: any = { ...payload };
-    if (typeof payload.NIS === "string" && payload.NIS.trim() !== "") {
-      const n = Number(payload.NIS);
-      if (!Number.isNaN(n)) body.NIS = n;
-    }
-
-    const { data } = await apiAxios.put<ReqChangeMeter>(`${BASE}/${id}`, body);
+    const { data } = await apiAxios.put<ReqChangeMeter>(`${BASE}/${id}`, payload);
     return data;
   } catch (err) {
-    console.error(`Error actualizando cambio de medidor ${id}`, err);
+    console.error(`Error actualizando disponibilidad de agua ${id}`, err);
     return Promise.reject(err);
   }
 }

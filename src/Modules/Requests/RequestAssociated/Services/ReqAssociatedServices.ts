@@ -1,10 +1,21 @@
 // Services/RequestAssociatedServices.ts
 import apiAxios from "../../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import type { RequestState } from "../../StateRequest/Model/RequestState";
 import type { newReqAssociated, ReqAssociated, ReqAssociatedPaginationParams, UpdateReqAssociated } from "../Models/RequestAssociated";
 
 const BASE = "/request-associated";
 
+// Obtener todos los estados de solicitud
+export async function getAllRequestStates(): Promise<RequestState[]> {
+  try {
+    const { data } = await apiAxios.get<RequestState[]>('/state-request');
+    
+    return data ?? [];
+  } catch (err: any) {
+    return Promise.reject(err);
+  }
+}
 // Listado simple (IsActive = true en el back)
 export async function getAllRequestAssociated(): Promise<ReqAssociated[]> {
   try {
@@ -62,16 +73,16 @@ export async function createRequestAssociated(
   }
 }
 
-// Actualizar (el back usa @Patch)
-export async function updateRequestAssociated(
+// Actualizar 
+export async function UpdateAssociatedReq(
   id: number,
   payload: UpdateReqAssociated
 ): Promise<ReqAssociated> {
   try {
-    const { data } = await apiAxios.patch<ReqAssociated>(`${BASE}/${id}`, payload);
+    const { data } = await apiAxios.put<ReqAssociated>(`${BASE}/${id}`, payload);
     return data;
   } catch (err) {
-    console.error(`Error actualizando asociado ${id}`, err);
+    console.error(`Error actualizando disponibilidad de agua ${id}`, err);
     return Promise.reject(err);
   }
 }

@@ -4,9 +4,10 @@ import type {
   ReqChangeNameMeter,
   newReqChangeNameMeter,
   ReqChangeNameMeterPaginationParams,
+  UpdateReqChangeNameMeter,
 } from "../Models/RequestChangeNameMeter";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
-import { createReqChangeNameMeter, deleteReqChangeNameMeter, getAllReqChangeNameMeter, getReqChangeNameMeterById, searchReqChangeNameMeter } from "../Services/RequestChangeNameMeter";
+import { createReqChangeNameMeter, deleteReqChangeNameMeter, getAllReqChangeNameMeter, getAllRequestStates, getReqChangeNameMeterById, searchReqChangeNameMeter, updateReqChangeNameMeter } from "../Services/RequestChangeNameMeter";
 
 // Listado simple
 export const useGetAllReqChangeNameMeter = () => {
@@ -64,19 +65,19 @@ export const useCreateReqChangeNameMeter = () => {
   });
 };
 
-// // Actualizar
-// export const useUpdateReqChangeNameMeter = () => {
-//   const qc = useQueryClient();
-//   return useMutation<ReqChangeNameMeter, Error, { id: number; data: UpdateReqChangeNameMeter }>({
-//     mutationFn: ({ id, data }) => updateReqChangeNameMeter(id, data),
-//     onSuccess: (res) => {
-//       console.log("Cambio de nombre de medidor actualizado", res);
-//       qc.invalidateQueries({ queryKey: ["request-change-name-meter"] });
-//       qc.invalidateQueries({ queryKey: ["request-change-name-meter", res.Id] });
-//     },
-//     onError: (err) => console.error("Error actualizando cambio de nombre de medidor", err),
-//   });
-// };
+//Actualizar
+export const useUpdateReqChangeNameMeter = () => {
+  const qc = useQueryClient();
+  return useMutation<ReqChangeNameMeter, Error, { id: number; data: UpdateReqChangeNameMeter }>({
+    mutationFn: ({ id, data }) => updateReqChangeNameMeter(id, data),
+    onSuccess: (res) => {
+      console.log("Cambio de nombre de medidor actualizado", res);
+      qc.invalidateQueries({ queryKey: ["request-change-name-meter"] });
+      qc.invalidateQueries({ queryKey: ["request-change-name-meter", res.Id] });
+    },
+    onError: (err) => console.error("Error actualizando cambio de nombre de medidor", err),
+  });
+};
 
 // Eliminar
 export const useDeleteReqChangeNameMeter = () => {
@@ -90,3 +91,14 @@ export const useDeleteReqChangeNameMeter = () => {
     onError: (err) => console.error("Error eliminando cambio de nombre de medidor", err),
   });
 };
+
+// Obtener todos los estados de solicitud
+export const useGetAllRequestStates = () => {
+  const { data, isPending, error } = useQuery({
+    queryKey: ["request-states"],
+    queryFn: () => getAllRequestStates(),
+    staleTime: 30_000,
+  });
+  return { requestStates: data ?? [], isPending, error };
+}
+

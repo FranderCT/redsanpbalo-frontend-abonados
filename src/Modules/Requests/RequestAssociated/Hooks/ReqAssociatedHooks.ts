@@ -1,6 +1,6 @@
 // Hooks/RequestAssociatedHooks.ts
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRequestAssociated, deleteRequestAssociated, getAllRequestAssociated, getRequestAssociatedById, searchRequestAssociated, updateRequestAssociated } from "../Services/ReqAssociatedServices";
+import { createRequestAssociated, deleteRequestAssociated, getAllRequestAssociated, getAllRequestStates, getRequestAssociatedById, searchRequestAssociated, UpdateAssociatedReq} from "../Services/ReqAssociatedServices";
 import type { newReqAssociated, ReqAssociated, ReqAssociatedPaginationParams, UpdateReqAssociated } from "../Models/RequestAssociated";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 
@@ -62,19 +62,18 @@ export const useCreateRequestAssociated = () => {
 };
 
 // Actualizar
-export const useUpdateRequestAssociated = () => {
+export const useUpdateAssociatedreq = () => {
   const qc = useQueryClient();
-  return useMutation<ReqAssociated, Error, { id: number; data: UpdateReqAssociated }>({
-    mutationFn: ({ id, data }) => updateRequestAssociated(id, data),
+  return useMutation<ReqAssociated, Error, { id: number; data:UpdateReqAssociated }>({
+    mutationFn: ({ id, data }) =>UpdateAssociatedReq(id, data),
     onSuccess: (res) => {
-      console.log("Asociado actualizado", res);
+      console.log("Estado de asociado actualizada", res);
       qc.invalidateQueries({ queryKey: ["request-associated"] });
       qc.invalidateQueries({ queryKey: ["request-associated", res.Id] });
     },
-    onError: (err) => console.error("Error actualizando asociado", err),
+    onError: (err) => console.error("Error actualizando estado de asociado", err),
   });
 };
-
 // Eliminar
 export const useDeleteRequestAssociated = () => {
   const qc = useQueryClient();
@@ -87,3 +86,13 @@ export const useDeleteRequestAssociated = () => {
     onError: (err) => console.error("Error eliminando asociado", err),
   });
 };
+
+// Obtener todos los estados de solicitud
+export const useGetAllRequestStates = () => {
+  const { data, isPending, error } = useQuery({
+    queryKey: ["request-states"],
+    queryFn: () => getAllRequestStates(),
+    staleTime: 30_000,
+  });
+  return { requestStates: data ?? [], isPending, error };
+}
