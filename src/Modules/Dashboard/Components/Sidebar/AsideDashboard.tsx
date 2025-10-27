@@ -118,7 +118,7 @@ useEffect(() => {
               { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests/availability-water/admin" }) },
               { label: "Revisión de Medidor", onClick: () => navigate({ to: "/dashboard/requests/supervision-meter/admin" }) },
               { label: "Cambio de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-meter/admin" }) },
-              { label: "Cambio Nombre de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-meter/admin" }) },
+              { label: "Cambio Nombre de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-name-meter/admin" }) },
               { label: "Asociado", onClick: () => navigate({ to: "/dashboard/requests/associated/admin" }) },
             ]}
           />

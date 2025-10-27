@@ -1,13 +1,14 @@
 import { useMemo, useState } from "react";
-import { useGetAllRequestStates } from "../../../Requests/StateRequest/Hooks/RequestStateHook";
 import type { RequestState } from "../../../Requests/StateRequest/Model/RequestState";
+import { useGetAllRequestStates } from "../../../Requests/StateRequest/Hooks/RequestStateHook";
+import { useGetMyReqChangeNameMeterPaginated } from "../../Hooks/ChangeNameMeter/ChangeNameMeter";
+import type { ReqChangeNameMeter } from "../../../Requests/RequestChangeNameMeter/Models/RequestChangeNameMeter";
 import ResumeReqAvailWater from "../../../Requests/Components/Cards/ResumeReqAvailWater";
-import ReqChangeMeterUserHeaderBar from "../../Components/Change-Meter/ReqChangeMeterUserHeaderBar";
-import ReqChangeMeterUserTable from "../../Components/Change-Meter/ReqChangeMeterUserTable";
-import { useGetMyReqChangeMeterPaginated } from "../../Hooks/Change-Meter/ChangeMeterHooks";
-import type { ReqChangeMeter } from "../../../Requests/RequestChangeMeterr/Models/RequestChangeMeter";
+import ReqChangeNameMeterUserHeaderBar from "../../Components/ChangeNameMeter/ReqChangeNameMeterUserHeaderBar";
+import ReqChangeNameMeterUserTable from "../../Components/ChangeNameMeter/ReqChangeNameMeterUserTable";
 
-export default function ListReqChangeMeterUser() {
+
+export default function ListReqChangeNameMeterUser() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
@@ -33,13 +34,13 @@ export default function ListReqChangeMeterUser() {
   const requestStatesLoading: boolean = reqAvailWaterStatesLoading;
 
   // Backend paginado (mis solicitudes) con filtros
-  const { data, isLoading, error } = useGetMyReqChangeMeterPaginated({
+  const { data, isLoading, error } = useGetMyReqChangeNameMeterPaginated({
     page,
     limit,
     StateRequestId: stateRequestId
   });
 
-  const rows: ReqChangeMeter[] = data?.data ?? [];
+  const rows: ReqChangeNameMeter[] = data?.data ?? [];
   const meta = {
     total: data?.meta?.total ?? 0,
     page: data?.meta?.page ?? page,
@@ -75,7 +76,7 @@ export default function ListReqChangeMeterUser() {
 
   return (
     <div className="px-6 py-4 space-y-6">
-      <h1 className="text-2xl font-bold text-[#091540]">Mis Solicitudes de Cambio de Medidor</h1>
+      <h1 className="text-2xl font-bold text-[#091540]">Mis Solicitudes de Cambio de Nombre Medidor</h1>
       <p className="text-[#091540]/70 text-md">Lista de solicitudes realizadas</p>
       <div className="border-b border-dashed border-gray-300 "></div>
       {/* Cards (con totales de la página actual) */}
@@ -90,7 +91,7 @@ export default function ListReqChangeMeterUser() {
       <div className="border-b border-dashed border-gray-300 mt-4 mb-6"></div>
       {/* Control de búsqueda y filtros */}
       <div className="mb-4">
-        <ReqChangeMeterUserHeaderBar
+        <ReqChangeNameMeterUserHeaderBar
           limit={meta.limit}
           total={meta.total}
           search={search}
@@ -112,7 +113,7 @@ export default function ListReqChangeMeterUser() {
         ) : error ? (
           <div className="p-6 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
         ) : (
-          <ReqChangeMeterUserTable
+          <ReqChangeNameMeterUserTable
             data={filteredRows}
             page={meta.page}
             pageCount={meta.pageCount}

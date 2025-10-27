@@ -1,23 +1,24 @@
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import ReqAvailWaterPager from "../../../Requests/RequestAvailabilityWater/Components/PaginationReqAvailabilityWater/ReqAvailWaterPager";
-import { ReqChangeMeterUserColumns } from "./ReqChangeMeterUserColumns";
-import type { ReqChangeMeter } from "../../../Requests/RequestChangeMeterr/Models/RequestChangeMeter";
+import type { ReqAssociated } from "../../../Requests/RequestAssociated/Models/RequestAssociated";
+import { ReqAssociatedUserColumns } from "./ReqAssociatedUserColumns";
+
 
 type Props = {
-  data: ReqChangeMeter[];
+  data: ReqAssociated[];
   page: number;
   pageCount: number;
   onPageChange: (p: number) => void;
 };
 
-export default function ReqChangeMeterUserTable({
+export default function ReqAssociatedUserTable({
   data,
   page,
   pageCount,
   onPageChange,
 }: Props) {
   // Use the same column definitions as the main table, but wired to this table's edit handler
-  const columns = ReqChangeMeterUserColumns();
+  const columns = ReqAssociatedUserColumns();
 
   // const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
 
