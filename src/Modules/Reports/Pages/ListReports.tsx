@@ -10,6 +10,7 @@ import ReportPager from "../Components/Pagination/ReportPager";
 import ReportsGrid from "../Components/ReportsGrid";
 import GetInfoReportModal from "../Components/Modals/GetInfoReportModal";
 import CreateReportModal from "../Components/Modals/CreateReportModal";
+import EditReportModal from "../Components/Modals/EditReportModal";
 
 const ListReports = () => {
   const [page, setPage] = useState(1);
@@ -22,6 +23,10 @@ const ListReports = () => {
     // Estado para el modal de detalles
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  // Estado para el modal de edición
+  const [selectedEditReport, setSelectedEditReport] = useState<Report | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   const handleSearch = (txt: string) => {
     setSearch(txt);
@@ -59,6 +64,16 @@ const ListReports = () => {
   const handleCloseModal = () => {
     setIsDetailModalOpen(false);
     setSelectedReport(null);
+  };
+
+  const handleEditReport = (report: Report) => {
+    setSelectedEditReport(report);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedEditReport(null);
   };
 
   const params: ReportPaginationParams = useMemo(
@@ -129,6 +144,7 @@ const ListReports = () => {
             <ReportsGrid
               reports={items}
               onViewDetails={handleViewDetails}
+              onEditReport={handleEditReport}
               emptyText="No se encontraron reportes con los filtros aplicados."
             />
           </div>
@@ -151,6 +167,15 @@ const ListReports = () => {
           report={selectedReport}
           open={isDetailModalOpen}
           onClose={handleCloseModal}
+        />
+      )}
+
+      {/* Modal de edición */}
+      {selectedEditReport && (
+        <EditReportModal
+          report={selectedEditReport}
+          open={isEditModalOpen}
+          onClose={handleCloseEditModal}
         />
       )}
 

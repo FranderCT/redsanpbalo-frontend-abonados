@@ -13,6 +13,7 @@ export interface Report {
     CreatedAt: Date;
     ReportState: ReportState;
     UserInCharge: User | null;
+    AdditionalInfo?: string;
 }
 
 export interface ReportPaginationParams {
@@ -32,4 +33,15 @@ export interface CreateReportPayload {
     ReportTypeId: number;
     ReportStateId?: number;
     UserInChargeId?: number;
+}
+
+export interface UpdateReportPayload {
+    Location?: string;
+    Description?: string;
+    UserId?: number;
+    LocationId?: number;
+    ReportTypeId?: number;
+    ReportStateId?: number;
+    UserInChargeId?: number;
+    AdditionalInfo?: string;
 }

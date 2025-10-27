@@ -1,10 +1,17 @@
 import { createRoute } from "@tanstack/react-router";
-import ListReqChangeNameMeter from "../../RequestChangeNameMeter/Pages/ListReqChangeNameMeter";
 import { requestsRoute } from "../../Routes/RequestRoutes";
+import UserRequestChangeNameMeter from "../Pages/UserRequestChangeNameMeter";
+import ListReqChangeNameMeter from "../Pages/ListReqChangeNameMeter";
 
 
-export const requestChangeNameMeterRoute = createRoute({
+export const requestUserChangeNameMeterRoute = createRoute({
     getParentRoute: ()=> requestsRoute,
     path: 'change-name-meter',
-    component: ListReqChangeNameMeter
+    component: UserRequestChangeNameMeter,
+})
+
+export const requestListChangeNameMeter= createRoute({
+    getParentRoute : () => requestsRoute,
+    path : 'change-name-meter/admin',
+    component:  ListReqChangeNameMeter,
 })

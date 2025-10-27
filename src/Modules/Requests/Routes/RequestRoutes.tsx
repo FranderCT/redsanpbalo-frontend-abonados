@@ -5,7 +5,7 @@ import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
     export const requestsRoute = createRoute({
     getParentRoute: () => dashboardRoute,
     path: "requests", 
-    component: Outlet,
+    component: () => <Outlet />,
     });
 
     

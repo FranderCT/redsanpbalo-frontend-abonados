@@ -83,6 +83,12 @@ export default function GetInfoReportModal({
               />
             </div>
           )}
+
+          {report.AdditionalInfo && (
+            <div className="sm:col-span-2">
+              <Field label="Información Adicional" value={report.AdditionalInfo} />
+            </div>
+          )}
         </dl>
 
         <div className="mt-6 flex justify-end gap-3">
