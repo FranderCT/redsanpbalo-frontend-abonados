@@ -237,20 +237,26 @@ export default function UserRequestAvailWater (){
                 return (
                         <div>
                                         {/* Header */}
-                                        <div className="px-6 py-4 text-[#091540] border-b border-gray-200 sticky flex items-center justify-between gap-4">
+                                        <div className="px-6 py-4 text-[#091540] border-b border-gray-200 flex items-center justify-between gap-4 bg-white">
+                                                <div className="hidden sm:block">
+                                                    <h3 className="text-lg font-semibold">Disponibilidad de agua</h3>
+                                                    <p className="text-xs text-[#091540]/70">Cree una nueva solicitud o revise su historial</p>
+                                                </div>
 
-                                                <div className="flex gap-2">
+                                                <div className="inline-flex items-center rounded-md bg-gray-100 p-1 border border-gray-200 shadow-sm">
                                                     <button
                                                         type="button"
                                                         onClick={() => setViewMode('create')}
-                                                        className={`h-9 px-4  ${viewMode === 'create' ? 'bg-[#091540] text-white' : 'bg-gray-100 text-gray-700'}`}
+                                                        aria-pressed={viewMode === 'create'}
+                                                        className={`h-9 px-4 rounded-md text-sm font-medium transition-all ${viewMode === 'create' ? 'bg-[#091540] text-white shadow' : 'bg-transparent text-[#091540] hover:bg-white'}`}
                                                     >
                                                         Nueva solicitud
                                                     </button>
                                                     <button
                                                         type="button"
                                                         onClick={() => setViewMode('list')}
-                                                        className={`h-9 px-4  ${viewMode === 'list' ? 'bg-[#091540] text-white' : 'bg-gray-100 text-gray-700'}`}
+                                                        aria-pressed={viewMode === 'list'}
+                                                        className={`h-9 px-4 rounded-md text-sm font-medium transition-all ${viewMode === 'list' ? 'bg-[#091540] text-white shadow' : 'bg-transparent text-[#091540] hover:bg-white'}`}
                                                     >
                                                         Ver mis solicitudes
                                                     </button>

@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { ReqAvailWater } from "../../../Requests/RequestAvailabilityWater/Models/ReqAvailWater";
+import type { ReqChangeMeter } from "../../../Requests/RequestChangeMeterr/Models/RequestChangeMeter";
 
 // ---- helpers ----
 const formatDateOnly = (value?: string | Date) => {
@@ -45,10 +45,10 @@ const guessStateColor = (normalized: string) => {
     return stateColorsDict["pendiente"];
 };
 
-export const ReqAvailWaterUserColumns = (
+export const ReqChangeMeterUserColumns = (
   // onEdit: (req: ReqAvailWater) => void
   // onGetInfo?: (req: ReqAvailWater) => void
-): ColumnDef<ReqAvailWater>[] => [
+): ColumnDef<ReqChangeMeter>[] => [
   {
     id: "Date",
     header: "Fecha Solicitud",
