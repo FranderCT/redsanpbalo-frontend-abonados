@@ -7,7 +7,7 @@ import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCatego
 import { useEffect } from "react";
 
 // Claves de caché estándar (todas las claves derivan de un baseKey sólido)
-const baseKey = "reqAvailWater" as const;
+const baseKey = "reqAssociated" as const;
 
 const QK = {
   all:        [baseKey] as const,

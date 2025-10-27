@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { useForm } from '@tanstack/react-form';
 import { uploadWithRetry } from '../../../Request-Abonados/Components/AvailabilityWater/CreateAvailabilityWaterRqModal';
 import { UploadAssociatedFiles } from '../../../Upload-files/Services/ProjectFileServices';
-import ListReqAssUser from '../../../Request-Abonados/Pages/Associated-rq/ListRequestAssociatedUsers';
+import ListReqAssociateUser from '../../../Request-Abonados/Pages/Associated-rq/ListRequestAssociatedUsers';
 
 export function UserRequestAssociated () {
     const useCreateAssociatedRequestMutation = useCreateAssociatedRequest();
@@ -130,7 +130,7 @@ export function UserRequestAssociated () {
 
             {/* Body */}
             {viewMode === 'list' ? (
-                <ListReqAssUser />
+                <ListReqAssociateUser />
             ) : (
             <form
                 onSubmit={(e) => {
