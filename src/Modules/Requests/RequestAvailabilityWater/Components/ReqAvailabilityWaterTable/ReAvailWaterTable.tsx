@@ -3,6 +3,7 @@ import type { ReqAvailWater } from "../../Models/ReqAvailWater";
 import { ReqAvailWaterColumns } from "./ReqAvailWaterColumns";
 import { useState } from "react";
 import ReqAvailWaterPager from "../PaginationReqAvailabilityWater/ReqAvailWaterPager";
+import UpdateReqAvailWaterStateModal from "../../Modals/UpdateRequestModal";
 
 
 type Props = {
@@ -31,8 +32,13 @@ export default function ReqAvailWaterTable({
 
   return (
     <div className="w-full">
-      {/* Si no tienes modal, evita JSX vacío */}
-      {editingReqAvailWater && null}
+      {/* ✅ Renderiza el modal controlado */}
+        <UpdateReqAvailWaterStateModal
+          open={!!editingReqAvailWater}
+          req={editingReqAvailWater}
+          onClose={() => setEditingReqAvailWater(null)}
+          onSuccess={() => setEditingReqAvailWater(null)}
+        />
 
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>

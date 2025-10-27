@@ -3,6 +3,7 @@ import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-tabl
 import type { ReqAssociated } from "../../Models/RequestAssociated";
 import { ReqAssociatedColumns } from "./ReqAssociatedColumns";
 import ReqAssociatedPager from "../PaginationReqAssociated/ReqAssociatedPager";
+import UpdateReqAssociatedStateModal from "../Modals/UpdateAssociatedModal";
 
 type Props = {
   data: ReqAssociated[];
@@ -29,8 +30,13 @@ export default function ReqAssociatedTable({
 
   return (
     <div className="w-full">
-      {/* Si no tienes modal, evita JSX vacío */}
-      {editingReqAssociated && null}
+      {/* ✅ Renderiza el modal controlado */}
+        <UpdateReqAssociatedStateModal
+          open={!!editingReqAssociated}
+          req={editingReqAssociated}
+          onClose={() => setEditingReqAssociated(null)}
+          onSuccess={() => setEditingReqAssociated(null)}
+        />
 
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>

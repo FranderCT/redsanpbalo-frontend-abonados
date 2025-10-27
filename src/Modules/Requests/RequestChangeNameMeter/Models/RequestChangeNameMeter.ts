@@ -29,13 +29,9 @@ export const newReqChangeMeterInitialState: newReqChangeNameMeter = {
   StateRequestId: 0,
 };
 
-// export interface UpdateReqChangeNameMeter {
-//   Location?: string;
-//   NIS: string;
-//   Justification?: string;
-//   UserId?: number;
-//   StateRequestId?: number;
-// }
+export interface UpdateReqChangeNameMeter {
+  StateRequestId?: number;
+}
 
 // Paginación / filtros (manteniendo el estilo del ProjectPaginationParams)
 export interface ReqChangeNameMeterPaginationParams {

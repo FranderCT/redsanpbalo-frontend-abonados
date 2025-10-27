@@ -31,11 +31,7 @@ export const newReqChangeMeterInitialState: newReqChangeMeter = {
   StateRequestId: 0,
 };
 
-export interface UpdateReqChangeMeter {
-  Location?: string;
-  NIS: string;
-  Justification?: string;
-  UserId?: number;
+export interface UpdateReqChangeMeterr {
   StateRequestId?: number;
 }
 

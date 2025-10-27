@@ -3,14 +3,15 @@ import {
   createReqChangeMeter,
   deleteReqChangeMeter,
   getAllReqChangeMeter,
+  getAllRequestStates,
   getReqChangeMeterById,
   searchReqChangeMeter,
-  updateReqChangeMeter,
+  UpdateReqChangeMeter,
 } from "../Services/RequestChangeMeterServices";
 import type {
   ReqChangeMeter,
-  UpdateReqChangeMeter,
   ReqChangeMeterPaginationParams,
+  UpdateReqChangeMeterr,
 } from "../Models/RequestChangeMeter";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 
@@ -68,19 +69,17 @@ export const useCreateReqChangeMeter = () => {
 };
 
 // Actualizar
-export const useUpdateReqChangeMeter = () => {
+export const useUpdateChangeMeter = () => {
   const qc = useQueryClient();
-  return useMutation<ReqChangeMeter, Error, { id: number; data: UpdateReqChangeMeter }>({
-    mutationFn: ({ id, data }) => updateReqChangeMeter(id, data),
+  return useMutation<ReqChangeMeter, Error, { id: number; data: UpdateReqChangeMeterr}>({
+    mutationFn: ({ id, data }) =>UpdateReqChangeMeter(id, data),
     onSuccess: (res) => {
-      console.log("Cambio de medidor actualizado", res);
-      qc.invalidateQueries({ queryKey: ['changeMeters','dashboard'] });
-      qc.invalidateQueries({ queryKey: ['changeMeters','dashboard', res.Id] });
+      qc.invalidateQueries({ queryKey: ["changeMeters"] });
+      qc.invalidateQueries({ queryKey: ["changeMeters", res.Id] });
     },
-    onError: (err) => console.error("Error actualizando cambio de medidor", err),
+    onError: (err) => console.error("Error actualizando solicitud", err),
   });
 };
-
 // Eliminar
 export const useDeleteReqChangeMeter = () => {
   const qc = useQueryClient();
@@ -93,3 +92,13 @@ export const useDeleteReqChangeMeter = () => {
     onError: (err) => console.error("Error eliminando cambio de medidor", err),
   });
 };
+
+// Obtener todos los estados de solicitud
+export const useGetAllRequestStates = () => {
+  const { data, isPending, error } = useQuery({
+    queryKey: ["request-states"],
+    queryFn: () => getAllRequestStates(),
+    staleTime: 30_000,
+  });
+  return { requestStates: data ?? [], isPending, error };
+}
