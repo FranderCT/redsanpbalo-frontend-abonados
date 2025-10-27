@@ -2,6 +2,8 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import ReqAvailWaterPager from "../../../Requests/RequestAvailabilityWater/Components/PaginationReqAvailabilityWater/ReqAvailWaterPager";
 import type { ReqSupervisionMeter } from "../../../Requests/RequestSupervisionMeter/Models/ReqSupervisionMeter";
 import { ReqSupervisionMeterUserColumns } from "./ReqSupervisionMeterUserColumn";
+import { useState } from "react";
+import RequestDetailModal from "../Modals/RequestDetailModal";
 
 type Props = {
   data: ReqSupervisionMeter[];
@@ -16,8 +18,21 @@ export default function ReqSupervisionMeterUserTable({
   pageCount,
   onPageChange,
 }: Props) {
+  const [selectedRequest, setSelectedRequest] = useState<ReqSupervisionMeter | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  const handleGetInfo = (req: ReqSupervisionMeter) => {
+    setSelectedRequest(req);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedRequest(null);
+  };
+
   // Use the same column definitions as the main table, but wired to this table's edit handler
-  const columns = ReqSupervisionMeterUserColumns();
+  const columns = ReqSupervisionMeterUserColumns(handleGetInfo);
 
   // const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
 
@@ -92,6 +107,15 @@ export default function ReqSupervisionMeterUserTable({
           </tr>
         </tfoot>
       </table>
+
+      {selectedRequest && (
+        <RequestDetailModal
+          open={showDetailModal}
+          onClose={handleCloseModal}
+          title="Detalles de Solicitud de Supervisión de Medidor"
+          data={selectedRequest}
+        />
+      )}
     </div>
   );
 }
