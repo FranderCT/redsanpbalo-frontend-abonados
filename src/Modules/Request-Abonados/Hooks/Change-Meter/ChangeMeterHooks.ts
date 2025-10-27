@@ -34,7 +34,7 @@ export function useGetAllReqChangeMeter() {
 }
 
 // Búsqueda paginada (admin/general)
-export function useSearchReqAvailWater(params: ReqChangeMeterPaginationParams) {
+export function useSearchReqChangeMeter(params: ReqChangeMeterPaginationParams) {
   return useQuery<PaginatedResponse<ReqChangeMeter>, Error>({
     queryKey: QK.list(params),
     queryFn: () => searchReqChangeMeter(params),
