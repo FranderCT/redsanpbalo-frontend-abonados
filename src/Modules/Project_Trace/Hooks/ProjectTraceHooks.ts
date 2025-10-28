@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { createProjectTrace, getProjectTraceById } from "../Services/ProjectTraceServices";
+import { createProjectTrace, getProjectTraceById, getProjectTracesByProjectId, getTotalActualExpenseByProjectId } from "../Services/ProjectTraceServices";
 
 export const useCreateProjectTrace = () => {
     const qc = useQueryClient();
@@ -26,4 +26,24 @@ export const useGetProjectTraceById = (id: number) => {
   });
 
   return { traceProj, isLoading, error };
+};
+
+export const useGetProjectTracesByProjectId = (projectId: number) => {
+  const {data: projectTraces, isLoading, error} = useQuery({
+    queryKey: ["project-traces", projectId],
+    queryFn: () => getProjectTracesByProjectId(projectId),
+    enabled: !!projectId,
+  });
+
+  return { projectTraces, isLoading, error };
+};
+
+export const useGetTotalActualExpenseByProjectId = (projectId: number) => {
+  const {data: totalActualExpense, isLoading, error} = useQuery({
+    queryKey: ["total-actual-expense", projectId],
+    queryFn: () => getTotalActualExpenseByProjectId(projectId),
+    enabled: !!projectId,
+  });
+
+  return { totalActualExpense, isLoading, error };
 };
