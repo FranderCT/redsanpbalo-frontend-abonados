@@ -150,16 +150,16 @@ export default function DetailsProjectContainer({ data }: Props) {
             <div className="overflow-hidden rounded-lg shadow-sm border border-gray-200">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gradient-to-r bg-[#091540]  text-white">
-                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Producto</th>
-                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Tipo</th>
-                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad</th>
-                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Categoría</th>
+                  <tr className="bg-gradient-to-r from-[#091540] to-[#091540]/90 text-white">
+                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Nombre del Producto</th>
+                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Tipo y Material</th>
+                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad Estimada</th>
+                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Categoría del Producto</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {data.ProjectProjection.ProductDetails.map((pd, index) => (
-                    <tr key={pd.Id} className={` ${index % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                    <tr key={pd.Id} className={`${index % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
                       <td className="px-4 py-3 font-medium text-[#091540]">{pd.Product.Name}</td>
                       <td className="px-4 py-3 text-gray-700">{pd.Product?.Type} {pd.Product.Material?.Name}</td>
                       <td className="px-4 py-3 font-semibold text-[#091540]">{pd.Quantity}</td>
@@ -173,97 +173,92 @@ export default function DetailsProjectContainer({ data }: Props) {
 
           <Divider />
 
-          <h4 className="text-2xl font-semibold tracking-wide">Comparativa: Proyección vs Gasto Real</h4>
 
-          {totalExpenseLoading ? (
-            <div className="text-center py-8">
-              <p className="text-lg text-[#091540]/70">Cargando comparativa...</p>
-            </div>
-          ) : totalActualExpense && totalActualExpense.length > 0 ? (
-            <div className="space-y-6">
-              {totalActualExpense.map((expense: any) => (
-                <div key={expense.Id} className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
-                  <h5 className="text-lg font-semibold text-[#091540] mb-4 flex items-center">
-                    <span className="w-3 h-3 bg-[#1789FC] rounded-full mr-2"></span>
-                    {expense.Description}
-                  </h5>
-                  
-                  <div className="overflow-hidden rounded-lg shadow-md border border-blue-200">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="bg-gradient-to-r from-[#1789FC] to-[#1789FC]/80 text-white">
-                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Producto</th>
-                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Tipo</th>
-                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Proyectado</th>
-                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Real Usado</th>
-                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Diferencia</th>
-                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Estado</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-blue-200 bg-white">
-                        {expense.ProductDetails.map((detail: any, index: number) => {
-                          // Buscar el producto correspondiente en la proyección
-                          const projectedProduct = data.ProjectProjection.ProductDetails.find(
-                            (pd) => pd.Product.Id === detail.Product.Id
-                          );
-                          const projectedQuantity = projectedProduct?.Quantity || 0;
-                          const realQuantity = detail.Quantity;
-                          const difference = realQuantity - projectedQuantity;
-                          const isOverBudget = difference > 0;
-                          const isOnTrack = difference === 0;
-                          
-                          return (
-                            <tr key={detail.Id} className={`hover:bg-blue-50 transition-colors duration-200 ${index % 2 === 0 ? 'bg-blue-50/30' : 'bg-white'}`}>
-                              <td className="px-4 py-3 font-medium text-[#091540]">{detail.Product.Name}</td>
-                              <td className="px-4 py-3 text-gray-700">{detail.Product.Type}</td>
-                              <td className="px-4 py-3 font-semibold text-green-600 text-center">
-                                <span className="bg-green-100 px-2 py-1 rounded-full">
-                                  {projectedQuantity}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 font-semibold text-[#1789FC] text-center">
-                                <span className="bg-[#1789FC]/10 px-2 py-1 rounded-full">
-                                  {realQuantity}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-center">
-                                <span className={`font-bold px-2 py-1 rounded-full ${
-                                  isOnTrack 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : isOverBudget 
-                                      ? 'bg-red-100 text-red-800' 
-                                      : 'bg-blue-100 text-blue-800'
-                                }`}>
-                                  {difference > 0 ? `+${difference}` : difference}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-center">
-                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                  isOnTrack 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : isOverBudget 
-                                      ? 'bg-red-100 text-red-800' 
-                                      : 'bg-blue-100 text-blue-800'
-                                }`}>
-                                  {isOnTrack ? '✓ Exacto' : isOverBudget ? '⚠ Excedido' : '↓ Bajo presupuesto'}
-                                </span>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+          <Field label="Total Gastado">
+            {totalExpenseLoading ? (
+              <div className="text-center py-8">
+                <p className="text-lg text-[#091540]/70">Cargando comparativa...</p>
+              </div>
+            ) : totalActualExpense && totalActualExpense.length > 0 ? (
+              <div className="space-y-6">
+                {totalActualExpense.map((expense: any) => (
+                  <div key={expense.Id} className="bg-gradient-to-rrounded-lg p-6"> 
+                    <div className="overflow-hidden rounded-lg shadow-md border border-blue-200">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-gradient-to-r from-[#091540] to-[#091540]/90 text-white">
+                            <th className="px-4 py-3 text-left font-semibold tracking-wide">Nombre del Producto</th>
+                            <th className="px-4 py-3 text-left font-semibold tracking-wide">Tipo </th>
+                            <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad Proyectada</th>
+                            <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad Utilizada</th>
+                            <th className="px-4 py-3 text-left font-semibold tracking-wide">Diferencia</th>
+                            <th className="px-4 py-3 text-left font-semibold tracking-wide">Estado del Presupuesto</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 bg-white">
+                          {expense.ProductDetails.map((detail: any, index: number) => {
+                            // Buscar el producto correspondiente en la proyección
+                            const projectedProduct = data.ProjectProjection.ProductDetails.find(
+                              (pd) => pd.Product.Id === detail.Product.Id
+                            );
+                            const projectedQuantity = projectedProduct?.Quantity || 0;
+                            const realQuantity = detail.Quantity;
+                            const difference = realQuantity - projectedQuantity;
+                            const isOverBudget = difference > 0;
+                            const isOnTrack = difference === 0;
+                            
+                            return (
+                              <tr key={detail.Id} className={`${index % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                                <td className="px-4 py-3 font-medium text-[#091540]">{detail.Product.Name}</td>
+                                <td className="px-4 py-3 text-gray-700">{detail.Product.Type}</td>
+                                <td className="px-4 py-3 font-semibold text-green-600 text-center">
+                                  <span className="bg-green-100 px-2 py-1 rounded-full">
+                                    {projectedQuantity}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 font-semibold text-[#1789FC] text-center">
+                                  <span className="bg-[#1789FC]/10 px-2 py-1 rounded-full">
+                                    {realQuantity}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className={`font-bold px-2 py-1 rounded-full ${
+                                    isOnTrack 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : isOverBudget 
+                                        ? 'bg-red-100 text-red-800' 
+                                        : 'bg-blue-100 text-blue-800'
+                                  }`}>
+                                    {difference > 0 ? `+${difference}` : difference}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                    isOnTrack 
+                                      ? 'bg-green-100 text-green-800' 
+                                      : isOverBudget 
+                                        ? 'bg-red-100 text-red-800' 
+                                        : 'bg-blue-100 text-blue-800'
+                                  }`}>
+                                    {isOnTrack ? '✓ Exacto' : isOverBudget ? '⚠ Excedido' : '↓ Bajo presupuesto'}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-lg text-[#091540]/70 mb-2">No hay datos de comparativa disponibles</p>
-              <p className="text-sm text-[#091540]/50">La comparativa aparecerá cuando haya gastos reales registrados</p>
-            </div>
-          )}
-
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-lg text-[#091540]/70 mb-2">No hay datos de comparativa disponibles</p>
+                <p className="text-sm text-[#091540]/50">La comparativa aparecerá cuando haya gastos reales registrados</p>
+              </div>
+            )}
+          </Field>
           <Divider />
 
           <h4 className="text-2xl font-semibold tracking-wide">Seguimientos del proyecto</h4>
@@ -299,20 +294,20 @@ export default function DetailsProjectContainer({ data }: Props) {
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="bg-gradient-to-r from-[#091540] to-[#091540]/90 text-white">
-                              <th className="px-4 py-3 text-left font-semibold tracking-wide">Producto</th>
-                              <th className="px-4 py-3 text-left font-semibold tracking-wide">Tipo</th>
-                              <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad</th>
-                              <th className="px-4 py-3 text-left font-semibold tracking-wide">Unidad</th>
-                              <th className="px-4 py-3 text-left font-semibold tracking-wide">Categoría</th>
+                              <th className="px-4 py-3 text-left font-semibold tracking-wide">Nombre del Producto</th>
+                              <th className="px-4 py-3 text-left font-semibold tracking-wide">Tipo y Material</th>
+                              <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad Utilizada</th>
+                              <th className="px-4 py-3 text-left font-semibold tracking-wide">Unidad de Medida</th>
+                              <th className="px-4 py-3 text-left font-semibold tracking-wide">Categoría del Producto</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white">
                             {trace.ActualExpense.ProductDetails.map((detail, index) => (
-                              <tr key={detail.Id} className={` ${index % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                              <tr key={detail.Id} className={`${index % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
                                 <td className="px-4 py-3 font-medium text-[#091540]">{detail.Product.Name}</td>
                                 <td className="px-4 py-3 text-gray-700">{detail.Product.Type}</td>
                                 <td className="px-4 py-3 font-bold text-[#091540] text-center">
-                                  <span className="px-2 py-1 rounded-full">
+                                  <span className="bg-[#091540]/10 px-2 py-1 rounded-full">
                                     {detail.Quantity}
                                   </span>
                                 </td>
