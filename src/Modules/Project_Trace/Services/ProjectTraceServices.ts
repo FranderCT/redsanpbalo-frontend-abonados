@@ -21,3 +21,23 @@ export async function getProjectTraceById(id: number) : Promise<ProjectTrace>{
     return Promise.reject(err);
   }
 }
+
+export async function getProjectTracesByProjectId(projectId: number) : Promise<ProjectTrace[]>{
+  try{
+    const {data} = await apiAxios.get<ProjectTrace[]>(`${BASE}?projectId=${projectId}`);
+    return data;
+  }catch(err){
+    console.error("Error al obtener las trazas del proyecto", err);
+    return Promise.reject(err);
+  }
+}
+
+export async function getTotalActualExpenseByProjectId(projectId: number) : Promise<any>{
+  try{
+    const {data} = await apiAxios.get<any>(`total-actual-expense?projectId=${projectId}`);
+    return data;
+  }catch(err){
+    console.error("Error al obtener el total de gastos actuales", err);
+    return Promise.reject(err);
+  }
+}
