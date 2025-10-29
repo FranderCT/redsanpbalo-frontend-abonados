@@ -3,6 +3,7 @@ import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-tabl
 import type { ReqChangeNameMeter } from "../../Models/RequestChangeNameMeter";
 import { ReqChangeNameMeterColumns } from "./ReqChangeNameMeterColumn";
 import ReqChangeNameMeterPager from "../PaginationChangeNameMeter/ReqChangeNameMeterPager";
+import UpdateReqChangeNameMeterStateModal from "../Modals/UpdateChangeNameMeter";
 
 
 type Props = {
@@ -19,19 +20,23 @@ export default function ReqChangeNameMeterTable({
   pageCount,
   onPageChange,
 }: Props) {
-  const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqChangeNameMeter | null>(null);
-  // const [getInfoReqAvailWater, setGetInfoReqAvailWater] = useState<ReqAvailWater | null>(null);
+  const [editingChangeNameMeter, setEditingReqChangeNameMeter] = useState<ReqChangeNameMeter | null>(null);
 
   const table = useReactTable({
     data,
-    columns: ReqChangeNameMeterColumns((req) => setEditingReqAvailWater(req)),
+    columns: ReqChangeNameMeterColumns((req) => setEditingReqChangeNameMeter(req)),
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
     <div className="w-full">
-      {/* Si no tienes modal, evita JSX vacío */}
-      {editingReqAvailWater && null}
+      {/* ✅ Renderiza el modal controlado */}
+        <UpdateReqChangeNameMeterStateModal
+          open={!!editingChangeNameMeter}
+          req={editingChangeNameMeter}
+          onClose={() => setEditingReqChangeNameMeter(null)}
+          onSuccess={() => setEditingReqChangeNameMeter(null)}
+        />
 
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
