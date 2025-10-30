@@ -22,7 +22,7 @@ const Hero = () => {
 
               {/* Main Heading */}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                <span className="block text-[#091540]">Red de Agua</span>
+                <span className="block text-[#091540]">ASADA</span>
                 <span className="block text-[#091540]">San Pablo</span>
                 <span className="block text-[#091540]">Nandayure</span>
               </h1>
@@ -38,7 +38,7 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Link 
                 to="/dashboard"
-                className="inline-flex items-center justify-center px-8 py-4 bg-[#091540] text-white font-semibold rounded-xl hover:bg-[#1789FC] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="inline-flex items-center justify-center px-8 py-4 bg-[#091540] text-white font-semibold hover:bg-[#1789FC] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -48,7 +48,7 @@ const Hero = () => {
               
               <a 
                 href="#servicios"
-                className="inline-flex items-center justify-center px-8 py-4 bg-white/80 backdrop-blur-sm text-[#091540] font-semibold rounded-xl border border-[#091540]/20 hover:bg-[#091540] hover:text-white transition-all duration-300 shadow-sm"
+                className="inline-flex items-center justify-center px-8 py-4 bg-white/80 backdrop-blur-sm text-[#091540] font-semibold border border-[#091540]/20 hover:bg-[#091540] hover:text-white transition-all duration-300 shadow-sm"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
