@@ -6,7 +6,9 @@ import type { ReqAvailWater } from "../Models/ReqAvailWater";
 import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
 import ReqAvailWaterHeaderBar from "../Components/PaginationReqAvailabilityWater/ReqAvailWaterHeaderBar";
 import ReqAvailWaterTable from "../Components/ReqAvailabilityWaterTable/ReAvailWaterTable";
-import CreateAvailabilityWaterRqModal from "../../../Request-Abonados/Components/AvailabilityWater/CreateAvailabilityWaterRqModal";
+import CreateAvailabilityWaterRqModalAmin from "../../GeneralGetUser/AddnewRequestModal";
+
+
 
 
 
@@ -119,7 +121,7 @@ export default function ListReqAvailWater() {
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}   // ★ propaga cambios de input
         onCleanFilters={handleCleanFilters}
-        rightAction={<CreateAvailabilityWaterRqModal />}
+        rightAction={<CreateAvailabilityWaterRqModalAmin />}
       />
 
       <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">

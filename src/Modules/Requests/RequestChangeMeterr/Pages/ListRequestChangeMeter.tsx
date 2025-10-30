@@ -7,7 +7,8 @@ import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
 import ReqChangeMeterTable from "../Components/RequestChangeMeterTable/RequestChangeMeterTable";
 import ReqChangeMeterHeaderBar from "../Components/PaginationRequestChangeMeter/RequestChangeMeterHeaderBar";
 import type { ReqChangeMeter } from "../Models/RequestChangeMeter";
-import CreateChangeMeterModal from "../../../Request-Abonados/Components/Change-Meter/CreateChangeMeterModal";
+import CreateChangeMeterModal from "../Modals/AddChangeMterRequestModal";
+
 
 export default function ListReqChangeMeter() {
   const [page, setPage] = useState(1);

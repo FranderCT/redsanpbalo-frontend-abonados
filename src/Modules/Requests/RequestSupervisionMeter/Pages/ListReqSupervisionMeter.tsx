@@ -6,10 +6,7 @@ import type { ReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
 import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
 import ReqSupervisionMeterHeaderBar from "../Components/PaginationReqSupervisionMeter/ReqSupervisionMeterHeaderBar";
 import ReqSupervisionMeterTable from "../Components/ReqSupervisionMeterTable/ReqSupervisonMeterTable";
-import CreateRequestSupervisionMeter from "../../../Request-Abonados/Components/Supervision-Meter/CreateRequestSupervisionMeter";
-import CreateChangeMeterModal from "../../../Request-Abonados/Components/Change-Meter/CreateChangeMeterModal";
-import CreateAssociatedRqModal from "../../../Request-Abonados/Components/Associated-rq/CreateAssociatedRqModal";
-import CreateAvailabilityWaterRqModal from "../../../Request-Abonados/Components/AvailabilityWater/CreateAvailabilityWaterRqModal";
+import CreateRequestSupervisionMeter2 from "../Modals/AdminRequestSupervisionMeter";
 
 export default function ListReqSupervisionMeter() {
   const [page, setPage] = useState(1);
@@ -120,7 +117,7 @@ export default function ListReqSupervisionMeter() {
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}   // ★ propaga cambios de input
         onCleanFilters={handleCleanFilters}
-        rightAction={<CreateRequestSupervisionMeter />}
+        rightAction={<CreateRequestSupervisionMeter2 />}
       />
 
       <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
