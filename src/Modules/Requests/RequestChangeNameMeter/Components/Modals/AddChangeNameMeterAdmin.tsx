@@ -1,41 +1,15 @@
     import { useEffect, useState } from "react";
-    import { useForm } from "@tanstack/react-form";
     import { toast } from "react-toastify";
-    import { useCreateAvailabilityWaterRq } from "../../Request-Abonados/Hooks/AvailabilityWater/AvailabilityWaterHooks";
-    import { uploadRequestAvailabilityWaterFile } from "../../Upload-files/Services/ProjectFileServices";
-    import { ModalBase } from "../../../Components/Modals/ModalBase";
-import type { AbonadoSearch } from "./Model";
-import { useSearchAbonados } from "./GenralHook";
+    import { useForm } from "@tanstack/react-form";
+    import { useChangeNameMeterRq } from "../../../../Request-Abonados/Hooks/ChangeNameMeter/ChangeNameMeter";
+    import { uploadWithRetry } from "../../../GeneralGetUser/AddnewRequestModal";
+    import { UploadChangeNameMeterFiles } from "../../../../Upload-files/Services/ProjectFileServices";
+    import { ModalBase } from "../../../../../Components/Modals/ModalBase";
+    import ListReqChangeNameMeterUser from "../../../../Request-Abonados/Pages/ChangeNameMeter/ListChangeNameMeterUser";
+    import type { AbonadoSearch } from "../../../GeneralGetUser/Model";
+    import { useSearchAbonados } from "../../../GeneralGetUser/GenralHook";
 
     /** =================== Helpers =================== **/
-
-    export const uploadWithRetry = async (
-    uploadFn: () => Promise<any>,
-    maxRetries: number = 3,
-    baseDelay: number = 1000
-    ): Promise<any> => {
-    let attempt = 0;
-    while (attempt < maxRetries) {
-        try {
-        return await uploadFn();
-        } catch (error: any) {
-        attempt++;
-        if (error?.response?.status === 429) {
-            const retryAfter = error.response.headers["retry-after"];
-            const delayMs = retryAfter
-            ? parseInt(retryAfter) * 1000
-            : Math.min(baseDelay * Math.pow(2, attempt), 10000);
-            const jitter = delayMs * 0.25 * (Math.random() - 0.5);
-            const finalDelay = Math.max(delayMs + jitter, 500);
-            if (attempt < maxRetries) {
-            await new Promise((r) => setTimeout(r, finalDelay));
-            continue;
-            }
-        }
-        throw error;
-        }
-    }
-    };
 
     const useDebouncedValue = (val: string, delay = 300) => {
     const [debounced, setDebounced] = useState(val);
@@ -45,7 +19,6 @@ import { useSearchAbonados } from "./GenralHook";
     }, [val, delay]);
     
     return debounced;
-    
     };
 
     /** =================== Typeahead (buscar por cédula/NIS/nombre) =================== **/
@@ -64,7 +37,6 @@ import { useSearchAbonados } from "./GenralHook";
         setInput(v);
         setOpenList(true);
     };
-    
 
     const debounced = useDebouncedValue(input, 400);
     const { data: users = [], isPending } = useSearchAbonados(debounced);
@@ -146,9 +118,13 @@ import { useSearchAbonados } from "./GenralHook";
 
     /** =================== Modal =================== **/
 
-    const CreateAvailabilityWaterRqModalAmin = () => {
-    const useCreateAvailabilityWaterRqMutation = useCreateAvailabilityWaterRq();
+    export default function CreateChangeNameMeterModal() {
     const [open, setOpen] = useState(false);
+    const [viewMode, setViewMode] = useState<"create" | "list">("create");
+
+    const useCreateChangeNameRqMutation = useChangeNameMeterRq();
+
+    // Estados para uploads
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState("");
 
@@ -158,8 +134,7 @@ import { useSearchAbonados } from "./GenralHook";
         Justification: "",
         fotocopiaCedula: [] as File[],
         copiaPlano: [] as File[],
-        permisoMatricula: [] as File[],
-        permisoMunicipal: [] as File[],
+        literalCerfication: [] as File[],
         _selectedUser: null as AbonadoSearch | null,
         },
         onSubmit: async ({ value, formApi }) => {
@@ -169,54 +144,65 @@ import { useSearchAbonados } from "./GenralHook";
             return;
             }
 
-            const requestData = { Justification: value.Justification, UserId: value.UserId };
-            const requestResult = await useCreateAvailabilityWaterRqMutation.mutateAsync(requestData);
+            if (!value.Justification || value.Justification.trim() === "") {
+            toast.error("La justificación es requerida.");
+            return;
+            }
+
+            const requestData = {
+            Justification: value.Justification.trim(),
+            UserId: value.UserId,
+            };
+
+            console.log("Datos de la solicitud:", requestData);
+
+            const requestResult = await useCreateChangeNameRqMutation.mutateAsync(requestData);
             const requestId = requestResult?.Id;
             if (!requestId) throw new Error("No se obtuvo el ID de la solicitud creada.");
 
             setIsUploading(true);
 
-            const uploadTasks: Array<{ name: string; files: File[]; subfolder: string }> = [];
+            // Construir tareas de upload (solo si hay archivos)
+            const uploadTasks: { name: string; files: File[]; subfolder: string }[] = [];
             if (value.fotocopiaCedula.length > 0)
             uploadTasks.push({ name: "Fotocopia de Cédula", files: value.fotocopiaCedula, subfolder: "Fotocopia-Cedula" });
             if (value.copiaPlano.length > 0)
             uploadTasks.push({ name: "Copia del Plano", files: value.copiaPlano, subfolder: "Copia-Plano" });
-            if (value.permisoMatricula.length > 0)
-            uploadTasks.push({ name: "Permiso de Construcción", files: value.permisoMatricula, subfolder: "Permiso-Construcción" });
-            if (value.permisoMunicipal.length > 0)
-            uploadTasks.push({ name: "Permiso Municipal", files: value.permisoMunicipal, subfolder: "Permiso-Municipal" });
+            if (value.literalCerfication.length > 0)
+            uploadTasks.push({ name: "Certificación Literal", files: value.literalCerfication, subfolder: "Certificacion-Literal" });
 
             if (uploadTasks.length > 0) {
             let completedUploads = 0;
+
             for (const task of uploadTasks) {
                 try {
                 setUploadProgress(`Subiendo ${task.name}... (${completedUploads + 1}/${uploadTasks.length})`);
                 await uploadWithRetry(() =>
-                    uploadRequestAvailabilityWaterFile(requestId, task.files, task.subfolder, value.UserId)
+                    UploadChangeNameMeterFiles(requestId, task.files, task.subfolder, value.UserId)
                 );
                 completedUploads++;
                 toast.info(`${task.name} subido exitosamente (${completedUploads}/${uploadTasks.length})`, {
                     position: "top-right",
                     autoClose: 2000,
                 });
-                if (completedUploads < uploadTasks.length) await new Promise((r) => setTimeout(r, 500));
-                } catch (error) {
-                console.error(`Error subiendo ${task.name}:`, error);
+                if (completedUploads < uploadTasks.length) {
+                    await new Promise((r) => setTimeout(r, 500));
+                }
+                } catch (err) {
+                console.error(`Error subiendo ${task.name}:`, err);
                 toast.error(`Error al subir ${task.name}. El documento no se guardó.`, {
                     position: "top-right",
                     autoClose: 5000,
                 });
                 }
             }
-            toast.success(`Solicitud creada y ${completedUploads}/${uploadTasks.length} tipo(s) de documentos subidos exitosamente`, {
-                position: "top-right",
-                autoClose: 4000,
-            });
+
+            toast.success(
+                `Solicitud creada y ${completedUploads}/${uploadTasks.length} tipo(s) de documentos subidos exitosamente`,
+                { position: "top-right", autoClose: 4000 }
+            );
             } else {
-            toast.success("Solicitud de disponibilidad de agua creada exitosamente", {
-                position: "top-right",
-                autoClose: 3000,
-            });
+            toast.success("Solicitud creada exitosamente", { position: "top-right", autoClose: 3000 });
             }
 
             formApi.reset();
@@ -240,16 +226,15 @@ import { useSearchAbonados } from "./GenralHook";
         setOpen(false);
     };
 
+    // Helpers archivos
     const handleFileSelect = (files: FileList | null, fieldName: keyof typeof form.state.values) => {
         if (!files) return;
-        const newFiles = Array.from(files);
-        const validFiles: File[] = [];
-        newFiles.forEach((file) => {
+        const validFiles = Array.from(files).filter((file) => {
         if (file.size > 10 * 1024 * 1024) {
             toast.error(`El archivo "${file.name}" excede el tamaño máximo de 10MB`);
-            return;
+            return false;
         }
-        validFiles.push(file);
+        return true;
         });
         form.setFieldValue(fieldName, validFiles as any);
     };
@@ -280,12 +265,7 @@ import { useSearchAbonados } from "./GenralHook";
             <label className="cursor-pointer">
                 <div className="flex flex-col items-center gap-2">
                 <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <span className="text-sm text-gray-700">Seleccionar archivos</span>
                 </div>
@@ -331,169 +311,173 @@ import { useSearchAbonados } from "./GenralHook";
 
     return (
         <div>
-        {/* Botón de apertura (mismo estilo) */}
-        <button onClick={() => setOpen(true)} className="inline-flex px-5 py-2 bg-[#091540] text-white shadow hover:bg-[#1789FC] transition">
-            + Solicitar Disponibilidad de Agua
+        {/* Botón para abrir modal */}
+        <button
+            onClick={() => {
+            setViewMode("create");
+            setOpen(true);
+            }}
+            className="inline-flex px-5 py-2 bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
+        >
+            + Cambiar nombre de medidor
         </button>
 
         <ModalBase
-        open={open}
-        onClose={handleClose}
-        panelClassName="w-full max-w-4xl lg:max-w-5xl !p-0 overflow-hidden shadow-2xl max-h-[95vh]"
+            open={open}
+            onClose={handleClose}
+            panelClassName="w-full max-w-lg !p-0 overflow-hidden shadow-2xl"
         >
-            {/* Header (mismo estilo) */}
-            <div className="px-6 py-5 text-[#091540] flex-shrink-0">
-            <h3 className="text-xl font-semibold">Solicitud de Disponibilidad de Agua</h3>
-            <p className="text-sm opacity-80">Complete la información y adjunte los documentos requeridos</p>
+            {/* Header modal */}
+            <div className="px-6 py-4 text-[#091540]">
+            <div className="hidden sm:block">
+                <h3 className="text-xl font-semibold">Cambio de nombre de medidor</h3>
+                <p className="text-sm opacity-80">Cree una nueva solicitud o revise su historial</p>
+            </div>
             </div>
 
-            {/* Body (mismas paddings y gap) */}
+
             <form
-            onSubmit={(e) => {
+                onSubmit={(e) => {
                 e.preventDefault();
                 form.handleSubmit();
-            }}
-            className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                }}
+                className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
             >
-            {/* Selector de abonado (con mismo look & feel general) */}
-            <form.Field name="UserId">
+                {/* Selector de abonado */}
+                <form.Field name="UserId">
                 {(field) => (
-                <UserTypeahead
+                    <UserTypeahead
                     value={field.state.value}
                     onChange={(userId, picked) => {
-                    field.handleChange(userId);
-                    form.setFieldValue("_selectedUser", picked ?? null);
+                        field.handleChange(userId);
+                        form.setFieldValue("_selectedUser", picked ?? null);
                     }}
-                />
+                    />
                 )}
-            </form.Field>
+                </form.Field>
 
-            {/* Datos del abonado seleccionado */}
-            <form.Subscribe selector={(state) => state.values._selectedUser}>
+                {/* Datos del abonado seleccionado */}
+                <form.Subscribe selector={(state) => state.values._selectedUser}>
                 {(selected) =>
-                selected ? (
-                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Datos del Solicitante</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    selected ? (
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Datos del Solicitante</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                        <span className="text-xs text-gray-500">Cédula</span>
-                        <p className="text-sm font-medium text-gray-800">{selected.IDcard ?? "-"}</p>
+                            <span className="text-xs text-gray-500">Cédula</span>
+                            <p className="text-sm font-medium text-gray-800">{selected.IDcard ?? "-"}</p>
                         </div>
                         <div>
-                        <span className="text-xs text-gray-500">NIS</span>
-                        <p className="text-sm font-medium text-gray-800">{selected.Nis ?? "-"}</p>
+                            <span className="text-xs text-gray-500">NIS</span>
+                            <p className="text-sm font-medium text-gray-800">{selected.Nis ?? "-"}</p>
                         </div>
                         <div>
-                        <span className="text-xs text-gray-500">Email</span>
-                        <p className="text-sm font-medium text-gray-800">{selected.Email ?? "-"}</p>
+                            <span className="text-xs text-gray-500">Email</span>
+                            <p className="text-sm font-medium text-gray-800">{selected.Email ?? "-"}</p>
                         </div>
                         <div>
-                        <span className="text-xs text-gray-500">Teléfono</span>
-                        <p className="text-sm font-medium text-gray-800">{selected.PhoneNumber ?? "-"}</p>
+                            <span className="text-xs text-gray-500">Teléfono</span>
+                            <p className="text-sm font-medium text-gray-800">{selected.PhoneNumber ?? "-"}</p>
                         </div>
                         <div className="md:col-span-2">
-                        <span className="text-xs text-gray-500">Nombre completo</span>
-                        <p className="text-sm font-medium text-gray-800">{selected.FullName}</p>
+                            <span className="text-xs text-gray-500">Nombre completo</span>
+                            <p className="text-sm font-medium text-gray-800">{selected.FullName}</p>
                         </div>
                         <div className="md:col-span-2">
-                        <span className="text-xs text-gray-500">Dirección</span>
-                        <p className="text-sm font-medium text-gray-800">{selected.Address ?? "-"}</p>
+                            <span className="text-xs text-gray-500">Dirección</span>
+                            <p className="text-sm font-medium text-gray-800">{selected.Address ?? "-"}</p>
+                        </div>
                         </div>
                     </div>
+                    ) : (
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm text-gray-600">
+                        Seleccione un abonado para ver sus datos.
                     </div>
-                ) : (
-                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm text-gray-600">
-                    Seleccione un abonado para ver sus datos.
-                    </div>
-                )
+                    )
                 }
-            </form.Subscribe>
+                </form.Subscribe>
 
-            {/* Justificación */}
-            <form.Field name="Justification">
+                {/* Justificación */}
+                <form.Field name="Justification">
                 {(field) => (
-                <label className="grid gap-2">
+                    <label className="grid gap-2">
                     <span className="text-sm font-medium text-gray-700">
-                    Justificación de la solicitud <span className="text-red-500">*</span>
+                        Justificación de la solicitud <span className="text-red-500">*</span>
                     </span>
                     <textarea
-                    className="w-full min-h-[100px] px-4 py-2 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition"
-                    placeholder="Explique el motivo y la necesidad del servicio de agua en esta ubicación..."
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    rows={4}
-                    required
+                        className="w-full min-h-[100px] px-4 py-2 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition shadow-sm"
+                        placeholder="Explique el motivo y la necesidad del cambio de nombre del medidor..."
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        rows={4}
+                        required
                     />
-                </label>
+                    </label>
                 )}
-            </form.Field>
+                </form.Field>
 
-            {/* Documentos (mismo estilo general que el cuerpo) */}
-            <div className="space-y-4">
-                        <h3 className="text-sm font-semibold text-gray-900">Documentos Requeridos</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FileField
-            fieldName="fotocopiaCedula"
-            label="1. Fotocopia de Cédula"
-            description="Fotocopia clara de la cédula del solicitante (ambas caras)"
-            />
-            <FileField
-            fieldName="copiaPlano"
-            label="2. Copia del Plano"
-            description="Plano de la propiedad o construcción donde se instalará el servicio"
-            />
-            <FileField
-            fieldName="permisoMatricula"
-            label="3. Permiso de Construcción"
-            description="Documento que autoriza la construcción en el terreno"
-            />
-            <FileField
-            fieldName="permisoMunicipal"
-            label="4. Permiso Municipal"
-            description="Autorización municipal para la instalación del servicio"
-            />
-        </div>
-            </div>
+                {/* Documentos requeridos */}
+                <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Documentos Requeridos</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FileField
+                    fieldName="fotocopiaCedula"
+                    label="1. Fotocopia de Cédula"
+                    description="Fotocopia clara de la cédula del solicitante (ambas caras)"
+                    />
+                    <FileField
+                    fieldName="copiaPlano"
+                    label="2. Copia del Plano"
+                    description="Plano de la propiedad o construcción donde se instalará el servicio"
+                    />
+                    <FileField
+                    fieldName="literalCerfication"
+                    label="3. Certificación Literal"
+                    description="Documento emitido por el Registro que certifique la titularidad"
+                    />
+                </div>
+                </div>
 
-            {isUploading && (
-                <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                <div className="flex items-center gap-2 mb-1">
+                {/* Progreso de subida */}
+                {isUploading && (
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2 mb-2">
                     <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-sm font-medium text-blue-800">Procesando solicitud y subiendo documentos...</span>
+                    <span className="text-sm font-medium text-blue-800">
+                        Procesando solicitud y subiendo documentos...
+                    </span>
+                    </div>
+                    {uploadProgress ? <p className="text-xs text-blue-700">{uploadProgress}</p> : null}
                 </div>
-                {uploadProgress && <p className="text-xs text-blue-700">{uploadProgress}</p>}
-                </div>
-            )}
+                )}
 
-            {/* Footer (mismo estilo que el otro modal) */}
-            <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+                {/* Footer */}
+                <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                 {([canSubmit, isSubmitting]) => (
-                <div className="mt-2 flex flex-col sm:flex-row sm:justify-end gap-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-4 border-t border-gray-200">
                     <button
-                    type="submit"
-                    className="h-10 px-6 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60 transition font-medium flex items-center justify-center gap-2"
-                    disabled={!canSubmit || isSubmitting || isUploading}
+                        type="submit"
+                        className="h-10 px-6 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60 transition font-medium flex items-center justify-center gap-2"
+                        disabled={!canSubmit || isSubmitting || isUploading}
                     >
-                    {(isSubmitting || isUploading) && (
+                        {(isSubmitting || isUploading) && (
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    )}
-                    {isSubmitting || isUploading ? uploadProgress || "Procesando..." : "Crear Solicitud"}
+                        )}
+                        {isSubmitting || isUploading ? uploadProgress || "Procesando..." : "Crear Solicitud"}
                     </button>
                     <button
-                    type="button"
-                    onClick={handleClose}
-                    className="h-10 px-6 bg-gray-200 text-gray-700 hover:bg-gray-300 transition font-medium"
-                    disabled={isSubmitting || isUploading}
+                        type="button"
+                        onClick={handleClose}
+                        className="h-10 px-6 bg-gray-200 text-gray-700 hover:bg-gray-300 transition font-medium"
+                        disabled={isSubmitting || isUploading}
                     >
-                    Cancelar
+                        Cancelar
                     </button>
-                </div>
-                )}  
-            </form.Subscribe>
+                    </div>
+                )}
+                </form.Subscribe>
             </form>
         </ModalBase>
         </div>
     );
-    };
-
-    export default CreateAvailabilityWaterRqModalAmin;
+    }

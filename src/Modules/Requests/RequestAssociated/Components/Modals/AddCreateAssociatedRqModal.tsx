@@ -246,7 +246,7 @@
         <ModalBase
             open={open}
             onClose={handleClose}
-            panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl max-h-[90vh] flex flex-col"
+            panelClassName="w-full max-w-lg !p-0 overflow-hidden shadow-2xl"
         >
             {/* Header */}
             <div className="px-6 py-5 text-[#091540]">
