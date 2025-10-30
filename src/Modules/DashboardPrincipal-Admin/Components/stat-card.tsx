@@ -1,4 +1,4 @@
-import { TrendingDown, TrendingUp, type LucideIcon } from "lucide-react"
+import { type LucideIcon } from "lucide-react"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "./card";
 
 type Trend = { value: number; isPositive: boolean }
@@ -16,7 +16,6 @@ export function StatCardPro({
   value,
   description,
   icon: Icon,
-  trend,
   accentColorClass = "from-primary/10 to-primary/0",
 }: Props) {
   return (
@@ -38,14 +37,10 @@ export function StatCardPro({
             {description && <CardDescription>{description}</CardDescription>}
           </div>
 
-          {/* “badge” del icono */}
+          {/* "badge" del icono con estilo mejorado */}
           <CardAction>
-            <div className="relative">
-              <div className="absolute inset-0 blur-md opacity-40 bg-primary/20 rounded-xl" />
-              <div className="relative h-10 w-10 flex items-center justify-center rounded-xl
-                              bg-gradient-to-br from-primary/10 to-white border border-neutral-200">
-                <Icon className="h-5 w-5 text-neutral-700" />
-              </div>
+            <div className="w-12 h-12 rounded-lg bg-[#091540] flex items-center justify-center shadow-lg">
+              <Icon className="w-6 h-6 text-white" />
             </div>
           </CardAction>
         </div>

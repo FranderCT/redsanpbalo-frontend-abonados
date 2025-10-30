@@ -39,8 +39,8 @@ export function Footer() {
                         </a>
                     </li>
                     <li>
-                        <a href="#proyectos" className="text-white/80 hover:text-white transition-colors">
-                        Proyectos
+                        <a href="#contacto" className="text-white/80 hover:text-white transition-colors">
+                        Contacto
                         </a>
                     </li>
                     </ul>
@@ -62,9 +62,9 @@ export function Footer() {
                     <h3 className="font-bold text-lg mb-4">Contacto</h3>
                     <ul className="space-y-2 text-sm">
                         <li className="text-white/80"> San Pablo, Nandayure</li>
-                        <li className="text-white/80"> Teléfono: 2685-XXXX</li>
-                        <li className="text-white/80"> Emergencias: 8XXX-XXXX</li>
-                        <li className="text-white/80"> info@asadasanpablo.cr</li>
+                        <li className="text-white/80"> Teléfono: 2101-7345</li>
+                        <li className="text-white/80"> WhatsApp: 8843-4072</li>
+                        <li className="text-white/80"> asadasanpablo.2014@gmail.com</li>
                     </ul>
 
                     <div className="flex gap-4 mt-5">

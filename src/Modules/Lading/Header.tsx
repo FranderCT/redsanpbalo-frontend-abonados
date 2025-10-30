@@ -55,16 +55,22 @@ export default function HeaderPaanee() {
                   Servicios
                 </a>
                 <a 
-                  href="#proyectos"
+                  href="#mision-y-vision"
                   className="text-sm font-medium text-[#091540] hover:text-[#1789FC] transition-colors duration-200 py-2"
                 >
-                  Proyectos
+                  Misión y Visión
                 </a>
                 <a 
-                  href="#noticias"
+                  href="#faq"
                   className="text-sm font-medium text-[#091540] hover:text-[#1789FC] transition-colors duration-200 py-2"
                 >
-                  Noticias
+                  Preguntas Frencuentes
+                </a>
+                <a 
+                  href="#retroalimentacion"
+                  className="text-sm font-medium text-[#091540] hover:text-[#1789FC] transition-colors duration-200 py-2"
+                >
+                  Retroalimentación
                 </a>
                 <a 
                   href="#contacto"
@@ -80,9 +86,9 @@ export default function HeaderPaanee() {
               <div className="hidden sm:block">
                 <Link 
                   to={"/dashboard"} 
-                  className="inline-flex items-center px-6 py-2.5 text-sm font-semibold text-white bg-[#091540] hover:bg-[#1789FC] rounded-lg transition-colors duration-200 shadow-sm"
+                  className="inline-flex items-center px-6 py-2.5 text-sm font-semibold text-white bg-[#091540] hover:bg-[#1789FC]  transition-colors duration-200 shadow-sm"
                 >
-                  Dashboard
+                  Iniciar sesión
                 </Link>
               </div>
 
@@ -134,11 +140,11 @@ export default function HeaderPaanee() {
                 Servicios
               </a>
               <a 
-                href="#proyectos"
+                href="#mision-y-vision"
                 onClick={() => setOpen(false)}
                 className="block px-4 py-3 text-sm font-medium text-[#091540] hover:text-[#1789FC] hover:bg-[#F9F5FF] rounded-lg transition-colors duration-200"
               >
-                Proyectos
+                Misión y visión
               </a>
               <a 
                 href="#noticias"
