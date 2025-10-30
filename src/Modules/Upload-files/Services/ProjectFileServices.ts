@@ -133,7 +133,7 @@ export async function UploadAssociatedFiles (
   files.forEach((file) => formData.append("files", file));
 
   try {
-    const { data } = await apiAxios.post(`change-name-meter-request-associated-file/${rqId}`, formData, {
+    const { data } = await apiAxios.post(`request-change-name-meter-file/${rqId}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

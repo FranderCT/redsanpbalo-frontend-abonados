@@ -30,7 +30,6 @@ export default function ReqChangeMeterTable({
 
   return (
     <div className="w-full">
-      {/* ✅ Renderiza el modal controlado */}
         <UpdateReqChangeMeterStateModal
           open={!!editingChangename}
           req={editingChangename}

@@ -30,7 +30,7 @@ export default function ReqSupervisionMeterTable({
 
   return (
     <div className="w-full">
-      {/* ✅ Renderiza el modal controlado */}
+      
         <UpdateReqSupervisionMeterStateModal
           open={!!editingReq}
           req={editingReq}

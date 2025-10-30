@@ -1,7 +1,7 @@
 import apiAxios from "../../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 import type { ReqChangeNameMeter } from "../../../Requests/RequestChangeNameMeter/Models/RequestChangeNameMeter";
-import type { ChangeNameMeter, PartialChangeNameMeter } from "../../Models/ChangeNameMeter/ChangeNameMeter";
+import type { ChangeNameMeter, NewChangeNameMeter, PartialChangeNameMeter } from "../../Models/ChangeNameMeter/ChangeNameMeter";
 
 const BASE = "/request-change-name-meter";
 
@@ -30,7 +30,7 @@ export interface MyReqChangeNameMeterParams {
   /** Texto de búsqueda */
   q?: string;
 }
-export async function createChangeNameMeterRqAbonado(payloads: PartialChangeNameMeter) : Promise<ChangeNameMeter> {
+export async function createChangeNameMeterRqAbonado(payloads: NewChangeNameMeter) : Promise<ChangeNameMeter> {
     try {
         const { data: response } = await apiAxios.post<ChangeNameMeter>("/request-change-name-meter", payloads);
         return response;
