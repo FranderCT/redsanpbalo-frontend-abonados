@@ -1,5 +1,7 @@
 import apiAxios from "../../../../api/apiConfig";
-import type { new_Service, Service, update_Service } from "../Models/Services";
+import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import type { MaterialPaginationParams } from "../../../Materials/Models/Material";
+import type { new_Service, Service, ServicePaginationParams, update_Service } from "../Models/Services";
 
 const BASE = "/service"; 
 
@@ -10,6 +12,21 @@ export async function getAllServices(): Promise<Service[]> {
     }catch(err){
         console.error("Error", err);
         return Promise.reject(err)
+    }
+}
+
+export async function searchServices(
+    params: ServicePaginationParams
+): Promise<PaginatedResponse<Service>> {
+    try {
+        const { page = 1, limit = 10, title, state } = params ?? {};
+        const { data } = await apiAxios.get<PaginatedResponse<Service>>(`${BASE}/search`, {
+        params: { page, limit, title, state },
+        });
+        return data;
+    } catch (err) {
+        console.error("Error buscando Servicios", err);
+        return Promise.reject(err);
     }
 }
 

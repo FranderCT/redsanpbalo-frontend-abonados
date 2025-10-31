@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useGetAllServices } from "../Hooks/ServicesHooks";
+import { useMemo, useState } from "react";
+import { useSearchServices } from "../Hooks/ServicesHooks";
 import type { Service } from "../Models/Services";
 import ServiceHeaderBar from "../Components/PaginationServices/ServiceHeaderBar";
 import CreateServiceModal from "../Components/ModalsServices/CreateServiceModal";
@@ -9,12 +9,13 @@ export default function ListServices() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
+  const [title, setTitle] = useState<string | undefined>(undefined);
   const [state, setState] = useState<string | undefined>(undefined);
-
-  const { services, isPending: isLoading, error } = useGetAllServices();
 
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
+    const trimmed = txt.trim();
+    setTitle(trimmed ? trimmed : undefined);
     setPage(1);
   };
 
@@ -25,36 +26,24 @@ export default function ListServices() {
 
   const handleCleanFilters = () => {
     setSearch("");
+    setTitle(undefined);
     setState(undefined);
     setPage(1);
   };
 
-  // Filtrado local
-  let filteredServices = services ?? [];
+  // Construir parámetros para la búsqueda
+  const params = useMemo(() => ({ page, limit, title, state }), [page, limit, title, state]);
+  const { data, isLoading, error } = useSearchServices(params);
 
-  // Filtrar por búsqueda (título o descripción)
-  if (search.trim()) {
-    const searchLower = search.toLowerCase();
-    filteredServices = filteredServices.filter(
-      (service) =>
-        service.Title.toLowerCase().includes(searchLower) ||
-        service.Description.toLowerCase().includes(searchLower)
-    );
-  }
-
-  // Filtrar por estado
-  if (state === "1") {
-    filteredServices = filteredServices.filter((service) => service.IsActive === true);
-  } else if (state === "0") {
-    filteredServices = filteredServices.filter((service) => service.IsActive === false);
-  }
-
-  // Paginación local
-  const total = filteredServices.length;
-  const pageCount = Math.max(1, Math.ceil(total / limit));
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit;
-  const rows: Service[] = filteredServices.slice(startIndex, endIndex);
+  const rows: Service[] = data?.data ?? [];
+  const meta = data?.meta ?? {
+    total: 0,
+    page: 1,
+    limit,
+    pageCount: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  };
 
   return (
     <div className="p-4 space-y-4">
@@ -65,8 +54,8 @@ export default function ListServices() {
       <div className="border-b border-dashed border-gray-300 mb-8"></div>
 
       <ServiceHeaderBar
-        limit={limit}
-        total={total}
+        limit={meta.limit}
+        total={meta.total}
         search={search}
         state={state}
         onLimitChange={(l) => {
@@ -89,9 +78,9 @@ export default function ListServices() {
         ) : (
           <ServiceTable
             data={rows}
-            total={total}
-            page={page}
-            pageCount={pageCount}
+            total={meta.total}
+            page={meta.page}
+            pageCount={meta.pageCount}
             onPageChange={setPage}
           />
         )}

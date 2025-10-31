@@ -13,3 +13,10 @@ export interface new_Service{
 }
 
 export type update_Service = Partial<new_Service>;
+
+export interface ServicePaginationParams {
+    page: number;
+    limit: number;
+    title?: string;
+    state?: string;
+}
