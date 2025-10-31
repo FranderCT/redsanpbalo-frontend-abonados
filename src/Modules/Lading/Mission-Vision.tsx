@@ -61,7 +61,7 @@ export function MissionVision() {
             <div className="relative overflow-hidden rounded-2xl ring-1 ring-slate-900/10 shadow-xl hover:shadow-2xl transition-all duration-300">
                 <img
                 // src="src/assets/images/community-water-project-people-working-together.jpg"
-                src="https://dynamoprojects.com/wp-content/uploads/2022/12/no-image.jpg"
+                src="/ASADA-San Pablo.jpg"
                 alt="Comunidad trabajando junta"
                 className="h-[420px] w-full object-cover group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"

@@ -4,6 +4,7 @@ import { ReqChangeNameMeterUserColumns } from "./ReqChangeNameMeterUserColums";
 import type { ReqChangeNameMeter } from "../../../Requests/RequestChangeNameMeter/Models/RequestChangeNameMeter";
 import { useState } from "react";
 import RequestDetailModal from "../Modals/RequestDetailModal";
+import MeterChangeDetailModal from "../Modals/RequestChangeNameMeter";
 
 type Props = {
   data: ReqChangeNameMeter[];
@@ -109,7 +110,7 @@ export default function ReqChangeNameMeterUserTable({
       </table>
 
       {selectedRequest && (
-        <RequestDetailModal
+        <MeterChangeDetailModal
           open={showDetailModal}
           onClose={handleCloseModal}
           title="Detalles de Solicitud de Cambio de Nombre de Medidor"

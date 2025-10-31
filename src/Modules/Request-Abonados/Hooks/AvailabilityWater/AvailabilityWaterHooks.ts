@@ -13,6 +13,7 @@ import { getAllReqAvailWater, searchReqAvailWater } from "../../../Requests/Requ
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
 
+
 // Claves de caché estándar (todas las claves derivan de un baseKey sólido)
 const baseKey = "reqAvailWater" as const;
 
@@ -135,3 +136,4 @@ export function useCreateAvailabilityWaterRq() {
     }
   });
 }
+

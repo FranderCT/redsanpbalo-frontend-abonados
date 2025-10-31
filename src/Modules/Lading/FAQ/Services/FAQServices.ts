@@ -1,5 +1,6 @@
 import apiAxios from "../../../../api/apiConfig";
-import type { FAQ, new_FAQ, update_FAQ } from "../Models/FAQ";
+import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import type { FAQ, FAQPaginationParams, new_FAQ, update_FAQ } from "../Models/FAQ";
 
 const BASE = "/faq"; 
 
@@ -10,6 +11,21 @@ export async function getAllFAQs(): Promise<FAQ[]> {
     }catch(err){
         console.error("Error", err);
         return Promise.reject(err)
+    }
+}
+
+export async function searchFAQs(
+    params: FAQPaginationParams
+): Promise<PaginatedResponse<FAQ>> {
+    try {
+        const { page = 1, limit = 10, question, state } = params ?? {};
+        const { data } = await apiAxios.get<PaginatedResponse<FAQ>>(`${BASE}/search`, {
+        params: { page, limit, question, state },
+        });
+        return data;
+    } catch (err) {
+        console.error("Error buscando FAQs", err);
+        return Promise.reject(err);
     }
 }
 
@@ -35,5 +51,14 @@ export async function updateFAQ(id: number, payload: update_FAQ): Promise<FAQ> {
     }catch(err){
         console.log('Error descondico',err)
         return Promise.reject(err)
+    }
+}
+
+export async function deleteFAQ(id: number): Promise<FAQ | void> {
+    try{
+        const {data} = await apiAxios.delete<FAQ>(`${BASE}/${id}`);
+        return data;
+    } catch (error) {
+        console.error("Error al eliminar la FAQ", error);
     }
 }

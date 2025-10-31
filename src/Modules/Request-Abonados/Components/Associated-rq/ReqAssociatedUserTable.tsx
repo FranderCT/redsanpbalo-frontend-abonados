@@ -4,6 +4,7 @@ import type { ReqAssociated } from "../../../Requests/RequestAssociated/Models/R
 import { ReqAssociatedUserColumns } from "./ReqAssociatedUserColumns";
 import { useState } from "react";
 import RequestDetailModal from "../Modals/RequestDetailModal";
+import AssociatedDetailModal from "../Modals/RequestAssociatedModal";
 
 
 type Props = {
@@ -110,7 +111,7 @@ export default function ReqAssociatedUserTable({
       </table>
 
       {selectedRequest && (
-        <RequestDetailModal
+        <AssociatedDetailModal
           open={showDetailModal}
           onClose={handleCloseModal}
           title="Detalles de Solicitud de Asociación"

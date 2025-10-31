@@ -1,6 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFAQ, getAllFAQs, getFAQById, updateFAQ } from "../Services/FAQServices";
-import type { FAQ, update_FAQ } from "../Models/FAQ";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFAQ, deleteFAQ, getAllFAQs, getFAQById, searchFAQs, updateFAQ } from "../Services/FAQServices";
+import type { FAQ, FAQPaginationParams, update_FAQ } from "../Models/FAQ";
+import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import { useEffect } from "react";
 
 export const useGetAllFAQs  = () => {
     const { data: faqs, isPending, error } = useQuery({
@@ -9,6 +11,36 @@ export const useGetAllFAQs  = () => {
     });
     return { faqs, isPending, error };
 };
+
+export const useSearchFAQs = (params: FAQPaginationParams) => {
+    const query = useQuery<PaginatedResponse<FAQ>, Error>({
+        queryKey: ["faqs", "search", params],
+        queryFn: () => searchFAQs(params),
+        placeholderData: keepPreviousData,   // v5
+        staleTime: 30_000,
+    });
+
+    // ⬇️ Log en cada fetch/refetch exitoso
+    useEffect(() => {
+        if (query.data) {
+        const res = query.data; 
+        console.log(
+            "[FAQs fetched]",
+            {
+            page: res.meta.page,
+            limit: res.meta.limit,
+            total: res.meta.total,
+            pageCount: res.meta.pageCount,
+            params,
+            },
+            res.data 
+        );
+        }
+    }, [query.data, params]);
+
+    return query;
+};
+
 
 // Obtener por ID
 export const useGetFAQById = (id?: number) => {
@@ -53,4 +85,19 @@ export const useUpdateFAQ = () => {
     });
 
     return mutation;
+};
+
+// Eliminar
+export const useDeleteFAQ = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (id: number) => deleteFAQ(id),
+        onSuccess: (res) => {
+            qc.invalidateQueries({ queryKey: ["faqs"] });
+            console.log("FAQ eliminada", res);
+        },
+        onError: (err)=>{
+            console.error("Error al eliminar FAQ", err);
+        }
+    });
 };

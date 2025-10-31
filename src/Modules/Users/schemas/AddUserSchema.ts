@@ -6,14 +6,17 @@ export const AddUserSchema = z.object({
     .min(9, "La cédula debe tener al menos 9 dígitos")
     .max(12, "Máximo 12 dígitos"),
 
-    Name: z.string().refine(val => val.length === 0 || val.length >= 2, {
-    message: 'Debe tener al menos 2 caracteres si se proporciona',}),
+    Name: z.string()
+    .min(1, "El nombre es obligatorio")
+    .min(2, "Debe tener al menos 2 caracteres"),
 
-    Surname1: z.string().refine(val => val.length === 0 || val.length >= 2, {
-    message: 'Debe tener al menos 2 caracteres si se proporciona',}),
+    Surname1: z.string()
+    .min(1, "El primer apellido es obligatorio")
+    .min(2, "Debe tener al menos 2 caracteres"),
 
-    Surname2: z.string().refine(val => val.length === 0 || val.length >= 2, {
-    message: 'Debe tener al menos 2 caracteres si se proporciona',}),
+    Surname2: z.string()
+    .min(1, "El segundo apellido es obligatorio")
+    .min(2, "Debe tener al menos 2 caracteres"),
     IsAbonado: z.boolean(),
     Nis: z
     .string()
@@ -45,4 +48,17 @@ export const AddUserSchema = z.object({
 
     Address: z.string()
     .min(10, "La dirección debe tener al menos 10 caracteres." ),
+
+    roleIds: z.array(z.number())
+    .min(1, "Debe asignar al menos un rol al usuario"),
+})
+.refine((data) => {
+  // Si es abonado, NIS es obligatorio
+  if (data.IsAbonado) {
+    return data.Nis !== '' && /^\d{1,10}$/.test(data.Nis);
+  }
+  return true; // Si no es abonado, NIS puede estar vacío
+}, {
+  message: "Si es abonado, el NIS es obligatorio y debe tener entre 1 y 10 dígitos",
+  path: ["Nis"]
 })

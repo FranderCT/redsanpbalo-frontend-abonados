@@ -35,6 +35,8 @@ const CreatePhysicalSupplierModal = () => {
     defaultValues: {
       IDcard: "",
       Name: "",
+      Surname1: "",
+      Surname2: "",
       Email: "",
       PhoneNumber: "",
       Location: "",
@@ -72,13 +74,17 @@ const CreatePhysicalSupplierModal = () => {
 
       const c = limpiar(raw);
 
-      // ✅ Si la cédula quedó vacía o es muy corta, limpiar inmediatamente el nombre y NO consultar
+      // ✅ Si la cédula quedó vacía o es muy corta, limpiar inmediatamente el nombre y apellidos, NO consultar
       if (c.length === 0) {
         form.setFieldValue("Name", "");
+        form.setFieldValue("Surname1", "");
+        form.setFieldValue("Surname2", "");
         return;
       }
       if (c.length < 9) {
         form.setFieldValue("Name", "");
+        form.setFieldValue("Surname1", "");
+        form.setFieldValue("Surname2", "");
         return;
       }
 
@@ -89,15 +95,36 @@ const CreatePhysicalSupplierModal = () => {
 
         setLookingUp(true);
         try {
-          const nombre = await fetchNombreFisico(raw, ac.signal);
-          if (nombre) {
-            form.setFieldValue("Name", nombre);
+          const nombreCompleto = await fetchNombreFisico(raw, ac.signal);
+          if (nombreCompleto) {
+            // Separar nombre completo en partes (nombre, apellido1, apellido2)
+            const partes = nombreCompleto.trim().split(/\s+/);
+            if (partes.length >= 3) {
+              // Si tiene 3 o más partes, tomar la primera como nombre y las siguientes como apellidos
+              form.setFieldValue("Name", partes[0]);
+              form.setFieldValue("Surname1", partes[1]);
+              form.setFieldValue("Surname2", partes.slice(2).join(" "));
+            } else if (partes.length === 2) {
+              // Si tiene 2 partes, primera como nombre, segunda como primer apellido
+              form.setFieldValue("Name", partes[0]);
+              form.setFieldValue("Surname1", partes[1]);
+              form.setFieldValue("Surname2", partes[1]); // Usar el mismo apellido para ambos campos
+            } else {
+              // Si solo tiene una parte, ponerla como nombre y repetir en apellidos
+              form.setFieldValue("Name", nombreCompleto);
+              form.setFieldValue("Surname1", nombreCompleto);
+              form.setFieldValue("Surname2", nombreCompleto);
+            }
           } else {
             form.setFieldValue("Name", "");
+            form.setFieldValue("Surname1", "");
+            form.setFieldValue("Surname2", "");
           }
         } catch (err) {
           console.warn("Error buscando cédula:", err);
           form.setFieldValue("Name", "");
+          form.setFieldValue("Surname1", "");
+          form.setFieldValue("Surname2", "");
         } finally {
           setLookingUp(false);
         }
@@ -114,9 +141,11 @@ const CreatePhysicalSupplierModal = () => {
 
       const c = limpiar(raw);
 
-      // ✅ Si está vacío o corto, no consultar y asegurar nombre limpio
+      // ✅ Si está vacío o corto, no consultar y asegurar nombre y apellidos limpios
       if (c.length === 0 || c.length < 9) {
         form.setFieldValue("Name", "");
+        form.setFieldValue("Surname1", "");
+        form.setFieldValue("Surname2", "");
         return;
       }
 
@@ -125,14 +154,35 @@ const CreatePhysicalSupplierModal = () => {
 
       setLookingUp(true);
       try {
-        const nombre = await fetchNombreFisico(raw, ac.signal);
-        if (nombre) {
-          form.setFieldValue("Name", nombre);
+        const nombreCompleto = await fetchNombreFisico(raw, ac.signal);
+        if (nombreCompleto) {
+          // Separar nombre completo en partes (nombre, apellido1, apellido2)
+          const partes = nombreCompleto.trim().split(/\s+/);
+          if (partes.length >= 3) {
+            // Si tiene 3 o más partes, tomar la primera como nombre y las siguientes como apellidos
+            form.setFieldValue("Name", partes[0]);
+            form.setFieldValue("Surname1", partes[1]);
+            form.setFieldValue("Surname2", partes.slice(2).join(" "));
+          } else if (partes.length === 2) {
+            // Si tiene 2 partes, primera como nombre, segunda como primer apellido
+            form.setFieldValue("Name", partes[0]);
+            form.setFieldValue("Surname1", partes[1]);
+            form.setFieldValue("Surname2", partes[1]); // Usar el mismo apellido para ambos campos
+          } else {
+            // Si solo tiene una parte, ponerla como nombre y repetir en apellidos
+            form.setFieldValue("Name", nombreCompleto);
+            form.setFieldValue("Surname1", nombreCompleto);
+            form.setFieldValue("Surname2", nombreCompleto);
+          }
         } else {
           form.setFieldValue("Name", "");
+          form.setFieldValue("Surname1", "");
+          form.setFieldValue("Surname2", "");
         }
       } catch {
         form.setFieldValue("Name", "");
+        form.setFieldValue("Surname1", "");
+        form.setFieldValue("Surname2", "");
       } finally {
         setLookingUp(false);
       }

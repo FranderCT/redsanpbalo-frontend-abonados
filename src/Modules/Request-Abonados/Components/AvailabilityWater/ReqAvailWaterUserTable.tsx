@@ -4,6 +4,7 @@ import ReqAvailWaterPager from "../../../Requests/RequestAvailabilityWater/Compo
 import { ReqAvailWaterUserColumns } from "./ReqAvailWaterUserColumns";
 import { useState } from "react";
 import RequestDetailModal from "../Modals/RequestDetailModal";
+import RequestAvailabilityWaterModalAbo from "../Modals/RequesAvailabilityModal";
 
 type Props = {
   data: ReqAvailWater[];
@@ -109,7 +110,7 @@ export default function ReqAvailWaterUserTable({
       </table>
 
       {selectedRequest && (
-        <RequestDetailModal
+        <RequestAvailabilityWaterModalAbo
           open={showDetailModal}
           onClose={handleCloseModal}
           title="Detalles de Solicitud de Disponibilidad de Agua"

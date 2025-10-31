@@ -11,3 +11,10 @@ export interface new_FAQ{
 }
 
 export type update_FAQ = Partial<new_FAQ>;
+
+export interface FAQPaginationParams {
+    page: number;
+    limit: number;
+    question?: string;
+    state?: string;
+}

@@ -11,7 +11,7 @@ import { getUserProfile, updateUserProfile, updateUserEmail, getAllUsers, delete
 
 export const useGetUserProfile = () => {
     const {data: UserProfile, isLoading, error} = useQuery({
-        queryKey: ['users'],
+        queryKey: ['user-profile'],
         queryFn: () => getUserProfile()
     });
 
@@ -20,9 +20,12 @@ export const useGetUserProfile = () => {
 
 export const useUpdateUserProfile = () => {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: updateUserProfile,
     onSuccess: () => {
+      // Invalidar el perfil del usuario logueado
+      qc.invalidateQueries({ queryKey: ["user-profile"] });
       console.log("Usuario Actualizado");
       navigate({ to: "/dashboard/users/profile" });
     },
@@ -31,9 +34,12 @@ export const useUpdateUserProfile = () => {
 
 export const useUpdateUserEmail = () => {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: updateUserEmail,
     onSuccess: () => {
+      // Invalidar el perfil del usuario logueado
+      qc.invalidateQueries({ queryKey: ["user-profile"] });
       console.log("Usuario Actualizado");
       navigate({ to: "/dashboard/users/profile" });
     },
@@ -42,7 +48,7 @@ export const useUpdateUserEmail = () => {
 
 export const useGetAllUsers = () => {
   const { data: usersProfiles, isPending, error } = useQuery({
-    queryKey: ["users"],
+    queryKey: ["users", "all"],
     queryFn: getAllUsers,
     
   });
@@ -51,7 +57,7 @@ export const useGetAllUsers = () => {
 
 export const useGetAllAbonados = () => {
   const { data: totalAbonados, isPending, error } = useQuery({
-    queryKey: ["abonados"],
+    queryKey: ["users", "abonados"],
     queryFn: getAllAbonados,
     
   });
@@ -63,9 +69,12 @@ export function useDeleteUser() {
   const qc = useQueryClient();
   return useMutation({
       mutationFn: (id: number) => deleteUser(id),
-      onSuccess: (res) => {
+      onSuccess: (res, id) => {
+          // Invalidar todas las consultas de usuarios
           qc.invalidateQueries({ queryKey: ["users"] });
-          console.log("Usuario inhabilitadp", res);
+          // Invalidar específicamente el usuario deshabilitado
+          qc.invalidateQueries({ queryKey: ["users", "detail", id] });
+          console.log("Usuario inhabilitado", res);
       },
       onError: (err)=>{
           console.error("Error al inhabilitar", err);
@@ -80,7 +89,10 @@ export const useCreateUser = () => {
       mutationFn: createUserModal,
       onSuccess: (res) =>{
           console.log('Usuario creado', res);
-          qc.invalidateQueries({queryKey: ['users']})
+          // Invalidar todas las consultas de usuarios para refrescar listas
+          qc.invalidateQueries({queryKey: ['users']});
+          // Invalidar también abonados si el usuario creado es abonado
+          qc.invalidateQueries({queryKey: ['users', 'abonados']});
       },
       onError: (err) =>{
           console.log("error al crear", err)
@@ -93,7 +105,7 @@ export const useCreateUser = () => {
 
 export const useGetAllRoles = () => {
   const {data: roles = [],isLoading,error,} = useQuery({
-    queryKey: ["roles"],
+    queryKey: ["users", "roles"],
     queryFn: getAllRoles,    
   });
 
@@ -106,9 +118,13 @@ export const useUpdateUser = () => {
   return useMutation({
       mutationFn: ({ id, data }: { id: number; data: UpdateUser }) =>
       updateUser(id, data),
-      onSuccess: () => {
-        // refresca listas donde corresponda
+      onSuccess: (_, { id }) => {
+        // Invalidar todas las consultas de usuarios
         qc.invalidateQueries({ queryKey: ["users"] });
+        // Invalidar específicamente el usuario actualizado
+        qc.invalidateQueries({ queryKey: ["users", "detail", id] });
+        // Invalidar perfil si es el usuario logueado
+        qc.invalidateQueries({ queryKey: ["user-profile"] });
       },
   });
 };
@@ -117,7 +133,7 @@ export const useUpdateUser = () => {
 export const useGetUserById = (id: number) => {
 
   const {data: user, isLoading,error} = useQuery({
-    queryKey: ["user", id],
+    queryKey: ["users", "detail", id],
     queryFn: () => getUserById(id),
   });
 
@@ -130,8 +146,11 @@ export const useDeleteUserByID = () =>{
 
     const mutation = useMutation({
       mutationFn: (id: number) => deteleUserById(id),
-      onSuccess: (res) =>{
-        qc.invalidateQueries({queryKey: ["users"]})
+      onSuccess: (res, id) =>{
+        // Invalidar todas las consultas de usuarios
+        qc.invalidateQueries({queryKey: ["users"]});
+        // Remover específicamente el usuario eliminado del caché
+        qc.removeQueries({queryKey: ["users", "detail", id]});
         console.log("Usuario eliminado, ", res);
       },
       onError: (err)=>{
@@ -143,7 +162,7 @@ export const useDeleteUserByID = () =>{
 
 export function useGetAllUsersPaginate(params: UsersPaginationParams) {
   const query = useQuery<PaginatedResponse<User>, Error>({
-      queryKey: ["users", "search", params],
+      queryKey: ["users", "paginated", params],
       queryFn: () => searchUsers(params),
       placeholderData: keepPreviousData,   // v5
       staleTime: 30_000,
@@ -169,7 +188,7 @@ export function useGetAllUsersPaginate(params: UsersPaginationParams) {
 }
 export const useGetUsersByRoleAdmin = () => {
   const { data: userAdmin = [], isPending, error } = useQuery({
-    queryKey: ["users", "role-admin"],
+    queryKey: ["users", "by-role", "admin"],
     queryFn: getUserByRoleAdmin,
   });
 
@@ -178,7 +197,7 @@ export const useGetUsersByRoleAdmin = () => {
 
 export const useGetUsersByRoleFontanero = () => {
   const { data: fontaneros = [], isPending, error } = useQuery({
-    queryKey: ["users", "role-fontanero"],
+    queryKey: ["users", "by-role", "fontanero"],
     queryFn: getUsersByRoleFontanero,
   });
 

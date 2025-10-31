@@ -1,4 +1,5 @@
-import { createRoute, Outlet, redirect } from "@tanstack/react-router";
+import React from "react";
+import { createRoute, redirect } from "@tanstack/react-router";
 import { rootRoute } from "../../../Routes";
 import DashboardLayout from "../Layouts/DashboardLayout";
 import { ValidateToken } from "../../Auth/Services/AuthServices";
@@ -25,8 +26,54 @@ export const dashboardRoute = createRoute({
 
 export const dashboardIndexRoute = createRoute({
   getParentRoute: () => dashboardRoute,
-  path: "/",                    
-  component: Outlet,
+  path: "/",
+  component: () => {
+    const [userComponent, setUserComponent] = React.useState<React.ComponentType | null>(null);
+    
+    React.useEffect(() => {
+      const checkUserRole = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) return;
+          
+          const data = await ValidateToken(token);
+          const user = data.user;
+          
+          // Verificar si el usuario tiene rol de admin
+          const isAdmin = user.Roles?.some(role => 
+            role.Rolname.toLowerCase().includes('admin') || 
+            role.Rolname.toLowerCase().includes('administrador')
+          );
+          
+          // Renderizar el componente correspondiente
+          if (isAdmin) {
+            setUserComponent(() => PrincipalAdminDashboard);
+          } else {
+            setUserComponent(() => PrincipalUserDashboard);
+          }
+        } catch (error) {
+          console.error('Error validating user role:', error);
+        }
+      };
+      
+      checkUserRole();
+    }, []);
+    
+    // Mostrar loading mientras se determina el rol
+    if (!userComponent) {
+      return (
+        <div className="flex items-center justify-center min-h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Cargando dashboard...</p>
+          </div>
+        </div>
+      );
+    }
+    
+    const ComponentToRender = userComponent;
+    return <ComponentToRender />;
+  },
 });
 
 export const dashboardAdminPrincipalRoute = createRoute({

@@ -1,10 +1,13 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import type { Project } from "../../Models/Project";
-import { Edit2 } from "lucide-react";
+import { Edit2, Upload, FolderOpen } from "lucide-react";
 import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
 import { useNavigate } from "@tanstack/react-router";
 import { useGetProjectTracesByProjectId, useGetTotalActualExpenseByProjectId } from "../../../Project_Trace/Hooks/ProjectTraceHooks";
+import { uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 type Props = { data: Project };
 
@@ -28,11 +31,66 @@ export default function DetailsProjectContainer({ data }: Props) {
   
   const navigate = useNavigate();
   
+  // Estados para upload de archivos
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isGettingFolderLink, setIsGettingFolderLink] = useState(false);
+  
   // Obtener seguimientos del proyecto
   const { projectTraces, isLoading: tracesLoading } = useGetProjectTracesByProjectId(data?.Id);
   
   // Obtener total de gastos actuales
   const { totalActualExpense, isLoading: totalExpenseLoading } = useGetTotalActualExpenseByProjectId(data?.Id);
+  
+  // Funciones para manejo de archivos
+  const handleFileUpload = (files: FileList) => {
+    const fileArray = Array.from(files);
+    setUploadedFiles(prev => [...prev, ...fileArray]);
+  };
+
+  const removeFile = (indexToRemove: number) => {
+    setUploadedFiles(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  const handleUploadFiles = async () => {
+    if (uploadedFiles.length === 0) {
+      toast.error("Selecciona al menos un archivo para subir");
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      await uploadProjectFiles(data.Id, uploadedFiles);
+      toast.success("Archivos subidos exitosamente");
+      setUploadedFiles([]);
+    } catch (error) {
+      toast.error("Error al subir los archivos");
+      console.error("Error uploading files:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const navigateToProjectFolder = async () => {
+    setIsGettingFolderLink(true);
+    try {
+      const response = await axios.get(`http://localhost:3000/project-file/folder-link/${data.Id}`);
+      const dropboxUrl = response.data;
+      
+      // Si la respuesta es un string con la URL de Dropbox, redirigir a ella
+      if (typeof dropboxUrl === 'string' && dropboxUrl.includes('dropbox.com')) {
+        window.open(dropboxUrl, '_blank');
+      } else {
+        toast.error("No se pudo obtener el enlace de la carpeta");
+      }
+    } catch (error) {
+      console.error("Error al obtener el enlace de la carpeta:", error);
+      toast.error("Error al abrir la carpeta del proyecto");
+    } finally {
+      setIsGettingFolderLink(false);
+    }
+  };
+  
   // ⬇️ react-to-print v3: usa contentRef
   const handlePrint = useReactToPrint({
     contentRef: printRef,
@@ -335,8 +393,120 @@ export default function DetailsProjectContainer({ data }: Props) {
           )}
 
           <Divider />
-                
-                
+          
+          {/* Sección de documentos - No se imprime */}
+          <div className="print:hidden">
+            <div className="">
+              <h3 className="text-xl font-bold text-[#091540] mb-6 text-center">Documentos del Proyecto</h3>
+              
+              <div className="w-full mx-auto space-y-6">
+                {/* Drag and Drop Area */}
+                <div 
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#1789FC] transition-colors bg-white"
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                      handleFileUpload(files);
+                    }
+                  }}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDragEnter={(e) => e.preventDefault()}
+                >
+                  <Upload className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+                  <p className="text-lg font-medium text-gray-700 mb-2">
+                    Arrastra y suelta archivos aquí
+                  </p>
+                  <p className="text-sm text-gray-500 mb-6">o</p>
+                  <label className="inline-flex items-center px-6 py-3 bg-[#1789FC] text-white rounded-lg cursor-pointer hover:bg-[#1789FC]/90 transition-colors font-medium">
+                    <Upload className="w-5 h-5 mr-2" />
+                    Seleccionar Archivos
+                    <input
+                      type="file"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          handleFileUpload(e.target.files);
+                        }
+                      }}
+                      accept="*/*"
+                    />
+                  </label>
+                </div>
+
+                {/* Lista de archivos seleccionados */}
+                {uploadedFiles.length > 0 && (
+                  <div className="rounded-lg p-4 border w-full">
+                    <h4 className="font-semibold text-gray-700 mb-3">Archivos seleccionados ({uploadedFiles.length}):</h4>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {uploadedFiles.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-700 truncate">
+                              {file.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeFile(index)}
+                            className="ml-3 px-3 py-1 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors font-medium"
+                          >
+                            Eliminar
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Botones de acción centrados */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <button
+                    onClick={handleUploadFiles}
+                    disabled={uploadedFiles.length === 0 || isUploading}
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-[#1789FC] text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-[#1789FC]/90 transition-colors font-medium"
+                  >
+                    {isUploading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        Subiendo archivos...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5" />
+                        Subir Documentos {uploadedFiles.length > 0 && `(${uploadedFiles.length})`}
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={navigateToProjectFolder}
+                    disabled={isGettingFolderLink}
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 border-2 border-[#1789FC] text-[#1789FC] rounded-lg hover:bg-[#1789FC] hover:text-white transition-colors font-medium disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed
+                    cursor-pointer
+                    "
+                  >
+                    {isGettingFolderLink ? (
+                      <>
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current"></div>
+                        Obteniendo enlace...
+                      </>
+                    ) : (
+                      <>
+                        <FolderOpen className="w-5 h-5" />
+                        Ver Carpeta del Proyecto
+                      </>
+                    )}
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
 
         </section>
       </div>
