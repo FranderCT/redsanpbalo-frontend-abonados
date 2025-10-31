@@ -6,5 +6,16 @@ export interface SupervisionMeter {
     UserId: number;
 }
 
+export interface TempLinkSupervisionMeterResponse {
+    link: string;
+    expires: string;
+    metadata?: any;
+    file: {
+    Id: number;
+    Path: string;
+    RequesChangeNameMeter?: any;
+    };
+}
+
 export interface PartialSupervisionMeter extends Partial<SupervisionMeter> {}
 

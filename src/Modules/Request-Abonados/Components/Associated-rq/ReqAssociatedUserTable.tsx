@@ -3,7 +3,7 @@ import ReqAvailWaterPager from "../../../Requests/RequestAvailabilityWater/Compo
 import type { ReqAssociated } from "../../../Requests/RequestAssociated/Models/RequestAssociated";
 import { ReqAssociatedUserColumns } from "./ReqAssociatedUserColumns";
 import { useState } from "react";
-import RequestDetailModal from "../Modals/RequestDetailModal";
+import RequestDetailModal from "../Modals/RequestSuperVisionMeterr";
 import AssociatedDetailModal from "../Modals/RequestAssociatedModal";
 
 

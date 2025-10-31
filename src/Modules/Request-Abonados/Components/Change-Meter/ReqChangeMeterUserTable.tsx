@@ -3,7 +3,7 @@ import ReqAvailWaterPager from "../../../Requests/RequestAvailabilityWater/Compo
 import { ReqChangeMeterUserColumns } from "./ReqChangeMeterUserColumns";
 import type { ReqChangeMeter } from "../../../Requests/RequestChangeMeterr/Models/RequestChangeMeter";
 import { useState } from "react";
-import RequestDetailModal from "../Modals/RequestDetailModal";
+import RequestDetailModal from "../Modals/RequestSuperVisionMeterr";
 
 type Props = {
   data: ReqChangeMeter[];

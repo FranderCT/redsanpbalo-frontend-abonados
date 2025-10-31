@@ -4,7 +4,7 @@ import type { ReqChangeMeter } from "../../Models/RequestChangeMeter";
 import { ReqChangeMeterColumns } from "./RequestChangeMeterColumns";
 import ReqChangeMeterPager from "../PaginationRequestChangeMeter/RequestChangeMeterPager";
 import UpdateReqChangeMeterStateModal from "../../Modals/UpdateChangeMeter";
-import MeterSupervisionDetailModal from "../../../../Request-Abonados/Components/Modals/RequestDetailModal";
+import MeterSupervisionDetailModal from "../../../../Request-Abonados/Components/Modals/RequestSuperVisionMeterr";
 
 type Props = {
   data: ReqChangeMeter[];
