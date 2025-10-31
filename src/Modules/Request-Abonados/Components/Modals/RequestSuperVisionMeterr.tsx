@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useTempSMLink } from "../../Hooks/Supervision-Meter/SupervisionMeterHookF";
 
