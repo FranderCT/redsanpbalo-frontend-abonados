@@ -24,9 +24,8 @@ export function Contact() {
                 key: "ubicacion",
                 title: "Ubicación",
                 lines: [
-                    "200 m norte de la Iglesia Central",
-                    "Provincia, Cantón, Distrito",
-                    "Costa Rica",
+                    "100 metros oeste y 50 norte de la escuela de San Pablo",
+                    "Nandayure, Guanacaste, Costa Rica",
                 ],
                 Icon: MapPin,
                 accents: {
