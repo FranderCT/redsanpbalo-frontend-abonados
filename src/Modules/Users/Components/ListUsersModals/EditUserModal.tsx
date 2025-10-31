@@ -89,6 +89,7 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
 <form.Field name="Nis">
   {(field) => (
     <>
+      <span className="text-sm text-gray-700">NIS</span>
       <input
         type="text"
         value={field.state.value ?? ""}
