@@ -3,6 +3,9 @@ import { Edit2 } from "lucide-react";
 import type { Service } from "../../Models/Services";
 import DeleteServiceButton from "../ModalsServices/DeleteServiceModal";
 
+// Usa las clases CSS tipo "icon-<name>" para renderizar el ícono (igual que en Services.tsx)
+const iconClassFor = (name?: string) => `icon-${(name ?? "droplets").toLowerCase()}`;
+
 export const ServiceColumns = (
   onEdit: (service: Service) => void,
 ): ColumnDef<Service>[] => [
@@ -10,15 +13,9 @@ export const ServiceColumns = (
     accessorKey: "Icon", 
     header: "Icono",
     cell: ({ row }) => (
-      <div className="w-10 h-10">
-        <img 
-          src={row.original.Icon} 
-          alt="icon" 
-          className="w-full h-full object-contain"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="%23ddd"/><text x="50%" y="50%" font-size="12" text-anchor="middle" dy=".3em">?</text></svg>';
-          }}
-        />
+      <div className="w-10 h-10 flex items-center justify-center">
+        {/* Render un <i> con la clase del ícono de lucide mapeada, mismo patrón que Services.tsx */}
+        <i className={`${iconClassFor(row.original.Icon)} text-3xl leading-none`} />
       </div>
     )
   },

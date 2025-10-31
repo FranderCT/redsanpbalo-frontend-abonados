@@ -71,7 +71,7 @@ export function FAQ() {
                     }`}
                     >
                     <div className="min-h-0 overflow-hidden px-6">
-                        <p className="leading-relaxed text-slate-600">
+                        <p className="leading-relaxed text-slate-600 px-2 pb-6">
                         {faq.Answer}
                         </p>
                     </div>
