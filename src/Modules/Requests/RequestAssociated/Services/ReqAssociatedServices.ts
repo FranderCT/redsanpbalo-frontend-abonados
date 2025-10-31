@@ -2,7 +2,7 @@
 import apiAxios from "../../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 import type { RequestState } from "../../StateRequest/Model/RequestState";
-import type { newReqAssociated, ReqAssociated, ReqAssociatedPaginationParams, UpdateReqAssociated } from "../Models/RequestAssociated";
+import type { newReqAssociated, ReqAssociated, ReqAssociatedPaginationParams, ReqAssociatedResponse, UpdateReqAssociated } from "../Models/RequestAssociated";
 
 const BASE = "/request-associated";
 
@@ -94,6 +94,17 @@ export async function deleteRequestAssociated(id: number): Promise<ReqAssociated
     return data;
   } catch (err) {
     console.error(`Error eliminando asociado ${id}`, err);
+    return Promise.reject(err);
+  }
+}
+
+export async function getReqAssociatedFolderLink(id: number): Promise<ReqAssociatedResponse> {
+  try {
+    const { data } = await apiAxios.get<ReqAssociatedResponse>(`/request-associated-file/folder-link/${id}`);
+    return data;
+  } catch (err: any) {
+    console.error(`❌ Error obteniendo link de carpeta para solicitud ${id}`, err);
+    console.error('Response:', err?.response?.data);
     return Promise.reject(err);
   }
 }

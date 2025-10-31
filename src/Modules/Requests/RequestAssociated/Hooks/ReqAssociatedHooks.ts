@@ -1,7 +1,7 @@
 // Hooks/RequestAssociatedHooks.ts
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRequestAssociated, deleteRequestAssociated, getAllRequestAssociated, getAllRequestStates, getRequestAssociatedById, searchRequestAssociated, UpdateAssociatedReq} from "../Services/ReqAssociatedServices";
-import type { newReqAssociated, ReqAssociated, ReqAssociatedPaginationParams, UpdateReqAssociated } from "../Models/RequestAssociated";
+import { createRequestAssociated, deleteRequestAssociated, getAllRequestAssociated, getAllRequestStates, getReqAssociatedFolderLink, getRequestAssociatedById, searchRequestAssociated, UpdateAssociatedReq} from "../Services/ReqAssociatedServices";
+import type { newReqAssociated, ReqAssociated, ReqAssociatedPaginationParams, ReqAssociatedResponse, UpdateReqAssociated } from "../Models/RequestAssociated";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 
 
@@ -95,4 +95,33 @@ export const useGetAllRequestStates = () => {
     staleTime: 30_000,
   });
   return { requestStates: data ?? [], isPending, error };
+}
+
+
+export function useReqAssociatedFolderLink() {
+  return useMutation<ReqAssociatedResponse, Error, number>({
+    mutationFn: (id: number) => getReqAssociatedFolderLink(id),
+    onSuccess: (data) => {
+      let urlToOpen = null
+      if (typeof data === 'string') {
+        urlToOpen = data;
+      } else if (data?.link) {
+        urlToOpen = data.link;
+      } else if (data?.url) {
+        urlToOpen = data.url;
+      }
+      console.log('🔗 URL a abrir:', urlToOpen);
+      
+      if (urlToOpen) {
+        window.open(urlToOpen, "_blank", "noopener,noreferrer");
+      } else {
+        console.error('No se encontró un link válido en la respuesta:', data);
+        alert("No se pudo obtener el link de la carpeta de Dropbox");
+      }
+    },
+    onError: (error) => {
+      console.error("Error al obtener el link de Dropbox:", error);
+      alert("Error al abrir la carpeta de Dropbox. Por favor, intenta de nuevo.");
+    },
+  });
 }
