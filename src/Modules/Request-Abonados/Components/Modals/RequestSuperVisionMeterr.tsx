@@ -108,7 +108,7 @@ export default function MeterSupervisionDetailModal({
   onClose,
   title,
   data,
-  excludeFields = ["Id", "SupervisorId", "CreatedAt", "UpdatedAt", "IsActive", "RequestSupervisionMeterFiles", "SupervisionMeterFiles"],
+  excludeFields = ["Id", "SupervisorId", "CreatedAt", "UpdatedAt", "IsActive", "RequestSupervisionMeterFiles", "SupervisionMeterFiles","NIS"],
 }: MeterSupervisionDetailModalProps) {
   const [selectedFileId, setSelectedFileId] = useState<number | null>(null);
   const { data: tempLinkData, isLoading: isLoadingLink } = useTempSMLink(selectedFileId);
