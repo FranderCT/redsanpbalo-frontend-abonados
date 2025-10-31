@@ -7,6 +7,7 @@ import type {
   newReqChangeNameMeter,
   ReqChangeNameMeterPaginationParams,
   UpdateReqChangeNameMeter,
+  ReqChangeNameLinkResponse,
 } from "../Models/RequestChangeNameMeter";
 
 const BASE = "/request-change-name-meter";
@@ -93,13 +94,26 @@ export async function updateReqChangeNameMeter(
   }
 }
 
-
 export async function deleteReqChangeNameMeter(id: number): Promise<ReqChangeNameMeter | void> {
   try {
     const { data } = await apiAxios.delete<ReqChangeNameMeter>(`${BASE}/${id}`);
     return data;
   } catch (err) {
     console.error(`Error eliminando cambio de nombre de medidor ${id}`, err);
+    return Promise.reject(err);
+  }
+}
+
+export async function getReqChangeNameFolderLink(id: number): Promise<ReqChangeNameLinkResponse> {
+  try {
+    // La ruta correcta es /request-availability-water-file/folder-link/:id
+    const { data } = await apiAxios.get<ReqChangeNameLinkResponse>(`/request-change-name-meter-file/folder-link/${id}`);
+    
+    console.log('Link de carpeta recibido:', data);
+    return data;
+  } catch (err: any) {
+    console.error(` Error obteniendo link de carpeta para solicitud ${id}`, err);
+    console.error('Response:', err?.response?.data);
     return Promise.reject(err);
   }
 }

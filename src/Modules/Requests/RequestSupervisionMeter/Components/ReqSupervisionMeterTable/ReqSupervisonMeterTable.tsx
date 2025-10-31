@@ -4,6 +4,8 @@ import type { ReqSupervisionMeter } from "../../Models/ReqSupervisionMeter";
 import { ReqSupervisionMeterColumns } from "./ReqSupervisionMeterColumn";
 import ReqSupervisionMeterPager from "../PaginationReqSupervisionMeter/ReqSupervisionMeterPager";
 import UpdateReqSupervisionMeterStateModal from "../../Modals/UpdateReqSupervicionMeterModal";
+import MeterSupervisionDetailModal from "../../../../Request-Abonados/Components/Modals/RequestDetailModal";
+
 
 type Props = {
   data: ReqSupervisionMeter[];
@@ -19,12 +21,27 @@ export default function ReqSupervisionMeterTable({
   pageCount,  
   onPageChange,
 }: Props) {
+    const [selectedRequest, setSelectedRequest] = useState<ReqSupervisionMeter | null>(null);
+    const [showDetailModal, setShowDetailModal] = useState(false);
   const [editingReq, setEditingReq] = useState<ReqSupervisionMeter | null>(null);
   // const [getInfoReqAvailWater, setGetInfoReqAvailWater] = useState<ReqAvailWater | null>(null);
 
+    const handleGetInfo = (req: ReqSupervisionMeter) => {
+      setSelectedRequest(req);
+      setShowDetailModal(true);
+    };
+  
+    const handleCloseModal = () => {
+      setShowDetailModal(false);
+      setSelectedRequest(null);
+    };   
+
   const table = useReactTable({
     data,
-    columns: ReqSupervisionMeterColumns((req) => setEditingReq(req)),
+    columns: ReqSupervisionMeterColumns(
+      (req) => setEditingReq(req),
+    handleGetInfo
+    ),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -37,7 +54,15 @@ export default function ReqSupervisionMeterTable({
           onClose={() => setEditingReq(null)}
           onSuccess={() => setEditingReq(null)}
         />
-
+              {/* Modal de detalle */}
+              {selectedRequest && (
+                <MeterSupervisionDetailModal
+                  open={showDetailModal}
+                  onClose={handleCloseModal}
+                  title="Detalles de Solicitud de Disponibilidad de Agua"
+                  data={selectedRequest}
+                />
+              )}
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
           {table.getHeaderGroups().map((hg) => (

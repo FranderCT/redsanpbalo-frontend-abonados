@@ -1,8 +1,8 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createReqAvailWater, deleteReqAvailWater, getAllReqAvailWater, getAllRequestStates, getReqAvailWaterById, searchReqAvailWater, UpdateReqAvailWater } from "../Services/ReqAvilWaterServices";
-import type { ReqAvailWater, ReqAvailWaterPaginationParams, UpdateReqAvailabilityWater} from "../Models/ReqAvailWater";
+import { createReqAvailWater, deleteReqAvailWater, getAllReqAvailWater, getAllRequestStates, getReqAvailWaterById, getReqAvailWaterFolderLink, searchReqAvailWater, UpdateReqAvailWater } from "../Services/ReqAvilWaterServices";
+import type { ReqAvailWater, ReqAvailWaterPaginationParams, ReqWaterLinkResponse, UpdateReqAvailabilityWater} from "../Models/ReqAvailWater";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 
 // Obtener todos
@@ -135,4 +135,33 @@ export const useGetAllRequestStates = () => {
     staleTime: 30_000,
   });
   return { requestStates: data ?? [], isPending, error };
+}
+
+
+export function useReqAvailWaterFolderLink() {
+  return useMutation<ReqWaterLinkResponse, Error, number>({
+    mutationFn: (id: number) => getReqAvailWaterFolderLink(id),
+    onSuccess: (data) => {
+      let urlToOpen = null
+      if (typeof data === 'string') {
+        urlToOpen = data;
+      } else if (data?.link) {
+        urlToOpen = data.link;
+      } else if (data?.url) {
+        urlToOpen = data.url;
+      }
+      console.log('🔗 URL a abrir:', urlToOpen);
+      
+      if (urlToOpen) {
+        window.open(urlToOpen, "_blank", "noopener,noreferrer");
+      } else {
+        console.error('No se encontró un link válido en la respuesta:', data);
+        alert("No se pudo obtener el link de la carpeta de Dropbox");
+      }
+    },
+    onError: (error) => {
+      console.error("Error al obtener el link de Dropbox:", error);
+      alert("Error al abrir la carpeta de Dropbox. Por favor, intenta de nuevo.");
+    },
+  });
 }

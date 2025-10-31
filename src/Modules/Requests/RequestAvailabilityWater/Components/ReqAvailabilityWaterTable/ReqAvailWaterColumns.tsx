@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ReqAvailWater } from "../../Models/ReqAvailWater";
-import { Edit2 } from "lucide-react";
+import { Edit2, InfoIcon } from "lucide-react";
 import DeleteRequestModal from "../../Modals/DeleteRequestModal";
 
 // ---- helpers ----
@@ -31,8 +31,8 @@ const guessStateColor = (normalized: string) => {
     return stateColorsDict["pendiente"];
 };
 export const ReqAvailWaterColumns = (
-  onEdit: (req: ReqAvailWater) => void
-  // onGetInfo?: (req: ReqAvailWater) => void
+  onEdit: (req: ReqAvailWater) => void,
+  onGetInfo?: (req: ReqAvailWater) => void
 ): ColumnDef<ReqAvailWater>[] => [
   {
     id: "Name",
@@ -84,17 +84,31 @@ export const ReqAvailWaterColumns = (
           <button
             onClick={() => onEdit(req)}
             className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-                       text-[#1789FC] border-[#1789FC]
-                       hover:bg-[#1789FC] hover:text-white transition"
+                        text-[#1789FC] border-[#1789FC]
+                        hover:bg-[#1789FC] hover:text-white transition"
           >
             <Edit2 className="w-4 h-4" />
             Editar
           </button>
-
           <DeleteRequestModal reqAvailWater={req} />
         </div>
       );
     },
+  },
+    {
+    id: "actions",
+    header: "Información",
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <button
+          onClick={() => onGetInfo?.(row.original)}
+          className="flex items-center gap-1 px-3 py-1 text-xs font-medium border text-[#222] border-[#222] hover:bg-[#091540] hover:text-[#f5f5f5] transition cursor-pointer"
+        >
+          <InfoIcon className="w-4 h-4" />
+          Ver más
+        </button>
+      </div>
+    ),
   },
   // Si agregas botón de info, descomenta y pasa onGetInfo arriba:
   // {

@@ -5,9 +5,10 @@ import type {
   newReqChangeNameMeter,
   ReqChangeNameMeterPaginationParams,
   UpdateReqChangeNameMeter,
+  ReqChangeNameLinkResponse,
 } from "../Models/RequestChangeNameMeter";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
-import { createReqChangeNameMeter, deleteReqChangeNameMeter, getAllReqChangeNameMeter, getAllRequestStates, getReqChangeNameMeterById, searchReqChangeNameMeter, updateReqChangeNameMeter } from "../Services/RequestChangeNameMeter";
+import { createReqChangeNameMeter, deleteReqChangeNameMeter, getAllReqChangeNameMeter, getAllRequestStates, getReqChangeNameFolderLink, getReqChangeNameMeterById, searchReqChangeNameMeter, updateReqChangeNameMeter } from "../Services/RequestChangeNameMeter";
 
 // Listado simple
 export const useGetAllReqChangeNameMeter = () => {
@@ -100,5 +101,33 @@ export const useGetAllRequestStates = () => {
     staleTime: 30_000,
   });
   return { requestStates: data ?? [], isPending, error };
+}
+
+export function useReqChangeNameFolderLink() {
+  return useMutation<ReqChangeNameLinkResponse, Error, number>({
+    mutationFn: (id: number) => getReqChangeNameFolderLink(id),
+    onSuccess: (data) => {
+      let urlToOpen = null
+      if (typeof data === 'string') {
+        urlToOpen = data;
+      } else if (data?.link) {
+        urlToOpen = data.link;
+      } else if (data?.url) {
+        urlToOpen = data.url;
+      }
+      console.log('🔗 URL a abrir:', urlToOpen);
+      
+      if (urlToOpen) {
+        window.open(urlToOpen, "_blank", "noopener,noreferrer");
+      } else {
+        console.error('No se encontró un link válido en la respuesta:', data);
+        alert("No se pudo obtener el link de la carpeta de Dropbox");
+      }
+    },
+    onError: (error) => {
+      console.error("Error al obtener el link de Dropbox:", error);
+      alert("Error al abrir la carpeta de Dropbox. Por favor, intenta de nuevo.");
+    },
+  });
 }
 

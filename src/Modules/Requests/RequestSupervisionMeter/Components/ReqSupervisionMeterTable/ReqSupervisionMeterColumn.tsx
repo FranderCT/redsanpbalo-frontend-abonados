@@ -1,5 +1,5 @@
 import { type ColumnDef } from "@tanstack/react-table";
-import { Edit2 } from "lucide-react";
+import { Edit2, InfoIcon } from "lucide-react";
 import type { ReqSupervisionMeter } from "../../Models/ReqSupervisionMeter";
 import DeleteSupervisionMeterModal from "../../Modals/DeleteReqSupervisionMeterModal";
 
@@ -31,8 +31,8 @@ const guessStateColor = (normalized: string) => {
     return stateColorsDict["pendiente"];
 };
 export const ReqSupervisionMeterColumns = (
-  onEdit: (req: ReqSupervisionMeter) => void
-  // onGetInfo?: (req: ReqAvailWater) => void
+  onEdit: (req: ReqSupervisionMeter) => void,
+  onGetInfo?: (req: ReqSupervisionMeter) => void
 ): ColumnDef<ReqSupervisionMeter>[] => [
   {
     id: "Name",
@@ -96,6 +96,21 @@ export const ReqSupervisionMeterColumns = (
         </div>
       );
     },
+  },
+      {
+    id: "actions",
+    header: "Información",
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <button
+          onClick={() => onGetInfo?.(row.original)}
+          className="flex items-center gap-1 px-3 py-1 text-xs font-medium border text-[#222] border-[#222] hover:bg-[#091540] hover:text-[#f5f5f5] transition cursor-pointer"
+        >
+          <InfoIcon className="w-4 h-4" />
+          Ver más
+        </button>
+      </div>
+    ),
   },
   // Si agregas botón de info, descomenta y pasa onGetInfo arriba:
   // {
