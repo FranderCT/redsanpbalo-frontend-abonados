@@ -18,19 +18,22 @@ export interface Project {
   ProjectProjection : ProjectProjection;
   TraceProject: ProjectTrace[];
   User : User;
-  ProjectFiles: [
-    {
-      Id : number
-      Path: string
-    }
-  ],
-  TotalActualExpense: [
-    {
-      Id: number;
-      Description : string;
-      ProductDetails : ProductDetail[];
-    }
-  ],
+  ProjectFiles: Array<{
+    Id: number;
+    Path: string;
+    FileName?: string;
+    MimeType?: string;
+    Size?: string;
+    Rev?: string;
+    UploadedAt?: string;
+  }>;
+
+  TotalActualExpense?: {
+    Id: number;
+    Description: string;
+    ActualExpenseIds?: string[];
+    ProductDetails: ProductDetail[];
+  } | null;
 }
 
 export interface newProject{
