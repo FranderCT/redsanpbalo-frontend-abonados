@@ -20,7 +20,6 @@
     const { requestStates = [], isPending, error } = useGetAllRequestStates();
     const updateMutation = useUpdateAvailabilityWater();
 
-    // 🔧 Mantener como string para evitar NaN
     const [stateId, setStateId] = useState<string>("");
 
     useEffect(() => {
@@ -30,7 +29,7 @@
         setStateId(current ? String(current) : "");
     }, [req]);
 
-    // 🔧 Debug: Ver qué estados se cargaron
+    
     useEffect(() => {
         if (requestStates.length > 0) {
         }
@@ -76,8 +75,6 @@
                 {`${req.User?.Name ?? ""} ${req.User?.Surname1 ?? ""} ${req.User?.Surname2 ?? ""}`.trim() || "-"}
                 </b>
             </p>
-            <p><span className="text-gray-500">NIS: </span><b>{(req as any).NIS ?? "-"}</b></p>
-            <p><span className="text-gray-500">Dirección: </span><b>{(req as any).Location ?? "-"}</b></p>
             </div>
 
             <label className="mb-1 block text-sm font-medium text-[#091540]">Estado</label>

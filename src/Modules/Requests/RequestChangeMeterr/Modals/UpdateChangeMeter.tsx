@@ -68,7 +68,6 @@
                 {`${req.User?.Name ?? ""} ${req.User?.Surname1 ?? ""} ${req.User?.Surname2 ?? ""}`.trim() || "-"}
                 </b>
             </p>
-            <p><span className="text-gray-500">NIS: </span><b>{(req as any).NIS ?? "-"}</b></p>
             <p><span className="text-gray-500">Dirección: </span><b>{(req as any).Location ?? "-"}</b></p>
             </div>
 

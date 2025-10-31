@@ -1,6 +1,6 @@
     import { useState, useEffect } from "react";
     import { ModalBase } from "../../../../Components/Modals/ModalBase";
-import { useTempLink } from "../../Hooks/AvailabilityWater/AvailabilityWaterHookF";
+    import { useTempLink } from "../../Hooks/AvailabilityWater/AvailabilityWaterHookF";
 
     interface RequestDetailModalProps {
     open: boolean;
@@ -90,7 +90,6 @@ import { useTempLink } from "../../Hooks/AvailabilityWater/AvailabilityWaterHook
     CreatedAt: "Fecha de Creación",
     UpdatedAt: "Última Actualización",
     SpaceOfDocument: "Carpeta de Documentos",
-    RequestAvailabilityWaterFiles: "Documentos Adjuntos",
     };
 
     export default function RequestAvailabilityWaterModalAbo({
@@ -98,11 +97,10 @@ import { useTempLink } from "../../Hooks/AvailabilityWater/AvailabilityWaterHook
     onClose,
     title,
     data,
-    excludeFields = ["Id", "UserId", "CreatedAt", "UpdatedAt", "IsActive"],
+    excludeFields = ["Id", "UserId", "CreatedAt", "UpdatedAt", "IsActive", "RequestAvailabilityWaterFiles"],
     }: RequestDetailModalProps) {
     const [selectedFileId, setSelectedFileId] = useState<number | null>(null);
     const { data: tempLinkData, isLoading: isLoadingLink } = useTempLink(selectedFileId);
-
 
     useEffect(() => {
         if (open && data) {
@@ -182,9 +180,6 @@ import { useTempLink } from "../../Hooks/AvailabilityWater/AvailabilityWaterHook
             {/* Documentos disponibles */}
             {files.length > 0 ? (
                 <div className="space-y-2">
-                <p className="text-sm font-semibold text-gray-700">
-                    📄 {files.length} documento(s) disponible(s):
-                </p>
                 <div className="space-y-2">
                     {files.map((file: any) => {
                     const fileId = file?.Id || file?.id;
@@ -239,11 +234,6 @@ import { useTempLink } from "../../Hooks/AvailabilityWater/AvailabilityWaterHook
             )}
             </div>
         );
-        }
-
-        // Ocultar RequestAvailabilityWaterFiles porque ya se muestra en SpaceOfDocument
-        if (key === "RequestAvailabilityWaterFiles") {
-        return "-";
         }
 
         // Valores primitivos

@@ -57,7 +57,7 @@ export default function ReqChangeNameMeterTable({
                 <MeterSupervisionDetailModalAdmin
                   open={showDetailModal}
                   onClose={handleCloseModal}
-                  title="Detalles de Solicitud de Disponibilidad de Agua"
+                  title="Detalles de Solicitud de cambio nombre de medidor"
                   data={selectedRequest}
                 />
               )}

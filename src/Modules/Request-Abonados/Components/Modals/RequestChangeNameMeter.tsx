@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { ModalBase } from "../../../../Components/Modals/ModalBase";
-import { useTempCMLink } from "../../Hooks/ChangeNameMeter/ChangeNameMeterHookF";
+    import { useState, useEffect } from "react";
+    import { ModalBase } from "../../../../Components/Modals/ModalBase";
+    import { useTempCMLink } from "../../Hooks/ChangeNameMeter/ChangeNameMeterHookF";
 
     interface MeterChangeDetailModalProps {
     open: boolean;
@@ -97,8 +97,6 @@ import { useTempCMLink } from "../../Hooks/ChangeNameMeter/ChangeNameMeterHookF"
     CreatedAt: "Fecha de Creación",
     UpdatedAt: "Última Actualización",
     SpaceOfDocument: "Carpeta de Documentos",
-    MeterChangeFiles: "Documentos Adjuntos",
-    RequestMeterChangeFiles: "Documentos Adjuntos",
     };
 
     export default function MeterChangeDetailModal({
@@ -106,7 +104,7 @@ import { useTempCMLink } from "../../Hooks/ChangeNameMeter/ChangeNameMeterHookF"
     onClose,
     title,
     data,
-    excludeFields = ["Id", "UserId", "CreatedAt", "UpdatedAt", "IsActive"],
+    excludeFields = ["Id", "UserId", "CreatedAt", "UpdatedAt", "IsActive", "MeterChangeFiles", "RequestMeterChangeFiles", "RequestChangeNameMeterFile"],
     }: MeterChangeDetailModalProps) {
     const [selectedFileId, setSelectedFileId] = useState<number | null>(null);
     const { data: tempLinkData, isLoading: isLoadingLink } = useTempCMLink(selectedFileId);
@@ -126,7 +124,7 @@ import { useTempCMLink } from "../../Hooks/ChangeNameMeter/ChangeNameMeterHookF"
     };
 
     const renderValue = (key: string, value: any) => {
-        // if (value === null || value === undefined) return "-";
+        if (value === null || value === undefined) return "-";
 
         // Estado de la solicitud
         if (key === "StateRequest" && typeof value === "object" && value.Name) {
@@ -138,17 +136,6 @@ import { useTempCMLink } from "../../Hooks/ChangeNameMeter/ChangeNameMeterHookF"
             </span>
         );
         }
-
-        // Condición del medidor
-        // if (key === "MeterCondition") {
-        // const normalized = normalizeState(String(value));
-        // const colorClass = guessStateColor(normalized);
-        // return (
-        //     <span className={`inline-block px-3 py-1.5 text-sm tracking-wide uppercase rounded ${colorClass}`}>
-        //     {value}
-        //     </span>
-        // );
-        // }
 
         // Usuario (objeto anidado)
         if (key === "User" && typeof value === "object") {
@@ -250,26 +237,21 @@ import { useTempCMLink } from "../../Hooks/ChangeNameMeter/ChangeNameMeterHookF"
         );
         }
 
-        // // Ocultar archivos porque ya se muestran en SpaceOfDocument
-        // if (key === "MeterChangeFiles" || key === "RequestMeterChangeFiles") {
-        // return "-";
-        // }
-
-        // // Valores primitivos
-        // if (typeof value === "string" || typeof value === "number") {
-        // return String(value);
-        // }
+        // Valores primitivos
+        if (typeof value === "string" || typeof value === "number") {
+        return String(value);
+        }
 
         // Objetos complejos
-        // if (typeof value === "object") {
-        // return (
-        //     <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto border border-gray-200">
-        //     {JSON.stringify(value, null, 2)}
-        //     </pre>
-        // );
-        // }
+        if (typeof value === "object") {
+        return (
+            <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto border border-gray-200">
+            {JSON.stringify(value, null, 2)}
+            </pre>
+        );
+        }
 
-        // return String(value);
+        return String(value);
     };
 
     const filteredEntries = Object.entries(data).filter(

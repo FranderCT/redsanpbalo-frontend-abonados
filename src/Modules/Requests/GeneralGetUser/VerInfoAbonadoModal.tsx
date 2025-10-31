@@ -1,14 +1,14 @@
-import { ModalBase } from "../../../Components/Modals/ModalBase";
-import { useReqAvailWaterFolderLink } from "../RequestAvailabilityWater/Hooks/ReqAvailWaterHooks";
+    import { ModalBase } from "../../../Components/Modals/ModalBase";
+    import { useReqAvailWaterFolderLink } from "../RequestAvailabilityWater/Hooks/ReqAvailWaterHooks";
 
 
 
-interface RequestDetailModalProps {
-    open: boolean;
-    onClose: () => void;
-    title: string;
-    data: Record<string, any>;
-    excludeFields?: string[];
+    interface RequestDetailModalProps {
+        open: boolean;
+        onClose: () => void;
+        title: string;
+        data: Record<string, any>;
+        excludeFields?: string[];
     }
 
     // ---- helpers ----
@@ -98,7 +98,7 @@ interface RequestDetailModalProps {
     onClose,
     title,
     data,
-    excludeFields = ["Id", "UserId", "CreatedAt", "UpdatedAt", "IsActive"],
+    excludeFields = ["Id", "UserId", "CreatedAt", "UpdatedAt", "IsActive", "RequestAvailabilityWaterFiles", "MeterChangeFiles", "RequestMeterChangeFiles", "RequestChangeNameMeterFile"],
     }: RequestDetailModalProps) {
     const { mutate: getFolderLink, isPending } = useReqAvailWaterFolderLink();
 
@@ -164,32 +164,32 @@ interface RequestDetailModalProps {
         }
 
         // SpaceOfDocument - Integración con Dropbox
-    if (key === "SpaceOfDocument") {
-    return (
-        <button
-        type="button"
-        onClick={handleOpenFolder}
-        disabled={isPending || !data.Id}
-        className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-md transition-colors"
-        >
-        {isPending ? (
-            <>
-            <svg className="animate-spin h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
-            Abriendo...
-            </>
-        ) : (
-            <>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-            Ver carpeta en Dropbox
-            </>
-        )}
-        </button>
-    );
-    }
+        if (key === "SpaceOfDocument") {
+        return (
+            <button
+            type="button"
+            onClick={handleOpenFolder}
+            disabled={isPending || !data.Id}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-md transition-colors"
+            >
+            {isPending ? (
+                <>
+                <svg className="animate-spin h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                Abriendo...
+                </>
+            ) : (
+                <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Ver carpeta en Dropbox
+                </>
+            )}
+            </button>
+        );
+        }
 
         // Valores primitivos
         if (typeof value === "string" || typeof value === "number") {
@@ -252,4 +252,4 @@ interface RequestDetailModalProps {
         </div>
         </ModalBase>
     );
-}
+    }
