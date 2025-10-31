@@ -15,7 +15,19 @@ export interface ChangeNameMeter {
 }
 
 export type PartialChangeNameMeter = Partial<ChangeNameMeter>;
+
 export interface NewChangeNameMeter {
     Justification: string;
     UserId: number;
+}
+
+export interface TempLinkCMResponse {
+    link: string;
+    expires: string;
+    metadata?: any;
+    file: {
+    Id: number;
+    Path: string;
+    RequesChangeNameMeter?: any;
+    };
 }

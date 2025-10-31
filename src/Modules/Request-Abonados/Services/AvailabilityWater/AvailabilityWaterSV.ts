@@ -1,7 +1,7 @@
 import apiAxios from "../../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 import type { ReqAvailWater } from "../../../Requests/RequestAvailabilityWater/Models/ReqAvailWater";
-import type { AvailabilityWater, PartialAvailabilityWater } from "../../Models/AvailabilityWater/AvailabilityWater";
+import type { AvailabilityWater, PartialAvailabilityWater, TempLinkResponse } from "../../Models/AvailabilityWater/AvailabilityWater";
 
 const BASE = "/request-availability-water"; 
 
