@@ -111,14 +111,14 @@
 
     useEffect(() => {
         if (tempLinkData?.link && selectedFileId) {
-        console.log('✅ Abriendo documento:', tempLinkData.link);
+        console.log('Abriendo documento:', tempLinkData.link);
         window.open(tempLinkData.link, "_blank", "noopener,noreferrer");
         setSelectedFileId(null);
         }
     }, [tempLinkData, selectedFileId]);
 
     const handleDownloadFile = (fileId: number, fileName: string) => {
-        console.log('📥 Solicitando descarga:', { fileId, fileName });
+        console.log('Solicitando descarga:', { fileId, fileName });
         setSelectedFileId(fileId);
     };
 
