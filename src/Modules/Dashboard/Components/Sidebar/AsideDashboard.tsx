@@ -175,7 +175,7 @@ useEffect(() => {
           </button>
         </Can>
 
-        <Can rule={{ any: ["ADMIN", "ABONADO"] }}>
+        <Can rule={{ all: ["ADMIN"] }}>
           <button 
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
             onClick={() => navigate({ to: "/dashboard/projects" })}
