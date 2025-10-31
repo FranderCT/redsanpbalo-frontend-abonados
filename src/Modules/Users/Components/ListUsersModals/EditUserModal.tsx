@@ -94,8 +94,7 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
         value={field.state.value ?? ""}
         onChange={(e) => field.handleChange(e.target.value)}
         placeholder="Ingresa el NIS"
-        className="w-full rounded border px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
-        required
+        className="w-full border px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
       />
       {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
         <p className="text-sm text-red-500 mt-1">
