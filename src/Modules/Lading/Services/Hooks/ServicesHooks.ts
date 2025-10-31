@@ -1,6 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createService, deleteService, getAllServices, getServiceById, updateService } from "../Servicios/Services.services";
-import type { Service, update_Service } from "../Models/Services";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createService, deleteService, getAllServices, getServiceById, searchServices, updateService } from "../Servicios/Services.services";
+import type { Service, ServicePaginationParams, update_Service } from "../Models/Services";
+import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import { useEffect } from "react";
 
 export const useGetAllServices = () => {
     const { data: services, isPending, error } = useQuery({
@@ -19,6 +21,36 @@ export const useGetServiceById = (id?: number) => {
     });
     return { service, isPending, error };
 };
+
+export const useSearchServices = (params: ServicePaginationParams) => {
+    const query = useQuery<PaginatedResponse<Service>, Error>({
+        queryKey: ["services", "search", params],
+        queryFn: () => searchServices(params),
+        placeholderData: keepPreviousData,   // v5
+        staleTime: 30_000,
+    });
+
+    // ⬇️ Log en cada fetch/refetch exitoso
+    useEffect(() => {
+        if (query.data) {
+        const res = query.data; 
+        console.log(
+            "[Materials fetched]",
+            {
+            page: res.meta.page,
+            limit: res.meta.limit,
+            total: res.meta.total,
+            pageCount: res.meta.pageCount,
+            params,
+            },
+            res.data 
+        );
+        }
+    }, [query.data, params]);
+
+    return query;
+};
+
 
 // Crear
 export const useCreateService = () => {
