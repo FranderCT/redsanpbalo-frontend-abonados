@@ -50,3 +50,9 @@ export interface ReqAssociatedPaginationParams {
   StateRequestId?: number;  
   State?: string; 
 }
+
+export interface ReqAssociatedResponse {
+  link?: string;
+  url?: string;
+  [key: string]: any; // Para capturar cualquier otro formato
+}

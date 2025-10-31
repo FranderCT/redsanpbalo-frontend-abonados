@@ -55,3 +55,10 @@ export interface ReqAvailWaterPaginationParams {
   StateRequestId?: number;  // o por ID concreto del estado
   State?: string; 
 }
+
+// Models/ReqAvailWater.ts
+export interface ReqWaterLinkResponse {
+  link?: string;
+  url?: string;
+  [key: string]: any; // Para capturar cualquier otro formato
+}

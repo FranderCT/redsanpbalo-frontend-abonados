@@ -4,6 +4,8 @@ import type { ReqAssociated } from "../../Models/RequestAssociated";
 import { ReqAssociatedColumns } from "./ReqAssociatedColumns";
 import ReqAssociatedPager from "../PaginationReqAssociated/ReqAssociatedPager";
 import UpdateReqAssociatedStateModal from "../Modals/UpdateAssociatedModal";
+import MeterSupervisionDetailModalAdmin from "../../../RequestChangeNameMeter/Components/Modals/VerInfoAbonadoRequest";
+import ReqAssociatedAdminModal from "../Modals/VerinfoRequestAboando";
 
 type Props = {
   data: ReqAssociated[];
@@ -19,12 +21,24 @@ export default function ReqAssociatedTable({
   pageCount,
   onPageChange,
 }: Props) {
+        const [selectedRequest, setSelectedRequest] = useState<ReqAssociated | null>(null);
+        const [showDetailModal, setShowDetailModal] = useState(false);
   const [editingReqAssociated, setEditingReqAssociated] = useState<ReqAssociated | null>(null);
   // const [getInfoReqAvailWater, setGetInfoReqAvailWater] = useState<ReqAvailWater | null>(null);
+          const handleGetInfo = (req: ReqAssociated) => {
+            setSelectedRequest(req);
+            setShowDetailModal(true);
+          };
+          const handleCloseModal = () => {
+            setShowDetailModal(false);
+            setSelectedRequest(null);
+          }; 
 
   const table = useReactTable({
     data,
-    columns: ReqAssociatedColumns((req) => setEditingReqAssociated(req)),
+    columns: ReqAssociatedColumns((req) => setEditingReqAssociated(req),
+    handleGetInfo
+  ),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -37,7 +51,15 @@ export default function ReqAssociatedTable({
           onClose={() => setEditingReqAssociated(null)}
           onSuccess={() => setEditingReqAssociated(null)}
         />
-
+              {/* Modal de detalle */}
+              {selectedRequest && (
+                <ReqAssociatedAdminModal
+                  open={showDetailModal}
+                  onClose={handleCloseModal}
+                  title="Detalles solicitud para ser Asociado"
+                  data={selectedRequest}
+                />
+              )}
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
           {table.getHeaderGroups().map((hg) => (

@@ -4,6 +4,7 @@ import type { ReqSupervisionMeter } from "../../../Requests/RequestSupervisionMe
 import { ReqSupervisionMeterUserColumns } from "./ReqSupervisionMeterUserColumn";
 import { useState } from "react";
 import RequestDetailModal from "../Modals/RequestDetailModal";
+import MeterSupervisionDetailModal from "../Modals/RequestDetailModal";
 
 type Props = {
   data: ReqSupervisionMeter[];
@@ -109,7 +110,7 @@ export default function ReqSupervisionMeterUserTable({
       </table>
 
       {selectedRequest && (
-        <RequestDetailModal
+        <MeterSupervisionDetailModal
           open={showDetailModal}
           onClose={handleCloseModal}
           title="Detalles de Solicitud de Supervisión de Medidor"

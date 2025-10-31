@@ -1,7 +1,7 @@
 import apiAxios from "../../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 import type { RequestState } from "../../StateRequest/Model/RequestState";
-import type { NewReqAvailWater, ReqAvailWater, ReqAvailWaterPaginationParams, UpdateReqAvailabilityWater} from "../Models/ReqAvailWater";
+import type { NewReqAvailWater, ReqAvailWater, ReqAvailWaterPaginationParams, ReqWaterLinkResponse, UpdateReqAvailabilityWater} from "../Models/ReqAvailWater";
 
 
 
@@ -90,5 +90,19 @@ export async function deleteReqAvailWater(id: number): Promise<void> {
     await apiAxios.delete(`${BASE}/${id}`);
   } catch (error) {
     console.error("Error al eliminar la solicitud", error);
+  }
+}
+
+export async function getReqAvailWaterFolderLink(id: number): Promise<ReqWaterLinkResponse> {
+  try {
+    // La ruta correcta es /request-availability-water-file/folder-link/:id
+    const { data } = await apiAxios.get<ReqWaterLinkResponse>(`/request-availability-water-file/folder-link/${id}`);
+    
+    console.log('✅ Link de carpeta recibido:', data);
+    return data;
+  } catch (err: any) {
+    console.error(`❌ Error obteniendo link de carpeta para solicitud ${id}`, err);
+    console.error('Response:', err?.response?.data);
+    return Promise.reject(err);
   }
 }

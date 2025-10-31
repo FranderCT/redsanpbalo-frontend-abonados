@@ -41,3 +41,9 @@ export interface ReqChangeNameMeterPaginationParams {
   StateRequestId?: number;  
   State?: string; 
 }
+
+export interface ReqChangeNameLinkResponse {
+  link?: string;
+  url?: string;
+  [key: string]: any; // Para capturar cualquier otro formato
+}
