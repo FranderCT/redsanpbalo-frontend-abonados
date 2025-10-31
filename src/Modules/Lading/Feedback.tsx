@@ -36,7 +36,7 @@ export function Feedback() {
                 </p> */}
             </div>
 
-            <Card className="shadow-lg !bg-[#f9f5ff] border-none">
+            <Card className="shadow-lg !bg-white border-none">
             <CardContent className="p-8">
                 <form
                 onSubmit={(e) => {
