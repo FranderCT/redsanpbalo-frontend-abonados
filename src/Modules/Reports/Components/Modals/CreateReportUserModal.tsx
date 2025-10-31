@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
@@ -7,8 +6,12 @@ import { useGetAllReportTypes } from "../../Hooks/ReportTypesHooks";
 import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 
-export default function CreateReportUserModal() {
-    const [open, setOpen] = useState(false);
+type Props = {
+    open: boolean;
+    setOpen: (open: boolean) => void;
+}
+
+export default function CreateReportUserModal({ open, setOpen }: Props) {
 
     const createReportMutation = useCreateReportByUser();
 
@@ -63,13 +66,6 @@ export default function CreateReportUserModal() {
 
 return (
     <>
-        <button
-            onClick={() => setOpen(true)}
-            className="px-4 py-2 bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
-        >
-            + Crear reporte
-        </button>
-
         <ModalBase open={open} onClose={handleClose} panelClassName="w-full max-w-2xl !p-0 overflow-hidden shadow-2xl">
             <div className="px-6 py-5 border-b border-gray-200 bg-white">
             <h3 className="text-xl font-bold text-[#091540]">Crear Nuevo Reporte</h3>
