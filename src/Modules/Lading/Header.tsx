@@ -147,11 +147,18 @@ export default function HeaderPaanee() {
                 Misión y visión
               </a>
               <a 
-                href="#noticias"
+                href="#faq"
                 onClick={() => setOpen(false)}
                 className="block px-4 py-3 text-sm font-medium text-[#091540] hover:text-[#1789FC] hover:bg-[#F9F5FF] rounded-lg transition-colors duration-200"
               >
-                Noticias
+                Preguntas frecuentes
+              </a>
+              <a 
+                href="#retroalimentacion"
+                onClick={() => setOpen(false)}
+                className="block px-4 py-3 text-sm font-medium text-[#091540] hover:text-[#1789FC] hover:bg-[#F9F5FF] rounded-lg transition-colors duration-200"
+              >
+                Retroalimentación
               </a>
               <a 
                 href="#contacto"
@@ -163,9 +170,9 @@ export default function HeaderPaanee() {
               <div className="pt-4 border-t border-gray-100">
                 <Link 
                   to={"/dashboard"} 
-                  className="block w-full px-4 py-3 text-sm font-semibold text-white bg-[#091540] hover:bg-[#1789FC] rounded-lg transition-colors duration-200 text-center"
+                  className="block w-full px-4 py-3 text-sm font-semibold text-white bg-[#091540] hover:bg-[#1789FC] transition-colors duration-200 text-center"
                 >
-                  Dashboard
+                  Iniciar sesión
                 </Link>
               </div>
             </div>

@@ -29,13 +29,28 @@ export function Footer() {
                         </a>
                     </li>
                     <li>
-                        <a href="#nosotros" className="text-white/80 hover:text-white transition-colors">
-                        Nosotros
+                        <a href="#sobre-nosotros" className="text-white/80 hover:text-white transition-colors">
+                        Sobre nosotros
                         </a>
                     </li>
                     <li>
                         <a href="#servicios" className="text-white/80 hover:text-white transition-colors">
                         Servicios
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#mision-y-vision" className="text-white/80 hover:text-white transition-colors">
+                        Misión y Visión
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#faq" className="text-white/80 hover:text-white transition-colors">
+                        Preguntas frecuentes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#retroalimentacion" className="text-white/80 hover:text-white transition-colors">
+                        Retroalimentación
                         </a>
                     </li>
                     <li>
@@ -64,7 +79,7 @@ export function Footer() {
                         <li className="text-white/80"> San Pablo, Nandayure</li>
                         <li className="text-white/80"> Teléfono: 2101-7345</li>
                         <li className="text-white/80"> WhatsApp: 8843-4072</li>
-                        <li className="text-white/80"> asadasanpablo.2014@gmail.com</li>
+                        <li className="text-white/80"> Correo: asadasanpablo.2014@gmail.com</li>
                     </ul>
 
                     <div className="flex gap-4 mt-5">
