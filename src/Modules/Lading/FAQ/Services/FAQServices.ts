@@ -37,3 +37,12 @@ export async function updateFAQ(id: number, payload: update_FAQ): Promise<FAQ> {
         return Promise.reject(err)
     }
 }
+
+export async function deleteFAQ(id: number): Promise<FAQ | void> {
+    try{
+        const {data} = await apiAxios.delete<FAQ>(`${BASE}/${id}`);
+        return data;
+    } catch (error) {
+        console.error("Error al eliminar la FAQ", error);
+    }
+}

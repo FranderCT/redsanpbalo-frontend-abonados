@@ -13,13 +13,14 @@ import { listPhysicalSuppliers, PhysicalSupplierRoute } from "./Modules/Physical
 import { legalSupplierRoute, listLegalSuppliers } from "./Modules/LegalSupplier/Routes/LegalSupplierRoutes";
 import {requestListSupervisionRoute, requestSupervisionUserRoute } from "./Modules/Requests/RequestSupervisionMeter/Routes/RequestsSupervisionWaterRoute";
 import { requestsRoute } from "./Modules/Requests/Routes/RequestRoutes";
-import HeroPage from "./Modules/Lading/HeroPage";
 import { requestListAvailWaterRoute, requestUserAvailWaterRoute } from "./Modules/Requests/RequestAvailabilityWater/Routes/RequestsAvailWaterRoute";
 import { requestListAssociatedRoute, requestUserAssociatedRoute } from "./Modules/Requests/RequestAssociated/Routes/ReqAssociatedRoutes";
 import { requestListChangeMeterRoute, requestUserChangeMeterRoute } from "./Modules/Requests/RequestChangeMeterr/Routes/RequestChangeMeterRoute";
 import { commentRoute } from "./Modules/Comment/Routes/CommentRoutes";
 import { reportIndexRoute, reportRoutes } from "./Modules/Reports/Routes/ReportRoutes";
 import { requestListChangeNameMeter, requestUserChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
+import HeroPage from "./Modules/Lading/HeroPage";
+import { editLandingRoute } from "./Modules/Lading/Routes/RoutesEditLanding";
 
 
 export const rootRoute = createRootRoute();
@@ -78,7 +79,8 @@ export const routeTree = rootRoute.addChildren([
       requestUserAssociatedRoute,
       requestListAssociatedRoute
     ]),
-    commentRoute
+    commentRoute,
+    editLandingRoute
   ]),
   PhysicalSupplierRoute.addChildren([
     listPhysicalSuppliers

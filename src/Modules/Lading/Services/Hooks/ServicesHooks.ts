@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createService, getAllServices, getServiceById, updateService } from "../Servicios/Services.services";
+import { createService, deleteService, getAllServices, getServiceById, updateService } from "../Servicios/Services.services";
 import type { Service, update_Service } from "../Models/Services";
 
 export const useGetAllServices = () => {
@@ -53,4 +53,19 @@ export const useUpdateService = () => {
     });
 
     return mutation;
+};
+
+// Eliminar
+export const useDeleteMaterial = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (id: number) => deleteService(id),
+        onSuccess: (res) => {
+            qc.invalidateQueries({ queryKey: ["services"] });
+            console.log("Servicio eliminado", res);
+        },
+        onError: (err)=>{
+            console.error("Error al eliminar servicio", err);
+        }
+    });
 };

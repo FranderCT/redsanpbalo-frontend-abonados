@@ -2,9 +2,9 @@
 
 import { useForm } from "@tanstack/react-form"
 import { MessageSquare, Send } from "lucide-react"
-import { Card, CardContent } from "../../Components/Cards"
-import { useCreateComment } from "../Comment/Hooks/commentHooks"
 import { toast } from "react-toastify"
+import { useCreateComment } from "../Comment/Hooks/commentHooks";
+import { Card, CardContent } from "../DashboardPrincipal-Admin/Components/card";
 
 export function Feedback() {
     const commentMutation = useCreateComment();

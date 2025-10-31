@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFAQ, getAllFAQs, getFAQById, updateFAQ } from "../Services/FAQServices";
+import { createFAQ, deleteFAQ, getAllFAQs, getFAQById, updateFAQ } from "../Services/FAQServices";
 import type { FAQ, update_FAQ } from "../Models/FAQ";
 
 export const useGetAllFAQs  = () => {
@@ -53,4 +53,19 @@ export const useUpdateFAQ = () => {
     });
 
     return mutation;
+};
+
+// Eliminar
+export const useDeleteFAQ = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (id: number) => deleteFAQ(id),
+        onSuccess: (res) => {
+            qc.invalidateQueries({ queryKey: ["faqs"] });
+            console.log("FAQ eliminada", res);
+        },
+        onError: (err)=>{
+            console.error("Error al eliminar FAQ", err);
+        }
+    });
 };

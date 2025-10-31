@@ -37,3 +37,12 @@ export async function updateService(id: number, payload: update_Service): Promis
         return Promise.reject(err)
     }
 }
+
+export async function deleteService(id: number): Promise<Service | void> {
+    try{
+        const {data} = await apiAxios.delete<Service>(`${BASE}/${id}`);
+        return data;
+    } catch (error) {
+        console.error("Error al eliminar el servicio", error);
+    }
+}
