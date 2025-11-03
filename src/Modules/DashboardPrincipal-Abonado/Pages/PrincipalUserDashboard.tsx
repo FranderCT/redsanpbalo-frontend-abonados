@@ -3,15 +3,10 @@ import { StatCardPro } from "../../DashboardPrincipal-Admin/Components/stat-card
 import { QuickActionSolicitudes } from "../Components/quick-action-solicitudes";
 import { useMyReportsSummary, useMyRequestsSummary } from "../Hooks/dashboardUserHooks";
 import { useGetUserProfile } from "../../Users/Hooks/UsersHooks";
-import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import CreateReportUserModal from "../../Reports/Components/Modals/CreateReportUserModal";
-import { set } from "zod";
-
-
 export default function UserDashboard() {
   const [openReport, setOpenReport] = useState(false);
-  const navigate = useNavigate();
   // KPIs Solicitudes
   const {
     summary: reqSummary,

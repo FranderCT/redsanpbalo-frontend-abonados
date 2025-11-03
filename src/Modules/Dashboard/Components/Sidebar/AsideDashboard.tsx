@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import g28 from "../../../Auth/Assets/g28.png";
-import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, UserCog, Forklift, MessageSquare, UserCircle, PencilOff } from "lucide-react";
+import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, UserCog, Forklift, MessageSquare, PencilOff } from "lucide-react";
 import { Can } from "../../../Auth/Components/Can";
 
 import SidebarDropdown from "./SidebarDropdown";

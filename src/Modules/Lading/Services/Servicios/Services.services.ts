@@ -1,6 +1,6 @@
 import apiAxios from "../../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
-import type { MaterialPaginationParams } from "../../../Materials/Models/Material";
+// MaterialPaginationParams removed - not used in this service module
 import type { new_Service, Service, ServicePaginationParams, update_Service } from "../Models/Services";
 
 const BASE = "/service"; 
