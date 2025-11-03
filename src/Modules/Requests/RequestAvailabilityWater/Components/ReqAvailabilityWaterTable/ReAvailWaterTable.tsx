@@ -3,7 +3,9 @@ import type { ReqAvailWater } from "../../Models/ReqAvailWater";
 import { ReqAvailWaterColumns } from "./ReqAvailWaterColumns";
 import { useState } from "react";
 import ReqAvailWaterPager from "../PaginationReqAvailabilityWater/ReqAvailWaterPager";
-
+import UpdateReqAvailWaterStateModal from "../../Modals/UpdateRequestModal";
+import RequestDetailModalAdmin from "../../../GeneralGetUser/VerInfoAbonadoModal";
+import RequestAvailWaterDetailModalAdmin from "../../../GeneralGetUser/VerInfoAbonadoModal";
 
 type Props = {
   data: ReqAvailWater[];
@@ -15,24 +17,53 @@ type Props = {
 
 export default function ReqAvailWaterTable({
   data,
-  total,
   page,
   pageCount,
   onPageChange,
 }: Props) {
+  const [selectedRequest, setSelectedRequest] = useState<ReqAvailWater | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
-  // const [getInfoReqAvailWater, setGetInfoReqAvailWater] = useState<ReqAvailWater | null>(null);
+
+  const handleGetInfo = (req: ReqAvailWater) => {
+    setSelectedRequest(req);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDetailModal(false);
+    setSelectedRequest(null);
+  };
+
 
   const table = useReactTable({
     data,
-    columns: ReqAvailWaterColumns((req) => setEditingReqAvailWater(req)),
+    columns: ReqAvailWaterColumns(
+      (req) => setEditingReqAvailWater(req),
+      handleGetInfo  
+    ),
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
     <div className="w-full">
-      {/* Si no tienes modal, evita JSX vacío */}
-      {editingReqAvailWater && null}
+      {/* Modal de edición */}
+      <UpdateReqAvailWaterStateModal
+        open={!!editingReqAvailWater}
+        req={editingReqAvailWater}
+        onClose={() => setEditingReqAvailWater(null)}
+        onSuccess={() => setEditingReqAvailWater(null)}
+      />
+
+      {/* Modal de detalle */}
+      {selectedRequest && (
+        <RequestAvailWaterDetailModalAdmin
+          open={showDetailModal}
+          onClose={handleCloseModal}
+          title="Detalles de Solicitud de Disponibilidad de Agua"
+          data={selectedRequest}
+        />
+      )}
 
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
@@ -80,9 +111,6 @@ export default function ReqAvailWaterTable({
               className="px-4 py-3 border border-gray-300"
             >
               <div className="w-full flex items-center justify-between gap-3">
-                {/* <span className="flex-none text-sm">
-                  Total registros: <b>{total ?? data.length}</b>
-                </span> */}
                 <div className="flex-1 flex justify-center">
                   <ReqAvailWaterPager
                     page={page}

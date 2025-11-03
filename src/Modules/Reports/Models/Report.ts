@@ -13,12 +13,35 @@ export interface Report {
     CreatedAt: Date;
     ReportState: ReportState;
     UserInCharge: User | null;
+    AdditionalInfo?: string;
 }
 
 export interface ReportPaginationParams {
     page: number;
     limit: number;
+    search?: string;
     stateId?: number;
     locationId?: number;
     ReportTypeId?: number;
+}
+
+export interface CreateReportPayload {
+    Location: string;
+    Description: string;
+    UserId: number;
+    LocationId: number;
+    ReportTypeId: number;
+    ReportStateId?: number;
+    UserInChargeId?: number;
+}
+
+export interface UpdateReportPayload {
+    Location?: string;
+    Description?: string;
+    UserId?: number;
+    LocationId?: number;
+    ReportTypeId?: number;
+    ReportStateId?: number;
+    UserInChargeId?: number;
+    AdditionalInfo?: string;
 }

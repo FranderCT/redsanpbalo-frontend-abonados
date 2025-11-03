@@ -24,6 +24,7 @@
     "jwt-decode": "^4.0.0",
     "libphonenumber-js": "^1.12.17",
     "lucide-react": "^0.541.0",
+    "lucide-static": "^0.548.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-phone-number-input": "^3.4.12",

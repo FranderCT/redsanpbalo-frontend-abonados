@@ -1,7 +1,7 @@
 import { createRoute } from "@tanstack/react-router";
 import { requestsRoute } from "../../Routes/RequestRoutes";
 import ListReqAvailWater from "../Pages/ListRequestAvailWater";
-import UserRequestAvailWater from "../Pages/UserRequestAvailWater";
+import UserRequestAvailWater from "../../../Request-Abonados/Pages/UserRequestAvailWater";
 
 export const requestUserAvailWaterRoute = createRoute({
     getParentRoute : () => requestsRoute,

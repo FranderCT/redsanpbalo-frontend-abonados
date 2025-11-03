@@ -2,12 +2,11 @@ import HeaderPaanee from "./Header"
 import Hero from "./HeroNew"
 import { About } from "./About"
 import { Footer } from "./Footer"
-import { Services } from "./Services"
 import { MissionVision } from "./Mission-Vision"
-import { Projects } from "./Projects"
-import { FAQ } from "./FAQ"
 import { Contact } from "./Contact"
 import { Feedback } from "./Feedback"
+import { Services } from "./Services/Components/Services"
+import { FAQ } from "./FAQ/Components/FAQ"
 
 const HeroPage = () => {
   return (
@@ -21,8 +20,8 @@ const HeroPage = () => {
       {/* Resto de secciones de la landing */}
       <About />
       <Services />
+      {/* <Projects /> */}
       <MissionVision />
-      <Projects />
       <FAQ />
       <Feedback />
       <Contact />

@@ -4,9 +4,11 @@ import type {
   ReqChangeNameMeter,
   newReqChangeNameMeter,
   ReqChangeNameMeterPaginationParams,
+  UpdateReqChangeNameMeter,
+  ReqChangeNameLinkResponse,
 } from "../Models/RequestChangeNameMeter";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
-import { createReqChangeNameMeter, deleteReqChangeNameMeter, getAllReqChangeNameMeter, getReqChangeNameMeterById, searchReqChangeNameMeter } from "../Services/RequestChangeNameMeter";
+import { createReqChangeNameMeter, deleteReqChangeNameMeter, getAllReqChangeNameMeter, getAllRequestStates, getReqChangeNameFolderLink, getReqChangeNameMeterById, searchReqChangeNameMeter, updateReqChangeNameMeter } from "../Services/RequestChangeNameMeter";
 
 // Listado simple
 export const useGetAllReqChangeNameMeter = () => {
@@ -64,19 +66,19 @@ export const useCreateReqChangeNameMeter = () => {
   });
 };
 
-// // Actualizar
-// export const useUpdateReqChangeNameMeter = () => {
-//   const qc = useQueryClient();
-//   return useMutation<ReqChangeNameMeter, Error, { id: number; data: UpdateReqChangeNameMeter }>({
-//     mutationFn: ({ id, data }) => updateReqChangeNameMeter(id, data),
-//     onSuccess: (res) => {
-//       console.log("Cambio de nombre de medidor actualizado", res);
-//       qc.invalidateQueries({ queryKey: ["request-change-name-meter"] });
-//       qc.invalidateQueries({ queryKey: ["request-change-name-meter", res.Id] });
-//     },
-//     onError: (err) => console.error("Error actualizando cambio de nombre de medidor", err),
-//   });
-// };
+//Actualizar
+export const useUpdateReqChangeNameMeter = () => {
+  const qc = useQueryClient();
+  return useMutation<ReqChangeNameMeter, Error, { id: number; data: UpdateReqChangeNameMeter }>({
+    mutationFn: ({ id, data }) => updateReqChangeNameMeter(id, data),
+    onSuccess: (res) => {
+      console.log("Cambio de nombre de medidor actualizado", res);
+      qc.invalidateQueries({ queryKey: ["request-change-name-meter"] });
+      qc.invalidateQueries({ queryKey: ["request-change-name-meter", res.Id] });
+    },
+    onError: (err) => console.error("Error actualizando cambio de nombre de medidor", err),
+  });
+};
 
 // Eliminar
 export const useDeleteReqChangeNameMeter = () => {
@@ -90,3 +92,42 @@ export const useDeleteReqChangeNameMeter = () => {
     onError: (err) => console.error("Error eliminando cambio de nombre de medidor", err),
   });
 };
+
+// Obtener todos los estados de solicitud
+export const useGetAllRequestStates = () => {
+  const { data, isPending, error } = useQuery({
+    queryKey: ["request-states"],
+    queryFn: () => getAllRequestStates(),
+    staleTime: 30_000,
+  });
+  return { requestStates: data ?? [], isPending, error };
+}
+
+export function useReqChangeNameFolderLink() {
+  return useMutation<ReqChangeNameLinkResponse, Error, number>({
+    mutationFn: (id: number) => getReqChangeNameFolderLink(id),
+    onSuccess: (data) => {
+      let urlToOpen = null
+      if (typeof data === 'string') {
+        urlToOpen = data;
+      } else if (data?.link) {
+        urlToOpen = data.link;
+      } else if (data?.url) {
+        urlToOpen = data.url;
+      }
+      console.log('🔗 URL a abrir:', urlToOpen);
+      
+      if (urlToOpen) {
+        window.open(urlToOpen, "_blank", "noopener,noreferrer");
+      } else {
+        console.error('No se encontró un link válido en la respuesta:', data);
+        alert("No se pudo obtener el link de la carpeta de Dropbox");
+      }
+    },
+    onError: (error) => {
+      console.error("Error al obtener el link de Dropbox:", error);
+      alert("Error al abrir la carpeta de Dropbox. Por favor, intenta de nuevo.");
+    },
+  });
+}
+

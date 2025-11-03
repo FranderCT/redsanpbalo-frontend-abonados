@@ -1,8 +1,8 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createReqAvailWater, deleteReqAvailWater, getAllReqAvailWater, getReqAvailWaterById, searchReqAvailWater, updateReqAvailWater } from "../Services/ReqAvilWaterServices";
-import type { ReqAvailWater, ReqAvailWaterPaginationParams, UpdateReqAvailWater } from "../Models/ReqAvailWater";
+import { createReqAvailWater, deleteReqAvailWater, getAllReqAvailWater, getAllRequestStates, getReqAvailWaterById, getReqAvailWaterFolderLink, searchReqAvailWater, UpdateReqAvailWater } from "../Services/ReqAvilWaterServices";
+import type { ReqAvailWater, ReqAvailWaterPaginationParams, ReqWaterLinkResponse, UpdateReqAvailabilityWater} from "../Models/ReqAvailWater";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 
 // Obtener todos
@@ -99,22 +99,18 @@ export const useCreateReqAvailWater = () => {
 };
 
 // Actualizar
- export const useUpdateReqAvailWater = () => {
-   const qc = useQueryClient();
-  
-   const mutation = useMutation<ReqAvailWater, Error, {id: number; data: UpdateReqAvailWater }>({
-       mutationFn: ({id, data}) => updateReqAvailWater(id, data),
-       onSuccess :(res)=>{
-           console.log('Solicitud Actualizada', console.log(res))
-           qc.invalidateQueries({queryKey: [`reqavailwater`]})
-       },
-       onError: (err) =>{
-           console.error(err);
-       }
-   })
-
-   return mutation;
- };
+export const useUpdateAvailabilityWater = () => {
+  const qc = useQueryClient();
+  return useMutation<ReqAvailWater, Error, { id: number; data: UpdateReqAvailabilityWater }>({
+    mutationFn: ({ id, data }) =>UpdateReqAvailWater(id, data),
+    onSuccess: (res) => {
+      console.log("Estado de solicitud actualizada", res);
+      qc.invalidateQueries({ queryKey: ["reqavailwater"] });
+      qc.invalidateQueries({ queryKey: ["reqavailwater", res.Id] });
+    },
+    onError: (err) => console.error("Error actualizando solicitud", err),
+  });
+};
 
 // Eliminar
 export const useDeleteReqAvailWater = () => {
@@ -130,3 +126,42 @@ export const useDeleteReqAvailWater = () => {
     }
   });
 };
+
+// Obtener todos los estados de solicitud
+export const useGetAllRequestStates = () => {
+  const { data, isPending, error } = useQuery({
+    queryKey: ["request-states"],
+    queryFn: () => getAllRequestStates(),
+    staleTime: 30_000,
+  });
+  return { requestStates: data ?? [], isPending, error };
+}
+
+
+export function useReqAvailWaterFolderLink() {
+  return useMutation<ReqWaterLinkResponse, Error, number>({
+    mutationFn: (id: number) => getReqAvailWaterFolderLink(id),
+    onSuccess: (data) => {
+      let urlToOpen = null
+      if (typeof data === 'string') {
+        urlToOpen = data;
+      } else if (data?.link) {
+        urlToOpen = data.link;
+      } else if (data?.url) {
+        urlToOpen = data.url;
+      }
+      console.log('🔗 URL a abrir:', urlToOpen);
+      
+      if (urlToOpen) {
+        window.open(urlToOpen, "_blank", "noopener,noreferrer");
+      } else {
+        console.error('No se encontró un link válido en la respuesta:', data);
+        alert("No se pudo obtener el link de la carpeta de Dropbox");
+      }
+    },
+    onError: (error) => {
+      console.error("Error al obtener el link de Dropbox:", error);
+      alert("Error al abrir la carpeta de Dropbox. Por favor, intenta de nuevo.");
+    },
+  });
+}

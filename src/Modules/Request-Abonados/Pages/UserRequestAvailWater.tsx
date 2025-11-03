@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
-import { useCreateAvailabilityWaterRq } from "../../../Request-Abonados/Hooks/AvailabilityWater/AvailabilityWaterHooks";
+import { useGetUserProfile } from "../../Users/Hooks/UsersHooks";
+import { useCreateAvailabilityWaterRq } from "../Hooks/AvailabilityWater/AvailabilityWaterHooks";
 import { toast } from "react-toastify";
 import { useForm } from "@tanstack/react-form";
-import { uploadWithRetry } from "../../../Request-Abonados/Components/AvailabilityWater/CreateAvailabilityWaterRqModal";
-import { uploadRequestAvailabilityWaterFile } from "../../../Upload-files/Services/ProjectFileServices";
-
+import { uploadWithRetry } from "../Components/AvailabilityWater/CreateAvailabilityWaterRqModal";
+import { uploadRequestAvailabilityWaterFile } from "../../Upload-files/Services/ProjectFileServices";
+import ListRequestAvailWaterUser from "./ListRequestAvailWaterUser";
 
 
 export default function UserRequestAvailWater (){
-    const useCreateAvailabilityWaterRqMutation = useCreateAvailabilityWaterRq();
+        const useCreateAvailabilityWaterRqMutation = useCreateAvailabilityWaterRq();
         const { UserProfile } = useGetUserProfile();
+
+        const [viewMode, setViewMode] = useState<'create' | 'list'>('create');
         
         // Estados para cada tipo de documento
         const [isUploading, setIsUploading] = useState(false);
@@ -232,22 +234,49 @@ export default function UserRequestAvailWater (){
             </div>
         );
     
-        return (
-            <div>
-                    {/* Header */}
-                    <div className="px-6 py-4 text-[#091540] border-b border-gray-200 sticky">
-                        <h3 className="text-xl font-semibold">Solicitud de Disponibilidad de Agua</h3>
-                        <p className="text-sm opacity-80">Complete la información y adjunte los documentos requeridos</p>
-                    </div>
-    
-                    {/* Body */}
-                    <form
+                return (
+                        <div>
+                                        {/* Header */}
+                                        <div className="px-6 py-4 text-[#091540] border-b border-gray-200 flex items-center justify-between gap-4 bg-white">
+                                                <div className="hidden sm:block">
+                                                    <h3 className="text-lg font-semibold">Disponibilidad de agua</h3>
+                                                    <p className="text-xs text-[#091540]/70">Cree una nueva solicitud o revise su historial</p>
+                                                </div>
+
+                                                <div className="inline-flex items-center  bg-gray-100 p-1 border border-gray-200 shadow-sm">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setViewMode('create')}
+                                                        aria-pressed={viewMode === 'create'}
+                                                        className={`h-9 px-4  text-sm font-medium transition-all ${viewMode === 'create' ? 'bg-[#091540] text-white shadow' : 'bg-transparent text-[#091540] hover:bg-white'}`}
+                                                    >
+                                                        Nueva solicitud
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setViewMode('list')}
+                                                        aria-pressed={viewMode === 'list'}
+                                                        className={`h-9 px-4  text-sm font-medium transition-all ${viewMode === 'list' ? 'bg-[#091540] text-white shadow' : 'bg-transparent text-[#091540] hover:bg-white'}`}
+                                                    >
+                                                        Ver mis solicitudes
+                                                    </button>
+                                                </div>
+                                        </div>
+
+                                        {/* Body */}
+                                        {viewMode === 'list' ? (
+                                            <ListRequestAvailWaterUser />
+                                        ) : (
+                                            <form
                         onSubmit={(e) => {
                             e.preventDefault();
                             form.handleSubmit();
                         }}
                         className="px-6 py-4 space-y-6"
                     >
+                        <h1 className="text-2xl font-bold text-[#091540]">Solicitud de disponibilidad de agua</h1>
+                        <p className="text-[#091540]/70 text-md">Complete la información y adjunte los documentos requeridos</p>
+                              <div className="border-b border-dashed border-gray-300 mb-2"></div>
                         {/* Datos del solicitante */}
                         {UserProfile && (
                             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -359,11 +388,11 @@ export default function UserRequestAvailWater (){
                                     >
                                         Cancelar
                                     </button>
-                                   
                                 </div>
                             )}
                         </form.Subscribe>
                     </form>
+                    )}
             </div>
         );
 }

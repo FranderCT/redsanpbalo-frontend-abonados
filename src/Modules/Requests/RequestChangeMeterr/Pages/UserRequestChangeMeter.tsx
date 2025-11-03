@@ -1,12 +1,15 @@
 import { toast } from "react-toastify";
+import { useState } from "react";
 import { useCreateChangeMeterRequest } from "../../../Request-Abonados/Hooks/Change-Meter/ChangeMeterHooks";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 import { useForm } from "@tanstack/react-form";
+import ListReqChangeMeterUser from "../../../Request-Abonados/Pages/ChangeMeter/ListRequestChangeMeter";
 
 
 export function UserRequestChangeMeter () {
     const useCreateChangeMeterRequestMutation = useCreateChangeMeterRequest();
     const { UserProfile } = useGetUserProfile();
+    const [viewMode, setViewMode] = useState<'create' | 'list'>('create');
 
     const handleClose = () => {
         toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
@@ -34,22 +37,73 @@ export function UserRequestChangeMeter () {
         <div>
 
             {/* Header */}
-            <div className="px-6 py-4 text-[#091540]">
-                <h3 className="text-xl font-semibold">Solicitud de Cambio de Medidor</h3>
-                <p className="text-sm opacity-80">Complete los datos para generar la solicitud</p>
+            <div className="px-6 py-4 text-[#091540] border-b border-gray-200 flex items-center justify-between gap-4 bg-white">
+                <div className="hidden sm:block">
+                    <h3 className="text-lg font-semibold">Cambio de medidor</h3>
+                    <p className="text-xs text-[#091540]/70">Cree una nueva solicitud o revise su historial</p>
+                </div>
+
+                <div className="inline-flex items-center  bg-gray-100 p-1 border border-gray-200 shadow-sm">
+                    <button
+                        type="button"
+                        onClick={() => setViewMode('create')}
+                        aria-pressed={viewMode === 'create'}
+                        className={`h-9 px-4  text-sm font-medium transition-all ${viewMode === 'create' ? 'bg-[#091540] text-white shadow' : 'bg-transparent text-[#091540] hover:bg-white'}`}
+                    >
+                        Nueva solicitud
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setViewMode('list')}
+                        aria-pressed={viewMode === 'list'}
+                        className={`h-9 px-4  text-sm font-medium transition-all ${viewMode === 'list' ? 'bg-[#091540] text-white shadow' : 'bg-transparent text-[#091540] hover:bg-white'}`}
+                    >
+                        Ver mis solicitudes
+                    </button>
+                </div>
             </div>
 
             {/* Divider */}
             <div className="border-t border-gray-100" />
 
             {/* Body */}
+            {viewMode === 'list' ? (
+                <ListReqChangeMeterUser />
+            ) : (
             <form
                 onSubmit={(e) => {
                     e.preventDefault();
                     form.handleSubmit();
                 }}
-                className="px-7 py-4 flex flex-col gap-4"
+                className="px-6 py-4 space-y-6"
             >
+                {/* Título y descripción */}
+                <h1 className="text-2xl font-bold text-[#091540]">Solicitud de cambio de medidor</h1>
+                <p className="text-[#091540]/70 text-md">Complete la información para generar la solicitud</p>
+                <div className="border-b border-dashed border-gray-300 mb-2"></div>
+
+                {/* Datos del solicitante */}
+                {UserProfile && (
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Datos del Solicitante</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <span className="text-xs text-gray-500">Cédula</span>
+                                <p className="text-sm font-medium text-gray-800">{UserProfile.IDcard}</p>
+                            </div>
+                            <div>
+                                <span className="text-xs text-gray-500">Email</span>
+                                <p className="text-sm font-medium text-gray-800">{UserProfile.Email}</p>
+                            </div>
+                            <div className="md:col-span-2">
+                                <span className="text-xs text-gray-500">Nombre completo</span>
+                                <p className="text-sm font-medium text-gray-800">
+                                    {UserProfile.Name} {UserProfile.Surname1} {UserProfile.Surname2}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {/* Ubicación */}
                 <form.Field name="Location">
                     {(field) => (
@@ -59,7 +113,7 @@ export function UserRequestChangeMeter () {
                             </span>
                             <textarea
                                 autoFocus
-                                className="w-full min-h-[80px] px-4 py-2 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition"
+                                className="w-full min-h-[80px] px-4 py-2 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition shadow-sm"
                                 placeholder="Ej. 200m este de la plaza central, casa color verde..."
                                 value={field.state.value}
                                 onChange={(e) => field.handleChange(e.target.value)}
@@ -84,7 +138,7 @@ export function UserRequestChangeMeter () {
                             </span>
                             <input
                                 type="number"
-                                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition"
+                                className="w-full px-4 py-2 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition shadow-sm"
                                 placeholder="Ej. 120"
                                 value={field.state.value || ''}
                                 onChange={(e) => field.handleChange(Number(e.target.value))}
@@ -108,7 +162,7 @@ export function UserRequestChangeMeter () {
                                 Justificación de la solicitud <span className="text-red-500">*</span>
                             </span>
                             <textarea
-                                className="w-full min-h-[100px] px-4 py-2 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition"
+                                className="w-full min-h-[100px] px-4 py-2 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition shadow-sm"
                                 placeholder="Describa el motivo de la solicitud de supervisión del medidor..."
                                 value={field.state.value}
                                 onChange={(e) => field.handleChange(e.target.value)}
@@ -124,22 +178,10 @@ export function UserRequestChangeMeter () {
                     )}
                 </form.Field>
 
-                {/* Info del usuario (solo informativo) */}
-                {UserProfile && (
-                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                        <p className="text-sm text-blue-800">
-                            <span className="font-medium">Solicitante:</span> {UserProfile.Name} {UserProfile.Surname1} {UserProfile.Surname2}
-                        </p>
-                        <p className="text-xs text-blue-600 mt-1">
-                            La solicitud será registrada a su nombre
-                        </p>
-                    </div>
-                )}
-
                 {/* Footer */}
                 <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                     {([canSubmit, isSubmitting]) => (
-                        <div className="mt-4 flex flex-col sm:flex-row sm:justify-end gap-3">
+                        <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-4 border-t border-gray-200">
                             <button
                                 type="submit"
                                 className="h-10 px-6 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60 transition font-medium flex items-center justify-center gap-2"
@@ -162,6 +204,7 @@ export function UserRequestChangeMeter () {
                     )}
                 </form.Subscribe>
             </form>
+            )}
         </div>
     );
 }

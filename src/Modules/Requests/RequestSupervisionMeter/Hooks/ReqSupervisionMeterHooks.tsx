@@ -2,7 +2,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
-import { createReqSupervisionMeter, deleteReqSupervisionMeter, getAllReqSupervisionMeter, getReqSupervisionMeterById, searchReqSupervisionMeter, updateReqSupervisionMeter } from "../Services/ReqSupervisionMeterServices";
+import { createReqSupervisionMeter, deleteReqSupervisionMeter, getAllReqSupervisionMeter, getAllRequestStates, getReqSupervisionMeterById, searchReqSupervisionMeter, updateReqSupervisionMeter } from "../Services/ReqSupervisionMeterServices";
 import type { newReqSupervisionMeter, ReqSupervisionMeter, ReqSupervisionMeterPaginationParams, UpdateReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
 
 // Listado simple
@@ -95,3 +95,13 @@ export const useDeleteReqSupervisionMeter = () => {
     onError: (err) => console.error("Error eliminando supervisión", err),
   });
 };
+
+// Obtener todos los estados de solicitud
+export const useGetAllRequestStates = () => {
+  const { data, isPending, error } = useQuery({
+    queryKey: ["request-states"],
+    queryFn: () => getAllRequestStates(),
+    staleTime: 30_000,
+  });
+  return { requestStates: data ?? [], isPending, error };
+}

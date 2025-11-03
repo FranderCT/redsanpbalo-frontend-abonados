@@ -6,7 +6,7 @@ import type { RequestState } from "../../StateRequest/Model/RequestState";
 export interface ReqAvailWater {
   Id: number;
   Justification?: string;
-  Date: Date;                       // el backend guarda 'date' (YYYY-MM-DD)
+  Date: Date;                       
   IdCardFiles: string[];            // simple-array
   PlanoPrintFiles: string[];        // simple-array
   LiteralCertificateFile?: string;
@@ -43,17 +43,7 @@ export const newReqAvailWaterInitialState: NewReqAvailWater = {
   StateRequestId: 0,
 };
 
-export interface UpdateReqAvailWater {
-  Justification?: string;
-  Date?: Date;
-  IdCardFiles?: string[];
-  PlanoPrintFiles?: string[];
-  LiteralCertificateFile?: string;
-  RequestLetterFile?: string;
-  ConstructionPermitFile?: string;
-  IsActive?: string;
-  // Permitir cambiar FKs (en línea con UpdateProject que expone IDs)
-  UserId?: number;
+export interface UpdateReqAvailabilityWater {
   StateRequestId?: number;
 }
 
@@ -64,4 +54,11 @@ export interface ReqAvailWaterPaginationParams {
   UserName?: string;          // filtrar por solicitante
   StateRequestId?: number;  // o por ID concreto del estado
   State?: string; 
+}
+
+// Models/ReqAvailWater.ts
+export interface ReqWaterLinkResponse {
+  link?: string;
+  url?: string;
+  [key: string]: any; // Para capturar cualquier otro formato
 }

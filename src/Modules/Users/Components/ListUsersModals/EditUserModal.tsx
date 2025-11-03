@@ -25,6 +25,7 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
   const form = useForm({
     defaultValues: {
       PhoneNumber: user.PhoneNumber ?? "",
+      Nis: user.Nis ?? "",
       Address: user.Address ?? "",
       roleIds: initialRoleIds as number[], // 👈 importante
       IsActive: user.IsActive ?? true,
@@ -44,14 +45,14 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
   });
 
   return (
-    <ModalBase open={open} onClose={onClose} panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl">
+    <ModalBase open={open} onClose={onClose} panelClassName="w-full max-w-xl !p-0 max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
       {/* Header */}
-      <div className="px-6 py-5 border-b border-gray-200 bg-white">
+      <div className="px-6 py-5 text-[#091540] flex-shrink-0">
         <h3 className="text-xl font-bold text-[#091540]">Editar usuario</h3>
       </div>
 
       {/* Body */}
-      <div className="p-6 bg-white">
+<div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden px-6 py-4">
         {/* Información del usuario */}
         <div className="mb-5">
           <h4 className="text-sm font-semibold text-gray-700 mb-2">Información del usuario</h4>
@@ -85,6 +86,27 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
           }}
           className="grid gap-4"
         >
+<form.Field name="Nis">
+  {(field) => (
+    <>
+      <span className="text-sm text-gray-700">NIS</span>
+      <input
+        type="text"
+        value={field.state.value ?? ""}
+        onChange={(e) => field.handleChange(e.target.value)}
+        placeholder="Ingresa el NIS"
+        className="w-full border px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+      />
+      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+        <p className="text-sm text-red-500 mt-1">
+          {(field.state.meta.errors[0] as any)?.message ??
+            String(field.state.meta.errors[0])}
+        </p>
+      )}
+    </>
+  )}
+</form.Field>
+
           <form.Field name="PhoneNumber">
             {(field) => (
               <>

@@ -11,15 +11,17 @@ import { listSupplierRoute, newSupplierRoute, supplierRoute, viewSuppliertRoute 
 import { createProjectRoute, listProjectRoute, projectRoute, updateProjectRoute, viewProjectRoute } from "./Modules/Project/Routes/ProjectsRoutes";
 import { listPhysicalSuppliers, PhysicalSupplierRoute } from "./Modules/PhysicalSupplier/Routes/PhysicalSupplierRoutes";
 import { legalSupplierRoute, listLegalSuppliers } from "./Modules/LegalSupplier/Routes/LegalSupplierRoutes";
-import { requestSupervisionRoute } from "./Modules/Requests/RequestSupervisionMeter/Routes/RequestsSupervisionWaterRoute";
-import { requestChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
+import {requestListSupervisionRoute, requestSupervisionUserRoute } from "./Modules/Requests/RequestSupervisionMeter/Routes/RequestsSupervisionWaterRoute";
 import { requestsRoute } from "./Modules/Requests/Routes/RequestRoutes";
-import HeroPage from "./Modules/Lading/HeroPage";
 import { requestListAvailWaterRoute, requestUserAvailWaterRoute } from "./Modules/Requests/RequestAvailabilityWater/Routes/RequestsAvailWaterRoute";
 import { requestListAssociatedRoute, requestUserAssociatedRoute } from "./Modules/Requests/RequestAssociated/Routes/ReqAssociatedRoutes";
 import { requestListChangeMeterRoute, requestUserChangeMeterRoute } from "./Modules/Requests/RequestChangeMeterr/Routes/RequestChangeMeterRoute";
 import { commentRoute } from "./Modules/Comment/Routes/CommentRoutes";
 import { reportIndexRoute, reportRoutes } from "./Modules/Reports/Routes/ReportRoutes";
+import { requestListChangeNameMeter, requestUserChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
+import HeroPage from "./Modules/Lading/HeroPage";
+import { editLandingRoute } from "./Modules/Lading/Routes/RoutesEditLanding";
+
 
 export const rootRoute = createRootRoute();
 
@@ -68,13 +70,17 @@ export const routeTree = rootRoute.addChildren([
     requestsRoute.addChildren([
       requestUserAvailWaterRoute,
       requestListAvailWaterRoute,
-      requestSupervisionRoute,
+      requestSupervisionUserRoute,
+      requestListSupervisionRoute,
       requestUserChangeMeterRoute,
       requestListChangeMeterRoute,
+      requestUserChangeNameMeterRoute,
+      requestListChangeNameMeter,
       requestUserAssociatedRoute,
       requestListAssociatedRoute
     ]),
-    commentRoute
+    commentRoute,
+    editLandingRoute
   ]),
   PhysicalSupplierRoute.addChildren([
     listPhysicalSuppliers

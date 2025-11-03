@@ -48,28 +48,25 @@ export default function RegisterAbonadosModal() {
       <ModalBase
         open={open}
         onClose={() => setOpen(false)}
-        panelClassName="w-full max-w-xl !p-0 overflow-hidden l shadow-2xl"
+        panelClassName="w-full max-w-xl !p-0 max-h-[90vh] flex flex-col overflow-hidden shadow-2xl"
       >
         {/* Header */}
-        <div className=" px-6 py-5 text-[#091540]]">
+          <div className="px-6 py-5 text-[#091540] flex-shrink-0">
           <h3 className="text-xl font-bold">Crear cuenta</h3>
           <p className="text-sm/6 opacity-90">Complete los datos para registrarse</p>
         </div>
 
         {/* Body */}
-        <div className="p-6">
-          {/* Contenedor con un panel lateral decorativo en md+ */}
-          <div className="grid md:grid-cols-[1fr,1.3fr] gap-6">
-            
-
+        <div className="p-6 flex-1 min-h-0 flex flex-col">
+          <div className="grid md:grid-cols-[1fr,1.3fr] gap-6 min-h-0 flex-1">
+            <div className="min-w-0 min-h-0 flex flex-col">
             {/* Formulario */}
-            <div className="min-w-0">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   form.handleSubmit();
                 }}
-                className="grid gap-3"
+              className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               >
                 {/* Cédula */}
                 <form.Field name="IDcard">
@@ -211,10 +208,10 @@ export default function RegisterAbonadosModal() {
                 </form.Field>
                   {/* Suscripción: Nis se re-renderiza cuando cambia IsAbonado */}
                 <form.Subscribe selector={(s) => s.values.IsAbonado ?? false}>
-                  {(isAbonado) => (
+                  {(subscriptionIsAbonado) => (
                 <form.Field name="Nis">
                   {(field) => {
-                    const isAbonado = form.getFieldValue('IsAbonado');
+                    const isAbonado = subscriptionIsAbonado;
                     const disabled = !isAbonado;
                     return (
                       <>
@@ -230,7 +227,7 @@ export default function RegisterAbonadosModal() {
                           disabled={disabled}
                           aria-disabled={disabled}
                         />
-                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && isAbonado && (
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                           <p className="text-sm text-red-500 mt-1">
                             {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
                           </p>
@@ -368,13 +365,13 @@ export default function RegisterAbonadosModal() {
                       return (
                         <span
                           key={id}
-                          className="inline-flex items-center gap-2 border px-3 py-1 text-sm bg-gray-50"
+                          className="inline-flex items-center gap-1 sm:gap-2 border px-2 sm:px-3 py-1 text-xs sm:text-sm bg-gray-50 max-w-full"
                         >
-                          {r?.Rolname ?? `ID ${id}`}
+                          <span className="truncate">{r?.Rolname ?? `ID ${id}`}</span>
                           <button
                             type="button"
                             onClick={() => removeRole(id)}
-                            className="text-gray-500 hover:text-red-600"
+                            className="text-gray-500 hover:text-red-600 flex-shrink-0 w-4 h-4 flex items-center justify-center"
                             title="Quitar rol"
                           >
                             ×
@@ -385,9 +382,9 @@ export default function RegisterAbonadosModal() {
                   </div>
 
                   {/* Agregar más roles (select simple que inserta y se resetea) */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <select
-                      className="w-98.5 px-4 py-2 bg-gray-50 border"
+                      className="flex-1 min-w-0 px-4 py-2 bg-gray-50 border"
                       defaultValue=""
                       onChange={(e) => {
                         const v = e.currentTarget.value;
@@ -410,10 +407,11 @@ export default function RegisterAbonadosModal() {
                       <button
                         type="button"
                         onClick={clearAll}
-                        className="h-10 px-3 border bg-white hover:bg-gray-50"
+                        className="h-10 px-3 border bg-white hover:bg-gray-50 whitespace-nowrap"
                         title="Quitar todos"
                       >
-                        Quitar todos
+                        <span className="hidden sm:inline">Quitar todos</span>
+                        <span className="sm:hidden">Limpiar</span>
                       </button>
                     )}
                   </div>
@@ -436,18 +434,18 @@ export default function RegisterAbonadosModal() {
                   {([canSubmit, isSubmitting]) => (
                     <div className="mt-4 flex flex-col md:flex-row md:justify-end gap-2">
                       <button
-                        type="button"
-                        onClick={() => setOpen(false)}
-                        className="h-10 px-4  bg-gray-200 hover:bg-gray-300"
-                      >
-                        Cancelar
-                      </button>
-                      <button
                         type="submit"
                         className="h-10 px-5  bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
                         disabled={!canSubmit}
                       >
                         {isSubmitting ? "Registrando…" : "Registrar"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setOpen(false)}
+                        className="h-10 px-4  bg-gray-200 hover:bg-gray-300"
+                      >
+                        Cancelar
                       </button>
                     </div>
                   )}

@@ -1,6 +1,6 @@
 import apiAxios from "../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
-import type { Report, ReportPaginationParams } from "../Models/Report";
+import type { CreateReportPayload, UpdateReportPayload, Report, ReportPaginationParams } from "../Models/Report";
 
 const BASE_URL = '/reports';
 
@@ -43,15 +43,7 @@ export async function searchReports(
     }
 }
 
-export interface CreateReportPayload {
-    Location: string;
-    Description: string;
-    UserId: number;
-    LocationId: number;
-    ReportTypeId: number;
-    ReportStateId: number;
-    UserInChargeId?: number;
-}
+
 
 export async function createReportByAdmin(payload: CreateReportPayload): Promise<Report> {
     try {
@@ -59,6 +51,39 @@ export async function createReportByAdmin(payload: CreateReportPayload): Promise
         return data;
     } catch (error) {
         console.error("Error creating report:", error);
+        throw error;
+    }
+}
+
+
+export async function createReportByUser(payload: CreateReportPayload): Promise<Report> {
+    try {
+        const { data } = await apiAxios.post<Report>(`${BASE_URL}`, payload);
+        return data;
+    } catch (error) {
+        console.error("Error creating report:", error);
+        throw error;
+    }       
+}
+
+export async function assignUserInCharge(reportId: string, userInChargeId: number): Promise<Report> {
+    try {
+        const { data } = await apiAxios.patch<Report>(`${BASE_URL}/${reportId}/assign-user-in-charge`, {
+            userInChargeId
+        });
+        return data;
+    } catch (error) {
+        console.error("Error assigning user in charge:", error);
+        throw error;
+    }
+}
+
+export async function updateReport(reportId: string, payload: UpdateReportPayload): Promise<Report> {
+    try {
+        const { data } = await apiAxios.patch<Report>(`${BASE_URL}/${reportId}`, payload);
+        return data;
+    } catch (error) {
+        console.error("Error updating report:", error);
         throw error;
     }
 }

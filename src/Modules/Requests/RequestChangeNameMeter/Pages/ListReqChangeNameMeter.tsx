@@ -7,6 +7,7 @@ import { useSearchReqChangeNameMeter } from "../Hooks/RequestChangeNameMeterHook
 import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
 import ReqChangeNameMeterHeaderBar from "../Components/PaginationChangeNameMeter/ReqChangeNameMeterHeaderBar";
 import ReqChangeNameMeterTable from "../Components/ReqChangeNameMeterTable/ReqChangeNameMeterTable";
+import CreateChangeNameMeterModal from "../Components/Modals/AddChangeNameMeterAdmin";
 
 
 export default function ListReqChangeNameMeter() {
@@ -117,7 +118,7 @@ export default function ListReqChangeNameMeter() {
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
-        // rightAction={<CreateCha />}
+        rightAction={<CreateChangeNameMeterModal/>}
       />
 
       <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">

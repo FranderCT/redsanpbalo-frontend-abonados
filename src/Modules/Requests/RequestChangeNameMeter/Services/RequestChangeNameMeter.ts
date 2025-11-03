@@ -1,13 +1,27 @@
 // Services/RequestChangeNameMeterServices.ts
 import apiAxios from "../../../../api/apiConfig";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import type { RequestState } from "../../StateRequest/Model/RequestState";
 import type {
   ReqChangeNameMeter,
   newReqChangeNameMeter,
   ReqChangeNameMeterPaginationParams,
+  UpdateReqChangeNameMeter,
+  ReqChangeNameLinkResponse,
 } from "../Models/RequestChangeNameMeter";
 
 const BASE = "/request-change-name-meter";
+
+// Obtener todos los estados de solicitud
+export async function getAllRequestStates(): Promise<RequestState[]> {
+  try {
+    const { data } = await apiAxios.get<RequestState[]>('/state-request');
+    
+    return data ?? [];
+  } catch (err: any) {
+    return Promise.reject(err);
+  }
+}
 
 // Listado simple
 export async function getAllReqChangeNameMeter(): Promise<ReqChangeNameMeter[]> {
@@ -66,20 +80,19 @@ export async function createReqChangeNameMeter(
   }
 }
 
-// Actualizar
-// export async function updateReqChangeNameMeter(
-//   id: number,
-//   payload: UpdateReqChangeNameMeter
-// ): Promise<ReqChangeNameMeter> {
-//   try {
-//     const { data } = await apiAxios.put<ReqChangeNameMeter>(`${BASE}/${id}`, payload);
-//     return data;
-//   } catch (err) {
-//     console.error(`Error actualizando cambio de nombre de medidor ${id}`, err);
-//     return Promise.reject(err);
-//   }
-// }
-
+//Actualizar
+export async function updateReqChangeNameMeter(
+  id: number,
+  payload: UpdateReqChangeNameMeter
+): Promise<ReqChangeNameMeter> {
+  try {
+    const { data } = await apiAxios.put<ReqChangeNameMeter>(`${BASE}/${id}`, payload);
+    return data;
+  } catch (err) {
+    console.error(`Error actualizando cambio de nombre de medidor ${id}`, err);
+    return Promise.reject(err);
+  }
+}
 
 export async function deleteReqChangeNameMeter(id: number): Promise<ReqChangeNameMeter | void> {
   try {
@@ -87,6 +100,20 @@ export async function deleteReqChangeNameMeter(id: number): Promise<ReqChangeNam
     return data;
   } catch (err) {
     console.error(`Error eliminando cambio de nombre de medidor ${id}`, err);
+    return Promise.reject(err);
+  }
+}
+
+export async function getReqChangeNameFolderLink(id: number): Promise<ReqChangeNameLinkResponse> {
+  try {
+    // La ruta correcta es /request-availability-water-file/folder-link/:id
+    const { data } = await apiAxios.get<ReqChangeNameLinkResponse>(`/request-change-name-meter-file/folder-link/${id}`);
+    
+    console.log('Link de carpeta recibido:', data);
+    return data;
+  } catch (err: any) {
+    console.error(` Error obteniendo link de carpeta para solicitud ${id}`, err);
+    console.error('Response:', err?.response?.data);
     return Promise.reject(err);
   }
 }

@@ -3,6 +3,8 @@ import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-tabl
 import type { ReqChangeNameMeter } from "../../Models/RequestChangeNameMeter";
 import { ReqChangeNameMeterColumns } from "./ReqChangeNameMeterColumn";
 import ReqChangeNameMeterPager from "../PaginationChangeNameMeter/ReqChangeNameMeterPager";
+import UpdateReqChangeNameMeterStateModal from "../Modals/UpdateChangeNameMeter";
+import MeterSupervisionDetailModalAdmin from "../Modals/VerInfoAbonadoRequest";
 
 
 type Props = {
@@ -19,20 +21,46 @@ export default function ReqChangeNameMeterTable({
   pageCount,
   onPageChange,
 }: Props) {
-  const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqChangeNameMeter | null>(null);
-  // const [getInfoReqAvailWater, setGetInfoReqAvailWater] = useState<ReqAvailWater | null>(null);
+      const [selectedRequest, setSelectedRequest] = useState<ReqChangeNameMeter | null>(null);
+      const [showDetailModal, setShowDetailModal] = useState(false);
+      const [editingChangeNameMeter, setEditingReqChangeNameMeter] = useState<ReqChangeNameMeter | null>(null);
+
+          const handleGetInfo = (req: ReqChangeNameMeter) => {
+            setSelectedRequest(req);
+            setShowDetailModal(true);
+          };
+        
+          const handleCloseModal = () => {
+            setShowDetailModal(false);
+            setSelectedRequest(null);
+          }; 
 
   const table = useReactTable({
     data,
-    columns: ReqChangeNameMeterColumns((req) => setEditingReqAvailWater(req)),
+    columns: ReqChangeNameMeterColumns((req) => setEditingReqChangeNameMeter(req),
+    handleGetInfo,
+  ),
     getCoreRowModel: getCoreRowModel(),
   });
 
   return (
     <div className="w-full">
-      {/* Si no tienes modal, evita JSX vacío */}
-      {editingReqAvailWater && null}
-
+      {/* ✅ Renderiza el modal controlado */}
+        <UpdateReqChangeNameMeterStateModal
+          open={!!editingChangeNameMeter}
+          req={editingChangeNameMeter}
+          onClose={() => setEditingReqChangeNameMeter(null)}
+          onSuccess={() => setEditingReqChangeNameMeter(null)}
+        />
+              {/* Modal de detalle */}
+              {selectedRequest && (
+                <MeterSupervisionDetailModalAdmin
+                  open={showDetailModal}
+                  onClose={handleCloseModal}
+                  title="Detalles de Solicitud de cambio nombre de medidor"
+                  data={selectedRequest}
+                />
+              )}
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
           {table.getHeaderGroups().map((hg) => (

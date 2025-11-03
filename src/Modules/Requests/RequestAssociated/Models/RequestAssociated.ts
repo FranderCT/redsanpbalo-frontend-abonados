@@ -39,12 +39,6 @@ export const newReqAssociatedInitialState: newReqAssociated = {
 };
 
 export interface UpdateReqAssociated {
-  IDcard?: string;
-  Name?: string;
-  Justification?: string;
-  Surname1?: string;
-  Surname2?: string;
-  NIS?: number;
   StateRequestId?: number;
 }
 
@@ -55,4 +49,10 @@ export interface ReqAssociatedPaginationParams {
   UserName?: string;          
   StateRequestId?: number;  
   State?: string; 
+}
+
+export interface ReqAssociatedResponse {
+  link?: string;
+  url?: string;
+  [key: string]: any; // Para capturar cualquier otro formato
 }

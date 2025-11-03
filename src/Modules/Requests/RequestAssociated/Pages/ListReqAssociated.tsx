@@ -7,7 +7,11 @@ import type { ReqAssociated } from "../Models/RequestAssociated";
 import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
 import ReqAssociatedHeaderBar from "../Components/PaginationReqAssociated/ReqAssociatedHeaderBar";
 import ReqAssociatedTable from "../Components/ReqAssociatedTable/ReqAssociatedTable";
-import CreateAssociatedRqModal from "../../../Request-Abonados/Components/Associated-rq/CreateAssociatedRqModal";
+import CreateAssociatedRqModalAdmin from "../Components/Modals/AddCreateAssociatedRqModal";
+
+
+
+
 
 export default function ListReqAssociated() {
   const [page, setPage] = useState(1);
@@ -117,7 +121,7 @@ export default function ListReqAssociated() {
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
-        rightAction={<CreateAssociatedRqModal />}
+        rightAction={<CreateAssociatedRqModalAdmin />}
       />
 
       <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
