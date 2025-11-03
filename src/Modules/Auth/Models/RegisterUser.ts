@@ -1,4 +1,4 @@
-import type { Roles } from "../../Users/Models/Roles";
+
 
 export interface RegisterUser{
     IDcard:string;

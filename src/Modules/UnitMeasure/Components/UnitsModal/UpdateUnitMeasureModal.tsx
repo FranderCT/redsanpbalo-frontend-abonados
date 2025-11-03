@@ -27,6 +27,7 @@ const UpdateUnitMeasureModal = ({ unit, open, onClose, onSuccess }: Props) => {
     },
     defaultValues: {
       Name: unit?.Name ?? "",
+      IsActive: unit?.IsActive ?? false,
     },
     onSubmit: async ({ value, formApi }) => {
       try {

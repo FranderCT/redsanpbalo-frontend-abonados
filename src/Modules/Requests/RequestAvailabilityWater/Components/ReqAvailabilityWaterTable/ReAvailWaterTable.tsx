@@ -4,7 +4,6 @@ import { ReqAvailWaterColumns } from "./ReqAvailWaterColumns";
 import { useState } from "react";
 import ReqAvailWaterPager from "../PaginationReqAvailabilityWater/ReqAvailWaterPager";
 import UpdateReqAvailWaterStateModal from "../../Modals/UpdateRequestModal";
-import RequestDetailModalAdmin from "../../../GeneralGetUser/VerInfoAbonadoModal";
 import RequestAvailWaterDetailModalAdmin from "../../../GeneralGetUser/VerInfoAbonadoModal";
 
 type Props = {

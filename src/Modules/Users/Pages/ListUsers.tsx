@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import UsersTable from "../Components/ListUsers/UsersTables";
 import type { User } from "../Models/User";
 import RegisterAbonadosModal from "../Components/ListUsersModals/AddUserModal";
-import { BrushCleaning } from "lucide-react";
 import { useGetAllUsersPaginate } from "../Hooks/UsersHooks";
 import UserHeaderBar from "../Components/Pagination/UserHeaderBar";
 

@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { createAgentSupplier } from "../Service/AgentSupplier"
+import { createAgentSupplier } from "../../Supplier_agent/Services/SupplierAgentServices";
+
 
 export const useCreateAgentSupplier = () =>{
     const qc = useQueryClient();

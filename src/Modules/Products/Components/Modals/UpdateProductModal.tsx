@@ -115,7 +115,6 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
   
     const LABEL = "grid gap-1";
     const INPUT = "w-full px-4 py-2 bg-gray-50 border";
-    const ERROR = "text-sm text-red-500 mt-1";
 
   return (
     <ModalBase

@@ -1,7 +1,8 @@
-import type { UserProfile } from "../../Models/User"
+import type { User } from "../../Models/User"
+
 
 type Props = {
-  User?: UserProfile
+  User?: User
 }
 
 const UserProfileDetails = ({User} : Props) => {
@@ -22,7 +23,7 @@ const UserProfileDetails = ({User} : Props) => {
             <div className="py-2 border-b border-dashed border-gray-300">
               <p className="text-[12px] text-gray-500">Fecha de Nacimiento</p>
               <span className="text-sm font-medium text-[#091540]">
-                {User?.Birthdate}
+                {User?.Birthdate ? User.Birthdate.toLocaleDateString() : ''}
               </span>
             </div>
 

@@ -228,7 +228,7 @@ const RegisterAbonados = () => {
                 </form.Field>
                   {/* Suscripción: Nis se re-renderiza cuando cambia IsAbonado */}
                 <form.Subscribe selector={(s) => s.values.IsAbonado ?? false}>
-                  {(isAbonado) => (
+                  {() => (
                 <form.Field name="Nis">
                   {(field) => {
                     const isAbonado = form.getFieldValue('IsAbonado');

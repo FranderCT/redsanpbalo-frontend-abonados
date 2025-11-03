@@ -1,9 +1,6 @@
 import { z } from 'zod'
 import { isValidPhoneNumber } from 'react-phone-number-input';
 
-const emptyToUndef = (v: unknown) =>
-  v === "" || v === null ? undefined : v;
-
 export const EditProfileSchema = z.object({
     
     PhoneNumber: z.string({
