@@ -115,9 +115,8 @@ export default function DetailsProjectContainer({ data }: Props) {
   const navigateToProjectFolder = async () => {
     setIsGettingFolderLink(true);
     try {
-      const response = await axios.get(`https://asada-san-pablo-backend-production.up.railway.app/folder-link/${data.Id}`);
+      const response = await axios.get(` https://asada-san-pablo-backend-production.up.railway.app/project-file/folder-link/${data.Id}`);
       const dropboxUrl = response.data;
-      
       if (typeof dropboxUrl === 'string' && dropboxUrl.includes('dropbox.com')) {
         window.open(dropboxUrl, '_blank');
       } else {
