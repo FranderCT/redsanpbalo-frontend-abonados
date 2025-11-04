@@ -87,7 +87,6 @@ export const dashboardIndexRoute = createRoute({
     // Renderizar el componente según el rol
     switch (userRole) {
       case 'ADMIN':
-      case 'ADMIN':
         return <PrincipalAdminDashboard />;
         
       case 'ABONADO':
