@@ -5,6 +5,7 @@ import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useUpdateUser, useGetAllRoles } from "../../Hooks/UsersHooks"; // 👈 trae roles
 import type { User } from "../../Models/User";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
+import { EditProfileSchema } from "../../schemas/EditProfileSchema";
 
 type Props = {
   user: User;
@@ -29,6 +30,9 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
       Address: user.Address ?? "",
       roleIds: initialRoleIds as number[], // 👈 importante
       IsActive: user.IsActive ?? true,
+    },
+    validators:{
+      onChange:EditProfileSchema
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -86,26 +90,26 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
           }}
           className="grid gap-4"
         >
-<form.Field name="Nis">
-  {(field) => (
-    <>
-      <span className="text-sm text-gray-700">NIS</span>
-      <input
-        type="text"
-        value={field.state.value ?? ""}
-        onChange={(e) => field.handleChange(e.target.value)}
-        placeholder="Ingresa el NIS"
-        className="w-full border px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
-      />
-      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-        <p className="text-sm text-red-500 mt-1">
-          {(field.state.meta.errors[0] as any)?.message ??
-            String(field.state.meta.errors[0])}
-        </p>
-      )}
-    </>
-  )}
-</form.Field>
+          <form.Field name="Nis">
+            {(field) => (
+              <>
+                <span className="text-sm text-gray-700">NIS</span>
+                <input
+                  type="text"
+                  value={field.state.value ?? ""}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  placeholder="Ingresa el NIS"
+                  className="w-full border px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+                />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ??
+                      String(field.state.meta.errors[0])}
+                  </p>
+                )}
+              </>
+            )}
+          </form.Field>
 
           <form.Field name="PhoneNumber">
             {(field) => (
@@ -114,7 +118,6 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
                   value={field.state.value}            
                   onChange={(val) => field.handleChange(val ?? "")} 
                   defaultCountry="CR"
-                  required
                   error={
                   field.state.meta.isTouched && field.state.meta.errors[0]
                   ? String(field.state.meta.errors[0])
@@ -140,6 +143,12 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="Dirección del usuario"
                 />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ??
+                      String(field.state.meta.errors[0])}
+                  </p>
+                )}
               </label>
             )}
           </form.Field>
@@ -262,15 +271,15 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
           <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (
               <div className="mt-2 flex justify-end items-center gap-2">
-                <button type="button" onClick={onClose} className="h-10 px-4 bg-gray-200 hover:bg-gray-300">
-                  Cancelar
-                </button>
                 <button
                   type="submit"
                   disabled={!canSubmit || isSubmitting}
                   className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
                 >
                   {isSubmitting ? "Guardando…" : "Guardar cambios"}
+                </button>
+                <button type="button" onClick={onClose} className="h-10 px-4 bg-gray-200 hover:bg-gray-300">
+                  Cancelar
                 </button>
               </div>
             )}
