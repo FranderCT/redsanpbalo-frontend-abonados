@@ -1,4 +1,4 @@
-    import { ModalBase } from "../../../../../Components/Modals/ModalBase";
+import { ModalBase } from "../../../../../Components/Modals/ModalBase";
     import { useReqAssociatedFolderLink } from "../../Hooks/ReqAssociatedHooks";
 
     interface ReqSubscriberDetailModalProps {
@@ -106,6 +106,8 @@
         "CreatedAt", 
         "UpdatedAt", 
         "IsActive",
+        "RequestAssociatedFile",
+        "NIS",
         // Excluir campos individuales del usuario que se muestran en la tarjeta
         "Name",
         "Surname1", 
