@@ -7,6 +7,7 @@
     import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
     import { useGetUsersByRoleFontanero } from "../../../Users/Hooks/UsersHooks";
     import type { Report } from "../../Models/Report";
+    import { UpdateReportSchema } from "../../schemas/ReportSchema";
 
     interface EditReportModalProps {
     report: Report;
@@ -37,6 +38,9 @@ export default function EditReportModal({ report, open, onClose }: EditReportMod
         ReportStateId: report.ReportState?.IdReportState || 0,
         UserInChargeId: report.UserInCharge?.Id || 0,
         AdditionalInfo: report.AdditionalInfo || "",
+        },
+        validators: {
+            onChange: UpdateReportSchema,
         },
         onSubmit: async ({ value }) => {
         const payload = {
@@ -101,6 +105,11 @@ return (
                         placeholder="Ej: Calle principal, casa #123"
                         required
                         />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                        )}
                     </div>
                     )}
                 </form.Field>
@@ -121,6 +130,11 @@ return (
                         placeholder="Describe detalladamente el problema..."
                         required
                         />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                        )}
                     </div>
                     )}
                 </form.Field>
@@ -148,6 +162,11 @@ return (
                             </option>
                         ))}
                         </select>
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                        )}
                     </div>
                     )}
                 </form.Field>
@@ -174,6 +193,11 @@ return (
                             </option>
                         ))}
                         </select>
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                        )}
                     </div>
                     )}
                 </form.Field>
@@ -228,6 +252,11 @@ return (
                             </option>
                         ))}
                         </select>
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                        )}
                     </div>
                     )}
                 </form.Field>
@@ -248,6 +277,11 @@ return (
                         placeholder="Información adicional sobre el reporte..."
                         rows={2}
                         />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                        )}
                     </div>
                     )}
                 </form.Field>

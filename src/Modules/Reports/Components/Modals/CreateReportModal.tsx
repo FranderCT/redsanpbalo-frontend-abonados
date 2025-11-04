@@ -8,6 +8,7 @@ import { useGetAllReportTypes } from "../../Hooks/ReportTypesHooks";
 import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 import { useGetUsersByRoleFontanero } from "../../../Users/Hooks/UsersHooks";
+import { CreateReportSchema } from "../../schemas/ReportSchema";
 
 export default function CreateReportModal() {
   const [open, setOpen] = useState(false);
@@ -33,6 +34,9 @@ export default function CreateReportModal() {
       ReportTypeId: 0,
       ReportStateId: 0,
       UserInChargeId: 0,
+    },
+    validators: {
+      onChange: CreateReportSchema,
     },
     onSubmit: async ({ value }) => {
       if (!UserProfile?.Id) {
@@ -73,13 +77,13 @@ export default function CreateReportModal() {
         + Crear reporte
       </button>
 
-      <ModalBase open={open} onClose={handleClose} panelClassName="w-full max-w-2xl !p-0 overflow-hidden shadow-2xl">
-      <div className="px-6 py-5 border-b border-gray-200 bg-white">
-        <h3 className="text-xl font-bold text-[#091540]">Crear Nuevo Reporte</h3>
-        <span className="text-gray-600">Complete la información del reporte</span>
+      <ModalBase open={open} onClose={handleClose} panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]">
+      <div className="flex-shrink-0 flex flex-col">
+        <h2 className="text-2xl text-[#091540] font-bold">Crear Nuevo Reporte</h2>
+        <span className="text-md">Complete la información del reporte</span>
       </div>
 
-      <div className="p-6 bg-white">
+      <div className="p-6 bg-white overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {isLoading ? (
           <p className="text-center text-gray-500">Cargando información...</p>
         ) : (
@@ -89,7 +93,7 @@ export default function CreateReportModal() {
               e.stopPropagation();
               form.handleSubmit();
             }}
-            className="space-y-4"
+            className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 "
           >
             {/* Ubicación */}
             <div>
@@ -107,6 +111,11 @@ export default function CreateReportModal() {
                       placeholder="Ej: Calle principal, casa #123"
                       required
                     />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                    )}
                   </div>
                 )}
               </form.Field>
@@ -128,6 +137,11 @@ export default function CreateReportModal() {
                       rows={3}
                       required
                     />
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                    )}
                   </div>
                 )}
               </form.Field>
@@ -154,6 +168,11 @@ export default function CreateReportModal() {
                         </option>
                       ))}
                     </select>
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                    )}
                   </div>
                 )}
               </form.Field>
@@ -180,6 +199,11 @@ export default function CreateReportModal() {
                         </option>
                       ))}
                     </select>
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                    )}
                   </div>
                 )}
               </form.Field>
@@ -206,6 +230,11 @@ export default function CreateReportModal() {
                         </option>
                       ))}
                     </select>
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                    )}
                   </div>
                 )}
               </form.Field>
@@ -234,6 +263,11 @@ export default function CreateReportModal() {
                         </option>
                       ))}
                     </select>
+                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                    )}
                   </div>
                 )}
               </form.Field>
@@ -252,19 +286,19 @@ export default function CreateReportModal() {
             {/* Botones */}
             <div className="flex justify-end gap-3 pt-4">
               <button
+                type="submit"
+                className="px-4 py-2 bg-[#091540] text-white hover:bg-[#091540]/90 transition-colors disabled:opacity-50"
+                disabled={createReportMutation.isPending}
+              >
+                {createReportMutation.isPending ? "Creando..." : "Crear Reporte"}
+              </button>
+              <button
                 type="button"
                 onClick={handleClose}
                 className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 transition-colors"
                 disabled={createReportMutation.isPending}
               >
                 Cancelar
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 bg-[#091540] text-white hover:bg-[#091540]/90 transition-colors disabled:opacity-50"
-                disabled={createReportMutation.isPending}
-              >
-                {createReportMutation.isPending ? "Creando..." : "Crear Reporte"}
               </button>
             </div>
           </form>

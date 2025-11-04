@@ -5,6 +5,7 @@ import { useCreateReportByUser } from "../../Hooks/ReportsHooks";
 import { useGetAllReportTypes } from "../../Hooks/ReportTypesHooks";
 import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
+import { CreateReportUserSchema } from "../../schemas/ReportSchema";
 
 type Props = {
     open: boolean;
@@ -31,6 +32,9 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
         Description: "",
         LocationId: 0,
         ReportTypeId: 0,
+        },
+        validators: {
+            onChange: CreateReportUserSchema,
         },
         onSubmit: async ({ value }) => {
         if (!UserProfile?.Id) {
@@ -107,6 +111,11 @@ return (
                             placeholder="Ej: Calle principal, casa #123, frente al parque"
                             required
                         />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                        )}
                         <p className="text-xs text-gray-500 mt-1">
                             Proporciona la dirección exacta donde está el problema
                         </p>
@@ -131,6 +140,11 @@ return (
                             rows={4}
                             required
                         />
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                        )}
                         <p className="text-xs text-gray-500 mt-1">
                             Incluye todos los detalles posibles para ayudarnos a resolver el problema
                         </p>
@@ -160,6 +174,11 @@ return (
                             </option>
                             ))}
                         </select>
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                        )}
                         </div>
                     )}
                     </form.Field>
@@ -186,6 +205,11 @@ return (
                             </option>
                             ))}
                         </select>
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                        )}
                         </div>
                     )}
                     </form.Field>
