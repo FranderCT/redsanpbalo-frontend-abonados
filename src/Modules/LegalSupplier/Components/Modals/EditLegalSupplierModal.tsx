@@ -261,9 +261,9 @@ const EditLegalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) =
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
               />
-              {field.state.meta.isTouched && field.state.meta.errors[0] && (
+              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                 <p className="text-sm text-red-500 mt-1">
-                  {String(field.state.meta.errors[0] as any)}
+                  {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
                 </p>
               )}
             </label>
@@ -306,9 +306,9 @@ const EditLegalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) =
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
               />
-              {field.state.meta.isTouched && field.state.meta.errors[0] && (
+              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                 <p className="text-sm text-red-500 mt-1">
-                  {String(field.state.meta.errors[0] as any)}
+                  {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
                 </p>
               )}
             </label>
@@ -327,9 +327,9 @@ const EditLegalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) =
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
               />
-              {field.state.meta.isTouched && field.state.meta.errors[0] && (
+              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                 <p className="text-sm text-red-500 mt-1">
-                  {String(field.state.meta.errors[0] as any)}
+                  {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
                 </p>
               )}
             </label>
