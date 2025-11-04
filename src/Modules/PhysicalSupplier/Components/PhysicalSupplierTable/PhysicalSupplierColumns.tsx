@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { PhysicalSupplier } from "../../Models/PhysicalSupplier";
-import { Edit2, InfoIcon, Trash } from "lucide-react";
+import { Edit2, InfoIcon } from "lucide-react";
 import DeletePhysicalSupplierModal from "../Modals/DeletePhysicalSupplierModal";
 
 export const PhysicalSupplierColumns = (
@@ -34,8 +34,8 @@ export const PhysicalSupplierColumns = (
           <button
             onClick={() => onEdit(supplier)}
             className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-                       text-[#1789FC] border-[#1789FC]
-                       hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
+                        text-[#1789FC] border-[#1789FC]
+                        hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
           >
             <Edit2 className="w-4 h-4" />
             Editar

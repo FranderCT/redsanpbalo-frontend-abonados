@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { createReqAvailWater, deleteReqAvailWater, getAllReqAvailWater, getAllRequestStates, getReqAvailWaterById, getReqAvailWaterFolderLink, searchReqAvailWater, UpdateReqAvailWater } from "../Services/ReqAvilWaterServices";
 import type { ReqAvailWater, ReqAvailWaterPaginationParams, ReqWaterLinkResponse, UpdateReqAvailabilityWater} from "../Models/ReqAvailWater";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 
 // Obtener todos

@@ -38,7 +38,7 @@ export function RecentActivityPro({ activities }: { activities: Activity[] }) {
                 <li
                   key={a.id}
                   className="flex items-start justify-between gap-3 rounded-lg border border-neutral-200/70 p-3
-                             bg-gradient-to-b from-white to-neutral-50"
+                              bg-gradient-to-b from-white to-neutral-50"
                 >
                   <div className="flex items-start gap-3">
                     <div className="h-10 w-10 flex items-center justify-center rounded-xl

@@ -1,6 +1,6 @@
 import { type ColumnDef } from "@tanstack/react-table";
 
-import { Edit2, Trash, Info, InfoIcon } from "lucide-react";
+import { Edit2, InfoIcon } from "lucide-react";
 import type { Product } from "../../Models/CreateProduct";
 import DeleteProductButton from "../Modals/DeleteProductModal";
 
@@ -46,8 +46,8 @@ export const ProductColumns = (
           <button
             onClick={() => onEdit(product)}
             className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-                       text-[#1789FC] border-[#1789FC]
-                       hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
+                        text-[#1789FC] border-[#1789FC]
+                        hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
           >
             <Edit2 className="w-4 h-4" />
             Editar
@@ -59,8 +59,8 @@ export const ProductColumns = (
           {/* <button
             onClick={() => onDelete(product)}
             className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-                       text-[#F6132D] border-[#F6132D]
-                       hover:bg-[#F6132D] hover:text-[#F9F5FF] transition"
+                        text-[#F6132D] border-[#F6132D]
+                        hover:bg-[#F6132D] hover:text-[#F9F5FF] transition"
           >
             <Trash className="w-4 h-4" />
             Desactivar

@@ -1,4 +1,3 @@
-import * as React from "react";
 import type { Comment } from "../../Models/Comment";
 import { Check, CheckCheck } from "lucide-react";
 
@@ -36,7 +35,7 @@ export function CommentReadCard({
       {/* Contenido: reservamos espacio a la derecha desde sm para el botón absoluto */}
       <div className="min-w-0 sm:pr-28">
         <p className="mb-1 text-sm text-[#091540]/50">{formattedDate}</p>
-        <p className="text-[#091540] whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
+        <p className="text-[#091540] whitespace-pre-wrap break-words">
           {comment.Message}
         </p>
       </div>

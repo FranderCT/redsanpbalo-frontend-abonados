@@ -1,4 +1,4 @@
-import { Droplets, Wrench, FileText, Phone } from "lucide-react";
+// icon imports removed because they're unused in this component
 import { Card, CardContent, CardDescription, CardIcon, CardTitle } from "../../../../Components/Cards";
 import { useGetAllServices } from "../Hooks/ServicesHooks";
 

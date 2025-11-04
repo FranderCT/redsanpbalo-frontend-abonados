@@ -1,7 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Edit2 } from "lucide-react";
 import type { Supplier } from "../Models/Supplier";
-import DeleteSupplierButton from "./DeleteSupplierButton";
 
 export type RowSupplier = Supplier & {
   Id: number;
