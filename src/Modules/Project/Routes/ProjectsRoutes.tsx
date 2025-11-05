@@ -2,8 +2,8 @@ import { createRoute } from "@tanstack/react-router";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
 import ListProjects from "../Pages/ListProjects";
 import NewProject from "../Pages/NewProject";
-import ViewProject from "../Pages/ViewProject";
 import UpdateProjectContainer from "../components/UpdateProject/UpdateProjectContainer";
+import ViewProjectById from "../components/ViewProject/ViewProjectById";
 
 
 
@@ -28,7 +28,7 @@ export const createProjectRoute = createRoute({
 export const viewProjectRoute = createRoute({
   getParentRoute: () => projectRoute,
   path: "$projectId",
-  component: ViewProject,
+  component: ViewProjectById,
 });
 
 export const updateProjectRoute = createRoute({
