@@ -24,7 +24,7 @@ const CreateAgentSupplierModal = () => {
      },
     onSubmit: async ({ value, formApi }) => {
       try {
-        await createAgentSupplierMutation.mutateAsync(value);
+        await createAgentSupplierMutation.mutateAsync(value as any);
         toast.success("¡Registro exitoso!", { position: "top-right", autoClose: 3000 });
         formApi.reset(); // limpia los campos
         setOpen(false);

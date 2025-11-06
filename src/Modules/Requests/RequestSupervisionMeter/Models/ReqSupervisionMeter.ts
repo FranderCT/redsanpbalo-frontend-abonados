@@ -44,3 +44,9 @@ export interface ReqSupervisionMeterPaginationParams {
   NIS?:number;
   State?: string; 
 }
+
+export interface ReqSupervisionMeterLinkResponse {
+  link?: string;
+  url?: string;
+  [key: string]: any; // Para capturar cualquier otro formato
+}

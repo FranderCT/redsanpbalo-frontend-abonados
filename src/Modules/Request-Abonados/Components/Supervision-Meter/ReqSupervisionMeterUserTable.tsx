@@ -3,8 +3,7 @@ import ReqAvailWaterPager from "../../../Requests/RequestAvailabilityWater/Compo
 import type { ReqSupervisionMeter } from "../../../Requests/RequestSupervisionMeter/Models/ReqSupervisionMeter";
 import { ReqSupervisionMeterUserColumns } from "./ReqSupervisionMeterUserColumn";
 import { useState } from "react";
-import RequestDetailModal from "../Modals/RequestDetailModal";
-import MeterSupervisionDetailModal from "../Modals/RequestDetailModal";
+import MeterSupervisionDetailModal from "../Modals/RequestSuperVisionMeterr";
 
 type Props = {
   data: ReqSupervisionMeter[];

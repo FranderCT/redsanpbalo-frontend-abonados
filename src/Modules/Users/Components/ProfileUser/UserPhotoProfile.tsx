@@ -1,7 +1,7 @@
-import type { UserProfile } from "../../Models/User"
+import type { User } from "../../Models/User"
 
 type Props = {
-  User? : UserProfile
+  User?: User
 }
 
 const UserPhotoProfile = ({User} : Props) => {

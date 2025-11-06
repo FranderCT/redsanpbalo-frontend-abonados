@@ -26,7 +26,7 @@ export const SupplierAgentSchema = z.object({
     .string()
     .refine((val) => isValidPhoneNumber(val), "Número telefónico inválido"),
 
-  LegalSupplierId: z.number(), // 👈 agregado, evita el TS2322
+  LegalSupplierId: z.number(), 
 });
 
 export type CreateSupplierAgentInput = z.infer<typeof SupplierAgentSchema>;

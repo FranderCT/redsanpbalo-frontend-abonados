@@ -3,11 +3,10 @@ import { StatCardPro } from "../../DashboardPrincipal-Admin/Components/stat-card
 import { QuickActionSolicitudes } from "../Components/quick-action-solicitudes";
 import { useMyReportsSummary, useMyRequestsSummary } from "../Hooks/dashboardUserHooks";
 import { useGetUserProfile } from "../../Users/Hooks/UsersHooks";
-import { useNavigate } from "@tanstack/react-router";
-
-
+import { useState } from "react";
+import CreateReportUserModal from "../../Reports/Components/Modals/CreateReportUserModal";
 export default function UserDashboard() {
-  const navigate = useNavigate();
+  const [openReport, setOpenReport] = useState(false);
   // KPIs Solicitudes
   const {
     summary: reqSummary,
@@ -168,7 +167,7 @@ export default function UserDashboard() {
           {/* Reportar Problema - Rojo */}
           <div className="group relative">
             <div className="rounded-lg bg-white hover:bg-gradient-to-br hover:from-white hover:to-red-50/30 transition-all duration-300 cursor-pointer border border-red-100 hover:shadow-[0_8px_30px_rgba(246,19,45,0.25)] hover:-translate-y-1"
-                 onClick={() => navigate({ to: "/dashboard/reports" })}>
+                  onClick={() => setOpenReport(true)}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -190,7 +189,7 @@ export default function UserDashboard() {
           {/* Ver Notificaciones - Amarillo/Naranja */}
           <div className="group relative">
             <div className="rounded-lg bg-white hover:bg-gradient-to-br hover:from-white hover:to-amber-50/30 transition-all duration-300 cursor-pointer border border-amber-100 hover:shadow-[0_8px_30px_rgba(251,191,36,0.25)] hover:-translate-y-1"
-                 onClick={() => console.log("Ver Notificaciones")}>
+                  onClick={() => console.log("Ver Notificaciones")}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -213,6 +212,7 @@ export default function UserDashboard() {
 
       {/* Notificaciones importantes */}
       {/* <NotificationCard /> */}
+      <CreateReportUserModal open={openReport} setOpen={setOpenReport} />
     </div>
   );
 }

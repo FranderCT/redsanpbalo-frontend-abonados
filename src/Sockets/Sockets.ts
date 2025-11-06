@@ -1,5 +1,3 @@
-import { io } from 'socket.io-client';
+import io from 'socket.io-client';
 
-export const socket = io(`http://localhost:3000/reports`, {
-  withCredentials: true,
-});
+export const socket = io(`https://asada-san-pablo-backend-production.up.railway.app/reports`);

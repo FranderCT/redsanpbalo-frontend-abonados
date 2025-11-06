@@ -11,6 +11,7 @@ import { useGetAllLegalSuppliers } from "../../../LegalSupplier/Hooks/LegalSuppl
 import { useGetAllPhysicalSuppliers } from "../../../PhysicalSupplier/Hooks/PhysicalSupplierHooks";
 import { useEffect, useState } from "react";
 import type { SupplierType } from "./CreateProductModal";
+import { UpdateProductSchema } from "../../schemas/ProductSchema";
 
 type Props = {
   product: Product;
@@ -58,6 +59,9 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
       LegalSupplierId: product.LegalSupplier?.Id ?? 0, 
       PhysicalSupplierId: product.PhysicalSupplier?.Id ?? 0,
       IsActive: product.IsActive ?? true,
+    },
+    validators: {
+       onChange: UpdateProductSchema, // Esquema de validación
     },
     onSubmit: async ({ value, formApi }) => {
       const hasLegal = Number(value.LegalSupplierId) > 0;
@@ -115,26 +119,29 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
   
     const LABEL = "grid gap-1";
     const INPUT = "w-full px-4 py-2 bg-gray-50 border";
-    const ERROR = "text-sm text-red-500 mt-1";
 
   return (
     <ModalBase
       open={open}
       onClose={handleClose}
-      panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl"
+      panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]"
     >
       {/* Header */}
-      <div className="px-6 py-5 border-b border-gray-200 bg-white">
-        <h3 className="text-xl font-bold text-[#091540]">Editar producto</h3>
+      <div className="flex-shrink-0 flex flex-col">
+        <h2 className="text-2xl text-[#091540] font-bold">Editar producto</h2>
+        <p className="text-md">Complete la información para editar un producto</p>
       </div>
-      <div className="p-6 bg-white">
+      
+      <div className="border-b border-[#222]/10"></div>
+
         {/* Formulario de edición */}
         <form
+          id="update-product-form"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="grid gap-4"
+          className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           {/* Name */}
           <form.Field name="Name">
@@ -147,6 +154,11 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="Nombre del producto"
                 />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
               </label>
             )}
           </form.Field>
@@ -162,6 +174,11 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="Tipo de producto"
                 />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
               </label>
             )}
           </form.Field>
@@ -177,6 +194,11 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="Observaciones del producto"
                 />
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
               </label>
             )}
           </form.Field>
@@ -201,6 +223,11 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                     </option>
                   ))}
                 </select>
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
               </label>
             )}
           </form.Field>
@@ -225,6 +252,11 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                     </option>
                   ))}
                 </select>
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
                 {materialsError && (
                   <span className="text-xs text-red-600 mt-1">
                     No se pudieron cargar los materiales.
@@ -254,6 +286,11 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                     </option>
                   ))}
                 </select>
+                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                  </p>
+                )}
               </label>
             )}
           </form.Field>
@@ -346,13 +383,13 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
             )}
 
 
-          {/* IsActive */}
+          {/* Estado */}
           <form.Field name="IsActive">
             {(field) => (
               <label className="flex items-center gap-3 cursor-pointer select-none">
-                <span className="text-sm text-gray-700">Activo</span>
-
-                {/* Toggle */}
+                <span className="text-sm text-gray-700">
+                  {field.state.value ? "Activo" : "Inactivo"}
+                </span>
                 <div className="relative">
                   <input
                     type="checkbox"
@@ -363,7 +400,6 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                   <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors"></div>
                   <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-5"></div>
                 </div>
-
                 {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                   <p className="text-sm text-red-500 mt-1">
                     {(field.state.meta.errors[0] as any)?.message ??
@@ -373,30 +409,29 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
               </label>
             )}
           </form.Field>
-
-          {/* Footer botones */}
-          <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
-            {([canSubmit, isSubmitting]) => (
-              <div className="mt-2 flex justify-end items-center gap-2">
-                <button
-                  type="submit"
-                  disabled={!canSubmit || isSubmitting}
-                  className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
-                >
-                  {isSubmitting ? "Guardando…" : "Guardar cambios"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
-                >
-                  Cancelar
-                </button>
-              </div>
-            )}
-          </form.Subscribe>
         </form>
-      </div>
+        {/* Footer botones */}
+        <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+          {([canSubmit, isSubmitting]) => (
+            <div className="mt-2 flex justify-end items-center gap-2">
+              <button
+                form="update-product-form"
+                type="submit"
+                disabled={!canSubmit || isSubmitting}
+                className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
+              >
+                {isSubmitting ? "Guardando…" : "Guardar cambios"}
+              </button>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
+        </form.Subscribe>
     </ModalBase>
   );
 }

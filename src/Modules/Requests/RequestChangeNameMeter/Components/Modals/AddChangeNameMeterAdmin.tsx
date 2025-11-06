@@ -5,7 +5,7 @@
     import { uploadWithRetry } from "../../../GeneralGetUser/AddnewRequestModal";
     import { UploadChangeNameMeterFiles } from "../../../../Upload-files/Services/ProjectFileServices";
     import { ModalBase } from "../../../../../Components/Modals/ModalBase";
-    import ListReqChangeNameMeterUser from "../../../../Request-Abonados/Pages/ChangeNameMeter/ListChangeNameMeterUser";
+    // ListReqChangeNameMeterUser removed - not used in this module
     import type { AbonadoSearch } from "../../../GeneralGetUser/Model";
     import { useSearchAbonados } from "../../../GeneralGetUser/GenralHook";
 
@@ -120,7 +120,8 @@
 
     export default function CreateChangeNameMeterModal() {
     const [open, setOpen] = useState(false);
-    const [viewMode, setViewMode] = useState<"create" | "list">("create");
+    // mantener setViewMode (se usa en handlers) pero evitar variable sin usar
+    const [, setViewMode] = useState<"create" | "list">("create");
 
     const useCreateChangeNameRqMutation = useChangeNameMeterRq();
 

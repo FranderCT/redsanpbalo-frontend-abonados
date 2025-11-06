@@ -6,7 +6,7 @@ import type { RequestState } from "../../StateRequest/Model/RequestState";
 export interface ReqAvailWater {
   Id: number;
   Justification?: string;
-  Date: Date;                       // el backend guarda 'date' (YYYY-MM-DD)
+  Date: Date;                       
   IdCardFiles: string[];            // simple-array
   PlanoPrintFiles: string[];        // simple-array
   LiteralCertificateFile?: string;

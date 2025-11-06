@@ -40,7 +40,6 @@ export default function EditProject() {
       Objective: project.Objective ?? "",
       Description: project.Description ?? "",
       Observation: project.Observation ?? "",
-      SpaceOfDocument: project.SpaceOfDocument ?? "",
       ProjectStateId: project.ProjectState?.Id ?? undefined, 
       UserId: project.User?.Id ?? undefined,                  
       IsActive: project.IsActive,                             

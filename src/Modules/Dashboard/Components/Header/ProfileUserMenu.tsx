@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "@tanstack/react-router";
-import { User, Settings, LogOut } from "lucide-react";
+import { User,LogOut } from "lucide-react";
 //import { useLogout } from "../../../Auth/Hooks/AuthHooks";
 
 type Props = {
@@ -21,10 +21,7 @@ export default function ProfileMenu({ profileOpen, setProfileOpen }: Props) {
     setPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
   }, [profileOpen]);
 
-  const go = (to: string) => {
-    navigate({ to });
-    setProfileOpen(false);
-  };
+
 
   return (
     <div className="relative">

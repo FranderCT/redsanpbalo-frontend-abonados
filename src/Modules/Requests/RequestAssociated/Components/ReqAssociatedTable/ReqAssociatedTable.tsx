@@ -4,7 +4,6 @@ import type { ReqAssociated } from "../../Models/RequestAssociated";
 import { ReqAssociatedColumns } from "./ReqAssociatedColumns";
 import ReqAssociatedPager from "../PaginationReqAssociated/ReqAssociatedPager";
 import UpdateReqAssociatedStateModal from "../Modals/UpdateAssociatedModal";
-import MeterSupervisionDetailModalAdmin from "../../../RequestChangeNameMeter/Components/Modals/VerInfoAbonadoRequest";
 import ReqAssociatedAdminModal from "../Modals/VerinfoRequestAboando";
 
 type Props = {

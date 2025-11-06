@@ -4,7 +4,7 @@ import type { ReqSupervisionMeter } from "../../Models/ReqSupervisionMeter";
 import { ReqSupervisionMeterColumns } from "./ReqSupervisionMeterColumn";
 import ReqSupervisionMeterPager from "../PaginationReqSupervisionMeter/ReqSupervisionMeterPager";
 import UpdateReqSupervisionMeterStateModal from "../../Modals/UpdateReqSupervicionMeterModal";
-import MeterSupervisionDetailModal from "../../../../Request-Abonados/Components/Modals/RequestDetailModal";
+import MeterSupervisionDetailModal from "../../../../Request-Abonados/Components/Modals/RequestSuperVisionMeterr";
 
 
 type Props = {

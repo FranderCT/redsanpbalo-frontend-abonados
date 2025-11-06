@@ -62,22 +62,12 @@ import { useGetAllRequestStates, useUpdateAssociatedreq } from "../../Hooks/ReqA
         <div className="w-[95%] max-w-md rounded-lg bg-white p-5 shadow-xl">
             <h3 className="mb-3 text-lg font-semibold text-[#091540]">Editar estado</h3>
 
-            {/* Datos de contexto (ajusta campos según tu modelo real) */}
             <div className="mb-4 space-y-1 text-sm text-gray-700">
             <p>
                 <span className="text-gray-500">Solicitante: </span>
                 <b>
-                {`${(req as any)?.User?.Name ?? ""} ${(req as any)?.User?.Surname1 ?? ""} ${(req as any)?.User?.Surname2 ?? ""}`.trim() || "-"}
+                {`${req.User?.Name ?? ""} ${req.User?.Surname1 ?? ""} ${req.User?.Surname2 ?? ""}`.trim() || "-"}
                 </b>
-            </p>
-            {/* Ejemplos de campos comunes: comenta/elimina si no existen en tu modelo */}
-            <p>
-                <span className="text-gray-500">Identificador: </span>
-                <b>{(req as any)?.Id ?? "-"}</b>
-            </p>
-            <p>
-                <span className="text-gray-500">Estado actual: </span>
-                <b>{(req as any)?.StateRequest?.Name ?? "-"}</b>
             </p>
             </div>
 

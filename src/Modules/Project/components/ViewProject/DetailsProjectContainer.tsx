@@ -1,13 +1,14 @@
 import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
-import type { Project } from "../../Models/Project";
 import { Edit2, Upload, FolderOpen } from "lucide-react";
-import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
 import { useNavigate } from "@tanstack/react-router";
-import { useGetProjectTracesByProjectId, useGetTotalActualExpenseByProjectId } from "../../../Project_Trace/Hooks/ProjectTraceHooks";
-import { uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";
 import { toast } from "react-toastify";
 import axios from "axios";
+import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
+import { uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";
+import type { Project } from "../../Models/Project";
+import { useGetProjectTracesByProjectId, useGetTotalActualExpenseByProjectId } from "../../../Project_Trace/Hooks/ProjectTraceHooks";
+
 
 type Props = { data: Project };
 
@@ -17,18 +18,8 @@ function formatDate(d?: Date | string | null) {
   return isNaN(dt.getTime()) ? "—" : dt.toLocaleDateString();
 }
 
-function calculateTraceExpense(trace: any): number {
-  if (!trace?.ActualExpense?.ProductDetails) return 0;
-  
-  return trace.ActualExpense.ProductDetails.reduce((total: number, detail: any) => {
-    return total + (detail.Quantity || 0);
-  }, 0);
-}
-
 export default function DetailsProjectContainer({ data }: Props) {
-  // ✅ Este ref apunta al MISMO contenedor que ya tenías, con las mismas clases
   const printRef = useRef<HTMLDivElement>(null);
-  
   const navigate = useNavigate();
   
   // Estados para upload de archivos
@@ -36,17 +27,67 @@ export default function DetailsProjectContainer({ data }: Props) {
   const [isUploading, setIsUploading] = useState(false);
   const [isGettingFolderLink, setIsGettingFolderLink] = useState(false);
   
-  // Obtener seguimientos del proyecto
-  const { projectTraces, isLoading: tracesLoading } = useGetProjectTracesByProjectId(data?.Id);
-  
-  // Obtener total de gastos actuales
-  const { totalActualExpense, isLoading: totalExpenseLoading } = useGetTotalActualExpenseByProjectId(data?.Id);
-  
-  // Funciones para manejo de archivos
   const handleFileUpload = (files: FileList) => {
     const fileArray = Array.from(files);
     setUploadedFiles(prev => [...prev, ...fileArray]);
   };
+
+  // Si el objeto `data` no trae TraceProject o TotalActualExpense, consultamos los endpoints
+  const {
+    projectTraces: fetchedTraces,
+    isLoading: tracesLoading,
+  } = useGetProjectTracesByProjectId(data?.Id);
+
+  const {
+    totalActualExpense: fetchedTotal,
+    isLoading: totalExpenseLoading,
+  } = useGetTotalActualExpenseByProjectId(data?.Id);
+
+  // Preferir los datos que vienen en `data` (cuando backend los incluye),
+  // sino usar lo que devolvieron las queries.
+  const tracesToRender = data.TraceProject && data.TraceProject.length > 0 ? data.TraceProject : (fetchedTraces ?? []);
+  // Filtrar por el projectId para evitar que el endpoint devuelva trazas de otros proyectos
+  const tracesFiltered = tracesToRender.filter((t: any) => {
+    const projectIdFromTrace = t?.Project?.Id ?? t?.ProjectId ?? t?.projectId ?? null;
+    return Number(projectIdFromTrace) === Number(data.Id);
+  });
+  const totalToRender = data.TotalActualExpense ?? fetchedTotal ?? null;
+
+  // Resumen agregado: calcular filas resumen (producto, proyectado, utilizado, diferencia)
+  const summaryRows = React.useMemo(() => {
+    if (!totalToRender?.ProductDetails) return [] as Array<any>;
+    const map = new Map<number, { product: any; projected: number; used: number }>();
+
+    // Agregar los productos del total (usados)
+    totalToRender.ProductDetails.forEach((detail: any) => {
+      const pid = detail?.Product?.Id ?? Math.random();
+      const existing = map.get(pid) ?? { product: detail.Product, projected: 0, used: 0 };
+      existing.used += Number(detail.Quantity || 0);
+      map.set(pid, existing);
+    });
+
+    // Completar con cantidades proyectadas si existen en ProjectProjection
+    (data.ProjectProjection?.ProductDetails ?? []).forEach((pd: any) => {
+      const pid = pd?.Product?.Id ?? Math.random();
+      const existing = map.get(pid) ?? { product: pd.Product, projected: 0, used: 0 };
+      existing.projected = Number(pd.Quantity || 0);
+      // si product no estaba en map, asegurar product esté presente
+      if (!map.has(pid)) map.set(pid, existing);
+    });
+
+    return Array.from(map.values());
+  }, [totalToRender, data.ProjectProjection]);
+
+  const totals = React.useMemo(() => {
+    return summaryRows.reduce(
+      (acc, r) => {
+        acc.projected += Number(r.projected || 0);
+        acc.used += Number(r.used || 0);
+        return acc;
+      },
+      { projected: 0, used: 0 }
+    );
+  }, [summaryRows]);
 
   const removeFile = (indexToRemove: number) => {
     setUploadedFiles(prev => prev.filter((_, index) => index !== indexToRemove));
@@ -74,10 +115,8 @@ export default function DetailsProjectContainer({ data }: Props) {
   const navigateToProjectFolder = async () => {
     setIsGettingFolderLink(true);
     try {
-      const response = await axios.get(`http://localhost:3000/project-file/folder-link/${data.Id}`);
+      const response = await axios.get(` https://asada-san-pablo-backend-production.up.railway.app/project-file/folder-link/${data.Id}`);
       const dropboxUrl = response.data;
-      
-      // Si la respuesta es un string con la URL de Dropbox, redirigir a ella
       if (typeof dropboxUrl === 'string' && dropboxUrl.includes('dropbox.com')) {
         window.open(dropboxUrl, '_blank');
       } else {
@@ -91,107 +130,97 @@ export default function DetailsProjectContainer({ data }: Props) {
     }
   };
   
-  // ⬇️ react-to-print v3: usa contentRef
   const handlePrint = useReactToPrint({
     contentRef: printRef,
-    documentTitle: `Proyecto_${data?.Name ?? "detalle"}`,
+    documentTitle: `Proyecto_${data.Name}`,
     onAfterPrint: () => console.log("PDF generado"),
   });
 
   return (
     <>
-      {/* Botón fuera del área a imprimir y oculto en PDF */}
+      {/* Botones de acción */}
       <div className="w-full max-w-7xl mx-auto px-6 lg:px-8 pt-6 print:hidden">
         <div className="flex justify-between">
           <div className="flex flex-row gap-8">
             <button
-            onClick={() =>
-              navigate({
-                to: "/dashboard/projects/$projectId/edit",
-                params: { projectId: String(data.Id) },
-              })
-            }
-            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border text-[#1789FC] border-[#1789FC] hover:bg-[#1789FC] hover:text-white"
-          >
-            <Edit2 className="w-4 h-4" />
-            Editar
-          </button>
-          <button
-            onClick={handlePrint}
-            className="px-4 py-2 bg-[#1789FC] text-white hover:opacity-90"
-          >
-            Exportar a PDF
-          </button>
+              onClick={() =>
+                navigate({
+                  to: "/dashboard/projects/$projectId/edit",
+                  params: { projectId: String(data.Id) },
+                })
+              }
+              className="flex items-center gap-1 px-3 py-1 text-xs font-medium border text-[#1789FC] border-[#1789FC] hover:bg-[#1789FC] hover:text-white"
+            >
+              <Edit2 className="w-4 h-4" />
+              Editar
+            </button>
+            <button
+              onClick={handlePrint}
+              className="px-4 py-2 bg-[#1789FC] text-white hover:opacity-90"
+            >
+              Exportar a PDF
+            </button>
           </div>
           
           <CreateProjectTraceModal ProjectId={data.Id}/>
         </div>  
-        
       </div>
 
-      {/* ⬇️ MISMO contenedor y estilos. Solo agrego ref={printRef} */}
+      {/* Contenido imprimible */}
       <div ref={printRef} className="w-full max-w-7xl mx-auto px-6 lg:px-8 py-8 text-[#091540]">
-        {/* bloque principal en una sola columna, limpio y amplio */}
         <section className="space-y-8">
 
           <h4 className="text-2xl font-semibold tracking-wide">Información del Proyecto</h4>
 
+          <Field label="Nombre del Proyecto">
+            {data.Name || <Placeholder />}
+          </Field>
+
+          <Divider />
+
           <Field label="Encargado del Proyecto">
-            {data?.User.Name || <Placeholder />} {data?.User.Surname1 || <Placeholder />} {data?.User.Surname2 || <Placeholder />}
+            {data.User?.Name || <Placeholder />} {data.User?.Surname1 || ""} {data.User?.Surname2 || ""}
           </Field>
 
           <Divider />
 
           <Field label="Descripción del proyecto">
-            {data?.Description || <Placeholder />}
+            {data.Description || <Placeholder />}
           </Field>
 
           <Divider />
 
           <Field label="Objetivo del proyecto">
-            {data?.Objective || <Placeholder />}
+            {data.Objective || <Placeholder />}
           </Field>
 
           <Divider />
 
           <Field label="Dirección">
-            {data?.Location || <Placeholder />}
+            {data.Location || <Placeholder />}
           </Field>
 
           <Divider />
 
-          {/* Fechas en dos columnas en pantallas medianas+ */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Field label="Fecha de inicio">
-              {formatDate(data?.InnitialDate)}
+              {formatDate(data.InnitialDate)}
             </Field>
             <Field label="Fecha de fin">
-              {formatDate(data?.EndDate)}
+              {formatDate(data.EndDate)}
             </Field>
           </div>
 
           <Divider />
 
           <Field label="Observaciones del proyecto">
-            {data?.Observation || <Placeholder />}
+            {data.Observation || <Placeholder />}
           </Field>
 
           <Divider />
 
-          {/* <Field label="Espacio de documento">
-            {data?.SpaceOfDocument
-              ? typeof data.SpaceOfDocument === "string"
-                ? data.SpaceOfDocument
-                : data.SpaceOfDocument instanceof File
-                  ? data.SpaceOfDocument.name
-                  : <Placeholder />
-              : <Placeholder />}
-          </Field> */}
-
-          <Divider />
-
           <Field label="Estado del Proyecto">
-            {data.ProjectState.Name}
+            {data.ProjectState?.Name || <Placeholder />}
           </Field>
 
           <Divider />
@@ -199,116 +228,164 @@ export default function DetailsProjectContainer({ data }: Props) {
           <h4 className="text-2xl font-semibold tracking-wide">Proyección del Proyecto</h4>
 
           <Field label="Observación de la Proyección">
-            {data.ProjectProjection.Observation}
+            {data.ProjectProjection?.Observation || <Placeholder />}
           </Field>
 
           <Divider />
 
           <Field label="Estimado de productos a utilizar en el proyecto">
-            <div className="overflow-hidden rounded-lg shadow-sm border border-gray-200">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gradient-to-r from-[#091540] to-[#091540]/90 text-white">
-                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Nombre del Producto</th>
-                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Tipo y Material</th>
-                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad Estimada</th>
-                    <th className="px-4 py-3 text-left font-semibold tracking-wide">Categoría del Producto</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 bg-white">
-                  {data.ProjectProjection.ProductDetails.map((pd, index) => (
-                    <tr key={pd.Id} className={`${index % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
-                      <td className="px-4 py-3 font-medium text-[#091540]">{pd.Product.Name}</td>
-                      <td className="px-4 py-3 text-gray-700">{pd.Product?.Type} {pd.Product.Material?.Name}</td>
-                      <td className="px-4 py-3 font-semibold text-[#091540]">{pd.Quantity}</td>
-                      <td className="px-4 py-3 text-gray-700">{pd.Product.Category?.Name}</td>
+            {data.ProjectProjection?.ProductDetails && data.ProjectProjection.ProductDetails.length > 0 ? (
+              <div className="overflow-hidden rounded-lg shadow-sm border border-gray-200">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-[#091540] to-[#091540]/90 text-white">
+                      <th className="px-4 py-3 text-left font-semibold tracking-wide">Nombre del Producto</th>
+                      <th className="px-4 py-3 text-left font-semibold tracking-wide">Tipo y Material</th>
+                      <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad Estimada</th>
+                      <th className="px-4 py-3 text-left font-semibold tracking-wide">Categoría del Producto</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 bg-white">
+                    {data.ProjectProjection.ProductDetails.map((pd: any, index: number) => (
+                      <tr key={pd.Id} className={`${index % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                        <td className="px-4 py-3 font-medium text-[#091540]">{pd.Product?.Name || "—"}</td>
+                        <td className="px-4 py-3 text-gray-700">
+                          {pd.Product?.Type || ""} {pd.Product?.Material?.Name || ""}
+                        </td>
+                        <td className="px-4 py-3 font-semibold text-[#091540]">{pd.Quantity}</td>
+                        <td className="px-4 py-3 text-gray-700">{pd.Product?.Category?.Name || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500 italic">No hay productos estimados</p>
+            )}
           </Field>
 
           <Divider />
-
 
           <Field label="Total Gastado">
             {totalExpenseLoading ? (
               <div className="text-center py-8">
                 <p className="text-lg text-[#091540]/70">Cargando comparativa...</p>
               </div>
-            ) : totalActualExpense && totalActualExpense.length > 0 ? (
+            ) : totalToRender && totalToRender.ProductDetails && totalToRender.ProductDetails.length > 0 ? (
               <div className="space-y-6">
-                {totalActualExpense.map((expense: any) => (
-                  <div key={expense.Id} className="bg-gradient-to-rrounded-lg p-6"> 
-                    <div className="overflow-hidden rounded-lg shadow-md border border-blue-200">
+                <div key={totalToRender.Id} className="bg-gradient-to-r rounded-lg"> 
+                  <div className="overflow-hidden rounded-lg shadow-md border border-blue-200">
+                    <div className="px-4 py-3">
+                      <p className="font-semibold text-[#091540]">{totalToRender.Description}</p>
+                    </div>
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-gradient-to-r from-[#091540] to-[#091540]/90 text-white">
+                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Nombre del Producto</th>
+                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Tipo</th>
+                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad Proyectada</th>
+                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad Utilizada</th>
+                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Diferencia</th>
+                          <th className="px-4 py-3 text-left font-semibold tracking-wide">Estado del Presupuesto</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 bg-white">
+                        {totalToRender.ProductDetails.map((detail: any, index: number) => {
+                          const projectedProduct = data.ProjectProjection?.ProductDetails?.find(
+                            (pd: any) => pd.Product?.Id === detail.Product?.Id
+                          );
+                          const projectedQuantity = projectedProduct?.Quantity || 0;
+                          const realQuantity = detail.Quantity || 0;
+                          const difference = realQuantity - projectedQuantity;
+                          const isOverBudget = difference > 0;
+                          const isOnTrack = difference === 0;
+                          
+                          return (
+                            <tr key={detail.Id} className={`${index % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                              <td className="px-4 py-3 font-medium text-[#091540]">{detail.Product?.Name || "—"}</td>
+                              <td className="px-4 py-3 text-gray-700">{detail.Product?.Type || "—"}</td>
+                              <td className="px-4 py-3 font-semibold text-green-600 text-center">
+                                <span className="bg-green-100 px-2 py-1 rounded-full">
+                                  {projectedQuantity}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 font-semibold text-[#1789FC] text-center">
+                                <span className="bg-[#1789FC]/10 px-2 py-1 rounded-full">
+                                  {realQuantity}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <span className={`font-bold px-2 py-1 rounded-full ${
+                                  isOnTrack 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : isOverBudget 
+                                      ? 'bg-red-100 text-red-800' 
+                                      : 'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {difference > 0 ? `+${difference}` : difference}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                  isOnTrack 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : isOverBudget 
+                                      ? 'bg-red-100 text-red-800' 
+                                      : 'bg-blue-100 text-blue-800'
+                                }`}>
+                                  {isOnTrack ? '✓ Exacto' : isOverBudget ? '⚠ Excedido' : '↓ Bajo presupuesto'}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                {/* Resumen del Total Gastado: tabla agregada */}
+                {summaryRows && summaryRows.length > 0 && (
+                  <div className="mt-6">
+                    <h6 className="text-base font-semibold mb-4 text-[#091540]">Resumen del Total Gastado</h6>
+                    <div className="overflow-hidden rounded-lg shadow-sm border border-gray-200">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="bg-gradient-to-r from-[#091540] to-[#091540]/90 text-white">
-                            <th className="px-4 py-3 text-left font-semibold tracking-wide">Nombre del Producto</th>
-                            <th className="px-4 py-3 text-left font-semibold tracking-wide">Tipo </th>
+                          <tr className="bg-[#091540] text-white">
+                            <th className="px-4 py-3 text-left font-semibold tracking-wide">Producto</th>
                             <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad Proyectada</th>
                             <th className="px-4 py-3 text-left font-semibold tracking-wide">Cantidad Utilizada</th>
                             <th className="px-4 py-3 text-left font-semibold tracking-wide">Diferencia</th>
-                            <th className="px-4 py-3 text-left font-semibold tracking-wide">Estado del Presupuesto</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 bg-white">
-                          {expense.ProductDetails.map((detail: any, index: number) => {
-                            // Buscar el producto correspondiente en la proyección
-                            const projectedProduct = data.ProjectProjection.ProductDetails.find(
-                              (pd) => pd.Product.Id === detail.Product.Id
-                            );
-                            const projectedQuantity = projectedProduct?.Quantity || 0;
-                            const realQuantity = detail.Quantity;
-                            const difference = realQuantity - projectedQuantity;
-                            const isOverBudget = difference > 0;
-                            const isOnTrack = difference === 0;
-                            
+                          {summaryRows.map((row: any, i: number) => {
+                            const diff = Number(row.used || 0) - Number(row.projected || 0);
                             return (
-                              <tr key={detail.Id} className={`${index % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
-                                <td className="px-4 py-3 font-medium text-[#091540]">{detail.Product.Name}</td>
-                                <td className="px-4 py-3 text-gray-700">{detail.Product.Type}</td>
-                                <td className="px-4 py-3 font-semibold text-green-600 text-center">
-                                  <span className="bg-green-100 px-2 py-1 rounded-full">
-                                    {projectedQuantity}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-3 font-semibold text-[#1789FC] text-center">
-                                  <span className="bg-[#1789FC]/10 px-2 py-1 rounded-full">
-                                    {realQuantity}
-                                  </span>
-                                </td>
+                              <tr key={i} className={`${i % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                                <td className="px-4 py-3 font-medium text-[#091540]">{row.product?.Name || '—'}</td>
+                                <td className="px-4 py-3 text-gray-700 text-center font-semibold">{row.projected}</td>
+                                <td className="px-4 py-3 text-[#1789FC] text-center font-semibold">{row.used}</td>
                                 <td className="px-4 py-3 text-center">
                                   <span className={`font-bold px-2 py-1 rounded-full ${
-                                    isOnTrack 
-                                      ? 'bg-green-100 text-green-800' 
-                                      : isOverBudget 
-                                        ? 'bg-red-100 text-red-800' 
-                                        : 'bg-blue-100 text-blue-800'
-                                  }`}>
-                                    {difference > 0 ? `+${difference}` : difference}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-3 text-center">
-                                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                    isOnTrack 
-                                      ? 'bg-green-100 text-green-800' 
-                                      : isOverBudget 
-                                        ? 'bg-red-100 text-red-800' 
-                                        : 'bg-blue-100 text-blue-800'
-                                  }`}>
-                                    {isOnTrack ? '✓ Exacto' : isOverBudget ? '⚠ Excedido' : '↓ Bajo presupuesto'}
-                                  </span>
+                                    diff === 0 ? 'bg-green-100 text-green-800' : diff > 0 ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
+                                  }`}>{diff > 0 ? `+${diff}` : diff}</span>
                                 </td>
                               </tr>
                             );
                           })}
                         </tbody>
+                        <tfoot>
+                          <tr className="bg-gray-100">
+                            <td className="px-4 py-3 font-semibold">Totales</td>
+                            <td className="px-4 py-3 font-semibold text-center">{totals.projected}</td>
+                            <td className="px-4 py-3 font-semibold text-center">{totals.used}</td>
+                            <td className="px-4 py-3 font-semibold text-center">{totals.used - totals.projected}</td>
+                          </tr>
+                        </tfoot>
                       </table>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             ) : (
               <div className="text-center py-8">
@@ -317,6 +394,7 @@ export default function DetailsProjectContainer({ data }: Props) {
               </div>
             )}
           </Field>
+
           <Divider />
 
           <h4 className="text-2xl font-semibold tracking-wide">Seguimientos del proyecto</h4>
@@ -325,9 +403,9 @@ export default function DetailsProjectContainer({ data }: Props) {
             <div className="text-center py-8">
               <p className="text-lg text-[#091540]/70">Cargando seguimientos...</p>
             </div>
-          ) : projectTraces && projectTraces.length > 0 ? (
+          ) : tracesFiltered && tracesFiltered.length > 0 ? (
             <div className="space-y-6">
-              {projectTraces.map((trace) => (
+              {tracesFiltered.map((trace: any) => (
                 <div key={trace.Id} className="border border-gray-300 p-6 space-y-4">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
@@ -337,7 +415,7 @@ export default function DetailsProjectContainer({ data }: Props) {
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold text-[#091540]">
-                        Total gastado: {calculateTraceExpense(trace)} productos utilizados
+                        Total gastado: {trace.ActualExpense?.ProductDetails?.reduce((sum: number, pd: any) => sum + (pd.Quantity || 0), 0) || 0} productos utilizados
                       </p>
                     </div>
                   </div>
@@ -360,19 +438,19 @@ export default function DetailsProjectContainer({ data }: Props) {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200 bg-white">
-                            {trace.ActualExpense.ProductDetails.map((detail, index) => (
+                            {trace.ActualExpense.ProductDetails.map((detail: any, index: number) => (
                               <tr key={detail.Id} className={`${index % 2 === 0 ? 'bg-gray-50/50' : 'bg-white'}`}>
-                                <td className="px-4 py-3 font-medium text-[#091540]">{detail.Product.Name}</td>
-                                <td className="px-4 py-3 text-gray-700">{detail.Product.Type}</td>
+                                <td className="px-4 py-3 font-medium text-[#091540]">{detail.Product?.Name || "—"}</td>
+                                <td className="px-4 py-3 text-gray-700">{detail.Product?.Type || ""}</td>
                                 <td className="px-4 py-3 font-bold text-[#091540] text-center">
                                   <span className="bg-[#091540]/10 px-2 py-1 rounded-full">
                                     {detail.Quantity}
                                   </span>
                                 </td>
-                                <td className="px-4 py-3 text-gray-600 font-medium">{detail.Product.UnitMeasure?.Name || "—"}</td>
+                                <td className="px-4 py-3 text-gray-600 font-medium">{detail.Product?.UnitMeasure?.Name || "—"}</td>
                                 <td className="px-4 py-3">
                                   <span className="inline-block bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
-                                    {detail.Product.Category?.Name || "—"}
+                                    {detail.Product?.Category?.Name || "—"}
                                   </span>
                                 </td>
                               </tr>
@@ -486,9 +564,7 @@ export default function DetailsProjectContainer({ data }: Props) {
                   <button
                     onClick={navigateToProjectFolder}
                     disabled={isGettingFolderLink}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 border-2 border-[#1789FC] text-[#1789FC] rounded-lg hover:bg-[#1789FC] hover:text-white transition-colors font-medium disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed
-                    cursor-pointer
-                    "
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 border-2 border-[#1789FC] text-[#1789FC] rounded-lg hover:bg-[#1789FC] hover:text-white transition-colors font-medium disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {isGettingFolderLink ? (
                       <>
@@ -503,7 +579,6 @@ export default function DetailsProjectContainer({ data }: Props) {
                     )}
                   </button>
                 </div>
-
               </div>
             </div>
           </div>
@@ -514,14 +589,7 @@ export default function DetailsProjectContainer({ data }: Props) {
   );
 }
 
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block space-y-2">
       <span className="text-base font-semibold tracking-wide">{label}</span>

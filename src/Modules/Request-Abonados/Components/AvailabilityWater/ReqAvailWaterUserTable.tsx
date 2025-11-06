@@ -3,7 +3,6 @@ import type { ReqAvailWater } from "../../../Requests/RequestAvailabilityWater/M
 import ReqAvailWaterPager from "../../../Requests/RequestAvailabilityWater/Components/PaginationReqAvailabilityWater/ReqAvailWaterPager";
 import { ReqAvailWaterUserColumns } from "./ReqAvailWaterUserColumns";
 import { useState } from "react";
-import RequestDetailModal from "../Modals/RequestDetailModal";
 import RequestAvailabilityWaterModalAbo from "../Modals/RequesAvailabilityModal";
 
 type Props = {

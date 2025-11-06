@@ -1,7 +1,7 @@
-import { ModalBase } from "../../../../../Components/Modals/ModalBase";
-import { useReqChangeNameFolderLink } from "../../Hooks/RequestChangeNameMeterHooks";
+    import { ModalBase } from "../../../../../Components/Modals/ModalBase";
+    import { useReqChangeNameFolderLink } from "../../Hooks/RequestChangeNameMeterHooks";
 
- 
+    
 
     interface MeterSupervisionDetailModalProps {
     open: boolean;
@@ -76,8 +76,8 @@ import { useReqChangeNameFolderLink } from "../../Hooks/RequestChangeNameMeterHo
     };
 
     const fieldLabels: Record<string, string> = {
-    Id: "ID de Supervisión",
-    Date: "Fecha de Supervisión",
+    Id: "ID de Cambio de Nombre de Medidor",
+    Date: "Fecha de Solicitud",
     MeterNumber: "Número de Medidor",
     Reading: "Lectura del Medidor",
     PreviousReading: "Lectura Anterior",
@@ -89,7 +89,7 @@ import { useReqChangeNameFolderLink } from "../../Hooks/RequestChangeNameMeterHo
     StateRequest: "Estado de la Solicitud",
     SupervisorId: "ID de Supervisor",
     Supervisor: "Supervisor Asignado",
-    User: "Usuario Supervisor",
+    User: "Usuario Solicitante",
     Name: "Nombre",
     Surname1: "Primer Apellido",
     Surname2: "Segundo Apellido",
@@ -106,7 +106,7 @@ import { useReqChangeNameFolderLink } from "../../Hooks/RequestChangeNameMeterHo
     onClose,
     title,
     data,
-    excludeFields = ["Id", "SupervisorId", "CreatedAt", "UpdatedAt", "IsActive"],
+    excludeFields = ["Id", "SupervisorId", "CreatedAt", "UpdatedAt", "IsActive", "RequestAvailabilityWaterFiles", "MeterChangeFiles", "RequestMeterChangeFiles", "RequestChangeNameMeterFile"],
     }: MeterSupervisionDetailModalProps) {
     const { mutate: getFolderLink, isPending } = useReqChangeNameFolderLink();
 
@@ -116,7 +116,7 @@ import { useReqChangeNameFolderLink } from "../../Hooks/RequestChangeNameMeterHo
         
         if (!data.Id) {
         console.error('❌ No hay ID en data');
-        alert("Error: No se encontró el ID de la supervisión");
+        alert("Error: No se encontró el ID de la solicitud de cambio de nombre de medidor");
         return;
         }
         
@@ -240,7 +240,7 @@ import { useReqChangeNameFolderLink } from "../../Hooks/RequestChangeNameMeterHo
         {/* Header */}
         <div className="px-6 py-4 text-[#091540] border-b border-gray-200">
             <h3 className="text-xl font-semibold">{title}</h3>
-            <p className="text-sm opacity-80">Información detallada de la supervisión de medidor</p>
+            <p className="text-sm opacity-80">Información detallada de la solicitud de cambio de nombre de medidor</p>
         </div>
 
         {/* Body */}

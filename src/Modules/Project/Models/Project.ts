@@ -1,3 +1,4 @@
+import type { ProductDetail } from "../../Actual-Expense/Models/ActualExpense";
 import type { ProjectState } from "../../Project_State/Models/ProjectState";
 import type { ProjectTrace } from "../../Project_Trace/Models/ProjectTrace";
 import type { User } from "../../Users/Models/User";
@@ -15,8 +16,24 @@ export interface Project {
   IsActive: boolean;
   ProjectState : ProjectState;
   ProjectProjection : ProjectProjection;
-  ProjectTrace: ProjectTrace;
+  TraceProject: ProjectTrace[];
   User : User;
+  ProjectFiles: Array<{
+    Id: number;
+    Path: string;
+    FileName?: string;
+    MimeType?: string;
+    Size?: string;
+    Rev?: string;
+    UploadedAt?: string;
+  }>;
+
+  TotalActualExpense?: {
+    Id: number;
+    Description: string;
+    ActualExpenseIds?: string[];
+    ProductDetails: ProductDetail[];
+  } | null;
 }
 
 export interface newProject{

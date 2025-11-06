@@ -67,3 +67,49 @@ export function normalizeCreateLegalSupplier(input: CreateLegalSupplierInput) {
     LegalID: onlyDigits(input.LegalID),
   };
 }
+
+export const EditLegalSupplierSchema = z.object({
+  LegalID: z
+    .string()
+    .trim()
+    .refine((v) => v.length === 0 || onlyDigits(v).length === 10, {
+      message: 'La cédula debe tener 10 dígitos (puede escribir con guiones).',
+    })
+    .refine((v) => v.length === 0 || isLegalIdCR(v), {
+      message: 'Cédula jurídica inválida: 10 dígitos y debe iniciar con 3 o 4.',
+    }),
+
+  CompanyName: z
+    .string()
+    .refine((val) => val.length === 0 || val.length >= 2, {
+      message: 'Debe tener al menos 2 caracteres si se proporciona',
+    }),
+
+  Email: z
+    .string()
+    .trim()
+    .refine(
+      (v) => v.length === 0 || z.string().email().safeParse(v).success,
+      'Debe ser un correo electrónico válido.'
+    )
+    .refine((v) => v.length === 0 || v.length <= 254, 'El correo es demasiado largo'),
+
+  PhoneNumber: z
+    .string()
+    .refine((val) => val === '' || isValidPhoneNumber(val), 'Número telefónico inválido'),
+
+  Location: z
+    .string()
+    .trim()
+    .refine((v) => v.length === 0 || v.length >= 10, 'La dirección debe tener al menos 10 caracteres.'),
+
+  WebSite: z
+    .string()
+    .trim()
+    .refine(
+      (v) => v === '' || /^https?:\/\/[^\s]+$/i.test(v) || /^[^\s]+\.[^\s]+$/i.test(v),
+      'Sitio web inválido'
+    ),
+
+  IsActive: z.boolean(),
+});

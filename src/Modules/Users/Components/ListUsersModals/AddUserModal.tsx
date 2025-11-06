@@ -324,12 +324,11 @@ export default function RegisterAbonadosModal() {
                     <>
                     <label className="grid gap-1">
                       
-                      <input
-                        className="w-full px-4 py-2 bg-gray-50 border "
-                        placeholder="Dirección"
-                        type="text"
+                      <textarea
+                        className="w-full px-4 py-2 bg-gray-50 border min-h-[96px] resize-y focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
                         value={field.state.value}
                         onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Dirección del usuario"
                       />
                       {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                         <p className="text-sm text-red-500 mt-1">

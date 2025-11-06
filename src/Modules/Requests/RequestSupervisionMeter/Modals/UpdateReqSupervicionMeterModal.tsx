@@ -33,7 +33,7 @@
     // 🔧 Debug: Ver qué estados se cargaron
     useEffect(() => {
         if (requestStates.length > 0) {
-        console.log("✅ Estados disponibles:", requestStates);
+        console.log(" Estados disponibles:", requestStates);
         }
     }, [requestStates]);
 
@@ -52,7 +52,7 @@
         return;
         }
 
-        console.log("🚀 Enviando actualización con StateRequestId:", Number(stateId));
+        console.log(" Enviando actualización con StateRequestId:", Number(stateId));
 
         try {
         await updateMutation.mutateAsync({
@@ -81,7 +81,6 @@
                 {`${req.User?.Name ?? ""} ${req.User?.Surname1 ?? ""} ${req.User?.Surname2 ?? ""}`.trim() || "-"}
                 </b>
             </p>
-            <p><span className="text-gray-500">NIS: </span><b>{req.NIS ?? "-"}</b></p>
             <p><span className="text-gray-500">Dirección: </span><b>{req.Location ?? "-"}</b></p>
             </div>
 
@@ -104,7 +103,7 @@
                 value={stateId}
                 onChange={(e) => {
                 const newValue = e.target.value;
-                console.log("🔄 Cambio de estado a:", newValue);
+                console.log("Cambio de estado a:", newValue);
                 setStateId(newValue);
                 }}
                 disabled={busy}
@@ -114,7 +113,7 @@
                 // 🔧 Validar que el Id existe y es válido
                 const id = s.Id;
                 if (!id) {
-                    console.warn("⚠️ Estado sin ID válido:", s);
+                    console.warn("Estado sin ID válido:", s);
                     return null;
                 }
                 return (
@@ -125,11 +124,6 @@
                 })}
             </select>
             )}
-
-            {/* 🔧 Debug info (remover en producción) */}
-            <div className="mb-2 text-xs text-gray-500">
-            Debug: Estado seleccionado = "{stateId}"
-            </div>
 
             <div className="mt-2 flex items-center justify-end gap-2">
             <button

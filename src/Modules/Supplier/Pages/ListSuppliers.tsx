@@ -1,10 +1,8 @@
 import { useState, useMemo } from "react";
-import CreateSupplierModal from "../Components/CreateSupplierModal";
 import SupplierTable from "../Components/SupplierTable";
 import { useSearchSuppliers } from "../Hooks/SupplierHooks";
 import type { Supplier } from "../Models/Supplier";
 import SupplierHeaderBar from "../Components/SupplierHeaderBar";
-import CreatePhysicalSupplierModal from "../../PhysicalSupplier/Components/Modals/CreatePhysicalSupplierModal";
 import CreateLegalSupplierModal from "../../LegalSupplier/Components/Modals/CreateLegalSupplierModal";
 
 export default function ListSuppliers() {

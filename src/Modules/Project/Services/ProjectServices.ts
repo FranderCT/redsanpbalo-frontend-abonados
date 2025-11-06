@@ -44,9 +44,9 @@ export async function getProjectById(id: number): Promise<Project> {
   return res.data;
 }
 
-export async function createProject(payload: newProject): Promise<newProject> {
+export async function createProject(payload: newProject): Promise<Project> {
   try{
-    const {data} = await apiAxios.post<Project>(BASE, payload);
+    const {data} = await apiAxios.post<Project>(`${BASE}`, payload);
     return data;
   }catch(err){
     console.log(err);
