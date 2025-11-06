@@ -44,7 +44,8 @@ export const RegisterSchema = z.object({
     ),
 
     Address: z.string()
-    .min(10, "La dirección debe tener al menos 10 caracteres." ),
+    .min(10, "La dirección debe tener al menos 10 caracteres." )
+    .max(400, "La dirección no puede superar 400 caracteres."),
 
     Password: z.string()
     .min(8, 'La contraseña debe tener al menos 8 caracteres')

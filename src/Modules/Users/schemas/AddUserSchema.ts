@@ -6,17 +6,15 @@ export const AddUserSchema = z.object({
     .min(9, "La cédula debe tener al menos 9 dígitos")
     .max(12, "Máximo 12 dígitos"),
 
-    Name: z.string()
-    .min(1, "El nombre es obligatorio")
-    .min(2, "Debe tener al menos 2 caracteres"),
+    Name: z.string().refine(val => val.length === 0 || val.length >= 2, {
+    message: 'Debe tener al menos 2 caracteres si se proporciona',}),
 
-    Surname1: z.string()
-    .min(1, "El primer apellido es obligatorio")
-    .min(2, "Debe tener al menos 2 caracteres"),
+    Surname1: z.string().refine(val => val.length === 0 || val.length >= 2, {
+    message: 'Debe tener al menos 2 caracteres si se proporciona',}),
 
-    Surname2: z.string()
-    .min(1, "El segundo apellido es obligatorio")
-    .min(2, "Debe tener al menos 2 caracteres"),
+    Surname2: z.string().refine(val => val.length === 0 || val.length >= 2, {
+    message: 'Debe tener al menos 2 caracteres si se proporciona',}),
+    
     IsAbonado: z.boolean(),
     Nis: z
     .string()
@@ -47,7 +45,8 @@ export const AddUserSchema = z.object({
     ),
 
     Address: z.string()
-    .min(10, "La dirección debe tener al menos 10 caracteres." ),
+    .min(10, "La dirección debe tener al menos 10 caracteres." )
+    .max(400, "La dirección no puede superar 400 caracteres."),
 
     roleIds: z.array(z.number())
     .min(1, "Debe asignar al menos un rol al usuario"),
