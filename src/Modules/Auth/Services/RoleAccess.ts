@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'ABONADO' | 'GUEST';
+export type Role = 'ADMIN' | 'ABONADO' | 'GUEST' | 'FONTANERO' | 'JUNTA';
 
 export type AccessRule = {
   any?: Role[];   // al menos uno
