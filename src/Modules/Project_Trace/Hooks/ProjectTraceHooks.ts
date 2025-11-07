@@ -8,7 +8,11 @@ export const useCreateProjectTrace = () => {
         mutationKey: ['project-trace'],
         mutationFn: createProjectTrace,
         onSuccess: (res)=>{
+            // Invalidar todas las queries relacionadas con seguimientos y proyectos
             qc.invalidateQueries({queryKey: ['project-trace']});
+            qc.invalidateQueries({queryKey: ['project-traces']});
+            qc.invalidateQueries({queryKey: ['project']});
+            qc.invalidateQueries({queryKey: ['total-actual-expense']});
             console.log(res)
         },
         onError: (err)=>{

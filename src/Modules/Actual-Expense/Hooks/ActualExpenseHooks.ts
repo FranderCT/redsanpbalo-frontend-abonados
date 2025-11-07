@@ -9,7 +9,12 @@ export const useCreateActualExpense = () => {
         mutationKey: ['actual-expense'],
         mutationFn: (newActualExpense: NewActualExpense) => createActualExpense(newActualExpense),
         onSuccess: (res) => {
+            // Invalidar queries relacionadas con gastos y proyectos
             qc.invalidateQueries({ queryKey: ['actual-expense'] });
+            qc.invalidateQueries({ queryKey: ['project-trace'] });
+            qc.invalidateQueries({ queryKey: ['project-traces'] });
+            qc.invalidateQueries({ queryKey: ['project'] });
+            qc.invalidateQueries({ queryKey: ['total-actual-expense'] });
             console.log('Actual Expense created:', res);
             toast.success('Gasto real creado con éxito', { position: "top-right", autoClose: 3000 });
         },
