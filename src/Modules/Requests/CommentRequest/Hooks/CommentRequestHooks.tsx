@@ -16,7 +16,7 @@ import type {
 // Lista
 export const useGetAllCommentRequests = () => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["comment-request"],
+    queryKey: ["comment-request", "all"],
     queryFn: getAllCommentRequests,
     staleTime: 30_000,
   });
@@ -26,7 +26,7 @@ export const useGetAllCommentRequests = () => {
 // Detalle
 export const useGetCommentRequestById = (id?: number) => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["comment-request", id],
+    queryKey: ["comment-request", "detail", id],
     queryFn: () => getCommentRequestById(id as number),
     enabled: typeof id === "number" && id > 0,
   });
@@ -52,8 +52,9 @@ export const useUpdateCommentRequest = () => {
     mutationFn: ({ id, data }) => updateCommentRequest(id, data),
     onSuccess: (res) => {
       console.log("Comentario actualizado", res);
+      // Invalidar lista y detalle específico
       qc.invalidateQueries({ queryKey: ["comment-request"] });
-      qc.invalidateQueries({ queryKey: ["comment-request", res.Id] });
+      qc.invalidateQueries({ queryKey: ["comment-request", "detail", res.Id] });
     },
     onError: (err) => console.error("Error actualizando comentario", err),
   });
@@ -66,6 +67,7 @@ export const useDeleteCommentRequest = () => {
     mutationFn: (id) => deleteCommentRequest(id),
     onSuccess: (res) => {
       console.log("Comentario eliminado", res);
+      // Invalidar todas las queries de comentarios
       qc.invalidateQueries({ queryKey: ["comment-request"] });
     },
     onError: (err) => console.error("Error eliminando comentario", err),
