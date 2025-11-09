@@ -980,10 +980,22 @@ const CreateProject = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (step < steps.length - 1) {
-            handleNext();
-          } else {
-            form.handleSubmit();
+          try {
+            console.debug('[CreateProject] form onSubmit, step=', step);
+            if (step < steps.length - 1) {
+              console.debug('[CreateProject] advancing step', step + 1);
+              handleNext();
+            } else {
+              console.debug('[CreateProject] calling form.handleSubmit()');
+              // form.handleSubmit can throw if validation fails synchronously
+              const res = form.handleSubmit();
+              // If it returns a promise, attach a catch
+              if (res && typeof (res as any).catch === 'function') {
+                (res as any).catch((err: any) => console.error('[CreateProject] handleSubmit rejected', err));
+              }
+            }
+          } catch (err) {
+            console.error('[CreateProject] onSubmit handler error', err);
           }
         }}
         className="flex flex-col gap-6"
