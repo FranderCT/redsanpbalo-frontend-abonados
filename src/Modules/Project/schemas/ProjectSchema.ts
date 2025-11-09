@@ -33,7 +33,10 @@ export const ProjectBase = z.object({
     })
   ),
 
-  UserId: z.number()
+  UserId: z.number(),
+  // Campos usados por el formulario (archivos/subfolder)
+  subfolder: z.string(),
+  files: z.array(z.any()),
 });
 
 // ← Este es el que usas como validador global del formulario

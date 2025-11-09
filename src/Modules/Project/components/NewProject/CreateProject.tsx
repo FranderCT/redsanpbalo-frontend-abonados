@@ -16,6 +16,7 @@ import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
 import { useNavigate } from "@tanstack/react-router";
 import { uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";
+import { ProjectSchema } from "../../schemas/ProjectSchema";
 
 
 
@@ -32,6 +33,23 @@ type ProjectCreatePayload = typeof newProjectInitialState;
 const CreateProject = () => {
   const [step, setStep] = useState(0);
   const navigate = useNavigate();
+
+  // Helper: format a Date|string into yyyy-mm-dd for <input type="date"> without timezone shifts
+  const formatDateForInput = (d?: Date | string | null) => {
+    if (!d) return "";
+    const date = d instanceof Date ? d : new Date(d);
+    // Use local date components to avoid toISOString timezone shift
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+
+  const parseDateFromInput = (value: string) => {
+    if (!value) return null;
+    const [y, m, d] = value.split("-").map((s) => Number(s));
+    return new Date(y, (m || 1) - 1, d || 1);
+  };
 
   const createProjectMutation = useCreateProject();
   const createProjectProjectionMutation = useCreateProjectProjection();
@@ -104,7 +122,7 @@ const CreateProject = () => {
 
   const form = useForm({
     validators:{
-      //onChange:ProjectSchema,
+      onChange:ProjectSchema,
     },
     defaultValues: {
       ...newProjectInitialState,
@@ -118,6 +136,15 @@ const CreateProject = () => {
     },
     onSubmit: async ({ value, formApi }) => {
       try {
+        // Final validation: asegurarse que EndDate >= InnitialDate antes de enviar
+        if (value.InnitialDate && value.EndDate) {
+          const start = value.InnitialDate instanceof Date ? value.InnitialDate : new Date(value.InnitialDate);
+          const end = value.EndDate instanceof Date ? value.EndDate : new Date(value.EndDate);
+          if (end < start) {
+            toast.error('La fecha de fin no puede ser anterior a la fecha de inicio.', { position: 'top-right', autoClose: 3000 });
+            return;
+          }
+        }
         // 1) Proyecto
         const projectPayload: ProjectCreatePayload = {
           Name: value.Name,
@@ -250,25 +277,27 @@ const CreateProject = () => {
                     <input
                       type="date"
                       className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                      value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
+                      name="InnitialDate"
+                      value={formatDateForInput(field.state.value)}
                       onChange={(e) => {
-                        const selectedStartDate = new Date(e.target.value);
-                        field.handleChange(selectedStartDate);
-                        
+                        const selectedStartDate = parseDateFromInput(e.target.value);
+                        if (!selectedStartDate) return;
+                        field.handleChange(selectedStartDate as any);
+
                         // SIEMPRE actualizar la fecha de fin cuando cambie la fecha de inicio
                         const currentEndDate = form.state.values.EndDate;
-                        
+
                         if (currentEndDate) {
-                          const endDate = new Date(currentEndDate);
-                          // Si la fecha de fin es menor O IGUAL, actualizar a la fecha de inicio
-                          if (endDate <= selectedStartDate) {
-                            form.setFieldValue('EndDate', selectedStartDate);
+                          const endDate = currentEndDate instanceof Date ? currentEndDate : new Date(currentEndDate);
+                          // Si la fecha de fin es menor, actualizar a la fecha de inicio
+                          if (endDate < selectedStartDate) {
+                            form.setFieldValue('EndDate', selectedStartDate as any);
                           }
                         } else {
                           // Si no hay fecha de fin, establecer la fecha de inicio como fecha de fin
-                          form.setFieldValue('EndDate', selectedStartDate);
+                          form.setFieldValue('EndDate', selectedStartDate as any);
                         }
-                        
+
                         // Siempre limpiar errores del campo de fecha de fin
                         form.setFieldMeta('EndDate', (prev: any) => ({
                           ...prev,
@@ -290,7 +319,7 @@ const CreateProject = () => {
                 {(field) => {
                   // Obtener la fecha de inicio para validación (se actualiza automáticamente)
                   const startDate = form.state.values.InnitialDate;
-                  const minEndDate = startDate ? new Date(startDate).toISOString().split("T")[0] : "";
+                  const minEndDate = startDate ? formatDateForInput(startDate) : "";
                   
                   return (
                     <label className="flex flex-col gap-1">
@@ -298,13 +327,16 @@ const CreateProject = () => {
                       <input
                         type="date"
                         className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                        value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
+                        name="EndDate"
+                        value={formatDateForInput(field.state.value)}
                         min={minEndDate} // Se actualiza automáticamente cuando cambia startDate
                         onChange={(e) => {
-                          const selectedDate = new Date(e.target.value);
-                          
+                          const selectedDate = parseDateFromInput(e.target.value);
+
+                          if (!selectedDate) return;
+
                           // Validación continua cada vez que se selecciona una fecha
-                          if (startDate && selectedDate < new Date(startDate)) {
+                          if (startDate && selectedDate < (startDate instanceof Date ? startDate : new Date(startDate))) {
                             // Mostrar error si la fecha es menor
                             field.setMeta((prev: any) => ({
                               ...prev,
@@ -314,14 +346,14 @@ const CreateProject = () => {
                             // No actualizar el valor si es inválido
                             return;
                           }
-                          
+
                           // Limpiar errores y actualizar valor si la fecha es válida
                           field.setMeta((prev: any) => ({
                             ...prev,
                             errors: [],
                             isTouched: true
                           }));
-                          field.handleChange(selectedDate);
+                          field.handleChange(selectedDate as any);
                         }}
                         onFocus={() => {
                           // Al hacer focus, asegurar que el min se actualice
