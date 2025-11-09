@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import type { RequestState } from "../../../Requests/StateRequest/Model/RequestState";
 import { useGetAllRequestStates } from "../../../Requests/StateRequest/Hooks/RequestStateHook";
 import { useGetMyReqSupervisionMeterPaginated } from "../../Hooks/Supervision-Meter/SupervionMeterHooks";
 import type { ReqSupervisionMeter } from "../../../Requests/RequestSupervisionMeter/Models/ReqSupervisionMeter";
@@ -28,9 +27,7 @@ export default function ListReqSupervisionMeterUser() {
   };
 
   // Estados disponibles (para el dropdown)
-  const { reqAvailWaterStates = [], reqAvailWaterStatesLoading } = useGetAllRequestStates();
-  const requestStates: RequestState[] = reqAvailWaterStates;
-  const requestStatesLoading: boolean = reqAvailWaterStatesLoading;
+  const { requestStates = [], isPending: requestStatesLoading } = useGetAllRequestStates();
 
   // Backend paginado (mis solicitudes) con filtros
   const { data, isLoading, error } = useGetMyReqSupervisionMeterPaginated({
