@@ -1024,14 +1024,18 @@ const CreateProject = () => {
                 disabled={isSubmitting}
                 onClick={() => {
                   try {
-                    console.debug('[CreateProject] submit button onClick - calling form.handleSubmit()', {
-                      values: (form.state as any).values,
-                      meta: (form.state as any).meta ?? (form.state as any).isSubmitting ?? null,
-                      // errors may be nested in state; include if present
-                      errors: (form.state as any).errors ?? (form.state as any).fieldErrors ?? null,
-                    });
-                    const r = form.handleSubmit();
-                    if (r && typeof (r as any).catch === 'function') (r as any).catch((e: any) => console.error('handleSubmit promise rejected', e));
+                    if (step === steps.length - 1) {
+                      console.debug('[CreateProject] submit button onClick (last step) - calling form.handleSubmit()', {
+                        values: (form.state as any).values,
+                        // errors may be nested in state; include if present
+                        errors: (form.state as any).errors ?? (form.state as any).fieldErrors ?? null,
+                      });
+                      const r = form.handleSubmit();
+                      if (r && typeof (r as any).catch === 'function') (r as any).catch((e: any) => console.error('handleSubmit promise rejected', e));
+                    } else {
+                      // Not last step: let the form onSubmit handler call handleNext -> no direct submit
+                      console.debug('[CreateProject] submit button onClick - not last step, advancing via form onSubmit');
+                    }
                   } catch (e) {
                     console.error('submit button onClick error', e);
                   }
