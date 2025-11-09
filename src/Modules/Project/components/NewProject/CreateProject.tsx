@@ -122,7 +122,8 @@ const CreateProject = () => {
 
   const form = useForm({
     validators:{
-      onChange:ProjectSchema,
+      // ProjectSchema is a Zod schema — cast to any to satisfy the form validator type
+      onChange: ProjectSchema as any,
     },
     defaultValues: {
       ...newProjectInitialState,
@@ -136,6 +137,7 @@ const CreateProject = () => {
     },
     onSubmit: async ({ value, formApi }) => {
       try {
+        console.debug('[CreateProject] useForm.onSubmit called', { value });
         // Final validation: asegurarse que EndDate >= InnitialDate antes de enviar
         if (value.InnitialDate && value.EndDate) {
           const start = value.InnitialDate instanceof Date ? value.InnitialDate : new Date(value.InnitialDate);
@@ -1020,6 +1022,20 @@ const CreateProject = () => {
                 type="submit"
                 className="px-6 py-2 border border-[#091540] bg-[#091540] text-white hover:text-[#f5f5f5] hover:border-[#091540] transition disabled:opacity-60"
                 disabled={isSubmitting}
+                onClick={() => {
+                  try {
+                    console.debug('[CreateProject] submit button onClick - calling form.handleSubmit()', {
+                      values: (form.state as any).values,
+                      meta: (form.state as any).meta ?? (form.state as any).isSubmitting ?? null,
+                      // errors may be nested in state; include if present
+                      errors: (form.state as any).errors ?? (form.state as any).fieldErrors ?? null,
+                    });
+                    const r = form.handleSubmit();
+                    if (r && typeof (r as any).catch === 'function') (r as any).catch((e: any) => console.error('handleSubmit promise rejected', e));
+                  } catch (e) {
+                    console.error('submit button onClick error', e);
+                  }
+                }}
               >
                 {step === steps.length - 1 ? (isSubmitting ? "Creando..." : "Crear Proyecto") : "Siguiente"}
               </button>
