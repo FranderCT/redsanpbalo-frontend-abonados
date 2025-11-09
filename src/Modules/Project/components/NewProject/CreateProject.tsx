@@ -16,7 +16,6 @@ import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
 import { useNavigate } from "@tanstack/react-router";
 import { uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";
-import { ProjectSchema } from "../../schemas/ProjectSchema";
 
 
 
@@ -33,23 +32,6 @@ type ProjectCreatePayload = typeof newProjectInitialState;
 const CreateProject = () => {
   const [step, setStep] = useState(0);
   const navigate = useNavigate();
-
-  // Helper: format a Date|string into yyyy-mm-dd for <input type="date"> without timezone shifts
-  const formatDateForInput = (d?: Date | string | null) => {
-    if (!d) return "";
-    const date = d instanceof Date ? d : new Date(d);
-    // Use local date components to avoid toISOString timezone shift
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
-  };
-
-  const parseDateFromInput = (value: string) => {
-    if (!value) return null;
-    const [y, m, d] = value.split("-").map((s) => Number(s));
-    return new Date(y, (m || 1) - 1, d || 1);
-  };
 
   const createProjectMutation = useCreateProject();
   const createProjectProjectionMutation = useCreateProjectProjection();
@@ -122,8 +104,7 @@ const CreateProject = () => {
 
   const form = useForm({
     validators:{
-      // ProjectSchema is a Zod schema — cast to any to satisfy the form validator type
-      onChange: ProjectSchema as any,
+      //onChange:ProjectSchema,
     },
     defaultValues: {
       ...newProjectInitialState,
@@ -137,16 +118,6 @@ const CreateProject = () => {
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        console.debug('[CreateProject] useForm.onSubmit called', { value });
-        // Final validation: asegurarse que EndDate >= InnitialDate antes de enviar
-        if (value.InnitialDate && value.EndDate) {
-          const start = value.InnitialDate instanceof Date ? value.InnitialDate : new Date(value.InnitialDate);
-          const end = value.EndDate instanceof Date ? value.EndDate : new Date(value.EndDate);
-          if (end < start) {
-            toast.error('La fecha de fin no puede ser anterior a la fecha de inicio.', { position: 'top-right', autoClose: 3000 });
-            return;
-          }
-        }
         // 1) Proyecto
         const projectPayload: ProjectCreatePayload = {
           Name: value.Name,
@@ -279,26 +250,30 @@ const CreateProject = () => {
                     <input
                       type="date"
                       className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                      name="InnitialDate"
-                      value={formatDateForInput(field.state.value)}
+                      value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
                       onChange={(e) => {
-                        const selectedStartDate = parseDateFromInput(e.target.value);
-                        if (!selectedStartDate) return;
-                        field.handleChange(selectedStartDate as any);
-
+                        const selectedStartDate = new Date(e.target.value);
+                        field.handleChange(selectedStartDate);
+                        
                         // SIEMPRE actualizar la fecha de fin cuando cambie la fecha de inicio
                         const currentEndDate = form.state.values.EndDate;
-
+                        
                         if (currentEndDate) {
-                          const endDate = currentEndDate instanceof Date ? currentEndDate : new Date(currentEndDate);
-                          // Si la fecha de fin es menor, actualizar a la fecha de inicio
-                          if (endDate < selectedStartDate) {
-                            form.setFieldValue('EndDate', selectedStartDate as any);
+                          const endDate = new Date(currentEndDate);
+                          // Si la fecha de fin es menor O IGUAL, actualizar a la fecha de inicio
+                          if (endDate <= selectedStartDate) {
+                            form.setFieldValue('EndDate', selectedStartDate);
                           }
                         } else {
                           // Si no hay fecha de fin, establecer la fecha de inicio como fecha de fin
-                          form.setFieldValue('EndDate', selectedStartDate as any);
+                          form.setFieldValue('EndDate', selectedStartDate);
                         }
+                        
+                        // Siempre limpiar errores del campo de fecha de fin
+                        form.setFieldMeta('EndDate', (prev: any) => ({
+                          ...prev,
+                          errors: []
+                        }));
                       }}
                       required
                     />
@@ -315,7 +290,7 @@ const CreateProject = () => {
                 {(field) => {
                   // Obtener la fecha de inicio para validación (se actualiza automáticamente)
                   const startDate = form.state.values.InnitialDate;
-                  const minEndDate = startDate ? formatDateForInput(startDate) : "";
+                  const minEndDate = startDate ? new Date(startDate).toISOString().split("T")[0] : "";
                   
                   return (
                     <label className="flex flex-col gap-1">
@@ -323,16 +298,13 @@ const CreateProject = () => {
                       <input
                         type="date"
                         className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                        name="EndDate"
-                        value={formatDateForInput(field.state.value)}
+                        value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
                         min={minEndDate} // Se actualiza automáticamente cuando cambia startDate
                         onChange={(e) => {
-                          const selectedDate = parseDateFromInput(e.target.value);
-
-                          if (!selectedDate) return;
-
+                          const selectedDate = new Date(e.target.value);
+                          
                           // Validación continua cada vez que se selecciona una fecha
-                          if (startDate && selectedDate < (startDate instanceof Date ? startDate : new Date(startDate))) {
+                          if (startDate && selectedDate < new Date(startDate)) {
                             // Mostrar error si la fecha es menor
                             field.setMeta((prev: any) => ({
                               ...prev,
@@ -342,14 +314,14 @@ const CreateProject = () => {
                             // No actualizar el valor si es inválido
                             return;
                           }
-
+                          
                           // Limpiar errores y actualizar valor si la fecha es válida
                           field.setMeta((prev: any) => ({
                             ...prev,
                             errors: [],
                             isTouched: true
                           }));
-                          field.handleChange(selectedDate as any);
+                          field.handleChange(selectedDate);
                         }}
                         onFocus={() => {
                           // Al hacer focus, asegurar que el min se actualice
@@ -360,6 +332,11 @@ const CreateProject = () => {
                         }}
                         required
                       />
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <p className="text-sm text-red-500 mt-1">
+                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                        </p>
+                      )}
                       {startDate && (
                         <p className="text-xs text-gray-500 mt-1">
                           Fecha mínima permitida: {new Date(startDate).toLocaleDateString('es-ES', {
@@ -980,20 +957,12 @@ const CreateProject = () => {
       </div>
 
       <form
-        onSubmit={async (e) => {
+        onSubmit={(e) => {
           e.preventDefault();
-          try {
-            console.debug('[CreateProject] form onSubmit, step=', step);
-            if (step < steps.length - 1) {
-              console.debug('[CreateProject] advancing step', step + 1);
-              handleNext();
-            } else {
-              console.debug('[CreateProject] awaiting form.handleSubmit()');
-              // Await the form's handleSubmit to ensure submit flow completes before any navigation
-              await form.handleSubmit();
-            }
-          } catch (err) {
-            console.error('[CreateProject] onSubmit handler error', err);
+          if (step < steps.length - 1) {
+            handleNext();
+          } else {
+            form.handleSubmit();
           }
         }}
         className="flex flex-col gap-6"
@@ -1001,7 +970,7 @@ const CreateProject = () => {
         {renderStepFields()}
 
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-          {([, isSubmitting]) => (
+          {([canSubmit, isSubmitting]) => (
             <div className="flex justify-between mt-8">
               {step > 0 ? (
                 <button
@@ -1017,7 +986,7 @@ const CreateProject = () => {
               <button
                 type="submit"
                 className="px-6 py-2 border border-[#091540] bg-[#091540] text-white hover:text-[#f5f5f5] hover:border-[#091540] transition disabled:opacity-60"
-                disabled={isSubmitting}
+                disabled={step === steps.length - 1 ? !canSubmit || isSubmitting : false}
               >
                 {step === steps.length - 1 ? (isSubmitting ? "Creando..." : "Crear Proyecto") : "Siguiente"}
               </button>
