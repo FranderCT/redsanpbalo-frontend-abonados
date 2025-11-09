@@ -11,7 +11,6 @@ import { useGetAllProducts } from "../../../Products/Hooks/ProductsHooks";
 import { useCreateProductDetail } from "../../../Product-Detail/Hooks/ProductDetailHooks";
 import { StepSchemas } from "../../schemas/StepSchema";
 import { z } from "zod";
-import { ProjectSchema } from "../../schemas/ProjectSchema";
 import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
 import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
@@ -108,9 +107,6 @@ const CreateProject = () => {
   };
 
   const form = useForm({
-    validators: {
-      onChange: ProjectSchema as any,
-    },
     defaultValues: {
       ...newProjectInitialState,
       Observation: "",
@@ -337,16 +333,6 @@ const CreateProject = () => {
                         }}
                         required
                       />
-                      {startDate && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          Fecha mínima permitida: {new Date(startDate).toLocaleDateString('es-ES', {
-                            weekday: 'short',
-                            year: 'numeric', 
-                            month: 'short', 
-                            day: 'numeric'
-                          })}
-                        </p>
-                      )}
                     </label>
                   );
                 }}
