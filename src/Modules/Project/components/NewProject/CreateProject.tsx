@@ -980,7 +980,7 @@ const CreateProject = () => {
       </div>
 
       <form
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           try {
             console.debug('[CreateProject] form onSubmit, step=', step);
@@ -988,13 +988,9 @@ const CreateProject = () => {
               console.debug('[CreateProject] advancing step', step + 1);
               handleNext();
             } else {
-              console.debug('[CreateProject] calling form.handleSubmit()');
-              // form.handleSubmit can throw if validation fails synchronously
-              const res = form.handleSubmit();
-              // If it returns a promise, attach a catch
-              if (res && typeof (res as any).catch === 'function') {
-                (res as any).catch((err: any) => console.error('[CreateProject] handleSubmit rejected', err));
-              }
+              console.debug('[CreateProject] awaiting form.handleSubmit()');
+              // Await the form's handleSubmit to ensure submit flow completes before any navigation
+              await form.handleSubmit();
             }
           } catch (err) {
             console.error('[CreateProject] onSubmit handler error', err);
@@ -1022,24 +1018,6 @@ const CreateProject = () => {
                 type="submit"
                 className="px-6 py-2 border border-[#091540] bg-[#091540] text-white hover:text-[#f5f5f5] hover:border-[#091540] transition disabled:opacity-60"
                 disabled={isSubmitting}
-                onClick={() => {
-                  try {
-                    if (step === steps.length - 1) {
-                      console.debug('[CreateProject] submit button onClick (last step) - calling form.handleSubmit()', {
-                        values: (form.state as any).values,
-                        // errors may be nested in state; include if present
-                        errors: (form.state as any).errors ?? (form.state as any).fieldErrors ?? null,
-                      });
-                      const r = form.handleSubmit();
-                      if (r && typeof (r as any).catch === 'function') (r as any).catch((e: any) => console.error('handleSubmit promise rejected', e));
-                    } else {
-                      // Not last step: let the form onSubmit handler call handleNext -> no direct submit
-                      console.debug('[CreateProject] submit button onClick - not last step, advancing via form onSubmit');
-                    }
-                  } catch (e) {
-                    console.error('submit button onClick error', e);
-                  }
-                }}
               >
                 {step === steps.length - 1 ? (isSubmitting ? "Creando..." : "Crear Proyecto") : "Siguiente"}
               </button>
