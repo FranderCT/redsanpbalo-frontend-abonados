@@ -77,8 +77,8 @@ export const useUpdateReqSupervisionMeter = () => {
     mutationFn: ({ id, data }) => updateReqSupervisionMeter(id, data),
     onSuccess: (res) => {
       console.log("Supervisión actualizada", res);
-      qc.invalidateQueries({ queryKey: ["requestsupervision-meter"] });
-      qc.invalidateQueries({ queryKey: ["requestsupervision-meter", res.Id] });
+      qc.invalidateQueries({ queryKey: ["request-supervision-meter"] });
+      qc.invalidateQueries({ queryKey: ["request-supervision-meter", "detail", res.Id] });
     },
     onError: (err) => console.error("Error actualizando supervisión", err),
   });
@@ -91,7 +91,7 @@ export const useDeleteReqSupervisionMeter = () => {
     mutationFn: (id) => deleteReqSupervisionMeter(id),
     onSuccess: (res) => {
       console.log("Supervisión eliminada", res);
-      qc.invalidateQueries({ queryKey: ["requestsupervision-meter"] });
+      qc.invalidateQueries({ queryKey: ["request-supervision-meter"] });
     },
     onError: (err) => console.error("Error eliminando supervisión", err),
   });
@@ -100,9 +100,11 @@ export const useDeleteReqSupervisionMeter = () => {
 // Obtener todos los estados de solicitud
 export const useGetAllRequestStates = () => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["request-states"],
+    queryKey: ["request-states", "all"],
     queryFn: () => getAllRequestStates(),
-    staleTime: 30_000,
+    staleTime: 5 * 60 * 1000, // 5 minutos - datos estáticos
+    gcTime: 30 * 60 * 1000, // 30 minutos
+    refetchOnWindowFocus: false,
   });
   return { requestStates: data ?? [], isPending, error };
 }
