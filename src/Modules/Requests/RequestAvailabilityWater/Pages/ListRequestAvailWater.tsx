@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import type { RequestState } from "../../StateRequest/Model/RequestState";
 import { useGetAllRequestStates } from "../../StateRequest/Hooks/RequestStateHook";
 import { useSearchReqAvailWater } from "../Hooks/ReqAvailWaterHooks";
 import type { ReqAvailWater } from "../Models/ReqAvailWater";
@@ -52,13 +51,8 @@ export default function ListReqAvailWater() {
     setPage(1);
   };
 
-  // Estados disponibles (para el dropdown)
-  const {
-    reqAvailWaterStates = [],
-    reqAvailWaterStatesLoading,
-  } = useGetAllRequestStates();
-  const requestStates: RequestState[] = reqAvailWaterStates;
-  const requestStatesLoading: boolean = reqAvailWaterStatesLoading;
+  // Estados disponibles
+  const { requestStates = [], isPending: requestStatesLoading } = useGetAllRequestStates();
 
   const params = useMemo(
     () => ({ page, limit, Justification, State:
