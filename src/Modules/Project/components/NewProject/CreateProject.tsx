@@ -358,11 +358,6 @@ const CreateProject = () => {
                         }}
                         required
                       />
-                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                        </p>
-                      )}
                       {startDate && (
                         <p className="text-xs text-gray-500 mt-1">
                           Fecha mínima permitida: {new Date(startDate).toLocaleDateString('es-ES', {
