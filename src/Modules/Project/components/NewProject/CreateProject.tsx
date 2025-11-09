@@ -9,6 +9,9 @@ import { useCreateProjectProjection } from "../../Project-projection/Hooks/Proje
 import {  type NewProductDetail } from "../../../Product-Detail/Models/ProductDetail";
 import { useGetAllProducts } from "../../../Products/Hooks/ProductsHooks";
 import { useCreateProductDetail } from "../../../Product-Detail/Hooks/ProductDetailHooks";
+import { StepSchemas } from "../../schemas/StepSchema";
+import { z } from "zod";
+import { ProjectSchema } from "../../schemas/ProjectSchema";
 import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
 import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
@@ -74,94 +77,39 @@ const CreateProject = () => {
       }, 100);
     };
   
-  // Validación manual campo por campo
-  const validateStep = (currentStep: number): { valid: boolean; errors: string[] } => {
-    const values = form.state.values;
-    const errors: string[] = [];
-
-    switch (currentStep) {
-      case 0: // Datos Básicos
-        if (!values.Name || values.Name.trim().length < 3 || values.Name.trim().length > 400) {
-          errors.push("El nombre debe tener entre 3 y 400 caracteres");
-        }
-        if (!values.Location || values.Location.trim().length < 5 || values.Location.trim().length > 400) {
-          errors.push("La ubicación debe tener entre 5 y 400 caracteres");
-        }
-        if (!values.InnitialDate) {
-          errors.push("La fecha de inicio es requerida");
-        }
-        if (!values.EndDate) {
-          errors.push("La fecha de fin es requerida");
-        }
-        if (values.InnitialDate && values.EndDate) {
-          const start = new Date(values.InnitialDate);
-          const end = new Date(values.EndDate);
-          if (end < start) {
-            errors.push("La fecha de fin no puede ser anterior a la fecha de inicio");
-          }
-        }
-        break;
-
-      case 1: // Detalles
-        if (!values.Objective || values.Objective.trim().length < 5 || values.Objective.trim().length > 400) {
-          errors.push("El objetivo debe tener entre 5 y 400 caracteres");
-        }
-        if (!values.Description || values.Description.trim().length < 10 || values.Description.trim().length > 2000) {
-          errors.push("La descripción debe tener entre 10 y 2000 caracteres");
-        }
-        if (!values.ProjectStateId || values.ProjectStateId <= 0) {
-          errors.push("Debes seleccionar un estado de proyecto");
-        }
-        if (!values.UserId || values.UserId <= 0) {
-          errors.push("Debes seleccionar un usuario responsable");
-        }
-        if (values.Observation && values.Observation.trim().length > 500) {
-          errors.push("La observación no debe exceder 500 caracteres");
-        }
-        break;
-
-      case 2: // Proyección
-        if (values.projection?.Observation && values.projection.Observation.trim().length > 500) {
-          errors.push("La observación de proyección no debe exceder 500 caracteres");
-        }
-        if (!values.productDetails || values.productDetails.length === 0) {
-          errors.push("Debes agregar al menos un producto");
-        } else {
-          values.productDetails.forEach((detail, idx) => {
-            if (!detail.ProductId || detail.ProductId <= 0) {
-              errors.push(`Producto #${idx + 1}: debes seleccionar un producto válido`);
-            }
-            if (!detail.Quantity || detail.Quantity <= 0) {
-              errors.push(`Producto #${idx + 1}: la cantidad debe ser mayor a 0`);
-            }
-          });
-        }
-        break;
-
-      case 3: // Documentos (opcional)
-      case 4: // Confirmación
-        // Sin validación estricta
-        break;
-    }
-
-    return { valid: errors.length === 0, errors };
-  };
-
-  // Función para avanzar al siguiente paso
+  // Validación con Zod por pasos
   const handleNext = () => {
-    const validation = validateStep(step);
+    const schema = StepSchemas[step];
     
-    if (!validation.valid) {
-      validation.errors.forEach(error => toast.error(error));
+    // Paso sin validación (confirmación, documentos)
+    if (schema instanceof z.ZodAny) {
+      setStep(step + 1);
       return;
     }
 
+    const res = schema.safeParse(form.state.values);
+    if (!res.success) {
+      // Marcar campos con error como "touched" para mostrar mensajes
+      res.error.issues.forEach((issue) => {
+        const path = issue.path.join(".");
+        if (path) {
+          form.setFieldMeta(path as any, (m: any) => ({ ...m, isTouched: true }));
+        }
+      });
+      
+      // Mostrar primer error
+      const firstError = res.error.issues[0];
+      toast.error(firstError.message || "Completa los campos requeridos");
+      return;
+    }
+
+    // Validación exitosa, avanzar
     setStep(step + 1);
   };
 
   const form = useForm({
-    validators:{
-      //onChange:ProjectSchema,
+    validators: {
+      onChange: ProjectSchema as any,
     },
     defaultValues: {
       ...newProjectInitialState,
@@ -175,15 +123,6 @@ const CreateProject = () => {
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        // Validar que todos los pasos estén completos antes de enviar
-        for (let i = 0; i < 3; i++) { // Validar pasos 0, 1 y 2 (los críticos)
-          const validation = validateStep(i);
-          if (!validation.valid) {
-            validation.errors.forEach(error => toast.error(error));
-            return; // Detener el envío si hay errores
-          }
-        }
-
         // 1) Proyecto
         const projectPayload: ProjectCreatePayload = {
           Name: value.Name,
@@ -398,11 +337,6 @@ const CreateProject = () => {
                         }}
                         required
                       />
-                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                        </p>
-                      )}
                       {startDate && (
                         <p className="text-xs text-gray-500 mt-1">
                           Fecha mínima permitida: {new Date(startDate).toLocaleDateString('es-ES', {
