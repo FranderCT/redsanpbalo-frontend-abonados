@@ -297,12 +297,6 @@ const CreateProject = () => {
                           // Si no hay fecha de fin, establecer la fecha de inicio como fecha de fin
                           form.setFieldValue('EndDate', selectedStartDate as any);
                         }
-
-                        // Siempre limpiar errores del campo de fecha de fin
-                        form.setFieldMeta('EndDate', (prev: any) => ({
-                          ...prev,
-                          errors: []
-                        }));
                       }}
                       required
                     />
@@ -1002,7 +996,7 @@ const CreateProject = () => {
         {renderStepFields()}
 
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-          {([canSubmit, isSubmitting]) => (
+          {([, isSubmitting]) => (
             <div className="flex justify-between mt-8">
               {step > 0 ? (
                 <button
@@ -1018,7 +1012,7 @@ const CreateProject = () => {
               <button
                 type="submit"
                 className="px-6 py-2 border border-[#091540] bg-[#091540] text-white hover:text-[#f5f5f5] hover:border-[#091540] transition disabled:opacity-60"
-                disabled={step === steps.length - 1 ? !canSubmit || isSubmitting : false}
+                disabled={isSubmitting}
               >
                 {step === steps.length - 1 ? (isSubmitting ? "Creando..." : "Crear Proyecto") : "Siguiente"}
               </button>
