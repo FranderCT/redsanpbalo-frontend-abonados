@@ -8,7 +8,7 @@ import type { newReqSupervisionMeter, ReqSupervisionMeter, ReqSupervisionMeterPa
 // Listado simple
 export const useGetAllReqSupervisionMeter = () => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["requestsupervision-meter"],
+    queryKey: ["request-supervision-meter", "all"],
     queryFn: getAllReqSupervisionMeter,
     staleTime: 30_000,
   });
@@ -28,7 +28,7 @@ export const useSearchReqSupervisionMeter = (params: ReqSupervisionMeterPaginati
 
   const query = useQuery<PaginatedResponse<ReqSupervisionMeter>, Error>({
     queryKey: [
-      "requestsupervision-meter",
+      "request-supervision-meter",
       "search",
       page,
       limit,
@@ -49,7 +49,7 @@ export const useSearchReqSupervisionMeter = (params: ReqSupervisionMeterPaginati
 // Detalle por ID
 export const useGetReqSupervisionMeterById = (id?: number) => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["requestsupervision-meter", id],
+    queryKey: ["request-supervision-meter", "detail", id],
     queryFn: () => getReqSupervisionMeterById(id as number),
     enabled: typeof id === "number" && id > 0,
   });
@@ -63,7 +63,8 @@ export const useCreateReqSupervisionMeter = () => {
     mutationFn: createReqSupervisionMeter,
     onSuccess: (res) => {
       console.log("Supervisión creada", res);
-      qc.invalidateQueries({ queryKey: ["requestsupervision-meter"] });
+      // Invalidar todas las queries relacionadas
+      qc.invalidateQueries({ queryKey: ["request-supervision-meter"] });
     },
     onError: (err) => console.error("Error creando supervisión", err),
   });
