@@ -8,7 +8,7 @@ import { useEffect } from "react";
 // Obtener todos
 export const useGetAllReqAvailWater = () => {
   const { data: reqavailwater, isPending, error } = useQuery({
-    queryKey: ["reqavailwater"],
+    queryKey: ["request-availability-water", "all"],
     queryFn: getAllReqAvailWater,
   });
   return { reqavailwater, isPending, error };
@@ -36,7 +36,8 @@ export const useSearchReqAvailWater = (params: ReqAvailWaterPaginationParams) =>
   const query = useQuery<PaginatedResponse<ReqAvailWater>, Error>({
   
     queryKey: [
-      "reqavailwater", "search",
+      "request-availability-water",
+      "search",
       page,
       limit,
       UserName ?? "",
@@ -74,7 +75,7 @@ export const useSearchReqAvailWater = (params: ReqAvailWaterPaginationParams) =>
 // Obtener por ID
 export const useGetReqAvailWaterById = (id?: number) => {
   const { data: reqavailwater, isPending, error } = useQuery({
-    queryKey: ["reqavailwater", id],
+    queryKey: ["request-availability-water", "detail", id],
     queryFn: () => getReqAvailWaterById(id as number),
     enabled: typeof id === "number" && id > 0,
   });
@@ -88,7 +89,8 @@ export const useCreateReqAvailWater = () => {
       mutationFn: createReqAvailWater,
       onSuccess: (res) =>{
           console.log('Solicitud creada correctamente',res)
-          qc.invalidateQueries({queryKey: ['reqavailwater']})
+          // Invalidar todas las queries relacionadas
+          qc.invalidateQueries({queryKey: ['request-availability-water']})
       },
       onError: (err) =>{
           console.error('Error al crear', err)
@@ -105,8 +107,9 @@ export const useUpdateAvailabilityWater = () => {
     mutationFn: ({ id, data }) =>UpdateReqAvailWater(id, data),
     onSuccess: (res) => {
       console.log("Estado de solicitud actualizada", res);
-      qc.invalidateQueries({ queryKey: ["reqavailwater"] });
-      qc.invalidateQueries({ queryKey: ["reqavailwater", res.Id] });
+      // Invalidar lista general, búsquedas y detalle específico
+      qc.invalidateQueries({ queryKey: ["request-availability-water"] });
+      qc.invalidateQueries({ queryKey: ["request-availability-water", "detail", res.Id] });
     },
     onError: (err) => console.error("Error actualizando solicitud", err),
   });
@@ -118,7 +121,8 @@ export const useDeleteReqAvailWater = () => {
   return useMutation({
     mutationFn: (id: number) => deleteReqAvailWater(id),
     onSuccess: (res) => {
-      qc.invalidateQueries({ queryKey: ["reqavailwater"] });
+      // Invalidar todas las queries relacionadas
+      qc.invalidateQueries({ queryKey: ["request-availability-water"] });
       console.log("Solicitud inhabilitada", res);
     },
     onError: (err)=>{
@@ -130,9 +134,11 @@ export const useDeleteReqAvailWater = () => {
 // Obtener todos los estados de solicitud
 export const useGetAllRequestStates = () => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["request-states"],
+    queryKey: ["request-states", "all"],
     queryFn: () => getAllRequestStates(),
-    staleTime: 30_000,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos
+    refetchOnWindowFocus: false,
   });
   return { requestStates: data ?? [], isPending, error };
 }

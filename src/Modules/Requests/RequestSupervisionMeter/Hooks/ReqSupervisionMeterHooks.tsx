@@ -8,7 +8,7 @@ import type { newReqSupervisionMeter, ReqSupervisionMeter, ReqSupervisionMeterPa
 // Listado simple
 export const useGetAllReqSupervisionMeter = () => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["requestsupervision-meter"],
+    queryKey: ["request-supervision-meter", "all"],
     queryFn: getAllReqSupervisionMeter,
     staleTime: 30_000,
   });
@@ -28,7 +28,7 @@ export const useSearchReqSupervisionMeter = (params: ReqSupervisionMeterPaginati
 
   const query = useQuery<PaginatedResponse<ReqSupervisionMeter>, Error>({
     queryKey: [
-      "requestsupervision-meter",
+      "request-supervision-meter",
       "search",
       page,
       limit,
@@ -49,7 +49,7 @@ export const useSearchReqSupervisionMeter = (params: ReqSupervisionMeterPaginati
 // Detalle por ID
 export const useGetReqSupervisionMeterById = (id?: number) => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["requestsupervision-meter", id],
+    queryKey: ["request-supervision-meter", "detail", id],
     queryFn: () => getReqSupervisionMeterById(id as number),
     enabled: typeof id === "number" && id > 0,
   });
@@ -63,7 +63,8 @@ export const useCreateReqSupervisionMeter = () => {
     mutationFn: createReqSupervisionMeter,
     onSuccess: (res) => {
       console.log("Supervisión creada", res);
-      qc.invalidateQueries({ queryKey: ["requestsupervision-meter"] });
+      // Invalidar todas las queries relacionadas
+      qc.invalidateQueries({ queryKey: ["request-supervision-meter"] });
     },
     onError: (err) => console.error("Error creando supervisión", err),
   });
@@ -76,8 +77,8 @@ export const useUpdateReqSupervisionMeter = () => {
     mutationFn: ({ id, data }) => updateReqSupervisionMeter(id, data),
     onSuccess: (res) => {
       console.log("Supervisión actualizada", res);
-      qc.invalidateQueries({ queryKey: ["requestsupervision-meter"] });
-      qc.invalidateQueries({ queryKey: ["requestsupervision-meter", res.Id] });
+      qc.invalidateQueries({ queryKey: ["request-supervision-meter"] });
+      qc.invalidateQueries({ queryKey: ["request-supervision-meter", "detail", res.Id] });
     },
     onError: (err) => console.error("Error actualizando supervisión", err),
   });
@@ -90,7 +91,7 @@ export const useDeleteReqSupervisionMeter = () => {
     mutationFn: (id) => deleteReqSupervisionMeter(id),
     onSuccess: (res) => {
       console.log("Supervisión eliminada", res);
-      qc.invalidateQueries({ queryKey: ["requestsupervision-meter"] });
+      qc.invalidateQueries({ queryKey: ["request-supervision-meter"] });
     },
     onError: (err) => console.error("Error eliminando supervisión", err),
   });
@@ -99,9 +100,11 @@ export const useDeleteReqSupervisionMeter = () => {
 // Obtener todos los estados de solicitud
 export const useGetAllRequestStates = () => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["request-states"],
+    queryKey: ["request-states", "all"],
     queryFn: () => getAllRequestStates(),
-    staleTime: 30_000,
+    staleTime: 5 * 60 * 1000, // 5 minutos - datos estáticos
+    gcTime: 30 * 60 * 1000, // 30 minutos
+    refetchOnWindowFocus: false,
   });
   return { requestStates: data ?? [], isPending, error };
 }

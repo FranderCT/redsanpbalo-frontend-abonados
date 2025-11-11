@@ -13,7 +13,7 @@ import { createReqChangeNameMeter, deleteReqChangeNameMeter, getAllReqChangeName
 // Listado simple
 export const useGetAllReqChangeNameMeter = () => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["request-change-name-meter"],
+    queryKey: ["request-change-name-meter", "all"],
     queryFn: getAllReqChangeNameMeter,
     staleTime: 30_000,
   });
@@ -46,7 +46,7 @@ export const useSearchReqChangeNameMeter = (params: ReqChangeNameMeterPagination
 // Detalle por ID
 export const useGetReqChangeNameMeterById = (id?: number) => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["request-change-name-meter", id],
+    queryKey: ["request-change-name-meter", "detail", id],
     queryFn: () => getReqChangeNameMeterById(id as number),
     enabled: typeof id === "number" && id > 0,
   });
@@ -73,8 +73,9 @@ export const useUpdateReqChangeNameMeter = () => {
     mutationFn: ({ id, data }) => updateReqChangeNameMeter(id, data),
     onSuccess: (res) => {
       console.log("Cambio de nombre de medidor actualizado", res);
+      // Invalidar lista, búsquedas y detalle
       qc.invalidateQueries({ queryKey: ["request-change-name-meter"] });
-      qc.invalidateQueries({ queryKey: ["request-change-name-meter", res.Id] });
+      qc.invalidateQueries({ queryKey: ["request-change-name-meter", "detail", res.Id] });
     },
     onError: (err) => console.error("Error actualizando cambio de nombre de medidor", err),
   });
@@ -87,18 +88,21 @@ export const useDeleteReqChangeNameMeter = () => {
     mutationFn: (id) => deleteReqChangeNameMeter(id),
     onSuccess: (res) => {
       console.log("Cambio de nombre de medidor eliminado", res);
+      // Invalidar todas las queries relacionadas
       qc.invalidateQueries({ queryKey: ["request-change-name-meter"] });
     },
     onError: (err) => console.error("Error eliminando cambio de nombre de medidor", err),
   });
 };
 
-// Obtener todos los estados de solicitud
+// Obtener todos los estados de solicitud - Usar el hook centralizado del módulo StateRequest
 export const useGetAllRequestStates = () => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["request-states"],
+    queryKey: ["request-states", "all"],
     queryFn: () => getAllRequestStates(),
-    staleTime: 30_000,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos
+    refetchOnWindowFocus: false,
   });
   return { requestStates: data ?? [], isPending, error };
 }

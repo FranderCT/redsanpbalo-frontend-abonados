@@ -66,7 +66,7 @@ useEffect(() => {
 
       {/* Navegación con scroll + scrollbar estilizado */}
       <nav className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-        <Can rule={{ any: ["ADMIN","ABONADO", "GUEST"] }}>
+        <Can rule={{ any: ["ADMIN","ABONADO", "GUEST", "JUNTA", "FONTANERO"] }}>
           <button
             onClick={() => navigate({ to: "/dashboard" })}
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
@@ -120,7 +120,7 @@ useEffect(() => {
           />
         </Can>
 
-        <Can rule={{ any: ["ADMIN"] }}>
+        <Can rule={{ any: ["ADMIN", "JUNTA"] }}>
           <SidebarDropdown
             icon={<FileText className="size-[20px] transition-colors group-hover:text-white" />}
             label="Solicitudes"
@@ -134,7 +134,7 @@ useEffect(() => {
           />
         </Can>
 
-        <Can rule={{ all: ["ADMIN"] }}>
+        <Can rule={{ any: ["ADMIN", "JUNTA"] }}>
           <button
             onClick={() => navigate({ to: "/dashboard/users" })}
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
@@ -165,7 +165,7 @@ useEffect(() => {
           </button>
         </Can>
 
-        <Can rule={{ any: ["ADMIN"] }}>
+        <Can rule={{ none: ["GUEST", "ABONADO", "JUNTA"] }}>
           <button 
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
             onClick={() => navigate({ to: "/dashboard/reports" })}
@@ -175,7 +175,7 @@ useEffect(() => {
           </button>
         </Can>
 
-        <Can rule={{ all: ["ADMIN"] }}>
+        <Can rule={{ any: ["ADMIN", "JUNTA"] }}>
           <button 
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
             onClick={() => navigate({ to: "/dashboard/projects" })}
@@ -185,7 +185,7 @@ useEffect(() => {
           </button>
         </Can>
 
-        <Can rule={{ all: ["ADMIN"] }}>
+        <Can rule={{ any: ["ADMIN", "JUNTA"] }}>
           <button 
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
             onClick={() => navigate({ to: "/dashboard/comments" })}

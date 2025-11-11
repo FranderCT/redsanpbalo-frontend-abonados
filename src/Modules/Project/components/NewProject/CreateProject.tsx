@@ -10,7 +10,7 @@ import {  type NewProductDetail } from "../../../Product-Detail/Models/ProductDe
 import { useGetAllProducts } from "../../../Products/Hooks/ProductsHooks";
 import { useCreateProductDetail } from "../../../Product-Detail/Hooks/ProductDetailHooks";
 import { StepSchemas } from "../../schemas/StepSchema";
-import z from "zod";
+import { z } from "zod";
 import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
 import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
@@ -76,10 +76,11 @@ const CreateProject = () => {
       }, 100);
     };
   
-  //Funcion para validar que se cumplan los campos requeridos para poder pasar al siguiente
+  // Validación con Zod por pasos
   const handleNext = () => {
     const schema = StepSchemas[step];
-    // Paso sin validación extra (confirmación)
+    
+    // Paso sin validación (confirmación, documentos)
     if (schema instanceof z.ZodAny) {
       setStep(step + 1);
       return;
@@ -87,25 +88,25 @@ const CreateProject = () => {
 
     const res = schema.safeParse(form.state.values);
     if (!res.success) {
-      // Marca como "touched" los campos con error del paso, para que se muestren mensajes
-      res.error.issues.forEach((iss) => {
-        const path = iss.path.join("."); // ej: "projection.Observation"
+      // Marcar campos con error como "touched" para mostrar mensajes
+      res.error.issues.forEach((issue) => {
+        const path = issue.path.join(".");
         if (path) {
           form.setFieldMeta(path as any, (m: any) => ({ ...m, isTouched: true }));
         }
       });
-      toast.error("Completa los campos requeridos");
+      
+      // Mostrar primer error
+      const firstError = res.error.issues[0];
+      toast.error(firstError.message || "Completa los campos requeridos");
       return;
     }
 
-    //válido → avanza
+    // Validación exitosa, avanzar
     setStep(step + 1);
   };
 
   const form = useForm({
-    validators:{
-      //onChange:ProjectSchema,
-    },
     defaultValues: {
       ...newProjectInitialState,
       Observation: "",
@@ -332,21 +333,6 @@ const CreateProject = () => {
                         }}
                         required
                       />
-                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                          {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                        </p>
-                      )}
-                      {startDate && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          Fecha mínima permitida: {new Date(startDate).toLocaleDateString('es-ES', {
-                            weekday: 'short',
-                            year: 'numeric', 
-                            month: 'short', 
-                            day: 'numeric'
-                          })}
-                        </p>
-                      )}
                     </label>
                   );
                 }}
