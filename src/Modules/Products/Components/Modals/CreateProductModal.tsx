@@ -8,6 +8,7 @@ import { useGetAllUnitsMeasure } from "../../../UnitMeasure/Hooks/UnitMeasureHoo
 import { useGetAllMaterials } from "../../../Materials/Hooks/MaterialHooks";
 import { useGetAllLegalSuppliers } from "../../../LegalSupplier/Hooks/LegalSupplierHooks";
 import { useGetAllPhysicalSuppliers } from "../../../PhysicalSupplier/Hooks/PhysicalSupplierHooks";
+import { ProductSchema } from "../../schemas/ProductSchema";
 
 export type SupplierType = "legal" | "physical";
 
@@ -50,6 +51,9 @@ export default function CreateProductModal() {
       UnitMeasureId: 0,
       LegalSupplierId: 0,
       PhysicalSupplierId: 0,
+    },
+    validators: {
+       onChange: ProductSchema, // Esquema de validación
     },
     onSubmit: async ({ value }) => {
       const hasLegal = Number(value.LegalSupplierId) > 0;
@@ -115,17 +119,19 @@ export default function CreateProductModal() {
       <ModalBase
         open={open}
         onClose={handleClose}
-        panelClassName="w-full max-w-xl !p-0 overflow-hidden shadow-2xl max-h-[90vh] flex flex-col"
+        panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]"
         >
         {/* Header */}
-        <div className="px-6 py-5 text-[#091540]">
-          <h3 className="text-xl font-bold">Crear Producto</h3>
-          <p className="text-sm opacity-90">Complete los campos requeridos</p>
+        <div className="flex-shrink-0 flex flex-col">
+          <h3 className="text-2xl text-[#091540] font-bold">Crear Producto</h3>
+          <p className="text-md">Complete los campos requeridos</p>
         </div>
-    
+
+        <div className="border-b border-[#222]/10"></div>
+
         {/* Body */}
-        <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden px-6 py-4">
           <form
+            id="create-product-form"
             onSubmit={(e) => {
               e.preventDefault();
               form.handleSubmit();
@@ -360,29 +366,28 @@ export default function CreateProductModal() {
                 )}
               </form.Field>
             )}
-
-            {/* Footer (deshabilitar submit hasta que haya proveedor válido) */}
-            <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
-              {([canSubmit, isSubmitting]) => (
-                <div className="mt-4 flex justify-end gap-2">
-                  <button
-                    type="submit"
-                    className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
-                    disabled={!canSubmit}
-                  >
-                    {isSubmitting ? "Registrando…" : "Registrar"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="h-10 px-4 bg-gray-200 hover:bg-gray-300">
-                    Cancelar
-                  </button>
-                </div>
-              )}
-            </form.Subscribe>
           </form>
-        </div>
+          {/* Footer (deshabilitar submit hasta que haya proveedor válido) */}
+          <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+            {([canSubmit, isSubmitting]) => (
+              <div className="flex-shrink-0 mt-4 flex justify-end gap-2 border-t border-gray-200 pt-3">
+                <button
+                  form="create-product-form"
+                  type="submit"
+                  className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
+                  disabled={!canSubmit}
+                >
+                  {isSubmitting ? "Registrando…" : "Registrar"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="h-10 px-4 bg-gray-200 hover:bg-gray-300">
+                  Cancelar
+                </button>
+              </div>
+            )}
+          </form.Subscribe>
       </ModalBase>
     </>
   );

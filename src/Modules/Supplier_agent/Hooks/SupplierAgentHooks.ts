@@ -3,16 +3,18 @@ import { toast } from "react-toastify";
 import { createAgentSupplier, deleteAgentSupplier, editAgentSupplier } from "../Services/SupplierAgentServices";
 import type { AgentSupppliers, newAgentSupppliers } from "../Models/SupplierAgent";
 
-const BASE_KEY = 'agent-suppplier';
+const BASE_KEY = 'agent-supplier';
 
 export const useCreateAgentSupplier = () =>{
     const qc = useQueryClient();
     const mutation = useMutation({
-        mutationKey: ['agent-suppplier'],
+        mutationKey: [BASE_KEY],
         mutationFn: createAgentSupplier,
         onSuccess: (res) => {
             console.log(res);
-            qc.invalidateQueries({queryKey: [`${BASE_KEY}`]});
+            qc.invalidateQueries({ queryKey: [BASE_KEY] });
+            qc.invalidateQueries({ queryKey: ['legal-supplier', 'agent-supplier'] });
+            qc.invalidateQueries({ queryKey: ['legal-supplier'] });
             toast.success('Agente creado con éxito', {autoClose: 3000, position: 'top-right'});
         },
         onError: (err) =>{
@@ -29,8 +31,10 @@ export const useEditAgentSupplier= () =>{
     const mutation = useMutation<AgentSupppliers, Error, {id: number; data: newAgentSupppliers }>({
         mutationFn: ({id, data}) => editAgentSupplier(id, data),
         onSuccess :(res)=>{
-            console.log('agente actualizado', console.log(res))
-            qc.invalidateQueries({queryKey: [`${BASE_KEY}`]});
+            console.log('agente actualizado', res)
+            qc.invalidateQueries({ queryKey: [BASE_KEY] });
+            qc.invalidateQueries({ queryKey: ['legal-supplier', 'agent-supplier'] });
+            qc.invalidateQueries({ queryKey: ['legal-supplier'] });
             toast.success('Agente actualizado con éxito ', {position: 'top-right', autoClose: 3000})
         },
         onError: (err) =>{
@@ -48,7 +52,9 @@ export const useDeleteAgentSupplier = () => {
     return useMutation({
         mutationFn: (id: number) => deleteAgentSupplier(id),
         onSuccess: (res) => {
-            qc.invalidateQueries({queryKey: [`${BASE_KEY}`]});
+            qc.invalidateQueries({ queryKey: [BASE_KEY] });
+            qc.invalidateQueries({ queryKey: ['legal-supplier', 'agent-supplier'] });
+            qc.invalidateQueries({ queryKey: ['legal-supplier'] });
             console.log("Agente inhabilitado", res);
         },
         onError: (err)=>{

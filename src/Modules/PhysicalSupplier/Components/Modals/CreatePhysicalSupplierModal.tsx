@@ -6,6 +6,38 @@ import { toast } from "react-toastify";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { PhysicalSupplierSchema } from "../../Schemas/PhysicalSupplierSchema";
 
+type CedulaLookup = {
+  name: string | null;
+  surname1: string | null;
+  surname2: string | null;
+};
+
+// Heurística para separar nombres y apellidos cuando solo viene el nombre completo.
+// Asume convención CR: [Nombres...] [Apellido1] [Apellido2]
+function splitCostaRicaFullName(full: string): CedulaLookup {
+  const clean = full
+    .replace(/\s+/g, " ")
+    .replace(/[.,]+/g, " ")
+    .trim();
+
+  if (!clean) return { name: null, surname1: null, surname2: null };
+
+  const parts = clean.split(" ").filter(Boolean);
+
+  if (parts.length === 1) {
+    return { name: parts[0], surname1: null, surname2: null };
+  }
+  if (parts.length === 2) {
+    return { name: parts[0], surname1: parts[1], surname2: null };
+  }
+
+  // 3 o más: últimos dos como apellidos, el resto como nombres
+  const surname2 = parts.pop()!;
+  const surname1 = parts.pop()!;
+  const name = parts.join(" ");
+  return { name, surname1, surname2 };
+}
+
 const CreatePhysicalSupplierModal = () => {
   const [open, setOpen] = useState(false);
   const CreateSupplierMutation = useCreatePhysicalSupplier();
@@ -17,14 +49,73 @@ const CreatePhysicalSupplierModal = () => {
   // --- Helpers ---
   const limpiar = (v: string) => v.replace(/\D/g, ""); // solo dígitos
 
-  async function fetchNombreFisico(cedula: string, signal?: AbortSignal): Promise<string | null> {
+  async function fetchPersonaFisica(
+    cedula: string,
+    signal?: AbortSignal
+  ): Promise<CedulaLookup | null> {
     const c = limpiar(cedula);
     if (c.length < 9) return null; // cédulas físicas suelen tener >= 9 dígitos
+
     const res = await fetch(`https://apis.gometa.org/cedulas/${c}`, { signal });
     if (!res.ok) throw new Error("No se encontró este número de cédula");
+
     const data = await res.json();
-    const nombre: string = data?.nombre || data?.nombre_completo || data?.name || "";
-    return nombre?.trim() ? nombre.trim() : null;
+
+    // Posibles campos que devuelva el API (defensivo):
+    const nombre =
+      data?.nombre ??
+      data?.name ??
+      data?.nombre_completo ??
+      data?.fullname ??
+      data?.titular ??
+      null;
+
+    const primer_apellido =
+      data?.primer_apellido ??
+      data?.apellido1 ??
+      data?.apellido_1 ??
+      null;
+
+    const segundo_apellido =
+      data?.segundo_apellido ??
+      data?.apellido2 ??
+      data?.apellido_2 ??
+      null;
+
+    // Si ya vienen apellidos separados, usar esos
+    if (nombre && (primer_apellido || segundo_apellido)) {
+      return {
+        name: String(nombre).trim() || null,
+        surname1: primer_apellido ? String(primer_apellido).trim() : null,
+        surname2: segundo_apellido ? String(segundo_apellido).trim() : null,
+      };
+    }
+
+    // A veces puede venir un campo "apellidos" junto:
+    const apellidos = data?.apellidos ?? data?.lastnames ?? null;
+    if (nombre && apellidos) {
+      const full = `${nombre} ${apellidos}`;
+      return splitCostaRicaFullName(full);
+    }
+
+    // Si solo viene un string con nombre completo:
+    if (typeof nombre === "string") {
+      return splitCostaRicaFullName(nombre);
+    }
+
+    // Si llegó en otra estructura, intenta "nombre_completo" u otros
+    const posibleFull =
+      data?.nombre_completo ??
+      data?.fullname ??
+      data?.completo ??
+      data?.razon_social ??
+      null;
+
+    if (typeof posibleFull === "string") {
+      return splitCostaRicaFullName(posibleFull);
+    }
+
+    return null;
   }
 
   // Debounce + cancelación
@@ -63,7 +154,7 @@ const CreatePhysicalSupplierModal = () => {
 
   // --- Handler del IDcard con autocompletado de Nombre ---
   const handleIdCardChange =
-    (field: any, form: any) =>
+    (field: any, formApi: any) =>
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value;
       field.handleChange(raw);
@@ -74,17 +165,11 @@ const CreatePhysicalSupplierModal = () => {
 
       const c = limpiar(raw);
 
-      // ✅ Si la cédula quedó vacía o es muy corta, limpiar inmediatamente el nombre y apellidos, NO consultar
-      if (c.length === 0) {
-        form.setFieldValue("Name", "");
-        form.setFieldValue("Surname1", "");
-        form.setFieldValue("Surname2", "");
-        return;
-      }
-      if (c.length < 9) {
-        form.setFieldValue("Name", "");
-        form.setFieldValue("Surname1", "");
-        form.setFieldValue("Surname2", "");
+      // ✅ Si la cédula quedó vacía o es muy corta, limpiar inmediatamente y NO consultar
+      if (c.length === 0 || c.length < 9) {
+        formApi.setFieldValue("Name", "");
+        formApi.setFieldValue("Surname1", "");
+        formApi.setFieldValue("Surname2", "");
         return;
       }
 
@@ -95,36 +180,21 @@ const CreatePhysicalSupplierModal = () => {
 
         setLookingUp(true);
         try {
-          const nombreCompleto = await fetchNombreFisico(raw, ac.signal);
-          if (nombreCompleto) {
-            // Separar nombre completo en partes (nombre, apellido1, apellido2)
-            const partes = nombreCompleto.trim().split(/\s+/);
-            if (partes.length >= 3) {
-              // Si tiene 3 o más partes, tomar la primera como nombre y las siguientes como apellidos
-              form.setFieldValue("Name", partes[0]);
-              form.setFieldValue("Surname1", partes[1]);
-              form.setFieldValue("Surname2", partes.slice(2).join(" "));
-            } else if (partes.length === 2) {
-              // Si tiene 2 partes, primera como nombre, segunda como primer apellido
-              form.setFieldValue("Name", partes[0]);
-              form.setFieldValue("Surname1", partes[1]);
-              form.setFieldValue("Surname2", partes[1]); // Usar el mismo apellido para ambos campos
-            } else {
-              // Si solo tiene una parte, ponerla como nombre y repetir en apellidos
-              form.setFieldValue("Name", nombreCompleto);
-              form.setFieldValue("Surname1", nombreCompleto);
-              form.setFieldValue("Surname2", nombreCompleto);
-            }
+          const persona = await fetchPersonaFisica(raw, ac.signal);
+          if (persona) {
+            formApi.setFieldValue("Name", persona.name ?? "");
+            formApi.setFieldValue("Surname1", persona.surname1 ?? "");
+            formApi.setFieldValue("Surname2", persona.surname2 ?? "");
           } else {
-            form.setFieldValue("Name", "");
-            form.setFieldValue("Surname1", "");
-            form.setFieldValue("Surname2", "");
+            formApi.setFieldValue("Name", "");
+            formApi.setFieldValue("Surname1", "");
+            formApi.setFieldValue("Surname2", "");
           }
         } catch (err) {
           console.warn("Error buscando cédula:", err);
-          form.setFieldValue("Name", "");
-          form.setFieldValue("Surname1", "");
-          form.setFieldValue("Surname2", "");
+          formApi.setFieldValue("Name", "");
+          formApi.setFieldValue("Surname1", "");
+          formApi.setFieldValue("Surname2", "");
         } finally {
           setLookingUp(false);
         }
@@ -132,7 +202,7 @@ const CreatePhysicalSupplierModal = () => {
     };
 
   const handleIdCardBlur =
-    (field: any, form: any) =>
+    (field: any, formApi: any) =>
     async () => {
       const raw = field.state.value;
 
@@ -141,11 +211,11 @@ const CreatePhysicalSupplierModal = () => {
 
       const c = limpiar(raw);
 
-      // ✅ Si está vacío o corto, no consultar y asegurar nombre y apellidos limpios
+      // ✅ Si está vacío o corto, no consultar y asegurar limpieza
       if (c.length === 0 || c.length < 9) {
-        form.setFieldValue("Name", "");
-        form.setFieldValue("Surname1", "");
-        form.setFieldValue("Surname2", "");
+        formApi.setFieldValue("Name", "");
+        formApi.setFieldValue("Surname1", "");
+        formApi.setFieldValue("Surname2", "");
         return;
       }
 
@@ -154,35 +224,20 @@ const CreatePhysicalSupplierModal = () => {
 
       setLookingUp(true);
       try {
-        const nombreCompleto = await fetchNombreFisico(raw, ac.signal);
-        if (nombreCompleto) {
-          // Separar nombre completo en partes (nombre, apellido1, apellido2)
-          const partes = nombreCompleto.trim().split(/\s+/);
-          if (partes.length >= 3) {
-            // Si tiene 3 o más partes, tomar la primera como nombre y las siguientes como apellidos
-            form.setFieldValue("Name", partes[0]);
-            form.setFieldValue("Surname1", partes[1]);
-            form.setFieldValue("Surname2", partes.slice(2).join(" "));
-          } else if (partes.length === 2) {
-            // Si tiene 2 partes, primera como nombre, segunda como primer apellido
-            form.setFieldValue("Name", partes[0]);
-            form.setFieldValue("Surname1", partes[1]);
-            form.setFieldValue("Surname2", partes[1]); // Usar el mismo apellido para ambos campos
-          } else {
-            // Si solo tiene una parte, ponerla como nombre y repetir en apellidos
-            form.setFieldValue("Name", nombreCompleto);
-            form.setFieldValue("Surname1", nombreCompleto);
-            form.setFieldValue("Surname2", nombreCompleto);
-          }
+        const persona = await fetchPersonaFisica(raw, ac.signal);
+        if (persona) {
+          formApi.setFieldValue("Name", persona.name ?? "");
+          formApi.setFieldValue("Surname1", persona.surname1 ?? "");
+          formApi.setFieldValue("Surname2", persona.surname2 ?? "");
         } else {
-          form.setFieldValue("Name", "");
-          form.setFieldValue("Surname1", "");
-          form.setFieldValue("Surname2", "");
+          formApi.setFieldValue("Name", "");
+          formApi.setFieldValue("Surname1", "");
+          formApi.setFieldValue("Surname2", "");
         }
       } catch {
-        form.setFieldValue("Name", "");
-        form.setFieldValue("Surname1", "");
-        form.setFieldValue("Surname2", "");
+        formApi.setFieldValue("Name", "");
+        formApi.setFieldValue("Surname1", "");
+        formApi.setFieldValue("Surname2", "");
       } finally {
         setLookingUp(false);
       }
@@ -241,27 +296,77 @@ const CreatePhysicalSupplierModal = () => {
 
           {/* Nombre (autocompletado y deshabilitado) */}
           <form.Field name="Name">
-            {(field) => (
+              {(field) => (
               <>
-                <label className={LABELSTYLES}>
-                  <span className={SPANSTYLES}>Nombre del proveedor</span>
+                  <label className={LABELSTYLES}>
+                  <span className={SPANSTYLES}>Nombre</span>
                   <input
-                    className={`${INPUTSTYLES} opacity-75 cursor-not-allowed`}
-                    placeholder="Se autocompleta según el número de cédula"
-                    value={field.state.value}
-                    onChange={() => {}}
-                    readOnly
-                    disabled
-                    aria-disabled="true"
+                      className={`${INPUTSTYLES} opacity-75 cursor-not-allowed`}
+                      placeholder="Se autocompleta según cédula"
+                      value={field.state.value}
+                      onChange={() => {}}
+                      readOnly
+                      disabled
+                      aria-disabled="true"
                   />
                   {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                       <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
                       </p>
                   )}
-                </label>
+                  </label>
               </>
-            )}
+              )}
+          </form.Field>
+
+          {/* Primer apellido (autocompletado) */}
+          <form.Field name="Surname1">
+              {(field) => (
+              <>
+                  <label className={LABELSTYLES}>
+                  <span className={SPANSTYLES}>Primer apellido</span>
+                  <input
+                      className={`${INPUTSTYLES} opacity-75 cursor-not-allowed`}
+                      placeholder="Se autocompleta según cédula"
+                      value={field.state.value}
+                      onChange={() => {}}
+                      readOnly
+                      disabled
+                      aria-disabled="true"
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
+                  )}
+                  </label>
+              </>
+              )}
+          </form.Field>
+
+          {/* Segundo apellido (autocompletado) */}
+          <form.Field name="Surname2">
+              {(field) => (
+              <>
+                  <label className={LABELSTYLES}>
+                  <span className={SPANSTYLES}>Segundo apellido</span>
+                  <input
+                      className={`${INPUTSTYLES} opacity-75 cursor-not-allowed`}
+                      placeholder="Se autocompleta según cédula"
+                      value={field.state.value}
+                      onChange={() => {}}
+                      readOnly
+                      disabled
+                      aria-disabled="true"
+                  />
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                      <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                      </p>
+                  )}
+                  </label>
+              </>
+              )}
           </form.Field>
 
           {/* Email */}

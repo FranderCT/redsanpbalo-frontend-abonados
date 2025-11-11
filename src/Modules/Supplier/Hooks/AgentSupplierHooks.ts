@@ -8,7 +8,10 @@ export const useCreateAgentSupplier = () =>{
         mutationFn: createAgentSupplier,
         onSuccess: (res) =>{
             console.log('Agente Creado', res),
-            qc.invalidateQueries({queryKey: ['products']})
+            // Invalidate agent lists so UI updates in related places
+            qc.invalidateQueries({ queryKey: ['agent-supplier'] });
+            qc.invalidateQueries({ queryKey: ['legal-supplier', 'agent-supplier'] });
+            qc.invalidateQueries({ queryKey: ['legal-supplier'] });
         },
         onError: (err) => {
             console.error(err)

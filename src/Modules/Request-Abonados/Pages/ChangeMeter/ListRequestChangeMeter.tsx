@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { useGetAllRequestStates } from "../../../Requests/StateRequest/Hooks/RequestStateHook";
-import type { RequestState } from "../../../Requests/StateRequest/Model/RequestState";
 import ResumeReqAvailWater from "../../../Requests/Components/Cards/ResumeReqAvailWater";
 import ReqChangeMeterUserHeaderBar from "../../Components/Change-Meter/ReqChangeMeterUserHeaderBar";
 import ReqChangeMeterUserTable from "../../Components/Change-Meter/ReqChangeMeterUserTable";
@@ -28,9 +27,7 @@ export default function ListReqChangeMeterUser() {
   };
 
   // Estados disponibles (para el dropdown)
-  const { reqAvailWaterStates = [], reqAvailWaterStatesLoading } = useGetAllRequestStates();
-  const requestStates: RequestState[] = reqAvailWaterStates;
-  const requestStatesLoading: boolean = reqAvailWaterStatesLoading;
+  const { requestStates = [], isPending: requestStatesLoading } = useGetAllRequestStates();
 
   // Backend paginado (mis solicitudes) con filtros
   const { data, isLoading, error } = useGetMyReqChangeMeterPaginated({

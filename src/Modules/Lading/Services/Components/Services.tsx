@@ -1,12 +1,38 @@
-// icon imports removed because they're unused in this component
 import { Card, CardContent, CardDescription, CardIcon, CardTitle } from "../../../../Components/Cards";
 import { useGetAllServices } from "../Hooks/ServicesHooks";
+import { 
+  Activity, 
+  BadgeCheck, 
+  BellRing, 
+  MessageCircle, 
+  Zap, 
+  Droplets, 
+  Wrench, 
+  FileText, 
+  Phone,
+  HelpCircle
+} from "lucide-react";
+
+// Mapa de iconos
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  "activity": Activity,
+  "badge-check": BadgeCheck,
+  "bell-ring": BellRing,
+  "message-circle": MessageCircle,
+  "zap": Zap,
+  "droplets": Droplets,
+  "wrench": Wrench,
+  "file-text": FileText,
+  "phone": Phone,
+};
 
 export function Services() {
     const { services, isPending, error } = useGetAllServices();
 
-    const iconClassFor = (name?: string) =>
-    `icon-${name ?? "droplets"} text-3xl leading-none`;
+    const getIconComponent = (iconName?: string) => {
+        if (!iconName) return Droplets; // Icono por defecto
+        return ICON_MAP[iconName.toLowerCase()] || HelpCircle;
+    };
 
     if (isPending) {
         return <div>Cargando servicios...</div>;
@@ -27,17 +53,20 @@ export function Services() {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {services?.map((s, i) => (
-                <Card key={i} className="backdrop-blur">
-                <CardContent>
-                    <CardIcon>
-                        <i className={`${iconClassFor(s.Icon?.toLowerCase())} text-8xl`} />
-                    </CardIcon>
-                    <CardTitle>{s.Title}</CardTitle>
-                    <CardDescription>{s.Description}</CardDescription>
-                </CardContent>
-                </Card>
-            ))}
+            {services?.map((s, i) => {
+                const IconComponent = getIconComponent(s.Icon);
+                return (
+                    <Card key={i} className="backdrop-blur">
+                    <CardContent>
+                        <CardIcon>
+                            <IconComponent className="w-16 h-16" />
+                        </CardIcon>
+                        <CardTitle>{s.Title}</CardTitle>
+                        <CardDescription>{s.Description}</CardDescription>
+                    </CardContent>
+                    </Card>
+                );
+            })}
             </div>
         </div>
         </section>

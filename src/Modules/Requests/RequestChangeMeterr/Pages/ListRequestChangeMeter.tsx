@@ -1,6 +1,5 @@
 // Modules/Requests/RequestChangeMeterr/Pages/ListRequestChangeMeter.tsx
 import { useMemo, useState } from "react";
-import type { RequestState } from "../../StateRequest/Model/RequestState";
 import { useGetAllRequestStates } from "../../StateRequest/Hooks/RequestStateHook";
 import { useSearchReqChangeMeter } from "../Hooks/RequestChangeMeter"; // Asegúrate que el path/nombre coincidan
 import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
@@ -48,13 +47,8 @@ export default function ListReqChangeMeter() {
     setPage(1);
   };
 
-  // Estados disponibles (usa los nombres reales del hook)
-  const {
-    reqAvailWaterStates = [],
-    reqAvailWaterStatesLoading,
-  } = useGetAllRequestStates();
-  const requestStates: RequestState[] = reqAvailWaterStates;
-  const requestStatesLoading: boolean = reqAvailWaterStatesLoading;
+  // Estados disponibles
+  const { requestStates = [], isPending: requestStatesLoading } = useGetAllRequestStates();
 
  
   const params = useMemo(

@@ -8,7 +8,7 @@ import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCatego
 // Listado simple
 export const useGetAllRequestAssociated = () => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["request-associated"],
+    queryKey: ["request-associated", "all"],
     queryFn: getAllRequestAssociated,
     staleTime: 30_000,
   });
@@ -41,7 +41,7 @@ export const useSearchRequestAssociated = (params: ReqAssociatedPaginationParams
 // Detalle por ID
 export const useGetRequestAssociatedById = (id?: number) => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["request-associated", id],
+    queryKey: ["request-associated", "detail", id],
     queryFn: () => getRequestAssociatedById(id as number),
     enabled: typeof id === "number" && id > 0,
   });
@@ -55,7 +55,9 @@ export const useCreateRequestAssociated = () => {
     mutationFn: createRequestAssociated,
     onSuccess: (res) => {
       console.log("Asociado creado", res);
+      // Invalidar lista general y búsquedas paginadas para refrescar resultados
       qc.invalidateQueries({ queryKey: ["request-associated"] });
+      qc.invalidateQueries({ queryKey: ["request-associated", "search"] });
     },
     onError: (err) => console.error("Error creando asociado", err),
   });
@@ -68,8 +70,10 @@ export const useUpdateAssociatedreq = () => {
     mutationFn: ({ id, data }) =>UpdateAssociatedReq(id, data),
     onSuccess: (res) => {
       console.log("Estado de asociado actualizada", res);
+      // Invalidar lista, búsquedas y detalle
       qc.invalidateQueries({ queryKey: ["request-associated"] });
-      qc.invalidateQueries({ queryKey: ["request-associated", res.Id] });
+      qc.invalidateQueries({ queryKey: ["request-associated", "search"] });
+      qc.invalidateQueries({ queryKey: ["request-associated", "detail", res.Id] });
     },
     onError: (err) => console.error("Error actualizando estado de asociado", err),
   });
@@ -81,18 +85,22 @@ export const useDeleteRequestAssociated = () => {
     mutationFn: (id) => deleteRequestAssociated(id),
     onSuccess: (res) => {
       console.log("Asociado eliminado", res);
+      // Invalidar todas las queries relacionadas
       qc.invalidateQueries({ queryKey: ["request-associated"] });
+      qc.invalidateQueries({ queryKey: ["request-associated", "search"] });
     },
     onError: (err) => console.error("Error eliminando asociado", err),
   });
 };
 
-// Obtener todos los estados de solicitud
+// Obtener todos los estados de solicitud - Usar el hook centralizado del módulo StateRequest
 export const useGetAllRequestStates = () => {
   const { data, isPending, error } = useQuery({
-    queryKey: ["request-states"],
+    queryKey: ["request-states", "all"],
     queryFn: () => getAllRequestStates(),
-    staleTime: 30_000,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    gcTime: 30 * 60 * 1000, // 30 minutos
+    refetchOnWindowFocus: false,
   });
   return { requestStates: data ?? [], isPending, error };
 }

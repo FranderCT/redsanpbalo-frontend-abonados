@@ -7,7 +7,8 @@ export const CategorySchema = z.object({
     .max(100, "El nombre no debe superar los 100 caracteres"),
   Description: z
     .string()
-    .min(1, "La descripción es obligatoria"),
+    .min(1, "La descripción es obligatoria")
+    .max(500, "La descripción no debe superar los 500 caracteres"),
 });
 
 export const UpdateCategorySchema = z.object({
@@ -15,6 +16,6 @@ export const UpdateCategorySchema = z.object({
     .string()
     .max(100, "El nombre no debe superar los 100 caracteres"),
   Description: z
-    .string(),
+    .string().max(500, "La descripción no debe superar los 500 caracteres"),
   IsActive: z.boolean(),
 });

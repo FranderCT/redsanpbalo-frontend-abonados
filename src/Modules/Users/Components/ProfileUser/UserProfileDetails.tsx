@@ -23,7 +23,7 @@ const UserProfileDetails = ({User} : Props) => {
             <div className="py-2 border-b border-dashed border-gray-300">
               <p className="text-[12px] text-gray-500">Fecha de Nacimiento</p>
               <span className="text-sm font-medium text-[#091540]">
-                {User?.Birthdate ? User.Birthdate.toLocaleDateString() : ''}
+                {User?.Birthdate ? new Date(User.Birthdate).toLocaleDateString() : ''}
               </span>
             </div>
 

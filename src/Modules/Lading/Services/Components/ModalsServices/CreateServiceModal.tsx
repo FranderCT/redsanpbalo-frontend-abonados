@@ -3,6 +3,30 @@ import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../../../Components/Modals/ModalBase";
 import { useCreateService } from "../../Hooks/ServicesHooks";
+import { 
+  Activity, 
+  BadgeCheck, 
+  BellRing, 
+  MessageCircle, 
+  Zap, 
+  Droplets, 
+  Wrench, 
+  FileText, 
+  Phone,
+  ChevronDown
+} from "lucide-react";
+
+const ICON_OPTIONS = [
+  { value: "activity", label: "Actividad", Icon: Activity },
+  { value: "badge-check", label: "Verificado", Icon: BadgeCheck },
+  { value: "bell-ring", label: "Notificación", Icon: BellRing },
+  { value: "message-circle", label: "Mensaje", Icon: MessageCircle },
+  { value: "zap", label: "Energía", Icon: Zap },
+  { value: "droplets", label: "Agua", Icon: Droplets },
+  { value: "wrench", label: "Herramientas", Icon: Wrench },
+  { value: "file-text", label: "Documento", Icon: FileText },
+  { value: "phone", label: "Teléfono", Icon: Phone },
+];
 
 const CreateServiceModal = () => {
   const [open, setOpen] = useState(false);
@@ -71,20 +95,47 @@ const CreateServiceModal = () => {
           }}
           className="px-7 py-4 flex flex-col gap-4"
         >
-          {/* Icono (URL) */}
+          {/* Icono (Dropdown con preview) */}
           <form.Field name="Icon">
-            {(field) => (
-              <label className="grid gap-1">
-                <span className="text-sm text-gray-700">URL del Icono</span>
-                <input
-                  autoFocus
-                  className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring focus:ring-blue-200"
-                  placeholder="https://ejemplo.com/icono.svg"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-              </label>
-            )}
+            {(field) => {
+              const selectedIcon = ICON_OPTIONS.find(opt => opt.value === field.state.value);
+              const IconComponent = selectedIcon?.Icon;
+
+              return (
+                <label className="grid gap-1">
+                  <span className="text-sm text-gray-700">Icono del Servicio</span>
+                  <div className="relative">
+                    <select
+                      autoFocus
+                      className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring focus:ring-blue-200 appearance-none pr-10"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                    >
+                      <option value="">Seleccione un icono</option>
+                      {ICON_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-2">
+                      {IconComponent && (
+                        <IconComponent className="w-5 h-5 text-[#1789FC]" />
+                      )}
+                      <ChevronDown className="w-4 h-4 text-gray-400" />
+                    </div>
+                  </div>
+                  {selectedIcon && IconComponent && (
+                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded flex items-center gap-3">
+                      <IconComponent className="w-6 h-6 text-[#1789FC]" />
+                      <span className="text-sm text-gray-700">
+                        Vista previa: <strong>{selectedIcon.label}</strong>
+                      </span>
+                    </div>
+                  )}
+                </label>
+              );
+            }}
           </form.Field>
 
           {/* Título */}

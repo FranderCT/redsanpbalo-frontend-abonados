@@ -45,7 +45,7 @@ const DashboardLayout = () => {
         />
         <main className="flex-1 p-6 overflow-y-auto">
           <Outlet/>
-          <Can rule={{ any: [ "ADMIN"] }}>
+          <Can rule={{ any: [ "ADMIN", "FONTANERO"] }}>
             <LiveReports />
           </Can>
         </main>

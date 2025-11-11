@@ -1,6 +1,5 @@
 // Modules/Requests/RequestChangeMeterr/Pages/ListRequestChangeMeter.tsx
 import { useMemo, useState } from "react";
-import type { RequestState } from "../../StateRequest/Model/RequestState";
 import { useGetAllRequestStates } from "../../StateRequest/Hooks/RequestStateHook";
 import { useSearchRequestAssociated } from "../Hooks/ReqAssociatedHooks";
 import type { ReqAssociated } from "../Models/RequestAssociated";
@@ -51,13 +50,8 @@ export default function ListReqAssociated() {
     setPage(1);
   };
 
-  // Estados disponibles (usa los nombres reales del hook)
-  const {
-    reqAvailWaterStates = [],
-    reqAvailWaterStatesLoading,
-  } = useGetAllRequestStates();
-  const requestStates: RequestState[] = reqAvailWaterStates;
-  const requestStatesLoading: boolean = reqAvailWaterStatesLoading;
+  // Estados disponibles
+  const { requestStates = [], isPending: requestStatesLoading } = useGetAllRequestStates();
 
  
   const params = useMemo(
