@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiAxios = axios.create({
-  baseURL: "https://asada-san-pablo-backend-production.up.railway.app",
+  baseURL: "http://localhost:3000",
   timeout: 5000,
 });
 

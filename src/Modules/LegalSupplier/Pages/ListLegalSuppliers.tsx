@@ -5,6 +5,7 @@ import type { LegalSupplier } from "../Models/LegalSupplier";
 import LegalSupplierTable from "../Components/Table/LegalSupplierTable";
 import CreateLegalSupplierModal from "../Components/Modals/CreateLegalSupplierModal";
 import ListPhysicalSuppliers from "../../PhysicalSupplier/Pages/ListPhysicalSuppliers";
+import CreateProveedorFisico from "@/Modules/ProveedoresFisicos/Components/CreateProveedorFisico";
 
 
 
@@ -79,6 +80,7 @@ export default function ListLegalSuppliers() {
       </div>
 
       <ListPhysicalSuppliers />
+      <CreateProveedorFisico />
 
     </div>
   );
