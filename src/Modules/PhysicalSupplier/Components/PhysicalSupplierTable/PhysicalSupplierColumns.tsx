@@ -10,19 +10,28 @@ export const PhysicalSupplierColumns = (
 //   onGetInfo: (product: Product) => void
 ): ColumnDef<PhysicalSupplier>[] => [
   {
-    accessorKey: "IDcard",
+    accessorKey: "Supplier.IDcard",
     header: "Número de Cédula",
+    cell: ({ row }) => row.original.Supplier?.IDcard || "—",
   },  
-  { accessorKey: "Name", header: "Nombre Completo", 
-    cell: ({ row }) => (row.original.Name + " " + row.original.Surname1 + " " + row.original.Surname2),
+  { 
+    accessorKey: "Supplier.Name", 
+    header: "Nombre Completo", 
+    cell: ({ row }) => {
+      const { Supplier, Surname1, Surname2 } = row.original;
+      const name = Supplier?.Name || "";
+      return [name, Surname1, Surname2].filter(Boolean).join(" ").trim() || "—";
+    },
   },
   {
-    accessorKey: "Email",
+    accessorKey: "Supplier.Email",
     header: "Correo electrónico",
+    cell: ({ row }) => row.original.Supplier?.Email || "—",
   },
   {
-    accessorKey: "PhoneNumber",
+    accessorKey: "Supplier.PhoneNumber",
     header: "Número de Teléfono",
+    cell: ({ row }) => row.original.Supplier?.PhoneNumber || "—",
   },
   {
     id: 'Acciones',

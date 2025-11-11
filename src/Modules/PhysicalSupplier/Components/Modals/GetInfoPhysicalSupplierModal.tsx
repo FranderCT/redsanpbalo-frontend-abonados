@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function GetInfoPhysicalSupplierModal({
-  supplier,
+  supplier: physicalSupplier,
   open,
   onClose,
   onSuccess,
@@ -25,10 +25,11 @@ export default function GetInfoPhysicalSupplierModal({
   const VALUE = "mt-1 text-sm text-[#091540]";
   const FOOTER = "mt-6 flex justify-end";
 
-  // ✅ Helper para mostrar “—”
+  // ✅ Helper para mostrar "—"
   const show = (v?: string | number | null) =>
     v === null || v === undefined || v === "" ? "—" : String(v);
 
+  const supplier = physicalSupplier.Supplier;
   const emailHref = supplier?.Email ? `mailto:${supplier.Email}` : undefined;
   const telHref = supplier?.PhoneNumber ? `tel:${supplier.PhoneNumber}` : undefined;
 
@@ -55,7 +56,7 @@ export default function GetInfoPhysicalSupplierModal({
           <dl className={GRID}>
             <div className={CARD}>
               <dt className={LABEL}>ID interno</dt>
-              <dd className={VALUE}>{show(supplier?.Id)}</dd>
+              <dd className={VALUE}>{show(physicalSupplier?.Id)}</dd>
             </div>
 
             <div className={CARD}>
@@ -65,7 +66,13 @@ export default function GetInfoPhysicalSupplierModal({
 
             <div className={CARD}>
               <dt className={LABEL}>Nombre Completo</dt>
-              <dd className={`${VALUE} break-words`}>{show(supplier?.Name)+" "+show(supplier.Surname1)+" "+show(supplier.Surname2)}</dd>
+              <dd className={`${VALUE} break-words`}>
+                {[supplier?.Name, physicalSupplier?.Surname1, physicalSupplier?.Surname2]
+                  .filter(Boolean)
+                  .map(s => show(s))
+                  .join(" ")
+                  .trim() || "—"}
+              </dd>
             </div>
             
             <div className={CARD}>
