@@ -8,6 +8,7 @@ export interface ReqChangeNameMeter{
     Date:Date;
     SpaceOfDocument:string|null;
     IsActive: boolean;
+    CanComment: boolean;
     User: User;
     StateRequest:RequestState;
     commentRquest?:CommentRequest[];
@@ -31,6 +32,7 @@ export const newReqChangeMeterInitialState: newReqChangeNameMeter = {
 
 export interface UpdateReqChangeNameMeter {
   StateRequestId?: number;
+  CanComment?: boolean;
 }
 
 // Paginación / filtros (manteniendo el estilo del ProjectPaginationParams)

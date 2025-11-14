@@ -85,6 +85,20 @@ export async function UpdateReqAvailWater(
   }
 }
 
+// Actualizar solo CanComment
+export async function updateCanCommentAvailWater(
+  id: number,
+  canComment: boolean
+): Promise<ReqAvailWater> {
+  try {
+    const { data } = await apiAxios.put<ReqAvailWater>(`${BASE}/${id}`, { CanComment: canComment });
+    return data;
+  } catch (err) {
+    console.error(`Error actualizando CanComment para disponibilidad de agua ${id}`, err);
+    return Promise.reject(err);
+  }
+}
+
 export async function deleteReqAvailWater(id: number): Promise<void> {
   try{
     await apiAxios.delete(`${BASE}/${id}`);

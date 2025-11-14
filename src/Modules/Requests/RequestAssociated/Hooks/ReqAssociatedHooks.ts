@@ -1,6 +1,6 @@
 // Hooks/RequestAssociatedHooks.ts
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRequestAssociated, deleteRequestAssociated, getAllRequestAssociated, getAllRequestStates, getReqAssociatedFolderLink, getRequestAssociatedById, searchRequestAssociated, UpdateAssociatedReq} from "../Services/ReqAssociatedServices";
+import { createRequestAssociated, deleteRequestAssociated, getAllRequestAssociated, getAllRequestStates, getReqAssociatedFolderLink, getRequestAssociatedById, searchRequestAssociated, UpdateAssociatedReq, updateCanComment} from "../Services/ReqAssociatedServices";
 import type { newReqAssociated, ReqAssociated, ReqAssociatedPaginationParams, ReqAssociatedResponse, UpdateReqAssociated } from "../Models/RequestAssociated";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 
@@ -20,15 +20,7 @@ export const useSearchRequestAssociated = (params: ReqAssociatedPaginationParams
   const { page = 1, limit = 10, UserName, StateRequestId, State } = params ?? {};
 
   const query = useQuery<PaginatedResponse<ReqAssociated>, Error>({
-    queryKey: [
-      "request-associated",
-      "search",
-      page,
-      limit,
-      UserName ?? "",
-      StateRequestId ?? null,
-      State ?? "",
-    ],
+    queryKey: ["request-associated",],
     queryFn: () => searchRequestAssociated({ page, limit, UserName, StateRequestId, State }),
     placeholderData: keepPreviousData,
     staleTime: 30_000,
@@ -57,7 +49,6 @@ export const useCreateRequestAssociated = () => {
       console.log("Asociado creado", res);
       // Invalidar lista general y búsquedas paginadas para refrescar resultados
       qc.invalidateQueries({ queryKey: ["request-associated"] });
-      qc.invalidateQueries({ queryKey: ["request-associated", "search"] });
     },
     onError: (err) => console.error("Error creando asociado", err),
   });
@@ -72,8 +63,6 @@ export const useUpdateAssociatedreq = () => {
       console.log("Estado de asociado actualizada", res);
       // Invalidar lista, búsquedas y detalle
       qc.invalidateQueries({ queryKey: ["request-associated"] });
-      qc.invalidateQueries({ queryKey: ["request-associated", "search"] });
-      qc.invalidateQueries({ queryKey: ["request-associated", "detail", res.Id] });
     },
     onError: (err) => console.error("Error actualizando estado de asociado", err),
   });
@@ -87,7 +76,6 @@ export const useDeleteRequestAssociated = () => {
       console.log("Asociado eliminado", res);
       // Invalidar todas las queries relacionadas
       qc.invalidateQueries({ queryKey: ["request-associated"] });
-      qc.invalidateQueries({ queryKey: ["request-associated", "search"] });
     },
     onError: (err) => console.error("Error eliminando asociado", err),
   });
@@ -133,3 +121,17 @@ export function useReqAssociatedFolderLink() {
     },
   });
 }
+
+// Actualizar CanComment
+export const useUpdateCanComment = () => {
+  const qc = useQueryClient();
+  return useMutation<ReqAssociated, Error, { id: number; canComment: boolean }>({
+    mutationFn: ({ id, canComment }) => updateCanComment(id, canComment),
+    onSuccess: (res) => {
+      console.log("CanComment actualizado", res);
+      // Invalidar lista, búsquedas y detalle
+      qc.invalidateQueries({ queryKey: ["request-associated"] });
+    },
+    onError: (err) => console.error("Error actualizando CanComment", err),
+  });
+};

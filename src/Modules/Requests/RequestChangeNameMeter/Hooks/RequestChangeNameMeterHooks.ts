@@ -8,7 +8,7 @@ import type {
   ReqChangeNameLinkResponse,
 } from "../Models/RequestChangeNameMeter";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
-import { createReqChangeNameMeter, deleteReqChangeNameMeter, getAllReqChangeNameMeter, getAllRequestStates, getReqChangeNameFolderLink, getReqChangeNameMeterById, searchReqChangeNameMeter, updateReqChangeNameMeter } from "../Services/RequestChangeNameMeter";
+import { createReqChangeNameMeter, deleteReqChangeNameMeter, getAllReqChangeNameMeter, getAllRequestStates, getReqChangeNameFolderLink, getReqChangeNameMeterById, searchReqChangeNameMeter, updateReqChangeNameMeter, updateCanCommentChangeNameMeter } from "../Services/RequestChangeNameMeter";
 
 // Listado simple
 export const useGetAllReqChangeNameMeter = () => {
@@ -134,4 +134,18 @@ export function useReqChangeNameFolderLink() {
     },
   });
 }
+
+// Actualizar CanComment
+export const useUpdateCanCommentChangeNameMeter = () => {
+  const qc = useQueryClient();
+  return useMutation<ReqChangeNameMeter, Error, { id: number; canComment: boolean }>({
+    mutationFn: ({ id, canComment }) => updateCanCommentChangeNameMeter(id, canComment),
+    onSuccess: (res) => {
+      console.log("CanComment actualizado", res);
+      qc.invalidateQueries({ queryKey: ["request-change-name-meter"] });
+      qc.invalidateQueries({ queryKey: ["request-change-name-meter", "detail", res.Id] });
+    },
+    onError: (err) => console.error("Error actualizando CanComment", err),
+  });
+};
 

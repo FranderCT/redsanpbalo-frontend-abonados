@@ -71,26 +71,41 @@ export const ReqAssociatedUserColumns = (
   {
     id: "actions",
     header: "Acciones",
-    cell: ({ row }) => (
-      <div className="flex justify-center gap-2">
-        <button
-          onClick={() => onGetInfo?.(row.original)}
-          className="flex items-center gap-1 px-3 py-1 text-xs font-medium border text-[#222] border-[#222] hover:bg-[#091540] hover:text-[#f5f5f5] transition cursor-pointer"
-        >
-          <InfoIcon className="w-4 h-4" />
-          Ver más
-        </button>
+    cell: ({ row }) => {
+      const canComment = row.original.CanComment === true;
+      console.log('🔍 Associated - CanComment:', row.original.CanComment, 'Type:', typeof row.original.CanComment, 'RequestId:', row.original.Id);
+      return (
+        <div className="flex justify-center gap-2">
+          <button
+            onClick={() => onGetInfo?.(row.original)}
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border text-[#222] border-[#222] hover:bg-[#091540] hover:text-[#f5f5f5] transition cursor-pointer"
+          >
+            <InfoIcon className="w-4 h-4" />
+            Ver más
+          </button>
 
-        <button
-          onClick={() => onComments?.(row.original)}
-          className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-                     text-[#068A53] border-[#068A53]
-                     hover:bg-[#068A53] hover:text-white transition"
-        >
-          <MessageSquare className="w-4 h-4" />
-          Comentarios
-        </button>
-      </div>
-    ),
+          <button
+            onClick={(e) => {
+              if (!canComment) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+              }
+              onComments?.(row.original);
+            }}
+            disabled={!canComment}
+            title={!canComment ? "Comentarios deshabilitados por el administrador" : "Ver comentarios"}
+            className={`flex items-center gap-1 px-3 py-1 text-xs font-medium border transition
+              ${canComment 
+                ? 'text-[#068A53] border-[#068A53] hover:bg-[#068A53] hover:text-white cursor-pointer' 
+                : 'text-gray-400 border-gray-300 cursor-not-allowed bg-gray-100'}
+            `}
+          >
+            <MessageSquare className="w-4 h-4" />
+            Comentarios
+          </button>
+        </div>
+      );
+    },
   },
 ];

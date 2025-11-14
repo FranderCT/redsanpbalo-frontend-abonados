@@ -22,6 +22,7 @@ export interface ReqAssociated{
     NIS: number;
     SpaceOfDocument:string|null;
     IsActive: boolean;
+    CanComment: boolean;
     User: User;
     StateRequest:RequestState;
     commentRquest?:CommentRequest[];
@@ -35,6 +36,7 @@ export interface newReqAssociated{
     Surname1: string;
     Surname2: string;
     NIS: number;
+    CanComment: boolean;
 }
 
 // Estado inicial del formulario (similar a newInitialState)
@@ -45,10 +47,12 @@ export const newReqAssociatedInitialState: newReqAssociated = {
   Surname1: "",
   Surname2: "",
   NIS: 0,
+  CanComment: false,
 };
 
 export interface UpdateReqAssociated {
   StateRequestId?: number;
+  CanComment?: boolean;
 }
 
 // Paginación / filtros (manteniendo el estilo del ProjectPaginationParams)

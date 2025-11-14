@@ -7,6 +7,7 @@ import {
   getReqChangeMeterById,
   searchReqChangeMeter,
   UpdateReqChangeMeter,
+  updateCanCommentChangeMeter,
 } from "../Services/RequestChangeMeterServices";
 import type {
   ReqChangeMeter,
@@ -110,4 +111,18 @@ export const useGetAllRequestStates = () => {
     refetchOnWindowFocus: false,
   });
   return { requestStates: data ?? [], isPending, error };
+};
+
+// Actualizar CanComment
+export const useUpdateCanCommentChangeMeter = () => {
+  const qc = useQueryClient();
+  return useMutation<ReqChangeMeter, Error, { id: number; canComment: boolean }>({
+    mutationFn: ({ id, canComment }) => updateCanCommentChangeMeter(id, canComment),
+    onSuccess: (res) => {
+      console.log("CanComment actualizado", res);
+      qc.invalidateQueries({ queryKey: ["request-change-meter"] });
+      qc.invalidateQueries({ queryKey: ["request-change-meter", "detail", res.Id] });
+    },
+    onError: (err) => console.error("Error actualizando CanComment", err),
+  });
 };
