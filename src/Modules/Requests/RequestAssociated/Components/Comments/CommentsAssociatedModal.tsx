@@ -277,12 +277,9 @@ export default function CommentsAssociatedModal({
           ) : (
             <div className="space-y-4">
               {comments.map((commentItem) => {
-                // Extraer información del autor del comentario
-                const commentUser = commentItem.Users;
-                
-                // hasFileUpdate: false = mensaje del admin (sin archivos)
-                // hasFileUpdate: true = respuesta del usuario (con archivos)
-                const isAdminComment = !commentItem.hasFileUpdate;
+                // Extraer información del autor del comentario desde el campo User
+                // El backend ahora envía User (en lugar de Users array)
+                const commentUser = commentItem.User;
                 
                 // Determinar si es mi mensaje comparando con el usuario actual logueado
                 const isMyMessage = UserProfile && commentUser 
@@ -293,28 +290,19 @@ export default function CommentsAssociatedModal({
                 let authorName = "";
                 let authorInitial = "?";
                 
-                if (isAdminComment && commentUser) {
-                  // Mensaje del admin - mostrar nombre del admin
+                if (commentUser) {
+                  // Mostrar nombre del usuario que hizo el comentario
                   authorName = `${commentUser.Name || ""} ${commentUser.Surname1 || ""} ${commentUser.Surname2 || ""}`.trim();
-                  authorInitial = commentUser.Name?.charAt(0).toUpperCase() || "A";
-                  if (!authorName) {
-                    authorName = "Administración ASADA";
-                    authorInitial = "A";
-                  }
-                } else if (!isAdminComment) {
-                  // Respuesta del usuario - mostrar nombre del usuario de la solicitud
-                  const requestUser = commentItem.requestAssociated?.User;
-                  if (requestUser) {
-                    authorName = `${requestUser.Name || ""} ${requestUser.Surname1 || ""} ${requestUser.Surname2 || ""}`.trim();
-                    authorInitial = requestUser.Name?.charAt(0).toUpperCase() || "U";
-                  }
+                  authorInitial = commentUser.Name?.charAt(0).toUpperCase() || "U";
+                  
                   if (!authorName) {
                     authorName = "Usuario";
                     authorInitial = "U";
                   }
                 } else {
-                  authorName = "Administración ASADA";
-                  authorInitial = "A";
+                  // Si no hay información del usuario, es un comentario del sistema
+                  authorName = "Administracion ASADA";
+                  authorInitial = "S";
                 }
 
                 return (

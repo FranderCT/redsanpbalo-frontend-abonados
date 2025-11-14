@@ -10,6 +10,7 @@ export interface CommentAssociated {
   createdAt: Date;
   requestAssociated: ReqAssociated;
   Users: User;
+  User: User | null;
 }
 
 export interface CreateCommentAssociatedDto {
