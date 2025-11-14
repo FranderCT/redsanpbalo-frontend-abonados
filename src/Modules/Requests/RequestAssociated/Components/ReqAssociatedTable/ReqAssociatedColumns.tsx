@@ -1,5 +1,5 @@
 import { type ColumnDef } from "@tanstack/react-table";
-import { Edit2, InfoIcon } from "lucide-react";
+import { Edit2, InfoIcon, MessageSquare } from "lucide-react";
 import type { ReqAssociated } from "../../Models/RequestAssociated";
 import DeleteReqAssociatedModal from "../Modals/DeleteReqAssociatedModal";
 
@@ -32,7 +32,8 @@ const guessStateColor = (normalized: string) => {
 };
 export const ReqAssociatedColumns = (
   onEdit: (req: ReqAssociated) => void,
-  onGetInfo?: (req: ReqAssociated) => void
+  onGetInfo?: (req: ReqAssociated) => void,
+  onComments?: (req: ReqAssociated) => void
 ): ColumnDef<ReqAssociated>[] => [
   {
     id: "Name",
@@ -80,6 +81,16 @@ export const ReqAssociatedColumns = (
           >
             <Edit2 className="w-4 h-4" />
             Editar
+          </button>
+
+          <button
+            onClick={() => onComments?.(req)}
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#068A53] border-[#068A53]
+                       hover:bg-[#068A53] hover:text-white transition"
+          >
+            <MessageSquare className="w-4 h-4" />
+            Comentarios
           </button>
 
          <DeleteReqAssociatedModal reqAssociated={req} />  
