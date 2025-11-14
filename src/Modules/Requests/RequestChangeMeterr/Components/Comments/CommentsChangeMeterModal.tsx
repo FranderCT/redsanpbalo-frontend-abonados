@@ -1,80 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ModalBase } from "../../../../../Components/Modals/ModalBase";
-import { useGetCommentsByRequestId, useCreateAdminComment, useReplyWithFiles } from "../../../../CommentRequest/comment-associated/Hooks/commentAssociatedHooks";
+import { useGetCommentsByRequestIdChangeMeter, useCreateAdminCommentChangeMeter } from "../../../../CommentRequest/comment-change-meter/Hooks/commentChangeMeterHooks";
 import { toast } from "react-toastify";
-import type { ReqAssociated } from "../../Models/RequestAssociated";
-import { useTempLinkAssociated } from "../../../../Request-Abonados/Hooks/Associated/AssociatedRqHook";
+import type { ReqChangeMeter } from "../../Models/RequestChangeMeter";
 import { useGetUserProfile } from "../../../../Users/Hooks/UsersHooks";
 
-interface CommentsAssociatedModalProps {
+interface CommentsChangeMeterModalProps {
   open: boolean;
   onClose: () => void;
-  request: ReqAssociated;
+  request: ReqChangeMeter;
   isAdmin?: boolean;
 }
 
-export default function CommentsAssociatedModal({
+export function CommentsChangeMeterModal({
   open,
   onClose,
   request,
   isAdmin = false,
-}: CommentsAssociatedModalProps) {
-  const { comments = [], isPending: commentsLoading, refetch } = useGetCommentsByRequestId(request.Id);
-  const createAdminCommentMutation = useCreateAdminComment();
-  const replyWithFilesMutation = useReplyWithFiles();
+}: CommentsChangeMeterModalProps) {
+  const { comments = [], isPending: commentsLoading, refetch } = useGetCommentsByRequestIdChangeMeter(request.Id);
+  const createAdminCommentMutation = useCreateAdminCommentChangeMeter();
   const { UserProfile } = useGetUserProfile();
 
   const [subject, setSubject] = useState("");
   const [comment, setComment] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedFileId, setSelectedFileId] = useState<number | null>(null);
-  const { data: tempLinkData, isLoading: isLoadingLink } = useTempLinkAssociated(selectedFileId);
-
-  useEffect(() => {
-    if (tempLinkData?.link && selectedFileId) {
-      console.log('Abriendo documento:', tempLinkData.link);
-      window.open(tempLinkData.link, "_blank", "noopener,noreferrer");
-      setSelectedFileId(null);
-    }
-  }, [tempLinkData, selectedFileId]);
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const newFiles = Array.from(e.target.files);
-    const validFiles: File[] = [];
-
-    newFiles.forEach((file) => {
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error(`El archivo ${file.name} excede el tamaño máximo de 10MB`, {
-          position: "top-right",
-          autoClose: 3000,
-        });
-        return;
-      }
-      validFiles.push(file);
-    });
-
-    setFiles((prev) => [...prev, ...validFiles]);
-  };
-
-  const handleRemoveFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!subject.trim() || !comment.trim()) {
       toast.error("El asunto y comentario son requeridos", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      return;
-    }
-
-    if (!isAdmin && files.length === 0) {
-      toast.error("Debe adjuntar al menos un archivo como usuario", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -98,18 +54,10 @@ export default function CommentsAssociatedModal({
         UserId: UserProfile.Id,
       };
 
-      if (isAdmin) {
-        await createAdminCommentMutation.mutateAsync({
-          requestId: request.Id,
-          payload,
-        });
-      } else {
-        await replyWithFilesMutation.mutateAsync({
-          requestId: request.Id,
-          payload,
-          files,
-        });
-      }
+      await createAdminCommentMutation.mutateAsync({
+        requestId: request.Id,
+        payload,
+      });
 
       toast.success("Comentario enviado exitosamente", {
         position: "top-right",
@@ -118,7 +66,6 @@ export default function CommentsAssociatedModal({
 
       setSubject("");
       setComment("");
-      setFiles([]);
       refetch();
     } catch (error) {
       console.error("Error al enviar comentario:", error);
@@ -141,10 +88,6 @@ export default function CommentsAssociatedModal({
     });
   };
 
-  const handleViewFile = (fileId: number) => {
-    setSelectedFileId(fileId);
-  };
-
   return (
     <ModalBase open={open} onClose={onClose} panelClassName="w-full max-w-5xl !p-0 shadow-2xl h-[95vh] max-h-[95vh] flex flex-col overflow-hidden">
       {/* Header */}
@@ -152,7 +95,7 @@ export default function CommentsAssociatedModal({
         <div>
           <h3 className="text-2xl font-bold">Comunicación con {isAdmin ? "el Abonado" : "ASADA"}</h3>
           <p className="text-[#091540] mt-1 text-sm">
-            Solicitud #{request.Id} - {request.Name} {request.Surname1}
+            Solicitud #{request.Id} - {request.User?.Name} {request.User?.Surname1}
           </p>
         </div>
       </div>
@@ -170,11 +113,11 @@ export default function CommentsAssociatedModal({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
               <span className="text-xs text-gray-500 uppercase tracking-wide font-semibold block mb-1">Nombre Completo</span>
-              <p className="text-gray-900 font-medium truncate" title={`${request.Name} ${request.Surname1} ${request.Surname2}`}>{request.Name} {request.Surname1} {request.Surname2}</p>
+              <p className="text-gray-900 font-medium truncate" title={`${request.User?.Name || ''} ${request.User?.Surname1 || ''} ${request.User?.Surname2 || ''}`}>{request.User?.Name} {request.User?.Surname1} {request.User?.Surname2}</p>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-              <span className="text-xs text-gray-500 uppercase tracking-wide font-semibold block mb-1">Cédula</span>
-              <p className="text-gray-900 font-medium truncate" title={request.IDcard}>{request.IDcard}</p>
+              <span className="text-xs text-gray-500 uppercase tracking-wide font-semibold block mb-1">Ubicación</span>
+              <p className="text-gray-900 font-medium truncate" title={request.Location}>{request.Location}</p>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
               <span className="text-xs text-gray-500 uppercase tracking-wide font-semibold block mb-1">NIS</span>
@@ -195,60 +138,6 @@ export default function CommentsAssociatedModal({
               </div>
             )}
           </div>
-
-          {/* Documentos originales */}
-          {request.RequestAssociatedFile && request.RequestAssociatedFile.length > 0 && (
-            <div className="mt-6">
-              <h5 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                Documentos Adjuntos a la Solicitud
-              </h5>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {request.RequestAssociatedFile.map((file, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white p-4 rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:shadow-md transition-all group"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
-                        <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate" title={file.FileName}>{file.FileName}</p>
-                        <p className="text-xs text-gray-500 mt-1">{file.FileType}</p>
-                        <button
-                          onClick={() => handleViewFile(file.Id)}
-                          disabled={isLoadingLink && selectedFileId === file.Id}
-                          className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-wait"
-                        >
-                          {isLoadingLink && selectedFileId === file.Id ? (
-                            <>
-                              <svg className="w-4 h-4 animate-spin" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                              </svg>
-                              Cargando...
-                            </>
-                          ) : (
-                            <>
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                              </svg>
-                              Ver Documento
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Comments Thread */}
@@ -277,8 +166,7 @@ export default function CommentsAssociatedModal({
           ) : (
             <div className="space-y-4">
               {comments.map((commentItem) => {
-                // Extraer información del autor del comentario desde el campo User
-                // El backend ahora envía User (en lugar de Users array)
+                // Extraer información del autor del comentario
                 const commentUser = commentItem.User;
                 
                 // Determinar si es mi mensaje comparando con el usuario actual logueado
@@ -291,7 +179,6 @@ export default function CommentsAssociatedModal({
                 let authorInitial = "?";
                 
                 if (commentUser) {
-                  // Mostrar nombre del usuario que hizo el comentario
                   authorName = `${commentUser.Name || ""} ${commentUser.Surname1 || ""} ${commentUser.Surname2 || ""}`.trim();
                   authorInitial = commentUser.Name?.charAt(0).toUpperCase() || "U";
                   
@@ -300,7 +187,6 @@ export default function CommentsAssociatedModal({
                     authorInitial = "U";
                   }
                 } else {
-                  // Si no hay información del usuario, es un comentario del sistema
                   authorName = "Administracion ASADA";
                   authorInitial = "S";
                 }
@@ -354,24 +240,6 @@ export default function CommentsAssociatedModal({
                         }`}>
                           {commentItem.Comment}
                         </p>
-
-                        {commentItem.hasFileUpdate && (
-                          <div className={`mt-3 pt-3 border-t ${
-                            isMyMessage ? "border-blue-500" : "border-gray-200"
-                          }`}>
-                            <p className={`text-xs font-medium mb-2 flex items-center gap-1 ${
-                              isMyMessage ? "text-blue-200" : "text-gray-600"
-                            }`}>
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clipRule="evenodd" />
-                              </svg>
-                              Documentos actualizados adjuntos
-                            </p>
-                            <div className="text-xs text-gray-500 italic">
-                              Los archivos actualizados se encuentran en la sección superior del chat
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -405,7 +273,7 @@ export default function CommentsAssociatedModal({
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1">Comentario</label>
               <textarea
-                placeholder={isAdmin ? "Escriba su observación o solicitud de documentos..." : "Escriba su respuesta y adjunte los documentos solicitados..."}
+                placeholder="Escriba su observación o solicitud..."
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={4}
@@ -414,65 +282,10 @@ export default function CommentsAssociatedModal({
               />
             </div>
 
-            {!isAdmin && (
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Documentos Adjuntos (Requerido)</label>
-                <label className="flex items-center justify-center gap-3 px-4 py-6 border-2 border-dashed border-gray-400 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all cursor-pointer group">
-                  <div className="bg-blue-100 p-3 rounded-full group-hover:bg-blue-200 transition-colors">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                    </svg>
-                  </div>
-                  <div className="text-center">
-                    <span className="text-sm font-semibold text-gray-700">Haga clic para seleccionar archivos</span>
-                    <p className="text-xs text-gray-500 mt-1">PDF, DOC, DOCX, JPG, PNG (máx. 10MB)</p>
-                  </div>
-                  <input
-                    type="file"
-                    multiple
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                    disabled={isSubmitting}
-                  />
-                </label>
-
-                {files.length > 0 && (
-                  <div className="mt-3 space-y-2 max-h-40 overflow-y-auto bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    {files.map((file, idx) => (
-                      <div key={idx} className="flex items-center justify-between bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="bg-blue-100 p-2 rounded">
-                            <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate" title={file.name}>{file.name}</p>
-                            <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFile(idx)}
-                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                          disabled={isSubmitting}
-                        >
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
             <div className="flex gap-3 justify-end pt-2">
               <button
                 type="submit"
-                disabled={isSubmitting || !subject.trim() || !comment.trim() || (!isAdmin && files.length === 0)}
+                disabled={isSubmitting || !subject.trim() || !comment.trim()}
                 className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg flex items-center gap-2"
               >
                 {isSubmitting ? (
