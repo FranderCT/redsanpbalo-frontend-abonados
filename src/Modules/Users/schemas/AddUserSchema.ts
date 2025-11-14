@@ -16,13 +16,7 @@ export const AddUserSchema = z.object({
     message: 'Debe tener al menos 2 caracteres si se proporciona',}),
     
     IsAbonado: z.boolean(),
-    Nis: z
-    .string()
-    .trim()
-    // Permitir vacío ("") O bien 1–10 dígitos
-    .refine((v) => v === '' || /^\d{1,10}$/.test(v), {
-      message: 'Debe tener máximo 10 dígitos numéricos',
-    }),
+    Nis: z.array(z.number().positive('Cada NIS debe ser un número positivo')),
 
     Email: z.string()
     .email('Debe ser un correo electrónico válido.')
@@ -52,12 +46,12 @@ export const AddUserSchema = z.object({
     .min(1, "Debe asignar al menos un rol al usuario"),
 })
 .refine((data) => {
-  // Si es abonado, NIS es obligatorio
+  // Si es abonado, debe tener al menos un NIS
   if (data.IsAbonado) {
-    return data.Nis !== '' && /^\d{1,10}$/.test(data.Nis);
+    return data.Nis.length > 0;
   }
-  return true; // Si no es abonado, NIS puede estar vacío
+  return true; // Si no es abonado, Nis puede estar vacío
 }, {
-  message: "Si es abonado, el NIS es obligatorio y debe tener entre 1 y 10 dígitos",
+  message: "Si es abonado, debe tener al menos un NIS",
   path: ["Nis"]
 })

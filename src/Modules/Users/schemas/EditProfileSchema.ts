@@ -29,17 +29,14 @@ export const EditProfileSchema = z.object({
       message: 'La dirección debe tener al menos 10 caracteres.',
     }),
 
-  // Permitir vacío ("") o 1–10 dígitos
+  // Nis ahora es un array de números positivos (opcional en edición)
   Nis: z
-    .string()
-    .trim()
-    .refine((v) => v === '' || /^\d{1,10}$/.test(v), {
-      message: 'Debe tener máximo 10 dígitos numéricos',
-    }),
+    .array(z.number().positive('El NIS debe ser un número positivo'))
+    .optional()
+    .default([]),
 
   // Campos del formulario con validación simple
   roleIds: z.array(z.number()),
   IsActive: z.boolean(),
 });
-
 

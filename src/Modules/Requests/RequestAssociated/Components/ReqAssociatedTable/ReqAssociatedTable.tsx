@@ -5,6 +5,7 @@ import { ReqAssociatedColumns } from "./ReqAssociatedColumns";
 import ReqAssociatedPager from "../PaginationReqAssociated/ReqAssociatedPager";
 import UpdateReqAssociatedStateModal from "../Modals/UpdateAssociatedModal";
 import ReqAssociatedAdminModal from "../Modals/VerinfoRequestAboando";
+import CommentsAssociatedModal from "../Comments/CommentsAssociatedModal";
 
 type Props = {
   data: ReqAssociated[];
@@ -23,6 +24,7 @@ export default function ReqAssociatedTable({
         const [selectedRequest, setSelectedRequest] = useState<ReqAssociated | null>(null);
         const [showDetailModal, setShowDetailModal] = useState(false);
   const [editingReqAssociated, setEditingReqAssociated] = useState<ReqAssociated | null>(null);
+  const [commentingRequest, setCommentingRequest] = useState<ReqAssociated | null>(null);
   // const [getInfoReqAvailWater, setGetInfoReqAvailWater] = useState<ReqAvailWater | null>(null);
           const handleGetInfo = (req: ReqAssociated) => {
             setSelectedRequest(req);
@@ -35,9 +37,11 @@ export default function ReqAssociatedTable({
 
   const table = useReactTable({
     data,
-    columns: ReqAssociatedColumns((req) => setEditingReqAssociated(req),
-    handleGetInfo
-  ),
+    columns: ReqAssociatedColumns(
+      (req) => setEditingReqAssociated(req),
+      handleGetInfo,
+      (req) => setCommentingRequest(req)
+    ),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -57,6 +61,16 @@ export default function ReqAssociatedTable({
                   onClose={handleCloseModal}
                   title="Detalles solicitud para ser Asociado"
                   data={selectedRequest}
+                />
+              )}
+
+              {/* Modal de comentarios */}
+              {commentingRequest && (
+                <CommentsAssociatedModal
+                  open={!!commentingRequest}
+                  onClose={() => setCommentingRequest(null)}
+                  request={commentingRequest}
+                  isAdmin={true}
                 />
               )}
       <table className="min-w-full border-collapse border border-gray-300">

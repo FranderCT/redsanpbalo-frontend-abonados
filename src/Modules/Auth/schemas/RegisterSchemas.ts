@@ -16,12 +16,7 @@ export const RegisterSchema = z.object({
     message: 'Debe tener al menos 2 caracteres si se proporciona',}),
 
     Nis: z
-    .string()
-    .trim()
-    // Permitir vacío ("") O bien 1–10 dígitos
-    .refine((v) => v === '' || /^\d{1,10}$/.test(v), {
-      message: 'Debe tener máximo 10 dígitos numéricos',
-    }),
+    .array(z.number().positive('El NIS debe ser un número positivo')),
 
     Email: z.string()
     .email('Debe ser un correo electrónico válido.')
@@ -61,16 +56,13 @@ export const RegisterSchema = z.object({
     message: 'Las contraseñas no coinciden',
     path: ['ConfirmPassword'],
   })
-  // NIS obligatorio (1–10 dígitos)
   .superRefine((data, ctx) => {
-    if (data.IsAbonado) {
-      if (!/^\d{1,10}$/.test(data.Nis)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'El NIS es obligatorio y debe ser numérico (máx. 10 dígitos).',
-          path: ['Nis'],
-        });
-      }
+    if (data.IsAbonado && data.Nis.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Debe agregar al menos un NIS si es abonado.',
+        path: ['Nis'],
+      });
     }
   });
 

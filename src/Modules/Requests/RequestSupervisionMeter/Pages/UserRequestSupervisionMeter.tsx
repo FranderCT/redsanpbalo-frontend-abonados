@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 import { useCreateSupervisionMeterRequest } from "../../../Request-Abonados/Hooks/Supervision-Meter/SupervionMeterHooks";
@@ -18,6 +18,7 @@ export default function UserRequestSupervisionMeter() {
     const form = useForm({
         defaultValues: {
             Location: '',
+            // NIS se determinará por efecto según cantidad en el perfil
             NIS: 0,
             Justification: '',
             UserId: UserProfile?.Id || 0
@@ -31,6 +32,23 @@ export default function UserRequestSupervisionMeter() {
             }
         }
     });
+
+    // Efecto para inicializar NIS cuando el perfil se carga
+    useEffect(() => {
+        const nisArray = (UserProfile as any)?.Nis as number[] | undefined;
+        if (Array.isArray(nisArray)) {
+            if (nisArray.length === 1) {
+                // Solo asignar si aún está en 0
+                if (form.state.values.NIS === 0) {
+                    form.setFieldValue('NIS', nisArray[0]);
+                }
+            } else if (nisArray.length === 0) {
+                // mantener 0
+            } else {
+                // múltiples: asegurar que se requiera selección manual => mantener 0
+            }
+        }
+    }, [UserProfile, form.state.values.NIS]);
 
     return (
         <div>
@@ -128,30 +146,83 @@ export default function UserRequestSupervisionMeter() {
                     )}
                 </form.Field>
 
-                {/* NIS */}
-                <form.Field name="NIS">
-                    {(field) => (
-                        <label className="grid gap-2">
-                            <span className="text-sm font-medium text-gray-700">
-                                Número de Identificación del Suministro (NIS) <span className="text-red-500">*</span>
-                            </span>
-                            <input
-                                type="number"
-                                className="w-full px-4 py-2 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition shadow-sm"
-                                placeholder="Ej. 120"
-                                value={field.state.value || ''}
-                                onChange={(e) => field.handleChange(Number(e.target.value))}
-                                min="1"
-                                required
-                            />
-                            {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                                <p className="text-sm text-red-500 mt-1">
-                                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                                </p>
-                            )}
-                        </label>
-                    )}
-                </form.Field>
+                {/* NIS dinámico según cantidad disponible en el perfil */}
+                <form.Subscribe selector={(s) => s.values.NIS}>
+                    {() => {
+                        const nisArray = (UserProfile as any)?.Nis as number[] | undefined;
+                        const hasArray = Array.isArray(nisArray);
+                        if (!hasArray) {
+                            // Perfil aún no cargado
+                            return (
+                                <label className="grid gap-2">
+                                    <span className="text-sm font-medium text-gray-700">NIS</span>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-2 bg-gray-100 border border-gray-200 text-gray-500 rounded-md"
+                                        value="Cargando perfil..."
+                                        readOnly
+                                        disabled
+                                    />
+                                </label>
+                            );
+                        }
+                        if (nisArray.length === 0) {
+                            return (
+                                <label className="grid gap-2">
+                                    <span className="text-sm font-medium text-gray-700">NIS</span>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-2 bg-gray-100 border border-gray-200 text-gray-500 rounded-md"
+                                        value="No tiene NIS registrado"
+                                        readOnly
+                                        disabled
+                                    />
+                                </label>
+                            );
+                        }
+                        if (nisArray.length === 1) {
+                            return (
+                                <label className="grid gap-2">
+                                    <span className="text-sm font-medium text-gray-700">NIS (solo lectura)</span>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-2 bg-gray-100 border border-gray-200 text-gray-700 rounded-md"
+                                        value={String(nisArray[0])}
+                                        readOnly
+                                        disabled
+                                    />
+                                </label>
+                            );
+                        }
+                        return (
+                            <form.Field name="NIS">
+                                {(field) => (
+                                    <label className="grid gap-2">
+                                        <span className="text-sm font-medium text-gray-700">
+                                            Seleccione NIS <span className="text-red-500">*</span>
+                                        </span>
+                                        <select
+                                            className="w-full px-4 py-2 bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition shadow-sm rounded-md"
+                                            value={field.state.value || 0}
+                                            onChange={(e) => field.handleChange(Number(e.target.value))}
+                                            required
+                                        >
+                                            <option value={0} disabled>Seleccione una opción</option>
+                                            {nisArray.map(n => (
+                                                <option key={n} value={n}>{n}</option>
+                                            ))}
+                                        </select>
+                                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                                            <p className="text-sm text-red-500 mt-1">
+                                                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                                            </p>
+                                        )}
+                                    </label>
+                                )}
+                            </form.Field>
+                        );
+                    }}
+                </form.Subscribe>
 
                 {/* Justificación */}
                 <form.Field name="Justification">

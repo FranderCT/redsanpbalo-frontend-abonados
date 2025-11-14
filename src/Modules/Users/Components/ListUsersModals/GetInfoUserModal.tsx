@@ -76,7 +76,7 @@ export default function GetInfoUserModal({
             <div className="bg-gray-50 p-3">
               <dt className="text-[11px] uppercase text-gray-500">NIS</dt>
               <dd className="mt-1 text-sm text-[#091540]">
-                {user?.Nis || "—"}
+                {user?.Nis && user.Nis.length > 0 ? user.Nis.join(", ") : "—"}
               </dd>
             </div>
 

@@ -4,6 +4,7 @@ import type { ReqAssociated } from "../../../Requests/RequestAssociated/Models/R
 import { ReqAssociatedUserColumns } from "./ReqAssociatedUserColumns";
 import { useState } from "react";
 import AssociatedDetailModal from "../Modals/RequestAssociatedModal";
+import CommentsAssociatedModal from "../../../Requests/RequestAssociated/Components/Comments/CommentsAssociatedModal";
 
 
 type Props = {
@@ -21,6 +22,7 @@ export default function ReqAssociatedUserTable({
 }: Props) {
   const [selectedRequest, setSelectedRequest] = useState<ReqAssociated | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [commentingRequest, setCommentingRequest] = useState<ReqAssociated | null>(null);
 
   const handleGetInfo = (req: ReqAssociated) => {
     setSelectedRequest(req);
@@ -33,7 +35,7 @@ export default function ReqAssociatedUserTable({
   };
 
   // Use the same column definitions as the main table, but wired to this table's edit handler
-  const columns = ReqAssociatedUserColumns(handleGetInfo);
+  const columns = ReqAssociatedUserColumns(handleGetInfo, (req) => setCommentingRequest(req));
 
   // const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
 
@@ -115,6 +117,15 @@ export default function ReqAssociatedUserTable({
           onClose={handleCloseModal}
           title="Detalles de Solicitud de Asociación"
           data={selectedRequest}
+        />
+      )}
+
+      {commentingRequest && (
+        <CommentsAssociatedModal
+          open={!!commentingRequest}
+          onClose={() => setCommentingRequest(null)}
+          request={commentingRequest}
+          isAdmin={false}
         />
       )}
     </div>

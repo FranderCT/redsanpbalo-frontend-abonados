@@ -14,19 +14,25 @@ type Props = {
   onSuccess?: () => void;
 };
 
-const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
+const EditPhysicalSupplierModal = ({ supplier: physicalSupplier, open, onClose, onSuccess }: Props) => {
   const updateSupplierMutation = useEditPhysicalSupplier();
 
   const SPANSTYLES = "text text-[#222]";
   const LABELSTYLES = "grid gap-1";
   const INPUTSTYLES = "w-full px-4 py-2 bg-gray-50 border";
   
+  const supplier = physicalSupplier.Supplier;
+  
   const form = useForm({
     defaultValues: {
-      Email: supplier.Email ?? '',
-      PhoneNumber: supplier.PhoneNumber ?? '',
-      Location:  supplier.Location ?? '',
-      IsActive : supplier.IsActive ?? true,
+      IDcard: supplier?.IDcard ?? '',
+      Name: supplier?.Name ?? '',
+      Surname1: physicalSupplier.Surname1 ?? '',
+      Surname2: physicalSupplier.Surname2 ?? '',
+      Email: supplier?.Email ?? '',
+      PhoneNumber: supplier?.PhoneNumber ?? '',
+      Location: supplier?.Location ?? '',
+      IsActive: supplier?.IsActive ?? true,
     },
     validators:{
       onChange: UpdatePhysicalSupplierSchema
@@ -34,7 +40,7 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
     onSubmit: async ({ value }) => {
       try {
         await updateSupplierMutation.mutateAsync({
-          id: supplier.Id,
+          id: physicalSupplier.Id,
           data: value,
         });
         form.reset();
@@ -48,12 +54,17 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
 
   // Cuando cambia el supplier o se abre el modal, sincroniza los campos
   useEffect(() => {
-    if (!supplier) return;
+    if (!physicalSupplier || !supplier) return;
+    form.setFieldValue("IDcard", supplier.IDcard ?? "");
+    form.setFieldValue("Name", supplier.Name ?? "");
+    form.setFieldValue("Surname1", physicalSupplier.Surname1 ?? "");
+    form.setFieldValue("Surname2", physicalSupplier.Surname2 ?? "");
     form.setFieldValue("Email", supplier.Email ?? "");
     form.setFieldValue("PhoneNumber", supplier.PhoneNumber ?? "");
     form.setFieldValue("Location", supplier.Location ?? "");
+    form.setFieldValue("IsActive", supplier.IsActive ?? true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [supplier, open]);
+  }, [physicalSupplier, open]);
 
   const handleClose = () => {
     toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
@@ -85,6 +96,86 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
         }}
         className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
+
+        {/* IDcard */}
+        <form.Field name="IDcard">
+          {(field) => (
+            <label className={LABELSTYLES}>
+              <span className={SPANSTYLES}>Número de Cédula</span>
+              <input
+                className={INPUTSTYLES}
+                placeholder="ejm. 504440123"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {field.state.meta.isTouched && field.state.meta.errors[0] && (
+                <p className="text-sm text-red-500 mt-1">
+                  {toMsg(field.state.meta.errors[0] as any)}
+                </p>
+              )}
+            </label>
+          )}
+        </form.Field>
+
+        {/* Name */}
+        <form.Field name="Name">
+          {(field) => (
+            <label className={LABELSTYLES}>
+              <span className={SPANSTYLES}>Nombre</span>
+              <input
+                className={INPUTSTYLES}
+                placeholder="ejm. GILBERT ADAN"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {field.state.meta.isTouched && field.state.meta.errors[0] && (
+                <p className="text-sm text-red-500 mt-1">
+                  {toMsg(field.state.meta.errors[0] as any)}
+                </p>
+              )}
+            </label>
+          )}
+        </form.Field>
+
+        {/* Surname1 */}
+        <form.Field name="Surname1">
+          {(field) => (
+            <label className={LABELSTYLES}>
+              <span className={SPANSTYLES}>Primer apellido</span>
+              <input
+                className={INPUTSTYLES}
+                placeholder="ejm. CERDAS"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {field.state.meta.isTouched && field.state.meta.errors[0] && (
+                <p className="text-sm text-red-500 mt-1">
+                  {toMsg(field.state.meta.errors[0] as any)}
+                </p>
+              )}
+            </label>
+          )}
+        </form.Field>
+
+        {/* Surname2 */}
+        <form.Field name="Surname2">
+          {(field) => (
+            <label className={LABELSTYLES}>
+              <span className={SPANSTYLES}>Segundo apellido</span>
+              <input
+                className={INPUTSTYLES}
+                placeholder="ejm. CHAVES"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+              />
+              {field.state.meta.isTouched && field.state.meta.errors[0] && (
+                <p className="text-sm text-red-500 mt-1">
+                  {toMsg(field.state.meta.errors[0] as any)}
+                </p>
+              )}
+            </label>
+          )}
+        </form.Field>
 
         {/* Email */}
         <form.Field name="Email">
@@ -138,7 +229,7 @@ const EditPhysicalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props
               <span className={SPANSTYLES}>Dirección del proveedor</span>
               <textarea
                 className={`${INPUTSTYLES} resize-none min-h-[70px] leading-relaxed`}
-                placeholder={`${supplier.Location}`}
+                placeholder={supplier?.Location || "Ingrese la dirección"}
                 rows={4}
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}

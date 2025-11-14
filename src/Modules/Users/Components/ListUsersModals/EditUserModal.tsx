@@ -5,7 +5,7 @@ import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useUpdateUser, useGetAllRoles } from "../../Hooks/UsersHooks"; // 👈 trae roles
 import type { User } from "../../Models/User";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
-import { EditProfileSchema } from "../../schemas/EditProfileSchema";
+import { useState } from "react";
 
 type Props = {
   user: User;
@@ -17,6 +17,7 @@ type Props = {
 export default function EditUserModal({ user, open, onClose, onSuccess }: Props) {
   const updateUserMutation = useUpdateUser();
   const { roles } = useGetAllRoles(); // [{ Id, Rolname }]
+  const [tempNis, setTempNis] = useState('');
 
   const initialRoleIds =
     (Array.isArray((user as any)?.Roles) ? (user as any).Roles.map((r: any) => r.Id) : undefined) ??
@@ -26,13 +27,10 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
   const form = useForm({
     defaultValues: {
       PhoneNumber: user.PhoneNumber ?? "",
-      Nis: user.Nis ?? "",
+      Nis: user.Nis ?? [],
       Address: user.Address ?? "",
       roleIds: initialRoleIds as number[], // 👈 importante
       IsActive: user.IsActive ?? true,
-    },
-    validators:{
-      onChange:EditProfileSchema
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -77,7 +75,9 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
             </div>
             <div className="bg-gray-50 p-3">
               <dt className="text-[11px] uppercase tracking-wide text-gray-500">NIS</dt>
-              <dd className="mt-1 text-sm text-[#091540] break-words">{user?.Nis || "—"}</dd>
+              <dd className="mt-1 text-sm text-[#091540] break-words">
+                {user?.Nis && user.Nis.length > 0 ? user.Nis.join(", ") : "—"}
+              </dd>
             </div>
           </dl>
         </div>
@@ -91,24 +91,89 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
           className="grid gap-4"
         >
           <form.Field name="Nis">
-            {(field) => (
-              <>
-                <span className="text-sm text-gray-700">NIS</span>
-                <input
-                  type="text"
-                  value={field.state.value ?? ""}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Ingresa el NIS"
-                  className="w-full border px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ??
-                      String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </>
-            )}
+            {(field) => {
+              const nisList: number[] = field.state.value ?? [];
+
+              const handleAddNis = () => {
+                const trimmed = tempNis.trim();
+                if (!trimmed) return;
+                const nisNum = Number(trimmed);
+                if (isNaN(nisNum) || nisNum <= 0) {
+                  toast.error("El NIS debe ser un número positivo", { position: "top-right", autoClose: 2000 });
+                  return;
+                }
+                if (nisList.includes(nisNum)) {
+                  toast.error("Este NIS ya está agregado", { position: "top-right", autoClose: 2000 });
+                  return;
+                }
+                field.handleChange([...nisList, nisNum]);
+                setTempNis('');
+              };
+
+              const handleRemoveNis = (nis: number) => {
+                field.handleChange(nisList.filter(n => n !== nis));
+              };
+
+              return (
+                <div className="grid gap-2">
+                  <span className="text-sm text-gray-700">NIS (Números de Identificación de Servicio)</span>
+                  
+                  {/* Chips con NIS agregados */}
+                  <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-gray-50 border">
+                    {nisList.length === 0 && (
+                      <span className="text-xs text-gray-400">No hay NIS agregados</span>
+                    )}
+                    {nisList.map((nis) => (
+                      <span
+                        key={nis}
+                        className="inline-flex items-center gap-2 bg-[#091540] text-white px-3 py-1 text-sm"
+                      >
+                        {nis}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveNis(nis)}
+                          className="hover:text-red-300 font-bold"
+                          title="Eliminar NIS"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Input para agregar NIS */}
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      value={tempNis}
+                      onChange={(e) => setTempNis(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddNis();
+                        }
+                      }}
+                      placeholder="Ingresa un NIS y presiona Enter"
+                      className="flex-1 border px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddNis}
+                      className="px-4 py-2 bg-[#1789FC] text-white hover:bg-[#091540] transition-colors"
+                    >
+                      Agregar
+                    </button>
+                  </div>
+
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ??
+                        String(field.state.meta.errors[0])}
+                    </p>
+                  )}
+                </div>
+              );
+            }}
           </form.Field>
 
           <form.Field name="PhoneNumber">

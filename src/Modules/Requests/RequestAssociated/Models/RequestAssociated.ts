@@ -2,6 +2,15 @@ import type { User } from "../../../Users/Models/User";
 import type { RequestState } from "../../StateRequest/Model/RequestState";
 import type { CommentRequest } from "../../CommentRequest/Models/CommentRequest";
 
+export interface RequestAssociatedFile {
+    Id: number;
+    FileName: string;
+    FilePath: string;
+    FileType: string;
+    FileSize: number;
+    UploadedAt: Date;
+}
+
 export interface ReqAssociated{
     Id: number;
     IDcard: string;
@@ -16,7 +25,7 @@ export interface ReqAssociated{
     User: User;
     StateRequest:RequestState;
     commentRquest?:CommentRequest[];
-    //RequestAssociatedFile: RequestAssociated[];
+    RequestAssociatedFile?: RequestAssociatedFile[];
 }
 
 export interface newReqAssociated{

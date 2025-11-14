@@ -5,6 +5,9 @@ import { ReqChangeMeterColumns } from "./RequestChangeMeterColumns";
 import ReqChangeMeterPager from "../PaginationRequestChangeMeter/RequestChangeMeterPager";
 import UpdateReqChangeMeterStateModal from "../../Modals/UpdateChangeMeter";
 import MeterSupervisionDetailModal from "../../../../Request-Abonados/Components/Modals/RequestSuperVisionMeterr";
+import { CommentsChangeMeterModal } from "../Comments/CommentsChangeMeterModal";
+
+
 
 type Props = {
   data: ReqChangeMeter[];
@@ -23,6 +26,7 @@ export default function ReqChangeMeterTable({
     const [selectedRequest, setSelectedRequest] = useState<ReqChangeMeter | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
   const [editingChangename, setEditingChangeName] = useState<ReqChangeMeter | null>(null);
+  const [commentingRequest, setCommentingRequest] = useState<ReqChangeMeter | null>(null);
   // const [getInfoReqAvailWater, setGetInfoReqAvailWater] = useState<ReqAvailWater | null>(null);
   
   const handleGetInfo = (req: ReqChangeMeter) => {
@@ -36,9 +40,11 @@ export default function ReqChangeMeterTable({
   };
   const table = useReactTable({
     data,
-    columns: ReqChangeMeterColumns((req) => setEditingChangeName(req),
-    handleGetInfo
-  ),
+    columns: ReqChangeMeterColumns(
+      (req) => setEditingChangeName(req),
+      handleGetInfo,
+      (req) => setCommentingRequest(req)
+    ),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -57,6 +63,16 @@ export default function ReqChangeMeterTable({
                   onClose={handleCloseModal}
                   title="Detalles de Solicitud de Disponibilidad de Agua"
                   data={selectedRequest}
+                />
+              )}
+              
+              {/* Modal de comentarios */}
+              {commentingRequest && (
+                <CommentsChangeMeterModal
+                  open={!!commentingRequest}
+                  onClose={() => setCommentingRequest(null)}
+                  request={commentingRequest}
+                  isAdmin={true}
                 />
               )}
       <table className="min-w-full border-collapse border border-gray-300">

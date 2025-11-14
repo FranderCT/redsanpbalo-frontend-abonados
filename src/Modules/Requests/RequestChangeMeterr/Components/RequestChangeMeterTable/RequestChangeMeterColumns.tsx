@@ -1,5 +1,5 @@
 import { type ColumnDef } from "@tanstack/react-table";
-import { Edit2, InfoIcon } from "lucide-react";
+import { Edit2, InfoIcon, MessageSquare } from "lucide-react";
 import type { ReqChangeMeter } from "../../Models/RequestChangeMeter";
 import DeleteChangeMeterModal from "../../Modals/DeleteChangeMeterModal";
 
@@ -32,7 +32,8 @@ const guessStateColor = (normalized: string) => {
 };
 export const ReqChangeMeterColumns = (
   onEdit: (req: ReqChangeMeter) => void,
-  onGetInfo?: (req: ReqChangeMeter) => void
+  onGetInfo?: (req: ReqChangeMeter) => void,
+  onOpenComments?: (req: ReqChangeMeter) => void
 ): ColumnDef<ReqChangeMeter>[] => [
   {
     id: "Name",
@@ -87,6 +88,16 @@ export const ReqChangeMeterColumns = (
             Editar
           </button>
 
+          <button
+            onClick={() => onOpenComments?.(req)}
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#068A53] border-[#068A53]
+                       hover:bg-[#068A53] hover:text-white transition"
+          >
+            <MessageSquare className="w-4 h-4" />
+            Comentarios
+          </button>
+
          <DeleteChangeMeterModal reqChangeMeter={req} />  
         </div>
       );
@@ -107,23 +118,4 @@ export const ReqChangeMeterColumns = (
       </div>
     ),
   },
-  // Si agregas botón de info, descomenta y pasa onGetInfo arriba:
-  // {
-  //   id: "Información",
-  //   header: "Información",
-  //   cell: ({ row }) => {
-  //     const req = row.original;
-  //     return (
-  //       <button
-  //         onClick={() => onGetInfo?.(req)}
-  //         className="flex items-center gap-1 px-3 py-1 text-xs font-medium border
-  //                    text-[#222] border-[#222]
-  //                    hover:bg-[#091540] hover:text-white transition"
-  //       >
-  //         <InfoIcon className="w-4 h-4" />
-  //         Ver info
-  //       </button>
-  //     );
-  //   },
-  // },
 ];

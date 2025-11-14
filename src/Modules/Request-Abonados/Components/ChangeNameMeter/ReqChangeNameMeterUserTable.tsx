@@ -4,6 +4,7 @@ import { ReqChangeNameMeterUserColumns } from "./ReqChangeNameMeterUserColums";
 import type { ReqChangeNameMeter } from "../../../Requests/RequestChangeNameMeter/Models/RequestChangeNameMeter";
 import { useState } from "react";
 import MeterChangeDetailModal from "../Modals/RequestChangeNameMeter";
+import { CommentsChangeNameMeterModal } from "../../../Requests/RequestChangeNameMeter/Components/Comments/CommentsChangeNameMeterModal";
 
 type Props = {
   data: ReqChangeNameMeter[];
@@ -20,6 +21,7 @@ export default function ReqChangeNameMeterUserTable({
 }: Props) {
   const [selectedRequest, setSelectedRequest] = useState<ReqChangeNameMeter | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [commentingRequest, setCommentingRequest] = useState<ReqChangeNameMeter | null>(null);
 
   const handleGetInfo = (req: ReqChangeNameMeter) => {
     setSelectedRequest(req);
@@ -32,7 +34,10 @@ export default function ReqChangeNameMeterUserTable({
   };
 
   // Use the same column definitions as the main table, but wired to this table's edit handler
-  const columns = ReqChangeNameMeterUserColumns(handleGetInfo);
+  const columns = ReqChangeNameMeterUserColumns(
+    handleGetInfo,
+    (req) => setCommentingRequest(req)
+  );
 
   // const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
 
@@ -114,6 +119,15 @@ export default function ReqChangeNameMeterUserTable({
           onClose={handleCloseModal}
           title="Detalles de Solicitud de Cambio de Nombre de Medidor"
           data={selectedRequest}
+        />
+      )}
+
+      {commentingRequest && (
+        <CommentsChangeNameMeterModal
+          open={!!commentingRequest}
+          onClose={() => setCommentingRequest(null)}
+          request={commentingRequest}
+          isAdmin={false}
         />
       )}
     </div>
