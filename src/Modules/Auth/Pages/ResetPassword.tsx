@@ -40,7 +40,7 @@ const ResetPassword = () => {
   });
 
   return (
-    <div className="w-full max-w-md bg-white rounded-sm shadow-lg border-t-20 border-[#091540] px-8 py-10">
+    <div className="max-w-md bg-white rounded-sm shadow-lg border-t-20 border-[#091540] px-8 py-10 h-screen w-screen flex items-center justify-center md:mx-auto md:my-20">
       <div className="flex flex-col justify-center items-center flex-grow w-full gap-4">
         <h2 className="md:text-3xl font-bold text-[#091540] text-center drop-shadow-lg gap-4">
           Restablecer contraseña
