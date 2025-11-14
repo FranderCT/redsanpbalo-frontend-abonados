@@ -4,6 +4,7 @@ import ReqAvailWaterPager from "../../../Requests/RequestAvailabilityWater/Compo
 import { ReqAvailWaterUserColumns } from "./ReqAvailWaterUserColumns";
 import { useState } from "react";
 import RequestAvailabilityWaterModalAbo from "../Modals/RequesAvailabilityModal";
+import { CommentsAvailWaterModal } from "../../../Requests/RequestAvailabilityWater/Components/Comments/CommentsAvailWaterModal";
 
 type Props = {
   data: ReqAvailWater[];
@@ -20,6 +21,7 @@ export default function ReqAvailWaterUserTable({
 }: Props) {
   const [selectedRequest, setSelectedRequest] = useState<ReqAvailWater | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [commentingRequest, setCommentingRequest] = useState<ReqAvailWater | null>(null);
 
   const handleGetInfo = (req: ReqAvailWater) => {
     setSelectedRequest(req);
@@ -32,7 +34,10 @@ export default function ReqAvailWaterUserTable({
   };
 
   // Use the same column definitions as the main table, but wired to this table's edit handler
-  const columns = ReqAvailWaterUserColumns(handleGetInfo);
+  const columns = ReqAvailWaterUserColumns(
+    handleGetInfo,
+    (req) => setCommentingRequest(req)
+  );
 
   // const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
 
@@ -114,6 +119,15 @@ export default function ReqAvailWaterUserTable({
           onClose={handleCloseModal}
           title="Detalles de Solicitud de Disponibilidad de Agua"
           data={selectedRequest}
+        />
+      )}
+
+      {commentingRequest && (
+        <CommentsAvailWaterModal
+          open={!!commentingRequest}
+          onClose={() => setCommentingRequest(null)}
+          request={commentingRequest}
+          isAdmin={false}
         />
       )}
     </div>

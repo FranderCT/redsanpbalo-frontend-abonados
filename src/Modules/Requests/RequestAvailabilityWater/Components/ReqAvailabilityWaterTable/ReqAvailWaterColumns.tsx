@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ReqAvailWater } from "../../Models/ReqAvailWater";
-import { Edit2, InfoIcon } from "lucide-react";
+import { Edit2, InfoIcon, MessageSquare } from "lucide-react";
 import DeleteRequestModal from "../../Modals/DeleteRequestModal";
 
 // ---- helpers ----
@@ -32,7 +32,8 @@ const guessStateColor = (normalized: string) => {
 };
 export const ReqAvailWaterColumns = (
   onEdit: (req: ReqAvailWater) => void,
-  onGetInfo?: (req: ReqAvailWater) => void
+  onGetInfo?: (req: ReqAvailWater) => void,
+  onOpenComments?: (req: ReqAvailWater) => void
 ): ColumnDef<ReqAvailWater>[] => [
   {
     id: "Name",
@@ -90,6 +91,17 @@ export const ReqAvailWaterColumns = (
             <Edit2 className="w-4 h-4" />
             Editar
           </button>
+
+          <button
+            onClick={() => onOpenComments?.(req)}
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#068A53] border-[#068A53]
+                       hover:bg-[#068A53] hover:text-white transition"
+          >
+            <MessageSquare className="w-4 h-4" />
+            Comentarios
+          </button>
+
           <DeleteRequestModal reqAvailWater={req} />
         </div>
       );

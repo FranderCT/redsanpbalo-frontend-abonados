@@ -5,6 +5,7 @@ import { useState } from "react";
 import ReqAvailWaterPager from "../PaginationReqAvailabilityWater/ReqAvailWaterPager";
 import UpdateReqAvailWaterStateModal from "../../Modals/UpdateRequestModal";
 import RequestAvailWaterDetailModalAdmin from "../../../GeneralGetUser/VerInfoAbonadoModal";
+import { CommentsAvailWaterModal } from "../Comments/CommentsAvailWaterModal";
 
 type Props = {
   data: ReqAvailWater[];
@@ -23,6 +24,7 @@ export default function ReqAvailWaterTable({
   const [selectedRequest, setSelectedRequest] = useState<ReqAvailWater | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
+  const [commentingRequest, setCommentingRequest] = useState<ReqAvailWater | null>(null);
 
   const handleGetInfo = (req: ReqAvailWater) => {
     setSelectedRequest(req);
@@ -39,7 +41,8 @@ export default function ReqAvailWaterTable({
     data,
     columns: ReqAvailWaterColumns(
       (req) => setEditingReqAvailWater(req),
-      handleGetInfo  
+      handleGetInfo,
+      (req) => setCommentingRequest(req)
     ),
     getCoreRowModel: getCoreRowModel(),
   });
@@ -61,6 +64,16 @@ export default function ReqAvailWaterTable({
           onClose={handleCloseModal}
           title="Detalles de Solicitud de Disponibilidad de Agua"
           data={selectedRequest}
+        />
+      )}
+
+      {/* Modal de comentarios */}
+      {commentingRequest && (
+        <CommentsAvailWaterModal
+          open={!!commentingRequest}
+          onClose={() => setCommentingRequest(null)}
+          request={commentingRequest}
+          isAdmin={true}
         />
       )}
 
