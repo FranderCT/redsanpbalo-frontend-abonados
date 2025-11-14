@@ -92,10 +92,12 @@ export default function RegisterAbonadosModal() {
                                 const person = data.results[0];
                                 const apellido1 = person.lastname1 || "";
                                 const apellido2 = person.lastname2 || "";
-                                const nombre = [person.firstname, person.firstname2]
-                                  .filter(Boolean)
-                                  .join(" ")
-                                  .trim();
+                                const fn1 = (person.firstname || "").trim().replace(/\s+/g, " ");
+                                const fn2 = (person.firstname2 || "").trim();
+                                const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                                const nombre = fn2 && new RegExp(`\\b${esc(fn2)}\\b`, "i").test(fn1)
+                                  ? fn1
+                                  : [fn1, fn2].filter(Boolean).join(" ").trim();
 
                                 form.setFieldValue("Name", nombre);
                                 form.setFieldValue("Surname1", apellido1);

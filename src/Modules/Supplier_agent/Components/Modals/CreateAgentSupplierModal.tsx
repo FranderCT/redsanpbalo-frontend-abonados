@@ -74,10 +74,12 @@ const CreateAgentSupplierModal = ({LegalSupplierId} : Props) => {
     // Nueva estructura: data.results[0]
     if (data?.results && data.results.length > 0) {
       const person = data.results[0];
-      const nombre = [person.firstname, person.firstname2]
-        .filter(Boolean)
-        .join(" ")
-        .trim();
+      const fn1 = (person.firstname || "").trim().replace(/\s+/g, " ");
+      const fn2 = (person.firstname2 || "").trim();
+      const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const nombre = fn2 && new RegExp(`\\b${esc(fn2)}\\b`, "i").test(fn1)
+        ? fn1
+        : [fn1, fn2].filter(Boolean).join(" ").trim();
       const apellido1 = person.lastname1 || "";
       const apellido2 = person.lastname2 || "";
 
