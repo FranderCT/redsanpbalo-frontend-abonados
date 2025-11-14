@@ -43,7 +43,11 @@ export const ReqAssociatedUserColumns = (
   {
     id: "Justification",
     header: "Justificación",
-    cell: ({ row }) => row.original.Justification ?? "-",
+    cell: ({ row }) => (
+      <div className="max-w-xs truncate" title={row.original.Justificattion ?? ""}>
+        {row.original.Justificattion ?? "-"}
+      </div>
+    ),
   },
   {
     id: "RequestState",
