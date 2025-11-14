@@ -1,6 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { ReqChangeNameMeter } from "../../../Requests/RequestChangeNameMeter/Models/RequestChangeNameMeter";
-import { InfoIcon } from "lucide-react";
+import { InfoIcon, MessageSquare } from "lucide-react";
 
 
 const normalizeState = (s: string) =>
@@ -31,7 +31,8 @@ const guessStateColor = (normalized: string) => {
 };
 
 export const ReqChangeNameMeterUserColumns = (
-  onGetInfo?: (req: ReqChangeNameMeter) => void
+  onGetInfo?: (req: ReqChangeNameMeter) => void,
+  onOpenComments?: (req: ReqChangeNameMeter) => void
 ): ColumnDef<ReqChangeNameMeter>[] => [
   {
     id: "Date",
@@ -41,7 +42,11 @@ export const ReqChangeNameMeterUserColumns = (
   {
     id: "Justification",
     header: "Justificación",
-    cell: ({ row }) => row.original.Justification ?? "-",
+    cell: ({ row }) => (
+      <div className="max-w-xs truncate" title={row.original.Justification ?? ""}>
+        {row.original.Justification ?? "-"}
+      </div>
+    ),
   },
   {
     id: "RequestState",
@@ -66,13 +71,23 @@ export const ReqChangeNameMeterUserColumns = (
     id: "actions",
     header: "Acciones",
     cell: ({ row }) => (
-      <div className="flex justify-center">
+      <div className="flex justify-center gap-2">
         <button
           onClick={() => onGetInfo?.(row.original)}
           className="flex items-center gap-1 px-3 py-1 text-xs font-medium border text-[#222] border-[#222] hover:bg-[#091540] hover:text-[#f5f5f5] transition cursor-pointer"
         >
           <InfoIcon className="w-4 h-4" />
           Ver más
+        </button>
+        
+        <button
+          onClick={() => onOpenComments?.(row.original)}
+          className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                     text-[#068A53] border-[#068A53]
+                     hover:bg-[#068A53] hover:text-white transition"
+        >
+          <MessageSquare className="w-4 h-4" />
+          Comentarios
         </button>
       </div>
     ),

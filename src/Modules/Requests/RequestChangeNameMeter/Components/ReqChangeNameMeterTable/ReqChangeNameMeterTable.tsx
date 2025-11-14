@@ -5,6 +5,7 @@ import { ReqChangeNameMeterColumns } from "./ReqChangeNameMeterColumn";
 import ReqChangeNameMeterPager from "../PaginationChangeNameMeter/ReqChangeNameMeterPager";
 import UpdateReqChangeNameMeterStateModal from "../Modals/UpdateChangeNameMeter";
 import MeterSupervisionDetailModalAdmin from "../Modals/VerInfoAbonadoRequest";
+import { CommentsChangeNameMeterModal } from "../Comments/CommentsChangeNameMeterModal";
 
 
 type Props = {
@@ -24,6 +25,7 @@ export default function ReqChangeNameMeterTable({
       const [selectedRequest, setSelectedRequest] = useState<ReqChangeNameMeter | null>(null);
       const [showDetailModal, setShowDetailModal] = useState(false);
       const [editingChangeNameMeter, setEditingReqChangeNameMeter] = useState<ReqChangeNameMeter | null>(null);
+      const [commentingRequest, setCommentingRequest] = useState<ReqChangeNameMeter | null>(null);
 
           const handleGetInfo = (req: ReqChangeNameMeter) => {
             setSelectedRequest(req);
@@ -37,9 +39,11 @@ export default function ReqChangeNameMeterTable({
 
   const table = useReactTable({
     data,
-    columns: ReqChangeNameMeterColumns((req) => setEditingReqChangeNameMeter(req),
-    handleGetInfo,
-  ),
+    columns: ReqChangeNameMeterColumns(
+      (req) => setEditingReqChangeNameMeter(req),
+      handleGetInfo,
+      (req) => setCommentingRequest(req)
+    ),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -61,6 +65,16 @@ export default function ReqChangeNameMeterTable({
                   data={selectedRequest}
                 />
               )}
+
+      {commentingRequest && (
+        <CommentsChangeNameMeterModal
+          open={!!commentingRequest}
+          onClose={() => setCommentingRequest(null)}
+          request={commentingRequest}
+          isAdmin={true}
+        />
+      )}
+
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
           {table.getHeaderGroups().map((hg) => (
