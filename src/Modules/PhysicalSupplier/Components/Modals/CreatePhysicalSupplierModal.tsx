@@ -12,32 +12,6 @@ type CedulaLookup = {
   surname2: string | null;
 };
 
-// Heurística para separar nombres y apellidos cuando solo viene el nombre completo.
-// Asume convención CR: [Nombres...] [Apellido1] [Apellido2]
-function splitCostaRicaFullName(full: string): CedulaLookup {
-  const clean = full
-    .replace(/\s+/g, " ")
-    .replace(/[.,]+/g, " ")
-    .trim();
-
-  if (!clean) return { name: null, surname1: null, surname2: null };
-
-  const parts = clean.split(" ").filter(Boolean);
-
-  if (parts.length === 1) {
-    return { name: parts[0], surname1: null, surname2: null };
-  }
-  if (parts.length === 2) {
-    return { name: parts[0], surname1: parts[1], surname2: null };
-  }
-
-  // 3 o más: últimos dos como apellidos, el resto como nombres
-  const surname2 = parts.pop()!;
-  const surname1 = parts.pop()!;
-  const name = parts.join(" ");
-  return { name, surname1, surname2 };
-}
-
 const CreatePhysicalSupplierModal = () => {
   const [open, setOpen] = useState(false);
   const CreateSupplierMutation = useCreatePhysicalSupplier();
