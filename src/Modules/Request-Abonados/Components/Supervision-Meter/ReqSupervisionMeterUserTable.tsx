@@ -4,6 +4,7 @@ import type { ReqSupervisionMeter } from "../../../Requests/RequestSupervisionMe
 import { ReqSupervisionMeterUserColumns } from "./ReqSupervisionMeterUserColumn";
 import { useState } from "react";
 import MeterSupervisionDetailModal from "../Modals/RequestSuperVisionMeterr";
+import { CommentsSupervisionMeterModal } from "../../../Requests/RequestSupervisionMeter/Components/Comments/CommentsSupervisionMeterModal";
 
 type Props = {
   data: ReqSupervisionMeter[];
@@ -20,6 +21,7 @@ export default function ReqSupervisionMeterUserTable({
 }: Props) {
   const [selectedRequest, setSelectedRequest] = useState<ReqSupervisionMeter | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [commentingRequest, setCommentingRequest] = useState<ReqSupervisionMeter | null>(null);
 
   const handleGetInfo = (req: ReqSupervisionMeter) => {
     setSelectedRequest(req);
@@ -32,7 +34,10 @@ export default function ReqSupervisionMeterUserTable({
   };
 
   // Use the same column definitions as the main table, but wired to this table's edit handler
-  const columns = ReqSupervisionMeterUserColumns(handleGetInfo);
+  const columns = ReqSupervisionMeterUserColumns(
+    handleGetInfo,
+    (req) => setCommentingRequest(req)
+  );
 
   // const [editingReqAvailWater, setEditingReqAvailWater] = useState<ReqAvailWater | null>(null);
 
@@ -114,6 +119,15 @@ export default function ReqSupervisionMeterUserTable({
           onClose={handleCloseModal}
           title="Detalles de Solicitud de Supervisión de Medidor"
           data={selectedRequest}
+        />
+      )}
+
+      {commentingRequest && (
+        <CommentsSupervisionMeterModal
+          open={!!commentingRequest}
+          onClose={() => setCommentingRequest(null)}
+          request={commentingRequest}
+          isAdmin={false}
         />
       )}
     </div>

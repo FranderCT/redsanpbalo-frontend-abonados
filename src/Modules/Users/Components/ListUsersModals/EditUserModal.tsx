@@ -5,7 +5,6 @@ import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useUpdateUser, useGetAllRoles } from "../../Hooks/UsersHooks"; // 👈 trae roles
 import type { User } from "../../Models/User";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
-import { EditProfileSchema } from "../../schemas/EditProfileSchema";
 import { useState } from "react";
 
 type Props = {

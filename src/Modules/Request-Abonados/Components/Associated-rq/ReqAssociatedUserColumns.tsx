@@ -44,8 +44,8 @@ export const ReqAssociatedUserColumns = (
     id: "Justification",
     header: "Justificación",
     cell: ({ row }) => (
-      <div className="max-w-xs truncate" title={row.original.Justificattion ?? ""}>
-        {row.original.Justificattion ?? "-"}
+      <div className="max-w-xs truncate" title={row.original.Justification ?? ""}>
+        {row.original.Justification ?? "-"}
       </div>
     ),
   },

@@ -2,16 +2,14 @@
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
-import { useUpdateProduct } from "../../Hooks/ProductsHooks"; // 👈 igual a useUpdateUser pero para productos
+import { useUpdateProduct } from "../../Hooks/ProductsHooks";
 import { useGetAllCategory } from "../../../Category/Hooks/CategoryHooks";
 import { useGetAllUnitsMeasure } from "../../../UnitMeasure/Hooks/UnitMeasureHooks";
 import { useGetAllMaterials } from "../../../Materials/Hooks/MaterialHooks";
+import { useGetAllSupplier } from "../../../Supplier/Hooks/SupplierHooks";
 import type { Product } from "../../Models/CreateProduct";
-import { useGetAllLegalSuppliers } from "../../../LegalSupplier/Hooks/LegalSupplierHooks";
-import { useGetAllPhysicalSuppliers } from "../../../PhysicalSupplier/Hooks/PhysicalSupplierHooks";
-import { useEffect, useState } from "react";
-import type { SupplierType } from "./CreateProductModal";
-import { UpdateProductSchema } from "../../schemas/ProductSchema";
+import { useState, useEffect } from "react";
+import { SupplierSelectionModal } from "./SupplierSelectionModal";
 
 type Props = {
   product: Product;
@@ -21,30 +19,25 @@ type Props = {
 };
 
 export default function UpdateProductModal({ product, open, onClose, onSuccess }: Props) {
-  const [supplierType, setSupplierType] = useState<SupplierType>("legal");
+  const [selectedSuppliers, setSelectedSuppliers] = useState<number[]>([]);
+  const [showSupplierModal, setShowSupplierModal] = useState(false);
   const updateProductMutation = useUpdateProduct();
 
   const { category: categories = [], isLoading: categoriesLoading } = useGetAllCategory();
   const { unit: units = [], isLoading: unitsLoading } = useGetAllUnitsMeasure();
-  const {
-    materials = [],
-    isPending: materialsLoading,
-    error: materialsError,
-  } = useGetAllMaterials();
-  const {
-    legalSup: legalSuppliers = [],
-    isPending: legalLoading,
-    error: legalError,
-  } = useGetAllLegalSuppliers();
-
-  const {
-    phySup: physicalSuppliers = [],
-    isPending: physicalLoading,
-    error: physicalError,
-  } = useGetAllPhysicalSuppliers();
+  const { materials = [], isPending: materialsLoading, error: materialsError } = useGetAllMaterials();
+  const { supplier: suppliers = [], isLoading: suppliersLoading } = useGetAllSupplier();
+  
+  // Cargar proveedores actuales del producto cuando se abre el modal
+  useEffect(() => {
+    if (open && product.ProductSuppliers) {
+      const supplierIds = product.ProductSuppliers.map(ps => ps.Supplier.Id);
+      setSelectedSuppliers(supplierIds);
+    }
+  }, [open, product.ProductSuppliers]);
   
   const handleClose = () =>{
-  toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
+    toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
     onClose();
   }
 
@@ -56,43 +49,27 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
       CategoryId: product.Category?.Id ?? 0,
       MaterialId: product.Material?.Id ?? 0,
       UnitMeasureId: product.UnitMeasure?.Id ?? 0,
-      LegalSupplierId: product.LegalSupplier?.Id ?? 0, 
-      PhysicalSupplierId: product.PhysicalSupplier?.Id ?? 0,
       IsActive: product.IsActive ?? true,
     },
-    validators: {
-       onChange: UpdateProductSchema, // Esquema de validación
-    },
     onSubmit: async ({ value, formApi }) => {
-      const hasLegal = Number(value.LegalSupplierId) > 0;
-      const hasPhysical = Number(value.PhysicalSupplierId) > 0;
-
-      if (!hasLegal && !hasPhysical) {
-        toast.error("Selecciona un proveedor (Jurídico o Físico).");
-        return;
-      }
-      if (hasLegal && hasPhysical) {
-        toast.error("Solo puedes seleccionar un tipo de proveedor.");
+      if (selectedSuppliers.length === 0) {
+        toast.error("Debes seleccionar al menos un proveedor");
         return;
       }
 
-      // Construimos el payload SIN enviar el campo que no aplica (evita @Min(1) con 0)
-      const base = {
+      const payload = {
         Name: value.Name,
         Type: value.Type,
         Observation: value.Observation,
         CategoryId: Number(value.CategoryId),
         MaterialId: Number(value.MaterialId),
         UnitMeasureId: Number(value.UnitMeasureId),
+        SuppliersIds: selectedSuppliers.filter(id => id > 0),
         IsActive: value.IsActive
       };
 
-      const payload = hasLegal
-        ? { ...base, LegalSupplierId: Number(value.LegalSupplierId) }
-        : { ...base, PhysicalSupplierId: Number(value.PhysicalSupplierId) };
-
       try {
-        await updateProductMutation.mutateAsync({ id: product.Id, data: payload as any });
+        await updateProductMutation.mutateAsync({ id: product.Id, data: payload });
         toast.success("¡Producto actualizado!", { position: "top-right", autoClose: 3000 });
         formApi.reset();
         onClose();
@@ -106,18 +83,8 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
       }
     },
   });
-
-  // Al cambiar el tipo de proveedor, limpiamos el otro ID
-    useEffect(() => {
-      if (supplierType === "legal") {
-        form.setFieldValue("PhysicalSupplierId", 0);
-      } else {
-        form.setFieldValue("LegalSupplierId", 0);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [supplierType]);
   
-    const LABEL = "grid gap-1";
+  const LABEL = "grid gap-1";
     const INPUT = "w-full px-4 py-2 bg-gray-50 border";
 
   return (
@@ -295,93 +262,59 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
             )}
           </form.Field>
           
-          {/* ======== Supplier Type (RADIOS) ======== */}
-            <div className="grid gap-2">
-              <span className="text-sm text-[#091540] font-semibold">Tipo de Proveedor</span>
-              <div className="flex items-center gap-6">
-                <label className="inline-flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="supplierType"
-                    value="legal"
-                    checked={supplierType === "legal"}
-                    onChange={() => setSupplierType("legal")}
-                  />
-                  <span>Jurídico</span>
-                </label>
-                <label className="inline-flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="supplierType"
-                    value="physical"
-                    checked={supplierType === "physical"}
-                    onChange={() => setSupplierType("physical")}
-                  />
-                  <span>Físico</span>
-                </label>
+          {/* ======== Proveedores (Modal desplegable) ======== */}
+          <div className="grid gap-2">
+            <span className="text-sm text-[#091540] font-semibold">
+              Proveedores
+            </span>
+            
+            <button
+              type="button"
+              onClick={() => setShowSupplierModal(true)}
+              className="w-full px-4 py-3 border border-gray-300 rounded text-left hover:border-blue-500 hover:bg-blue-50 transition flex justify-between items-center"
+            >
+              <span className="text-sm">
+                {selectedSuppliers.length === 0 ? (
+                  <span className="text-gray-500">Seleccionar proveedores...</span>
+                ) : (
+                  <span className="text-[#091540]">
+                    {selectedSuppliers.length} proveedor{selectedSuppliers.length > 1 ? 'es' : ''} seleccionado{selectedSuppliers.length > 1 ? 's' : ''}
+                  </span>
+                )}
+              </span>
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            {selectedSuppliers.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedSuppliers.map((supplierId) => {
+                  const supplier = suppliers.find(s => s.Id === supplierId);
+                  if (!supplier) return null;
+                  return (
+                    <span
+                      key={supplierId}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs"
+                    >
+                      {supplier.Name}
+                      <button
+                        type="button"
+                        onClick={() => setSelectedSuppliers(selectedSuppliers.filter(id => id !== supplierId))}
+                        className="hover:text-blue-600"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
               </div>
-            </div>
-
-            {/* ======== LegalSupplierId ======== */}
-            {supplierType === "legal" && (
-              <form.Field name="LegalSupplierId">
-                {(field) => (
-                  <label className={LABEL}>
-                    <select
-                      className={INPUT}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                      disabled={legalLoading || !!legalError}
-                    >
-                      <option value={0} disabled>
-                        {legalLoading ? "Cargando proveedores jurídicos..." : "Seleccione Proveedor Jurídico"}
-                      </option>
-                      {legalSuppliers.map((s: any) => (
-                        <option key={s.Id} value={s.Id}>
-                          {s.CompanyName ?? s.Name ?? `Proveedor #${s.Id}`}
-                        </option>
-                      ))}
-                    </select>
-                    {legalError && (
-                      <span className="text-xs text-red-600 mt-1">
-                        No se pudieron cargar los proveedores jurídicos.
-                      </span>
-                    )}
-                  </label>
-                )}
-              </form.Field>
             )}
-
-            {/* ======== PhysicalSupplierId ======== */}
-            {supplierType === "physical" && (
-              <form.Field name="PhysicalSupplierId">
-                {(field) => (
-                  <label className={LABEL}>
-                    <select
-                      className={INPUT}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                      disabled={physicalLoading || !!physicalError}
-                    >
-                      <option value={0} disabled>
-                        {physicalLoading ? "Cargando proveedores físicos..." : "Seleccione Proveedor Físico"}
-                      </option>
-                      {physicalSuppliers.map((s: any) => (
-                        <option key={s.Id} value={s.Id}>
-                          {s.Name}
-                        </option>
-                      ))}
-                    </select>
-                    {physicalError && (
-                      <span className="text-xs text-red-600 mt-1">
-                        No se pudieron cargar los proveedores físicos.
-                      </span>
-                    )}
-                  </label>
-                )}
-              </form.Field>
+            
+            {selectedSuppliers.length === 0 && (
+              <p className="text-xs text-orange-600">Debes seleccionar al menos un proveedor</p>
             )}
-
+          </div>
 
           {/* Estado */}
           <form.Field name="IsActive">
@@ -432,6 +365,22 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
             </div>
           )}
         </form.Subscribe>
-    </ModalBase>
-  );
+      
+        {/* Modal de selección de proveedores */}
+        <SupplierSelectionModal
+          open={showSupplierModal}
+          onClose={() => setShowSupplierModal(false)}
+          suppliers={suppliers}
+          selectedSupplierIds={selectedSuppliers}
+          onToggleSupplier={(supplierId) => {
+            if (selectedSuppliers.includes(supplierId)) {
+              setSelectedSuppliers(selectedSuppliers.filter(id => id !== supplierId));
+            } else {
+              setSelectedSuppliers([...selectedSuppliers, supplierId]);
+            }
+          }}
+          isLoading={suppliersLoading}
+        />
+      </ModalBase>
+    );
 }

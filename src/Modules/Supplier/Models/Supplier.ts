@@ -1,11 +1,13 @@
 
 export interface Supplier{
     Id:number;
+    IDcard:string;
     Name:string;
     Email:string;
     PhoneNumber:string;
     Location:string;
     IsActive:boolean;
+    Type: "PHYSICAL" | "LEGAL";
 }
 
 export interface newSupplier{

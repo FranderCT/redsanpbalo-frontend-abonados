@@ -5,6 +5,7 @@ import { ReqSupervisionMeterColumns } from "./ReqSupervisionMeterColumn";
 import ReqSupervisionMeterPager from "../PaginationReqSupervisionMeter/ReqSupervisionMeterPager";
 import UpdateReqSupervisionMeterStateModal from "../../Modals/UpdateReqSupervicionMeterModal";
 import MeterSupervisionDetailModal from "../../../../Request-Abonados/Components/Modals/RequestSuperVisionMeterr";
+import { CommentsSupervisionMeterModal } from "../Comments/CommentsSupervisionMeterModal";
 
 
 type Props = {
@@ -24,6 +25,7 @@ export default function ReqSupervisionMeterTable({
     const [selectedRequest, setSelectedRequest] = useState<ReqSupervisionMeter | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
   const [editingReq, setEditingReq] = useState<ReqSupervisionMeter | null>(null);
+  const [commentingRequest, setCommentingRequest] = useState<ReqSupervisionMeter | null>(null);
   // const [getInfoReqAvailWater, setGetInfoReqAvailWater] = useState<ReqAvailWater | null>(null);
 
     const handleGetInfo = (req: ReqSupervisionMeter) => {
@@ -40,7 +42,8 @@ export default function ReqSupervisionMeterTable({
     data,
     columns: ReqSupervisionMeterColumns(
       (req) => setEditingReq(req),
-    handleGetInfo
+      handleGetInfo,
+      (req) => setCommentingRequest(req)
     ),
     getCoreRowModel: getCoreRowModel(),
   });
@@ -63,6 +66,16 @@ export default function ReqSupervisionMeterTable({
                   data={selectedRequest}
                 />
               )}
+
+      {commentingRequest && (
+        <CommentsSupervisionMeterModal
+          open={!!commentingRequest}
+          onClose={() => setCommentingRequest(null)}
+          request={commentingRequest}
+          isAdmin={true}
+        />
+      )}
+
       <table className="min-w-full border-collapse border border-gray-300">
         <thead>
           {table.getHeaderGroups().map((hg) => (

@@ -30,11 +30,6 @@ export const ProductColumns = (
     cell: ({ row }) => row.original.UnitMeasure?.Name ?? "-",
   },
   {
-    id: "Supplier",
-    header : "Proveedor",
-    cell: ({ row }) => row.original.PhysicalSupplier?.Name ?? row.original.LegalSupplier.CompanyName,
-  },
-  {
     id: "Acciones",
     header: "Acciones",
     cell: ({ row }) => {
