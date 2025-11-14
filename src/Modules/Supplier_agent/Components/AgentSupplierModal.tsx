@@ -88,11 +88,11 @@ const AgentSupplierModal = ({ legalSupplierId, open, onClose }: Props) => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div>
                   <span className="text-xs uppercase text-gray-500">Nombre</span>
-                  <p className="text-sm text-gray-800">{legalSup.CompanyName ?? "-"}</p>
+                  <p className="text-sm text-gray-800">{legalSup.Supplier?.Name ?? "-"}</p>
                 </div>
                 <div>
                   <span className="text-xs uppercase text-gray-500">Cédula Jurídica</span>
-                  <p className="text-sm text-gray-800">{legalSup.LegalID ?? "-"}</p>
+                  <p className="text-sm text-gray-800">{legalSup.Supplier?.IDcard ?? "-"}</p>
                 </div>
               </div>
             </section>

@@ -53,7 +53,7 @@ export default function DeletePhysicalSupplierModal({ legalsupplier, onSuccess }
             <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
             <InhabilityActionModal
                 title="¿Inhabilitar proveedor?"
-                description={`Se inhabilitará el proveedor "${legalsupplier.CompanyName ?? ""}".`}
+                description={`Se inhabilitará el proveedor "${legalsupplier.Supplier?.Name ?? ""}".`}
                 cancelLabel="Cancelar"
                 confirmLabel="Inhabilitar"
                 onConfirm={handleConfirm}
