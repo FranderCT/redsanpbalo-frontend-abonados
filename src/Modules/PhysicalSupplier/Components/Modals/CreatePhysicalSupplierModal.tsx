@@ -61,58 +61,23 @@ const CreatePhysicalSupplierModal = () => {
 
     const data = await res.json();
 
-    // Posibles campos que devuelva el API (defensivo):
-    const nombre =
-      data?.nombre ??
-      data?.name ??
-      data?.nombre_completo ??
-      data?.fullname ??
-      data?.titular ??
-      null;
+    // Nueva estructura: data.results[0]
+    if (data?.results && data.results.length > 0) {
+      const person = data.results[0];
+      const nombre = [person.firstname, person.firstname2]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+      const apellido1 = person.lastname1 || "";
+      const apellido2 = person.lastname2 || "";
 
-    const primer_apellido =
-      data?.primer_apellido ??
-      data?.apellido1 ??
-      data?.apellido_1 ??
-      null;
-
-    const segundo_apellido =
-      data?.segundo_apellido ??
-      data?.apellido2 ??
-      data?.apellido_2 ??
-      null;
-
-    // Si ya vienen apellidos separados, usar esos
-    if (nombre && (primer_apellido || segundo_apellido)) {
-      return {
-        name: String(nombre).trim() || null,
-        surname1: primer_apellido ? String(primer_apellido).trim() : null,
-        surname2: segundo_apellido ? String(segundo_apellido).trim() : null,
-      };
-    }
-
-    // A veces puede venir un campo "apellidos" junto:
-    const apellidos = data?.apellidos ?? data?.lastnames ?? null;
-    if (nombre && apellidos) {
-      const full = `${nombre} ${apellidos}`;
-      return splitCostaRicaFullName(full);
-    }
-
-    // Si solo viene un string con nombre completo:
-    if (typeof nombre === "string") {
-      return splitCostaRicaFullName(nombre);
-    }
-
-    // Si llegó en otra estructura, intenta "nombre_completo" u otros
-    const posibleFull =
-      data?.nombre_completo ??
-      data?.fullname ??
-      data?.completo ??
-      data?.razon_social ??
-      null;
-
-    if (typeof posibleFull === "string") {
-      return splitCostaRicaFullName(posibleFull);
+      if (nombre || apellido1 || apellido2) {
+        return {
+          name: nombre || null,
+          surname1: apellido1 || null,
+          surname2: apellido2 || null,
+        };
+      }
     }
 
     return null;

@@ -5,7 +5,7 @@ export interface User{
     Name : string;
     Surname1 : string;
     Surname2 : string;
-    Nis: string;
+    Nis: number[];
     Email: string;
     PhoneNumber: string;
     Birthdate: Date;
@@ -19,7 +19,7 @@ export interface RegisterUserModal{
     Name : string;
     Surname1 : string;
     Surname2 : string;
-    Nis: string;
+    Nis: number[];
     Email: string;
     PhoneNumber: string;
     Birthdate: Date;
@@ -37,7 +37,7 @@ export const RegisterUserModalInitialState: RegisterUserForm = {
   Name: '',
   Surname1: '',
   Surname2: '',
-  Nis: '',
+  Nis: [],
   Email: '',
   PhoneNumber: '',
   Birthdate: new Date(),
@@ -68,7 +68,7 @@ export interface UsersPaginationParams {
 }
 
 export interface UpdateUser{
-    Nis?: string;
+    Nis?: number[];
     Email?: string;
     PhoneNumber?: string;
     Birthdate?: Date;

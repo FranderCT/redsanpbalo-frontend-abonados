@@ -1,7 +1,7 @@
     export interface AbonadoSearch {
     Id: number;
     IDcard: string;
-    Nis: string | null;
+    Nis: number[] | null;
     FullName: string;
     Name: string;
     Surname1: string;

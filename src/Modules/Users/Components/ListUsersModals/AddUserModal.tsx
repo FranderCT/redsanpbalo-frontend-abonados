@@ -10,6 +10,7 @@ import { AddUserSchema } from "../../schemas/AddUserSchema";
 
 export default function RegisterAbonadosModal() {
   const [open, setOpen] = useState(false);
+  const [tempNis, setTempNis] = useState('');
   const createUserMutation = useCreateUser();
   const { roles } = useGetAllRoles();
 
@@ -87,11 +88,14 @@ export default function RegisterAbonadosModal() {
                               if (!res.ok) throw new Error("No se encontró este número de cédula");
                               const data = await res.json();
 
-                              if (data?.nombre) {
-                                const partes = data.nombre.trim().split(/\s+/);
-                                const apellido2 = partes.pop() || "";
-                                const apellido1 = partes.pop() || "";
-                                const nombre = partes.join(" ");
+                              if (data?.results && data.results.length > 0) {
+                                const person = data.results[0];
+                                const apellido1 = person.lastname1 || "";
+                                const apellido2 = person.lastname2 || "";
+                                const nombre = [person.firstname, person.firstname2]
+                                  .filter(Boolean)
+                                  .join(" ")
+                                  .trim();
 
                                 form.setFieldValue("Name", nombre);
                                 form.setFieldValue("Surname1", apellido1);
@@ -184,8 +188,8 @@ export default function RegisterAbonadosModal() {
                   </form.Field>
                 </div>
 
-               {/* Soy abonado + NIS */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 min-w-0">
+               {/* Soy abonado + NIS (múltiples) */}
+              <div className="grid gap-3">
                 <form.Field name="IsAbonado">
                   {(field) => (
                     <label className="group flex items-center cursor-pointer select-none">
@@ -195,7 +199,7 @@ export default function RegisterAbonadosModal() {
                         onChange={(e) => {
                           const checked = e.target.checked;
                           field.handleChange(checked);
-                          if (!checked) form.setFieldValue('Nis', '');
+                          if (!checked) form.setFieldValue('Nis', []);
                         }}
                         className="hidden peer"
                       />
@@ -206,37 +210,105 @@ export default function RegisterAbonadosModal() {
                     </label>
                   )}
                 </form.Field>
-                  {/* Suscripción: Nis se re-renderiza cuando cambia IsAbonado */}
+
+                {/* NIS - Array de números */}
                 <form.Subscribe selector={(s) => s.values.IsAbonado ?? false}>
-                  {(subscriptionIsAbonado) => (
-                <form.Field name="Nis">
-                  {(field) => {
-                    const isAbonado = subscriptionIsAbonado;
-                    const disabled = !isAbonado;
-                    return (
-                      <>
-                        <input
-                          className={`input-base ${
-                            isAbonado ? '' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                          }`}
-                          placeholder="NIS"
-                          value={field.state.value}
-                          inputMode="numeric"
-                          pattern="\d*"
-                          onChange={(e) => field.handleChange(e.target.value.replace(/\D/g, ''))}
-                          disabled={disabled}
-                          aria-disabled={disabled}
-                        />
-                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                          </p>
-                        )}
-                      </>
-                    );
-                  }}
-                </form.Field>
-                )}
+                  {(isAbonado) => (
+                    <form.Field name="Nis">
+                      {(field) => {
+                        const nisList: number[] = field.state.value ?? [];
+
+                        const addNis = () => {
+                          const trimmed = tempNis.trim();
+                          if (!trimmed || !/^\d{1,10}$/.test(trimmed)) {
+                            toast.error('El NIS debe tener entre 1 y 10 dígitos numéricos');
+                            return;
+                          }
+                          const nisNum = Number(trimmed);
+                          if (nisList.includes(nisNum)) {
+                            toast.warning('Este NIS ya está agregado');
+                            return;
+                          }
+                          field.handleChange([...nisList, nisNum]);
+                          setTempNis('');
+                        };
+
+                        const removeNis = (nis: number) => {
+                          field.handleChange(nisList.filter(n => n !== nis));
+                        };
+
+                        return (
+                          <div className="grid gap-2">
+                            <span className="text-sm text-gray-700">NIS (Números de identificación)</span>
+
+                            {/* Chips de NIS */}
+                            <div className="flex flex-wrap gap-2">
+                              {nisList.length === 0 && (
+                                <span className="text-xs text-gray-500">
+                                  {isAbonado ? 'Agregue al menos un NIS' : 'Sin NIS asignados'}
+                                </span>
+                              )}
+                              {nisList.map((nis) => (
+                                <span
+                                  key={nis}
+                                  className="inline-flex items-center gap-1 sm:gap-2 border px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-50 border-blue-200 max-w-full"
+                                >
+                                  <span className="truncate">{nis}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeNis(nis)}
+                                    disabled={!isAbonado}
+                                    className="text-gray-500 hover:text-red-600 flex-shrink-0 w-4 h-4 flex items-center justify-center disabled:opacity-50"
+                                    title="Quitar NIS"
+                                  >
+                                    ×
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+
+                            {/* Input para agregar NIS */}
+                            <div className="flex flex-col sm:flex-row gap-2">
+                              <input
+                                type="text"
+                                value={tempNis}
+                                onChange={(e) => setTempNis(e.target.value.replace(/\D/g, ''))}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (isAbonado) addNis();
+                                  }
+                                }}
+                                placeholder={isAbonado ? "Ingrese un NIS y presione Agregar" : "Marque 'Soy abonado' primero"}
+                                disabled={!isAbonado}
+                                maxLength={10}
+                                inputMode="numeric"
+                                pattern="\d*"
+                                className={`flex-1 px-4 py-2 border ${
+                                  isAbonado ? 'bg-gray-50' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                }`}
+                              />
+                              <button
+                                type="button"
+                                onClick={addNis}
+                                disabled={!isAbonado || !tempNis.trim()}
+                                className="h-10 px-4 border bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                              >
+                                + Agregar
+                              </button>
+                            </div>
+
+                            {/* Errores */}
+                            {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                              <p className="text-sm text-red-500 mt-1">
+                                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      }}
+                    </form.Field>
+                  )}
                 </form.Subscribe>
               </div>
 

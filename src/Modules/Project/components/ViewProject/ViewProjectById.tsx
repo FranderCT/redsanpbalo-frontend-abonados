@@ -89,7 +89,7 @@ export interface User {
   Surname1: string;
   Surname2: string;
   ProfilePhoto: string | null;
-  Nis: string;
+  Nis: number[];
   Email: string;
   PhoneNumber: string;
   Birthdate: Date;

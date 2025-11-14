@@ -5,7 +5,7 @@ export interface RegisterUser{
     Name : string;
     Surname1 : string;
     Surname2 : string;
-    Nis: string;
+    Nis: number[];
     Email: string;
     PhoneNumber: string;
     Birthdate: Date;
@@ -23,7 +23,7 @@ export const RegisterUserInitialState: RegisterUserForm = {
   Name: '',
   Surname1: '',
   Surname2: '',
-  Nis: '',
+  Nis: [],
   Email: '',
   PhoneNumber: '',
   Birthdate: '' as unknown as Date,
@@ -38,7 +38,7 @@ export interface createAdminUser{
     Name : string;
     Surname1 : string;
     Surname2 : string;
-    Nis: string;
+    Nis: number[];
     Email: string;
     PhoneNumber: string;
     Birthdate: Date;
@@ -55,7 +55,7 @@ export const AdminUserInitialState: createAdminUserForm = {
   Name: '',
   Surname1: '',
   Surname2: '',
-  Nis: '',
+  Nis: [],
   Email: '',
   PhoneNumber: '',
   Birthdate: '' as unknown as Date,

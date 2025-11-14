@@ -90,7 +90,7 @@
                     <div className="text-sm font-medium text-gray-900">{u.FullName}</div>
                     <div className="text-xs text-gray-500">
                         Cédula: {u.IDcard}
-                        {u.Nis && ` • NIS: ${u.Nis}`}
+                        {u.Nis && u.Nis.length > 0 && ` • NIS: ${u.Nis.join(", ")}`}
                     </div>
                     </button>
                 );
@@ -191,9 +191,8 @@
                     onChange={(userId, picked) => {
                     field.handleChange(userId);
                     form.setFieldValue("_selectedUser", picked ?? null);
-                    // Pre-cargar NIS solo desde el abonado
-                    const nisNum = picked?.Nis ? Number(picked.Nis) : 0;
-                    form.setFieldValue("NIS", Number.isNaN(nisNum) ? 0 : nisNum);
+                    // Resetear NIS para que el usuario lo seleccione manualmente
+                    form.setFieldValue("NIS", 0);
                     }}
                 />
                 )}
@@ -207,10 +206,10 @@
                     <div className="font-medium text-gray-900">{sel.FullName}</div>
                     <div className="text-gray-600">
                         Cédula: <span className="font-mono">{sel.IDcard ?? "—"}</span>
-                        {sel.Nis ? (
+                        {sel.Nis && sel.Nis.length > 0 ? (
                         <>
                             {" "}
-                            • NIS: <span className="font-mono">{sel.Nis}</span>
+                            • NIS: <span className="font-mono">{sel.Nis.join(", ")}</span>
                         </>
                         ) : null}
                     </div>
@@ -250,21 +249,62 @@
                 )}
             </form.Field>
 
-            {/* NIS SOLO LECTURA */}
-            <form.Field name="NIS">
-                {(field) => (
-                <label className="grid gap-2">
-                    <span className="text-sm font-medium text-gray-700">NIS (solo lectura)</span>
-                    <input
-                    type="text"
-                    className="w-full px-4 py-2 bg-gray-100 border border-gray-200 text-gray-700 rounded-md"
-                    value={field.state.value ? String(field.state.value) : ""}
-                    readOnly
-                    disabled
-                    />
-                </label>
+            {/* NIS Selector */}
+            <form.Subscribe selector={(s) => s.values._selectedUser}>
+                {(selectedUser) => (
+                <form.Field name="NIS">
+                    {(field) => {
+                    const nisList = selectedUser?.Nis && Array.isArray(selectedUser.Nis) ? selectedUser.Nis : [];
+                    const hasMultiple = nisList.length > 1;
+
+                    return (
+                        <label className="grid gap-2">
+                        <span className="text-sm font-medium text-gray-700">
+                            NIS <span className="text-red-500">*</span>
+                            {hasMultiple && <span className="text-xs text-gray-500 ml-2">(Seleccione uno)</span>}
+                        </span>
+                        {nisList.length === 0 ? (
+                            <input
+                            type="text"
+                            className="w-full px-4 py-2 bg-gray-100 border border-gray-200 text-gray-500 rounded-md"
+                            value="Seleccione un abonado primero"
+                            readOnly
+                            disabled
+                            />
+                        ) : nisList.length === 1 ? (
+                            <input
+                            type="text"
+                            className="w-full px-4 py-2 bg-gray-100 border border-gray-200 text-gray-700 rounded-md"
+                            value={String(nisList[0])}
+                            readOnly
+                            disabled
+                            />
+                        ) : (
+                            <select
+                            className="w-full px-4 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition"
+                            value={field.state.value || ""}
+                            onChange={(e) => field.handleChange(Number(e.target.value))}
+                            required
+                            >
+                            <option value="">-- Seleccione un NIS --</option>
+                            {nisList.map((nis) => (
+                                <option key={nis} value={nis}>
+                                {nis}
+                                </option>
+                            ))}
+                            </select>
+                        )}
+                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                            <p className="text-sm text-red-500 mt-1">
+                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                        )}
+                        </label>
+                    );
+                    }}
+                </form.Field>
                 )}
-            </form.Field>
+            </form.Subscribe>
 
             {/* Justificación */}
             <form.Field name="Justification">

@@ -1,4 +1,5 @@
 import { useForm } from '@tanstack/react-form';
+import { useState } from 'react';
 import { RegisterUserInitialState } from '../Models/RegisterUser';
 
 import { RegisterSchema } from '../schemas/RegisterSchemas';
@@ -8,6 +9,7 @@ import { useCreateAbonado } from '../Hooks/AuthHooks';
 import PhoneField from '../../../Components/PhoneNumber/PhoneField';
 
 const RegisterAbonados = () => {
+  const [tempNis, setTempNis] = useState('');
   const createUserMutation = useCreateAbonado();
   const navigate = useNavigate();
 
@@ -115,11 +117,14 @@ const RegisterAbonados = () => {
                             if (!res.ok) throw new Error('No se encontró este número de cédula');
                             const data = await res.json();
 
-                            if (data?.nombre) {
-                              const partes = data.nombre.trim().split(/\s+/);
-                              const apellido2 = partes.pop() || '';
-                              const apellido1 = partes.pop() || '';
-                              const nombre = partes.join(' ');
+                            if (data?.results && data.results.length > 0) {
+                              const person = data.results[0];
+                              const apellido1 = person.lastname1 || '';
+                              const apellido2 = person.lastname2 || '';
+                              const nombre = [person.firstname, person.firstname2]
+                                .filter(Boolean)
+                                .join(' ')
+                                .trim();
 
                               form.setFieldValue('Name', nombre);
                               form.setFieldValue('Surname1', apellido1);
@@ -204,61 +209,124 @@ const RegisterAbonados = () => {
                 </form.Field>
               </div>
 
-              {/* Soy abonado + NIS */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 min-w-0">
-                <form.Field name="IsAbonado">
-                  {(field) => (
-                    <label className="group flex items-center cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={!!field.state.value}
-                        onChange={(e) => {
-                          const checked = e.target.checked;
-                          field.handleChange(checked);
-                          if (!checked) form.setFieldValue('Nis', '');
-                        }}
-                        className="hidden peer"
-                      />
-                      <span className="relative w-4 h-4 flex justify-center items-center bg-gray-100 border-2 border-gray-400 rounded-md transition-all duration-300 peer-checked:border-blue-500 peer-checked:bg-blue-500" />
-                      <span className="ml-3 text-gray-700 font-medium duration-300">
-                        Soy abonado
-                      </span>
-                    </label>
-                  )}
-                </form.Field>
-                  {/* Suscripción: Nis se re-renderiza cuando cambia IsAbonado */}
-                <form.Subscribe selector={(s) => s.values.IsAbonado ?? false}>
-                  {() => (
-                <form.Field name="Nis">
-                  {(field) => {
-                    const isAbonado = form.getFieldValue('IsAbonado');
-                    const disabled = !isAbonado;
-                    return (
-                      <>
-                        <input
-                          className={`input-base ${
-                            isAbonado ? '' : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                          }`}
-                          placeholder="NIS"
-                          value={field.state.value}
-                          inputMode="numeric"
-                          pattern="\d*"
-                          onChange={(e) => field.handleChange(e.target.value.replace(/\D/g, ''))}
-                          disabled={disabled}
-                          aria-disabled={disabled}
-                        />
-                        {field.state.meta.isTouched && field.state.meta.errors.length > 0 && isAbonado && (
-                          <p className="text-sm text-red-500 mt-1">
-                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                          </p>
-                        )}
-                      </>
-                    );
-                  }}
-                </form.Field>
+              {/* Soy abonado */}
+              <form.Field name="IsAbonado">
+                {(field) => (
+                  <label className="group flex items-center cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={!!field.state.value}
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        field.handleChange(checked);
+                        if (!checked) {
+                          form.setFieldValue('Nis', []);
+                          setTempNis('');
+                        }
+                      }}
+                      className="hidden peer"
+                    />
+                    <span className="relative w-4 h-4 flex justify-center items-center bg-gray-100 border-2 border-gray-400 rounded-md transition-all duration-300 peer-checked:border-blue-500 peer-checked:bg-blue-500" />
+                    <span className="ml-3 text-gray-700 font-medium duration-300">
+                      Soy abonado
+                    </span>
+                  </label>
                 )}
-                </form.Subscribe>
-              </div>
+              </form.Field>
+
+              {/* NIS - Array de números */}
+              <form.Subscribe selector={(s) => s.values.IsAbonado ?? false}>
+                {(isAbonado) => (
+                  <form.Field name="Nis">
+                    {(field) => {
+                      const nisList: number[] = field.state.value ?? [];
+
+                      const addNis = () => {
+                        const trimmed = tempNis.trim();
+                        if (!trimmed || !/^\d{1,10}$/.test(trimmed)) {
+                          toast.error('El NIS debe tener entre 1 y 10 dígitos numéricos');
+                          return;
+                        }
+                        const nisNum = Number(trimmed);
+                        if (nisList.includes(nisNum)) {
+                          toast.warning('Este NIS ya está agregado');
+                          return;
+                        }
+                        field.handleChange([...nisList, nisNum]);
+                        setTempNis('');
+                      };
+
+                      const removeNis = (nis: number) => {
+                        field.handleChange(nisList.filter(n => n !== nis));
+                      };
+
+                      return (
+                        <div className="grid gap-2">
+                          <span className="text-sm text-gray-700">NIS (Números de identificación)</span>
+
+                          {/* Chips de NIS */}
+                          <div className="flex flex-wrap gap-2 min-h-[40px] p-2 bg-gray-50 border">
+                            {nisList.length === 0 && (
+                              <span className="text-xs text-gray-400">
+                                {isAbonado ? 'Agregue al menos un NIS' : 'Sin NIS asignados'}
+                              </span>
+                            )}
+                            {nisList.map((nis) => (
+                              <span
+                                key={nis}
+                                className="inline-flex items-center gap-2 bg-[#091540] text-white px-3 py-1 text-sm"
+                              >
+                                {nis}
+                                <button
+                                  type="button"
+                                  onClick={() => removeNis(nis)}
+                                  disabled={!isAbonado}
+                                  className="hover:text-red-300 font-bold disabled:opacity-50"
+                                  title="Eliminar NIS"
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))}
+                          </div>
+
+                          {/* Input para agregar NIS */}
+                          {isAbonado && (
+                            <div className="flex gap-2">
+                              <input
+                                type="number"
+                                value={tempNis}
+                                onChange={(e) => setTempNis(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    addNis();
+                                  }
+                                }}
+                                placeholder="Ingresa un NIS y presiona Enter"
+                                className="flex-1 px-3 py-2 border focus:outline-none focus:ring focus:ring-blue-500"
+                              />
+                              <button
+                                type="button"
+                                onClick={addNis}
+                                className="px-4 py-2 bg-[#1789FC] text-white hover:bg-[#091540] transition-colors"
+                              >
+                                Agregar
+                              </button>
+                            </div>
+                          )}
+
+                          {field.state.meta.isTouched && field.state.meta.errors.length > 0 && isAbonado && (
+                            <p className="text-sm text-red-500 mt-1">
+                              {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    }}
+                  </form.Field>
+                )}
+              </form.Subscribe>
 
               {/* Email */}
               <form.Field name="Email">

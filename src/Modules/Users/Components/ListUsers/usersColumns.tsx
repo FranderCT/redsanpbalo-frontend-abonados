@@ -11,7 +11,12 @@ export const usersColumns = (
   { accessorKey: "Name", header: "Nombre Completo", 
     cell: ({ row }) => (row.original.Name + " " + row.original.Surname1 + " " + row.original.Surname2),
   },
-  { accessorKey: "Nis", header: "Nis" },
+  { accessorKey: "Nis", header: "NIS",
+    cell: ({ row }) => {
+      const nisList = row.original.Nis ?? [];
+      return nisList.length > 0 ? nisList.join(", ") : "—";
+    }
+  },
   { accessorKey: "Email", header: "Correo" },
   { accessorKey: "PhoneNumber", header: "Teléfono" },
   {

@@ -45,7 +45,7 @@ const UserProfileDetails = ({User} : Props) => {
             <div className="py-2 border-b border-dashed border-gray-300">
               <p className="text-[12px] text-gray-500">NIS</p>
               <span className="text-sm font-medium text-[#091540]">
-                {User?.Nis}
+                {User?.Nis && User.Nis.length > 0 ? User.Nis.join(", ") : "—"}
               </span>
             </div>
             <div className="py-2 border-b border-dashed border-gray-300">
