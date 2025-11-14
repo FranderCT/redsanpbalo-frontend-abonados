@@ -1,5 +1,5 @@
 import { type ColumnDef } from "@tanstack/react-table";
-import { Edit2, InfoIcon } from "lucide-react";
+import { Edit2, InfoIcon, MessageSquare } from "lucide-react";
 import type { ReqSupervisionMeter } from "../../Models/ReqSupervisionMeter";
 import DeleteSupervisionMeterModal from "../../Modals/DeleteReqSupervisionMeterModal";
 
@@ -32,7 +32,8 @@ const guessStateColor = (normalized: string) => {
 };
 export const ReqSupervisionMeterColumns = (
   onEdit: (req: ReqSupervisionMeter) => void,
-  onGetInfo?: (req: ReqSupervisionMeter) => void
+  onGetInfo?: (req: ReqSupervisionMeter) => void,
+  onOpenComments?: (req: ReqSupervisionMeter) => void
 ): ColumnDef<ReqSupervisionMeter>[] => [
   {
     id: "Name",
@@ -90,6 +91,16 @@ export const ReqSupervisionMeterColumns = (
           >
             <Edit2 className="w-4 h-4" />
             Editar
+          </button>
+
+          <button
+            onClick={() => onOpenComments?.(req)}
+            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
+                       text-[#068A53] border-[#068A53]
+                       hover:bg-[#068A53] hover:text-white transition"
+          >
+            <MessageSquare className="w-4 h-4" />
+            Comentarios
           </button>
 
           <DeleteSupervisionMeterModal reqSupervisionMeter={req} /> 
