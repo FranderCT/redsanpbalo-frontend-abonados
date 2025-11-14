@@ -9,12 +9,13 @@ export interface CommentAssociated {
   hasFileUpdate: boolean;
   createdAt: Date;
   requestAssociated: ReqAssociated;
-  Users: User[];
+  Users: User;
 }
 
 export interface CreateCommentAssociatedDto {
   Subject: string;
   Comment: string;
+  UserId: number;
 }
 
 export interface CommentAssociatedWithFiles {

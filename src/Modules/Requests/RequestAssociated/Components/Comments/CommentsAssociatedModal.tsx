@@ -81,12 +81,21 @@ export default function CommentsAssociatedModal({
       return;
     }
 
+    if (!UserProfile?.Id) {
+      toast.error("Error: No se pudo identificar el usuario", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const payload = {
         Subject: subject.trim(),
         Comment: comment.trim(),
+        UserId: UserProfile.Id,
       };
 
       if (isAdmin) {
@@ -269,27 +278,25 @@ export default function CommentsAssociatedModal({
             <div className="space-y-4">
               {comments.map((commentItem) => {
                 // Extraer información del autor del comentario
-                const commentUserFromArray = commentItem.Users && commentItem.Users.length > 0 
-                  ? commentItem.Users[0] 
-                  : null;
+                const commentUser = commentItem.Users;
                 
                 // hasFileUpdate: false = mensaje del admin (sin archivos)
                 // hasFileUpdate: true = respuesta del usuario (con archivos)
                 const isAdminComment = !commentItem.hasFileUpdate;
                 
                 // Determinar si es mi mensaje comparando con el usuario actual logueado
-                const isMyMessage = UserProfile && commentUserFromArray 
-                  ? UserProfile.Id === commentUserFromArray.Id
+                const isMyMessage = UserProfile && commentUser 
+                  ? UserProfile.Id === commentUser.Id
                   : false;
                 
                 // Nombre completo del autor
                 let authorName = "";
                 let authorInitial = "?";
                 
-                if (isAdminComment && commentUserFromArray) {
+                if (isAdminComment && commentUser) {
                   // Mensaje del admin - mostrar nombre del admin
-                  authorName = `${commentUserFromArray.Name || ""} ${commentUserFromArray.Surname1 || ""} ${commentUserFromArray.Surname2 || ""}`.trim();
-                  authorInitial = commentUserFromArray.Name?.charAt(0).toUpperCase() || "A";
+                  authorName = `${commentUser.Name || ""} ${commentUser.Surname1 || ""} ${commentUser.Surname2 || ""}`.trim();
+                  authorInitial = commentUser.Name?.charAt(0).toUpperCase() || "A";
                   if (!authorName) {
                     authorName = "Administración ASADA";
                     authorInitial = "A";

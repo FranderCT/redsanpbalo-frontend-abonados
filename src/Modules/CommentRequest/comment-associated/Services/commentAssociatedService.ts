@@ -1,6 +1,9 @@
 import apiAxios from "../../../../api/apiConfig";
-import type { CommentAssociated, CommentAssociatedWithFiles, CreateCommentAssociatedDto } from "../Models/commentAssociated";
-
+import type { 
+  CommentAssociated, 
+  CommentAssociatedWithFiles, 
+  CreateCommentAssociatedDto 
+} from "../Models/commentAssociated";
 
 const BASE = "/comment-Request-Associated";
 
@@ -14,7 +17,7 @@ export async function createAdminComment(
   try {
     const { data } = await apiAxios.post<CommentAssociated>(
       `${BASE}/admin/${requestId}`,
-      payload
+      payload // ✅ Ya incluye UserId en el payload
     );
     return data;
   } catch (err) {
@@ -67,6 +70,7 @@ export async function replyWithFiles(
     // Agregar los campos del DTO
     formData.append('Subject', payload.Subject);
     formData.append('Comment', payload.Comment);
+    formData.append('UserId', payload.UserId.toString());
     
     // Agregar los archivos
     files.forEach((file) => {
@@ -74,6 +78,7 @@ export async function replyWithFiles(
     });
 
     const { data } = await apiAxios.post<CommentAssociatedWithFiles>(
+        
       `${BASE}/reply/${requestId}`,
       formData,
       {
