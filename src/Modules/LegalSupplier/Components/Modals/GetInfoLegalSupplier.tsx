@@ -29,8 +29,8 @@ export default function GetInfoLegalSupplierModal({
   const show = (v?: string | number | null) =>
     v === null || v === undefined || v === "" ? "—" : String(v);
 
-  const emailHref = supplier?.Email ? `mailto:${supplier.Email}` : undefined;
-  const telHref = supplier?.PhoneNumber ? `tel:${supplier.PhoneNumber}` : undefined;
+  const emailHref = supplier?.Supplier?.Email ? `mailto:${supplier.Supplier.Email}` : undefined;
+  const telHref = supplier?.Supplier?.PhoneNumber ? `tel:${supplier.Supplier.PhoneNumber}` : undefined;
   const websiteHref = supplier?.WebSite ? supplier.WebSite : undefined;
 
   return (
@@ -63,20 +63,20 @@ export default function GetInfoLegalSupplierModal({
 
             <div className={CARD}>
               <dt className={LABEL}>Cédula jurídica</dt>
-              <dd className={VALUE}>{show(supplier?.LegalID)}</dd>
+              <dd className={VALUE}>{show(supplier?.Supplier?.IDcard)}</dd>
             </div>
 
             <div className={CARD}>
               <dt className={LABEL}>Nombre de empresa</dt>
-              <dd className={`${VALUE} break-words`}>{show(supplier?.CompanyName)}</dd>
+              <dd className={`${VALUE} break-words`}>{show(supplier?.Supplier?.Name)}</dd>
             </div>
 
             <div className={CARD}>
               <dt className={LABEL}>Correo electrónico</dt>
               <dd className={`${VALUE} break-words`}>
-                {supplier?.Email ? (
+                {supplier?.Supplier?.Email ? (
                   <a href={emailHref} className="underline underline-offset-2">
-                    {supplier.Email}
+                    {supplier.Supplier.Email}
                   </a>
                 ) : (
                   "—"
@@ -87,9 +87,9 @@ export default function GetInfoLegalSupplierModal({
             <div className={CARD}>
               <dt className={LABEL}>Teléfono</dt>
               <dd className={VALUE}>
-                {supplier?.PhoneNumber ? (
+                {supplier?.Supplier?.PhoneNumber ? (
                   <a href={telHref} className="underline underline-offset-2">
-                    {supplier.PhoneNumber}
+                    {supplier.Supplier.PhoneNumber}
                   </a>
                 ) : (
                   "—"
@@ -119,18 +119,18 @@ export default function GetInfoLegalSupplierModal({
               <dt className={LABEL}>Estado</dt>
               <dd
                 className={`${VALUE} font-semibold ${
-                  supplier?.IsActive ? "text-green-600" : "text-red-600"
+                  supplier?.Supplier?.IsActive ? "text-green-600" : "text-red-600"
                 }`}
               >
-                {supplier?.IsActive ? "Activo" : "Inactivo"}
+                {supplier?.Supplier?.IsActive ? "Activo" : "Inactivo"}
               </dd>
             </div>
 
             <div className={`${CARD} sm:col-span-2`}>
               <dt className={LABEL}>Ubicación</dt>
               <dd className={`${VALUE} whitespace-pre-wrap`}>
-                {supplier?.Location ? (
-                  <address className="not-italic">{supplier.Location}</address>
+                {supplier?.Supplier?.Location ? (
+                  <address className="not-italic">{supplier.Supplier.Location}</address>
                 ) : (
                   "—"
                 )}

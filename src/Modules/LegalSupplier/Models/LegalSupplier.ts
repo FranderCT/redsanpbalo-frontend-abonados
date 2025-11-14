@@ -1,15 +1,21 @@
 import type { AgentSupppliers } from "../../Supplier_agent/Models/SupplierAgent";
 
-export interface LegalSupplier{
-    Id : number;
-    LegalID: string;
-    CompanyName : string;
-    Email : string;
+export interface Supplier {
+    Id: number;
+    IDcard: string;
+    Name: string;
+    Email: string;
     PhoneNumber: string;
     Location: string;
+    IsActive: boolean;
+    Type: "LEGAL" | "PHYSICAL";
+}
+
+export interface LegalSupplier{
+    Id : number;
+    Supplier: Supplier;
     WebSite: string;
-    IsActive : boolean
-    AgentSupppliers: AgentSupppliers[]
+    AgentSupppliers?: AgentSupppliers[]
 }
 
 export interface newLegalSupplier {
@@ -19,6 +25,6 @@ export interface newLegalSupplier {
     PhoneNumber?: string;
     Location?: string;
     WebSite?: string;
-    IsActive? : boolean
+    IsActive?: boolean;
 }
 

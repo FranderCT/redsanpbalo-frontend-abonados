@@ -11,20 +11,24 @@ export const LegalSupplierColumns = (
 //   onGetInfo: (product: Product) => void
 ): ColumnDef<LegalSupplier>[] => [
   {
-    accessorKey: "LegalID",
+    accessorKey: "Supplier.IDcard",
     header: "Número de Cédula Jurídica",
+    cell: ({ row }) => row.original.Supplier?.IDcard || "N/A",
   },  
   {
-    accessorKey: "CompanyName",
+    accessorKey: "Supplier.Name",
     header: "Nombre",
+    cell: ({ row }) => row.original.Supplier?.Name || "N/A",
   },
   {
-    accessorKey: "Email",
+    accessorKey: "Supplier.Email",
     header: "Correo electrónico",
+    cell: ({ row }) => row.original.Supplier?.Email || "N/A",
   },
   {
-    accessorKey: "PhoneNumber",
+    accessorKey: "Supplier.PhoneNumber",
     header: "Número de teléfono",
+    cell: ({ row }) => row.original.Supplier?.PhoneNumber || "N/A",
   },
   {
     id: 'Acciones',

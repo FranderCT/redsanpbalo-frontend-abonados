@@ -80,13 +80,13 @@ const EditLegalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) =
 
   const form = useForm({
     defaultValues: {
-      LegalID: supplier?.LegalID ?? "",
-      CompanyName: supplier?.CompanyName ?? "",
-      Email: supplier?.Email ?? "",
-      PhoneNumber: supplier?.PhoneNumber ?? "",
-      Location: supplier?.Location ?? "",
+      LegalID: supplier?.Supplier?.IDcard ?? "",
+      CompanyName: supplier?.Supplier?.Name ?? "",
+      Email: supplier?.Supplier?.Email ?? "",
+      PhoneNumber: supplier?.Supplier?.PhoneNumber ?? "",
+      Location: supplier?.Supplier?.Location ?? "",
       WebSite: supplier?.WebSite ?? "",
-      IsActive: supplier?.IsActive ?? true,
+      IsActive: supplier?.Supplier?.IsActive ?? true,
     },
     validators: {
       onChange: EditLegalSupplierSchema,
@@ -110,13 +110,13 @@ const EditLegalSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) =
   useEffect(() => {
     if (!supplier || !open) return;
     form.reset({
-      LegalID: supplier.LegalID ?? "",
-      CompanyName: supplier.CompanyName ?? "",
-      Email: supplier.Email ?? "",
-      PhoneNumber: supplier.PhoneNumber ?? "",
-      Location: supplier.Location ?? "",
+      LegalID: supplier.Supplier?.IDcard ?? "",
+      CompanyName: supplier.Supplier?.Name ?? "",
+      Email: supplier.Supplier?.Email ?? "",
+      PhoneNumber: supplier.Supplier?.PhoneNumber ?? "",
+      Location: supplier.Supplier?.Location ?? "",
       WebSite: supplier.WebSite ?? "",
-      IsActive: supplier.IsActive,
+      IsActive: supplier.Supplier?.IsActive ?? true,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supplier, open]);
