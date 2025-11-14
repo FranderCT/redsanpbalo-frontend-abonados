@@ -94,6 +94,20 @@ export async function updateReqChangeNameMeter(
   }
 }
 
+// Actualizar solo CanComment
+export async function updateCanCommentChangeNameMeter(
+  id: number,
+  canComment: boolean
+): Promise<ReqChangeNameMeter> {
+  try {
+    const { data } = await apiAxios.put<ReqChangeNameMeter>(`${BASE}/${id}`, { CanComment: canComment });
+    return data;
+  } catch (err) {
+    console.error(`Error actualizando CanComment para cambio de nombre de medidor ${id}`, err);
+    return Promise.reject(err);
+  }
+}
+
 export async function deleteReqChangeNameMeter(id: number): Promise<ReqChangeNameMeter | void> {
   try {
     const { data } = await apiAxios.delete<ReqChangeNameMeter>(`${BASE}/${id}`);

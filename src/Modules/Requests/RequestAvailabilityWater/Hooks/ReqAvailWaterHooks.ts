@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createReqAvailWater, deleteReqAvailWater, getAllReqAvailWater, getAllRequestStates, getReqAvailWaterById, getReqAvailWaterFolderLink, searchReqAvailWater, UpdateReqAvailWater } from "../Services/ReqAvilWaterServices";
+import { createReqAvailWater, deleteReqAvailWater, getAllReqAvailWater, getAllRequestStates, getReqAvailWaterById, getReqAvailWaterFolderLink, searchReqAvailWater, UpdateReqAvailWater, updateCanCommentAvailWater } from "../Services/ReqAvilWaterServices";
 import type { ReqAvailWater, ReqAvailWaterPaginationParams, ReqWaterLinkResponse, UpdateReqAvailabilityWater} from "../Models/ReqAvailWater";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
@@ -171,3 +171,17 @@ export function useReqAvailWaterFolderLink() {
     },
   });
 }
+
+// Actualizar CanComment
+export const useUpdateCanCommentAvailWater = () => {
+  const qc = useQueryClient();
+  return useMutation<ReqAvailWater, Error, { id: number; canComment: boolean }>({
+    mutationFn: ({ id, canComment }) => updateCanCommentAvailWater(id, canComment),
+    onSuccess: (res) => {
+      console.log("CanComment actualizado", res);
+      qc.invalidateQueries({ queryKey: ["request-availability-water"] });
+      qc.invalidateQueries({ queryKey: ["request-availability-water", "detail", res.Id] });
+    },
+    onError: (err) => console.error("Error actualizando CanComment", err),
+  });
+};

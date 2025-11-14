@@ -1,6 +1,6 @@
 // Hooks/RequestAssociatedHooks.ts
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRequestAssociated, deleteRequestAssociated, getAllRequestAssociated, getAllRequestStates, getReqAssociatedFolderLink, getRequestAssociatedById, searchRequestAssociated, UpdateAssociatedReq} from "../Services/ReqAssociatedServices";
+import { createRequestAssociated, deleteRequestAssociated, getAllRequestAssociated, getAllRequestStates, getReqAssociatedFolderLink, getRequestAssociatedById, searchRequestAssociated, UpdateAssociatedReq, updateCanComment} from "../Services/ReqAssociatedServices";
 import type { newReqAssociated, ReqAssociated, ReqAssociatedPaginationParams, ReqAssociatedResponse, UpdateReqAssociated } from "../Models/RequestAssociated";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 
@@ -133,3 +133,19 @@ export function useReqAssociatedFolderLink() {
     },
   });
 }
+
+// Actualizar CanComment
+export const useUpdateCanComment = () => {
+  const qc = useQueryClient();
+  return useMutation<ReqAssociated, Error, { id: number; canComment: boolean }>({
+    mutationFn: ({ id, canComment }) => updateCanComment(id, canComment),
+    onSuccess: (res) => {
+      console.log("CanComment actualizado", res);
+      // Invalidar lista, búsquedas y detalle
+      qc.invalidateQueries({ queryKey: ["request-associated"] });
+      qc.invalidateQueries({ queryKey: ["request-associated", "search"] });
+      qc.invalidateQueries({ queryKey: ["request-associated", "detail", res.Id] });
+    },
+    onError: (err) => console.error("Error actualizando CanComment", err),
+  });
+};

@@ -13,6 +13,7 @@ export interface ReqAvailWater {
   RequestLetterFile?: string;
   ConstructionPermitFile?: string;
   IsActive: string;
+  CanComment: boolean;
 
   // Relaciones
   User: User;
@@ -45,6 +46,7 @@ export const newReqAvailWaterInitialState: NewReqAvailWater = {
 
 export interface UpdateReqAvailabilityWater {
   StateRequestId?: number;
+  CanComment?: boolean;
 }
 
 // Paginación / filtros (manteniendo el estilo del ProjectPaginationParams)

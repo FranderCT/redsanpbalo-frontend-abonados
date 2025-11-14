@@ -9,6 +9,7 @@ export interface ReqChangeMeter{
     NIS: number;
     Justification : string;
     IsActive: boolean;
+    CanComment: boolean;
     User: User;
     StateRequest:RequestState;
     commentRquest?:CommentRequest[];
@@ -33,6 +34,7 @@ export const newReqChangeMeterInitialState: newReqChangeMeter = {
 
 export interface UpdateReqChangeMeterr {
   StateRequestId?: number;
+  CanComment?: boolean;
 }
 
 // Paginación / filtros (manteniendo el estilo del ProjectPaginationParams)

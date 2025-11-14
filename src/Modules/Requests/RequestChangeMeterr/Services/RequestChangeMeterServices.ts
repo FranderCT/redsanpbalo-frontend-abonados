@@ -90,6 +90,20 @@ export async function UpdateReqChangeMeter(
   }
 }
 
+// Actualizar solo CanComment
+export async function updateCanCommentChangeMeter(
+  id: number,
+  canComment: boolean
+): Promise<ReqChangeMeter> {
+  try {
+    const { data } = await apiAxios.put<ReqChangeMeter>(`${BASE}/${id}`, { CanComment: canComment });
+    return data;
+  } catch (err) {
+    console.error(`Error actualizando CanComment para cambio de medidor ${id}`, err);
+    return Promise.reject(err);
+  }
+}
+
 // Eliminar (soft-delete en back, devuelve entidad guardada)
 export async function deleteReqChangeMeter(id: number): Promise<ReqChangeMeter | void> {
   try {

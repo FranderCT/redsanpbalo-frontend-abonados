@@ -87,6 +87,20 @@ export async function UpdateAssociatedReq(
   }
 }
 
+// Actualizar solo CanComment
+export async function updateCanComment(
+  id: number,
+  canComment: boolean
+): Promise<ReqAssociated> {
+  try {
+    const { data } = await apiAxios.put<ReqAssociated>(`${BASE}/${id}`, { CanComment: canComment });
+    return data;
+  } catch (err) {
+    console.error(`Error actualizando CanComment para asociado ${id}`, err);
+    return Promise.reject(err);
+  }
+}
+
 // Eliminar (soft-delete en back)
 export async function deleteRequestAssociated(id: number): Promise<ReqAssociated | void> {
   try {
