@@ -147,6 +147,10 @@ const ViewProjectById = () => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isGettingFolderLink, setIsGettingFolderLink] = useState(false);
+  
+  // Estados para preview de PDF
+  const [showPDFPreview, setShowPDFPreview] = useState(false);
+  const [pdfDataUrl, setPdfDataUrl] = useState<string>("");
 
   const formatDate = (d?: Date | string | null) => {
     if (!d) return "—";
@@ -159,7 +163,7 @@ const ViewProjectById = () => {
     }
   };
 
-  const generatePDF = async () => {
+  const generatePDF = async (download: boolean = false) => {
     if (!project) return;
 
     const doc = new jsPDF();
@@ -234,16 +238,18 @@ const ViewProjectById = () => {
 
     yPosition += 15;
 
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(50, 50, 50);
 
     doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
     doc.text("Objetivo:", 15, yPosition);
     doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
     const objectiveLines = doc.splitTextToSize(project.Objective || "Sin objetivo especificado", 170);
-    doc.text(objectiveLines, 15, yPosition + 5);
-    yPosition += 5 + objectiveLines.length * 5;
+    doc.text(objectiveLines, 15, yPosition + 6);
+    yPosition += 6 + objectiveLines.length * 5.5;
 
     yPosition += 5;
     doc.setFont("helvetica", "bold");
@@ -444,9 +450,17 @@ const ViewProjectById = () => {
       );
     }
 
-    const fileName = `Proyecto_${project.Name?.replace(/[^a-z0-9]/gi, "_")}_${project.Id}.pdf`;
-    doc.save(fileName);
-    toast.success("PDF generado exitosamente");
+    if (download) {
+      const fileName = `Proyecto_${project.Name?.replace(/[^a-z0-9]/gi, "_")}_${project.Id}.pdf`;
+      doc.save(fileName);
+      toast.success("PDF descargado exitosamente");
+    } else {
+      // Generar preview usando blob
+      const pdfBlob = doc.output('blob');
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      setPdfDataUrl(pdfUrl);
+      setShowPDFPreview(true);
+    }
   };
 
   const handleFileUpload = (files: FileList) => {
@@ -557,11 +571,12 @@ const ViewProjectById = () => {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={generatePDF}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#1789FC] to-[#1789FC]/90 text-white rounded-lg hover:from-[#1789FC]/90 hover:to-[#1789FC] transition-all shadow-md hover:shadow-lg font-medium"
+                onClick={() => generatePDF(false)}
+                className="flex items-center gap-2 px-4 py-2 bg-[#1789FC] hover:bg-[#1789FC]/90 text-white transition-colors font-medium"
+                title="Vista previa del PDF"
               >
                 <Download className="w-5 h-5" />
-                Generar PDF
+                Descargar Proyecto
               </button>
               <CreateProjectTraceModal ProjectId={projectIdNumber} />
             </div>
@@ -964,6 +979,55 @@ const ViewProjectById = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de Preview del PDF */}
+      {showPDFPreview && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col">
+            {/* Header del modal */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <FileText className="w-6 h-6 text-[#1789FC]" />
+                <div>
+                  <h2 className="text-xl font-bold text-[#091540]">Vista Previa del PDF</h2>
+                  <p className="text-sm text-gray-600">{project?.Name}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    generatePDF(true);
+                    setShowPDFPreview(false);
+                    if (pdfDataUrl) URL.revokeObjectURL(pdfDataUrl);
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#1789FC] text-white hover:bg-[#1789FC]/90 transition-colors font-medium"
+                >
+                  <Download className="w-5 h-5" />
+                  Descargar PDF
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPDFPreview(false);
+                    if (pdfDataUrl) URL.revokeObjectURL(pdfDataUrl);
+                  }}
+                  className="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* Contenedor del PDF */}
+            <div className="flex-1 overflow-hidden bg-gray-100">
+              <iframe
+                src={pdfDataUrl}
+                className="w-full h-full"
+                title="Vista previa del PDF"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Custom Scrollbar Styles */}
       <style>{`
