@@ -3,6 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../../../Components/Modals/ModalBase";
 import { useCreateFAQ } from "../../Hooks/FAQHooks";
+import { CreateFAQSchema } from "../../schemas/FAQSchema";
 
 const CreateFAQModal = () => {
   const [open, setOpen] = useState(false);
@@ -17,6 +18,9 @@ const CreateFAQModal = () => {
     defaultValues: {
       Question: "",
       Answer: "",
+    },
+    validators: {
+      onChange: CreateFAQSchema
     },
     onSubmit: async ({ value, formApi }) => {
       if (!value.Question.trim() || !value.Answer.trim()) {
@@ -82,6 +86,11 @@ const CreateFAQModal = () => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
+                {field.state.meta.isTouched && field.state.meta.errors?.[0]?.message ? (
+                    <span className="text-xs text-red-600">
+                      {field.state.meta.errors[0].message}
+                    </span>
+                  ) : null}
               </label>
             )}
           </form.Field>
@@ -97,6 +106,11 @@ const CreateFAQModal = () => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
+                {field.state.meta.isTouched && field.state.meta.errors?.[0]?.message ? (
+                    <span className="text-xs text-red-600">
+                      {field.state.meta.errors[0].message}
+                    </span>
+                  ) : null}
               </label>
             )}
           </form.Field>
