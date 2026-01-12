@@ -17,6 +17,7 @@ import {
   Phone,
   ChevronDown
 } from "lucide-react";
+import { UpdateServiceSchema } from "../../schemas/ServiceSchema";
 
 const ICON_OPTIONS = [
   { value: "activity", label: "Actividad", Icon: Activity },
@@ -53,6 +54,9 @@ const UpdateServiceModal = ({ service, open, onClose, onSuccess }: Props) => {
       Description: service?.Description ?? "",
       IsActive: service?.IsActive ?? true,
     },
+    validators:{
+      onChange: UpdateServiceSchema
+    },
     onSubmit: async ({ value, formApi }) => {
       try {
         await updateServiceMutation.mutateAsync({
@@ -81,19 +85,26 @@ const UpdateServiceModal = ({ service, open, onClose, onSuccess }: Props) => {
 
   return (
     <>
-      {/* Modal principal de edición */}
       <ModalBase
         open={open}
         onClose={handleClose}
-        panelClassName="w-full max-w-2xl !p-0 overflow-hidden shadow-2xl"
+        panelClassName="
+          w-full 
+          max-w-2xl 
+          !p-0 
+          shadow-2xl 
+          max-h-[90vh] 
+          flex 
+          flex-col
+        "
       >
-        {/* Header */}
+        {/* Header fijo */}
         <div className="px-6 py-5 border-b border-gray-200 bg-white">
           <h3 className="text-xl font-bold text-[#091540]">Editar Servicio</h3>
         </div>
 
-        {/* Body */}
-        <div className="p-6 bg-white">
+        {/* Body con scroll */}
+        <div className="p-6 bg-white overflow-y-auto flex-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {/* Vista previa */}
           <div className="mb-5">
             <h4 className="text-sm font-semibold text-gray-700 mb-2">
@@ -103,11 +114,33 @@ const UpdateServiceModal = ({ service, open, onClose, onSuccess }: Props) => {
             <dl className="grid grid-cols-1 gap-3">
               <div className="bg-gray-50 p-3">
                 <dt className="text-[11px] uppercase tracking-wide text-gray-500">
-                  Icono
-                </dt>
-                <dd className="mt-1 text-sm text-[#091540] break-all">
-                  {service.Icon ?? "-"}
-                </dd>
+                Icono
+              </dt>
+              <dd className="mt-2 flex items-center gap-3">
+                {(() => {
+                  const icon = ICON_OPTIONS.find(i => i.value === service.Icon);
+                  const IconComponent = icon?.Icon;
+
+                  if (!IconComponent) {
+                    return (
+                      <span className="text-sm text-gray-400 italic">
+                        Sin icono
+                      </span>
+                    );
+                  }
+
+                  return (
+                    <>
+                      <div className="p-2 rounded-md bg-blue-50 border border-blue-200">
+                        <IconComponent className="w-6 h-6 text-[#1789FC]" />
+                      </div>
+                      <span className="text-sm text-[#091540]">
+                        {icon.label}
+                      </span>
+                    </>
+                  );
+                })()}
+              </dd>
               </div>
               <div className="bg-gray-50 p-3">
                 <dt className="text-[11px] uppercase tracking-wide text-gray-500">
@@ -136,7 +169,7 @@ const UpdateServiceModal = ({ service, open, onClose, onSuccess }: Props) => {
             </dl>
           </div>
 
-          {/* Formulario de edición */}
+          {/* Formulario */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -144,6 +177,7 @@ const UpdateServiceModal = ({ service, open, onClose, onSuccess }: Props) => {
             }}
             className="grid gap-4"
           >
+            {/* Icon */}
             <form.Field name="Icon">
               {(field) => {
                 const selectedIcon = ICON_OPTIONS.find(opt => opt.value === field.state.value);
@@ -172,19 +206,12 @@ const UpdateServiceModal = ({ service, open, onClose, onSuccess }: Props) => {
                         <ChevronDown className="w-4 h-4 text-gray-400" />
                       </div>
                     </div>
-                    {selectedIcon && IconComponent && (
-                      <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded flex items-center gap-3">
-                        <IconComponent className="w-6 h-6 text-[#1789FC]" />
-                        <span className="text-sm text-gray-700">
-                          Vista previa: <strong>{selectedIcon.label}</strong>
-                        </span>
-                      </div>
-                    )}
                   </label>
                 );
               }}
             </form.Field>
 
+            {/* Title */}
             <form.Field name="Title">
               {(field) => (
                 <label className="grid gap-1">
@@ -193,12 +220,12 @@ const UpdateServiceModal = ({ service, open, onClose, onSuccess }: Props) => {
                     className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder="Escriba el nuevo título"
                   />
                 </label>
               )}
             </form.Field>
 
+            {/* Description */}
             <form.Field name="Description">
               {(field) => (
                 <label className="grid gap-1">
@@ -207,34 +234,45 @@ const UpdateServiceModal = ({ service, open, onClose, onSuccess }: Props) => {
                     className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC] min-h-[120px]"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder="Escriba la nueva descripción"
                   />
                 </label>
               )}
             </form.Field>
 
+            {/* IsActive */}
             <form.Field name="IsActive">
               {(field) => (
-                <label className="flex items-center gap-2">
-                  <span className="text-sm text-gray-700">Activo:</span>
-                  <input
-                    type="checkbox"
-                    checked={!!field.state.value}
-                    onChange={(e) => field.handleChange(e.target.checked)}
-                  />
+                <label className="flex items-center gap-3 cursor-pointer select-none">
+                  <span className="text-sm text-gray-700">
+                    {field.state.value ? "Activo" : "Inactivo"}
+                  </span>
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={!!field.state.value}
+                      onChange={(e) => field.handleChange(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors"></div>
+                    <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-5"></div>
+                  </div>
+                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                    <p className="text-sm text-red-500 mt-1">
+                      {(field.state.meta.errors[0] as any)?.message ??
+                        String(field.state.meta.errors[0])}
+                    </p>
+                  )}
                 </label>
               )}
             </form.Field>
 
             <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
-                <div className="mt-2 flex justify-end items-center gap-2">
+                <div className="mt-2 flex justify-end gap-2">
                   <button
                     type="button"
                     disabled={!canSubmit || isSubmitting}
-                    onClick={() => {
-                      if (canSubmit && !isSubmitting) setOpenConfirm(true);
-                    }}
+                    onClick={() => canSubmit && !isSubmitting && setOpenConfirm(true)}
                     className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
                   >
                     {isSubmitting ? "Guardando…" : "Guardar cambios"}
@@ -253,12 +291,9 @@ const UpdateServiceModal = ({ service, open, onClose, onSuccess }: Props) => {
         </div>
       </ModalBase>
 
-      {/* Modal de confirmación */}
+      {/* Modal confirmación */}
       {openConfirm && (
-        <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none"
-          aria-hidden={false}
-        >
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none">
           <div
             className="absolute inset-0 bg-black/40 pointer-events-auto"
             onClick={() => setOpenConfirm(false)}

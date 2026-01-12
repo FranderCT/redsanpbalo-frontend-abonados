@@ -15,6 +15,7 @@ import {
   Phone,
   ChevronDown
 } from "lucide-react";
+import { CreateServiceSchema } from "../../schemas/ServiceSchema";
 
 const ICON_OPTIONS = [
   { value: "activity", label: "Actividad", Icon: Activity },
@@ -42,6 +43,9 @@ const CreateServiceModal = () => {
       Icon: "",
       Title: "",
       Description: "",
+    },
+    validators: {
+      onChange: CreateServiceSchema
     },
     onSubmit: async ({ value, formApi }) => {
       if (!value.Icon.trim() || !value.Title.trim() || !value.Description.trim()) {
@@ -118,6 +122,11 @@ const CreateServiceModal = () => {
                         </option>
                       ))}
                     </select>
+                    {field.state.meta.isTouched && field.state.meta.errors?.[0]?.message ? (
+                    <span className="text-xs text-red-600">
+                      {field.state.meta.errors[0].message}
+                    </span>
+                  ) : null}
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-2">
                       {IconComponent && (
                         <IconComponent className="w-5 h-5 text-[#1789FC]" />
@@ -149,6 +158,11 @@ const CreateServiceModal = () => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
+                {field.state.meta.isTouched && field.state.meta.errors?.[0]?.message ? (
+                    <span className="text-xs text-red-600">
+                      {field.state.meta.errors[0].message}
+                    </span>
+                  ) : null}
               </label>
             )}
           </form.Field>
@@ -164,6 +178,11 @@ const CreateServiceModal = () => {
                   value={field.state.value}
                   onChange={(e) => field.handleChange(e.target.value)}
                 />
+                {field.state.meta.isTouched && field.state.meta.errors?.[0]?.message ? (
+                    <span className="text-xs text-red-600">
+                      {field.state.meta.errors[0].message}
+                    </span>
+                  ) : null}
               </label>
             )}
           </form.Field>
