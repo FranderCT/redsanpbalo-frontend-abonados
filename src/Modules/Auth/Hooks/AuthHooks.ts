@@ -28,7 +28,10 @@ export const useCreateUser = () => {
     mutationFn: createAdminUser,
     onSuccess:(res)=>{
       console.log(res);
-      qc.invalidateQueries({ queryKey: ['abonados'] });
+     // qc.invalidateQueries({ queryKey: ['abonados'] });
+      qc.invalidateQueries({ queryKey: ["users", "paginated"] });
+      qc.invalidateQueries({ queryKey: ["users", "all"] });
+      qc.invalidateQueries({ queryKey: ["users", "abonados"] });
     },
     onError:(res)=>{
       console.log("no se que pudo haber pasado", res)

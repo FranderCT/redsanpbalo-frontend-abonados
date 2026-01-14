@@ -71,7 +71,9 @@ export function useDeleteUser() {
       mutationFn: (id: number) => deleteUser(id),
       onSuccess: (res, id) => {
           // Invalidar todas las consultas de usuarios
-          qc.invalidateQueries({ queryKey: ["users"] });
+          //qc.invalidateQueries({ queryKey: ["users"] });
+          qc.invalidateQueries({ queryKey: ["users", "paginated"] });
+          qc.invalidateQueries({ queryKey: ["users", "all"] });
           // Invalidar específicamente el usuario deshabilitado
           qc.invalidateQueries({ queryKey: ["users", "detail", id] });
           console.log("Usuario inhabilitado", res);
