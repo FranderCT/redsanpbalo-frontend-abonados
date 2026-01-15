@@ -253,14 +253,14 @@ export default function RegisterAbonadosModal() {
                               {nisList.map((nis) => (
                                 <span
                                   key={nis}
-                                  className="inline-flex items-center gap-1 sm:gap-2 border px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-50 border-blue-200 max-w-full"
+                                  className="inline-flex items-center gap-2 bg-[#091540] text-white px-3 py-1 text-sm"
                                 >
                                   <span className="truncate">{nis}</span>
                                   <button
                                     type="button"
                                     onClick={() => removeNis(nis)}
                                     disabled={!isAbonado}
-                                    className="text-gray-500 hover:text-red-600 flex-shrink-0 w-4 h-4 flex items-center justify-center disabled:opacity-50"
+                                    className="text-gray-500 hover:text-red-300 flex-shrink-0 w-4 h-4 flex items-center justify-center disabled:opacity-50"
                                     title="Quitar NIS"
                                   >
                                     ×
@@ -294,7 +294,7 @@ export default function RegisterAbonadosModal() {
                                 type="button"
                                 onClick={addNis}
                                 disabled={!isAbonado || !tempNis.trim()}
-                                className="h-10 px-4 border bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                                className="px-4 py-2 bg-[#1789FC] text-white hover:bg-[#091540] transition-colors"
                               >
                                 + Agregar
                               </button>

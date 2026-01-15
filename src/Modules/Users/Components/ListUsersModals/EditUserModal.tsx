@@ -2,10 +2,11 @@
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
-import { useUpdateUser, useGetAllRoles } from "../../Hooks/UsersHooks"; // 👈 trae roles
+import { useUpdateUser, useGetAllRoles } from "../../Hooks/UsersHooks"; 
 import type { User } from "../../Models/User";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { useState } from "react";
+import { EditUserSchema } from "../../schemas/EditUserSchema";
 
 type Props = {
   user: User;
@@ -29,8 +30,11 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
       PhoneNumber: user.PhoneNumber ?? "",
       Nis: user.Nis ?? [],
       Address: user.Address ?? "",
-      roleIds: initialRoleIds as number[], // 👈 importante
+      roleIds: initialRoleIds as number[], 
       IsActive: user.IsActive ?? true,
+    },
+    validators: {
+      onChange: EditUserSchema
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -305,12 +309,12 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
           </form.Field>
           {/* ===== Fin Roles ===== */}
 
-          <form.Field name="IsActive">
+        <form.Field name="IsActive">
             {(field) => (
               <label className="flex items-center gap-3 cursor-pointer select-none">
-                <span className="text-sm text-gray-700">Activo</span>
-
-                {/* Toggle */}
+                <span className="text-sm text-gray-700">
+                  {field.state.value ? "Activo" : "Inactivo"}
+                </span>
                 <div className="relative">
                   <input
                     type="checkbox"
@@ -321,7 +325,6 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
                   <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors"></div>
                   <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-5"></div>
                 </div>
-
                 {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
                   <p className="text-sm text-red-500 mt-1">
                     {(field.state.meta.errors[0] as any)?.message ??
