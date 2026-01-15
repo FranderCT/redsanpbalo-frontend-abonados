@@ -30,11 +30,9 @@
 
         setStateId(current ? String(current) : "");
         const initialCanComment = req.CanComment ?? false;
-        console.log('📋 Modal abierto - CanComment:', initialCanComment, 'Request:', req);
         setCanComment(initialCanComment);
     }, [req, req?.CanComment]);
 
-    
     useEffect(() => {
         if (requestStates.length > 0) {
         }
@@ -68,7 +66,6 @@
                 { position: "top-right", autoClose: 3000 }
             );
         } catch (err: any) {
-            console.error('❌ Error al actualizar CanComment:', err);
             setCanComment(!newValue);
             toast.error(err?.response?.data?.message || "No se pudo actualizar el permiso de comentarios");
         }

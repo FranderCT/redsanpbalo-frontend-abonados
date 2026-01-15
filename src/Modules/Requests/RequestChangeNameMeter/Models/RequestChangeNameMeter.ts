@@ -9,6 +9,8 @@ export interface ReqChangeNameMeter{
     SpaceOfDocument:string|null;
     IsActive: boolean;
     CanComment: boolean;
+
+    //Relaciones 
     User: User;
     StateRequest:RequestState;
     commentRquest?:CommentRequest[];

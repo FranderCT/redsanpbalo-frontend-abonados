@@ -144,11 +144,6 @@
 
     const form = useForm({
         defaultValues: {
-        // Datos de perfil como fallback; se actualizarán con el abonado seleccionado
-        IDcard: UserProfile?.IDcard || "",
-        Name: UserProfile?.Name || "",
-        Surname1: UserProfile?.Surname1 || "",
-        Surname2: UserProfile?.Surname2 || "",
         NIS: 0, // se selecciona según el abonado (solo lectura/selector en UI)
         Justification: "",
         evidenciaBoletaFirmada: [] as File[],
@@ -172,18 +167,19 @@
 
             // 1) Crear solicitud
             const requestData = {
-            IDcard: value.IDcard, // puede venir del abonado o del perfil (si el abonado no trae)
-            Name: value.Name || UserProfile?.Name || "",
-            Surname1: value.Surname1 || UserProfile?.Surname1 || "",
-            Surname2: value.Surname2 || UserProfile?.Surname2 || "",
             NIS: Number(value.NIS) || 0, // tomado del abonado seleccionado
             Justification: value.Justification.trim(),
+            UserId: Number(value.UserId)||0,
             };
 
             const requestResult = await useCreateAssociatedRequestMutation.mutateAsync(requestData);
             const requestId = requestResult?.Id;
             if (!requestId) throw new Error("No se obtuvo el ID de la solicitud creada.");
-
+            
+            if(!requestData.UserId || requestData.UserId <= 0){
+                toast.error("Selecione un abonado válido")
+                return;
+            }
             // 2) Subir evidencia si hay
             if (value.evidenciaBoletaFirmada.length > 0) {
             setIsUploading(true);
@@ -285,9 +281,9 @@
                     }
 
                     // Si el abonado trae cédula, úsala; si no, mantén la del perfil
-                    if (picked?.IDcard) {
-                        form.setFieldValue("IDcard", picked.IDcard);
-                    }
+                    // if (picked?.IDcard) {
+                    //     form.setFieldValue("IDcard", picked.IDcard);
+                    // }
                     }}
                 />
                 )}

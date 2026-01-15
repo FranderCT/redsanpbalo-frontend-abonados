@@ -125,13 +125,37 @@ export function useReqAssociatedFolderLink() {
 // Actualizar CanComment
 export const useUpdateCanComment = () => {
   const qc = useQueryClient();
-  return useMutation<ReqAssociated, Error, { id: number; canComment: boolean }>({
-    mutationFn: ({ id, canComment }) => updateCanComment(id, canComment),
-    onSuccess: (res) => {
-      console.log("CanComment actualizado", res);
-      // Invalidar lista, búsquedas y detalle
-      qc.invalidateQueries({ queryKey: ["request-associated"] });
+
+  return useMutation({
+    mutationFn: ({ id, canComment }: { id: number; canComment: boolean }) =>
+      updateCanComment(id, canComment),
+
+    onSuccess: (updated) => {
+      // 1) Actualizar caches de listas (paginadas o no)
+      qc.setQueriesData({ queryKey: ["request-associated"] }, (old: any) => {
+        if (!old) return old;
+
+        if (old.data && Array.isArray(old.data)) {
+          return {
+            ...old,
+            data: old.data.map((x: any) =>
+              x.Id === updated.Id ? { ...x, ...updated } : x
+            ),
+          };
+        }
+
+        if (Array.isArray(old)) {
+          return old.map((x: any) =>
+            x.Id === updated.Id ? { ...x, ...updated } : x
+          );
+        }
+
+        return old;
+      });
+
+      // 2) Refetch por seguridad
+      qc.invalidateQueries({ queryKey: ["request-associated"], exact: false });
     },
-    onError: (err) => console.error("Error actualizando CanComment", err),
   });
 };
+

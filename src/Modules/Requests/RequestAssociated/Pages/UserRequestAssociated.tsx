@@ -23,26 +23,23 @@ export function UserRequestAssociated () {
 
     const form = useForm({
         defaultValues: {
-            IDcard: UserProfile?.IDcard || '',
-            Name: UserProfile?.Name || '',
             Justification: '',
-            Surname1: UserProfile?.Surname1 || '',
-            Surname2: UserProfile?.Surname2 || '',
             NIS: UserProfile?.Nis || 0,
             evidenciaBoletaFirmada: [] as File[],
+            UserId: 0, 
         },
         onSubmit: async ({ value, formApi }) => {
             try {
                 // 1. Crear la solicitud primero
                 const requestData = {
-                    IDcard: value.IDcard,
-                    Name: value.Name,
                     Justification: value.Justification,
-                    Surname1: value.Surname1,
-                    Surname2: value.Surname2,
                     NIS: Number(value.NIS) || 0,
+                    UserId: Number(UserProfile?.Id)||0,
                 };
-
+                if(!requestData.UserId || requestData.UserId<=0){
+                    toast.error("Selecione un abonado válido")
+                    return;
+                }
                 const requestResult = await useCreateAssociatedRequestMutation.mutateAsync(requestData);
                 const requestId = requestResult?.Id;
 

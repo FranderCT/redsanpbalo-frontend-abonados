@@ -10,6 +10,8 @@ export interface ReqSupervisionMeter{
     Justification : string;
     IsActive: boolean;
     CanComment: boolean;
+
+    //Relaciones
     User: User;
     StateRequest:RequestState;
     commentRquest?:CommentRequest[];

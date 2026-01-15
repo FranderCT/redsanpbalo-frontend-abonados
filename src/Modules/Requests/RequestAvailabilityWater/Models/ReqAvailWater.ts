@@ -12,7 +12,7 @@ export interface ReqAvailWater {
   LiteralCertificateFile?: string;
   RequestLetterFile?: string;
   ConstructionPermitFile?: string;
-  IsActive: string;
+  IsActive: boolean;
   CanComment: boolean;
 
   // Relaciones

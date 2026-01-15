@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
 import type { ReqAssociated } from "../../Models/RequestAssociated";
 import { useGetAllRequestStates, useUpdateAssociatedreq, useUpdateCanComment } from "../../Hooks/ReqAssociatedHooks";
 
@@ -26,12 +25,14 @@ export default function UpdateReqAssociatedStateModal({
 
   useEffect(() => {
     if (!req) return;
-    const current = (req as any)?.StateRequest?.Id;
+    const current = req.StateRequest?.Id;
+
     setStateId(current ? String(current) : "");
     const initialCanComment = req.CanComment ?? false;
-    console.log('📋 Modal abierto - CanComment:', initialCanComment, 'Request:', req);
     setCanComment(initialCanComment);
   }, [req, req?.CanComment]); // Agregar req?.CanComment como dependencia
+
+    useEffect(()=>{if(requestStates.length>0){}}, [requestStates]);
 
   if (!open || !req) return null;
 
@@ -62,8 +63,6 @@ export default function UpdateReqAssociatedStateModal({
         { position: "top-right", autoClose: 3000 }
       );
     } catch (err: any) {
-      console.error('❌ Error al actualizar CanComment:', err);
-      // Revertir en caso de error
       setCanComment(!newValue);
       toast.error(err?.response?.data?.message || "No se pudo actualizar el permiso de comentarios");
     }
@@ -82,7 +81,7 @@ export default function UpdateReqAssociatedStateModal({
 
     try {
       await updateMutation.mutateAsync({
-        id: (req as any).Id,
+        id: req.Id,
         data: { StateRequestId: Number(stateId) },
       });
       toast.success("Estado actualizado");
@@ -94,20 +93,8 @@ export default function UpdateReqAssociatedStateModal({
   };
 
   return (
-    <div 
-      className="fixed inset-0 z-[999] grid place-items-center bg-black/40"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
-    >
-      <div 
-        className="w-[95%] max-w-md rounded-lg bg-white p-5 shadow-xl"
-        onMouseDown={(e) => {
-          e.stopPropagation();
-        }}
-      >
+        <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
+        <div className="w-[95%] max-w-md rounded-lg bg-white p-5 shadow-xl">
         <h3 className="mb-3 text-lg font-semibold text-[#091540]">Editar estado</h3>
 
         <div className="mb-4 space-y-1 text-sm text-gray-700">

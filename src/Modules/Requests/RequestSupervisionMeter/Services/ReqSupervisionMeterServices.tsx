@@ -92,6 +92,19 @@ export async function updateReqSupervisionMeter(
     return Promise.reject(err);
   }
 }
+// actualizar comentarios 
+export async function updateCanCommentSupervisionMeter(
+  id:number,
+  CanComment: boolean
+): Promise <ReqSupervisionMeter> {
+  try{
+    const {data} = await apiAxios.put<ReqSupervisionMeter>(`${BASE}/${id}`,{CanComment:CanComment});
+    return data;
+  } catch (err){
+    console.error(`Error actualizando CanComment para la supervision de medidor ${id}`, err);
+    return Promise.reject(err);
+  }
+}
 
 // Eliminar (soft-delete en back, devuelve entidad guardada)
 export async function deleteReqSupervisionMeter(id: number): Promise<ReqSupervisionMeter | void> {

@@ -13,16 +13,14 @@ export interface RequestAssociatedFile {
 
 export interface ReqAssociated{
     Id: number;
-    IDcard: string;
     Date: Date;
-    Name: string;
     Justification : string;
-    Surname1: string;
-    Surname2: string;
     NIS: number;
     SpaceOfDocument:string|null;
     IsActive: boolean;
     CanComment: boolean;
+
+    // Relaciones 
     User: User;
     StateRequest:RequestState;
     commentRquest?:CommentRequest[];
@@ -30,24 +28,18 @@ export interface ReqAssociated{
 }
 
 export interface newReqAssociated{
-    IDcard: string;
-    Name: string;
     Justification : string;
-    Surname1: string;
-    Surname2: string;
     NIS: number;
-    CanComment: boolean;
+    UserId: number;                  // FK (requerido)
+    StateRequestId:number;
 }
 
 // Estado inicial del formulario (similar a newInitialState)
 export const newReqAssociatedInitialState: newReqAssociated = {
-  IDcard: "",
-  Name: "",
   Justification: "",
-  Surname1: "",
-  Surname2: "",
   NIS: 0,
-  CanComment: false,
+  UserId: 0,     
+  StateRequestId: 0,              // FK (requerido)
 };
 
 export interface UpdateReqAssociated {

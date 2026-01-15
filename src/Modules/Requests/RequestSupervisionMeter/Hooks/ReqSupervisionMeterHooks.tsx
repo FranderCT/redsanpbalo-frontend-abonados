@@ -2,7 +2,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
-import { createReqSupervisionMeter, deleteReqSupervisionMeter, getAllReqSupervisionMeter, getAllRequestStates, getReqSupervisionMeterById, searchReqSupervisionMeter, updateReqSupervisionMeter } from "../Services/ReqSupervisionMeterServices";
+import { createReqSupervisionMeter, deleteReqSupervisionMeter, getAllReqSupervisionMeter, getAllRequestStates, getReqSupervisionMeterById, searchReqSupervisionMeter, updateCanCommentSupervisionMeter, updateReqSupervisionMeter } from "../Services/ReqSupervisionMeterServices";
 import type { newReqSupervisionMeter, ReqSupervisionMeter, ReqSupervisionMeterPaginationParams, UpdateReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
 
 // Listado simple
@@ -70,7 +70,7 @@ export const useCreateReqSupervisionMeter = () => {
   });
 };
 
-// Actualizar
+// Actualizar Estado 
 export const useUpdateReqSupervisionMeter = () => {
   const qc = useQueryClient();
   return useMutation<ReqSupervisionMeter, Error, { id: number; data: UpdateReqSupervisionMeter }>({
@@ -83,6 +83,20 @@ export const useUpdateReqSupervisionMeter = () => {
     onError: (err) => console.error("Error actualizando supervisión", err),
   });
 };
+
+// Actualizar CanComment
+export const useUpdateCanCommentSupervisionMeter = () =>{
+  const qc = useQueryClient();
+  return useMutation<ReqSupervisionMeter,Error,{id:number; CanComment:boolean}>({
+    mutationFn:({id,CanComment}) => updateCanCommentSupervisionMeter(id,CanComment),
+    onSuccess:(res)=>{
+      console.log("CanComment actualizado", res);
+      qc.invalidateQueries({ queryKey: ["request-supervision-meter"] });
+      qc.invalidateQueries({ queryKey: ["request-supervision-meter", "detail", res.Id] });
+    },
+    onError:(err) =>console.error("Error actualizando supervisión", err),
+  });
+}
 
 // Eliminar
 export const useDeleteReqSupervisionMeter = () => {
