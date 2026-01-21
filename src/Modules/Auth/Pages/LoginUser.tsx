@@ -46,7 +46,7 @@ const LoginUser = () => {
             </div>
           </div>
           <p className="relative z-10 text-white text-sm md:text-base font-medium text-center">
-            Inicia Sesión para Continuar
+            Inicia sesión para continuar
           </p>
         </div>
 
@@ -54,7 +54,7 @@ const LoginUser = () => {
         <div className="w-full md:w-1/2 flex flex-col justify-between items-center h-full">
           <div className="flex flex-col justify-center items-center flex-grow w-full">
             <h2 className="text-3xl md:text-5xl font-bold text-[#091540] mb-6 text-center drop-shadow-lg">
-              Iniciar Sesión
+              Iniciar sesión
             </h2>
 
             <form
@@ -141,7 +141,7 @@ const LoginUser = () => {
           <p className="mt-6 text-sm md:text-lg text-[#091540] text-center">
             ¿No tienes una cuenta?{' '}
             <Link to="/register" className="underline font-medium text-[#1789FC] hover:text-[#091540] cursor-pointer">
-              Regístrarse
+              Registrarse
             </Link>
           </p>
         </div>
