@@ -19,7 +19,7 @@ export const EditProfileSchema = z.object({
   Address: z
     .string()
     .trim()
-    .max(400, "La dirección no puede superar 400 caracteres.")
+    .max(255, "La dirección no puede superar 255 caracteres.")
     .refine((v) => v.length === 0 || v.length >= 10, {
       message: "La dirección debe tener al menos 10 caracteres.",
     })

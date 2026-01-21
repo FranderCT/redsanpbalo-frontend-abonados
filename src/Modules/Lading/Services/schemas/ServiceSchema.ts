@@ -15,7 +15,7 @@ export const CreateServiceSchema = z.object({
     .string()
     .trim()
     .min(10, "La descripción debe tener al menos 10 caracteres")
-    .max(600, "Máx. 600 caracteres"),
+    .max(255, "Máx. 255 caracteres"),
 });
 
 export const UpdateServiceSchema = z.object({
@@ -35,7 +35,7 @@ export const UpdateServiceSchema = z.object({
     .string()
     .trim()
     .min(10, "La descripción debe tener al menos 10 caracteres")
-    .max(600, "Máx. 600 caracteres"),
+    .max(255, "Máx. 255 caracteres"),
 
   IsActive: z.boolean({
     required_error: "El estado es obligatorio",
