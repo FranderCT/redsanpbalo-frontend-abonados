@@ -27,7 +27,7 @@ export const EditUserSchema = z.object({
     })
     .trim()
     .min(10, "La dirección debe tener al menos 10 caracteres.")
-    .max(400, "La dirección no puede superar 400 caracteres."),
+    .max(255, "La dirección no puede superar 255 caracteres."),
 
   roleIds: z
     .array(

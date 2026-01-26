@@ -54,10 +54,17 @@ export function CommentsSupervisionMeterModal({
         UserId: UserProfile.Id,
       };
 
-      await createAdminCommentMutation.mutateAsync({
+      console.log('Enviando comentario:', {
+        requestId: request.Id,
+        payload
+      });
+
+      const result = await createAdminCommentMutation.mutateAsync({
         requestId: request.Id,
         payload,
       });
+
+      console.log('✅ Comentario creado:', result);
 
       toast.success("Comentario enviado exitosamente", {
         position: "top-right",
@@ -66,9 +73,15 @@ export function CommentsSupervisionMeterModal({
 
       setSubject("");
       setComment("");
-      refetch();
+      
+      // Esperar un momento antes de refetch
+      setTimeout(() => {
+        console.log('🔄 Haciendo refetch...');
+        refetch();
+      }, 500);
+      
     } catch (error) {
-      console.error("Error al enviar comentario:", error);
+      console.error("❌ Error al enviar comentario:", error);
       toast.error("Error al enviar comentario. Intente nuevamente.", {
         position: "top-right",
         autoClose: 3000,
