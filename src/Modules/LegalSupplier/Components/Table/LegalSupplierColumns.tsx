@@ -11,19 +11,19 @@ export const LegalSupplierColumns = (
 //   onGetInfo: (product: Product) => void
 ): ColumnDef<LegalSupplier>[] => [
   {
-    accessorKey: "LegalID",
+    accessorKey: "Supplier.IDcard",
     header: "Número de Cédula Jurídica",
   },  
   {
-    accessorKey: "CompanyName",
+    accessorKey: "Supplier.Name",
     header: "Nombre",
   },
   {
-    accessorKey: "Email",
+    accessorKey: "Supplier.Email",
     header: "Correo electrónico",
   },
   {
-    accessorKey: "PhoneNumber",
+    accessorKey: "Supplier.PhoneNumber",
     header: "Número de teléfono",
   },
   {
@@ -36,8 +36,8 @@ export const LegalSupplierColumns = (
           <button
             onClick={() => onEdit(supplier)}
             className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-                       text-[#1789FC] border-[#1789FC]
-                       hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
+              text-[#1789FC] border-[#1789FC]
+              hover:bg-[#1789FC] hover:text-[#F9F5FF] transition"
           >
             <Edit2 className="w-4 h-4" />
             Editar

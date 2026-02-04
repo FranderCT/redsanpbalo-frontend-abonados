@@ -17,7 +17,8 @@ export async function createPhysicalSupplier (payloads : newPhysicalSupplier) : 
 export async function getAllPhysicalSupplier (
     params: ProductPaginationParams
     ): Promise<PaginatedResponse<PhysicalSupplier>> {
-     try {
+
+    try {
         const { page = 1, limit = 10, name, categoryId, materialId, unitId, state } = params ?? {};
         const { data } = await apiAxios.get<PaginatedResponse<PhysicalSupplier>>(`${BASE}/search`, {
         params: { page, limit, name, categoryId, materialId, unitId, state },

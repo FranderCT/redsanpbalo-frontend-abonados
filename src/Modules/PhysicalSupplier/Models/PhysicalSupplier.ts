@@ -30,7 +30,7 @@ export interface newPhysicalSupplier {
 }
 
 // Payload para editar proveedor físico
-export interface editPhysicalSupplier {
+export interface UpdatePhysicalSupplierDto {
     IDcard?: string;
     Name?: string;
     Surname1?: string;
@@ -40,3 +40,7 @@ export interface editPhysicalSupplier {
     Location?: string;
     IsActive?: boolean;
 }
+
+// export interface UpdatePhysicalSupplierDto extends newPhysicalSupplier{
+//     IsActive?: boolean;
+// }

@@ -39,7 +39,6 @@ export const updateSupplierInitialState: updatSupplierDto = {
     PhoneNumber:undefined,
     Location:undefined,
     IsActive: true,
-
 };
 
 export interface SupplierPaginationParams {
