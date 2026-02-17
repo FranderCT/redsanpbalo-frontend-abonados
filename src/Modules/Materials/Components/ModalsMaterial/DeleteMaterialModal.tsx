@@ -1,25 +1,31 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { Trash } from "lucide-react";
 import type { Material } from "../../Models/Material";
 import { useDeleteMaterial } from "../../Hooks/MaterialHooks";
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../../../../Components/ui/alert-dialog";
+import { buttonVariants } from "../../../../Components/ui/button";
 
 type Props = {
   materialSelected: Material;
   onSuccess?: () => void;
-  
 };
 
 export default function DeleteMaterialButton({ materialSelected, onSuccess }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const deleteMaterialMutation = useDeleteMaterial();
-  const handleClose = () =>{
-  toast.warning("Edición cancelada",{position:"top-right",autoClose:3000});
-    setOpen(false);
- }
+
   const handleConfirm = async () => {
     try {
       setBusy(true);
@@ -36,32 +42,39 @@ export default function DeleteMaterialButton({ materialSelected, onSuccess }: Pr
   };
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        disabled={busy}
-        className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
-          ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
-        title="Inhabilitar material"
-      >
-        <Trash  className="h-4 w-4"/>
-        {busy ? "..." : "Inhabilitar"}
-      </button>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <button
+          type="button"
+          disabled={busy}
+          className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
+            ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
+          title="Inhabilitar material"
+        >
+          <Trash className="h-4 w-4" />
+          {busy ? "..." : "Inhabilitar"}
+        </button>
+      </AlertDialogTrigger>
 
-      {open && (
-        <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
-          <InhabilityActionModal
-            title="¿Inhabilitar material?"
-            description={`Se inhabilitará el material "${materialSelected.Name ?? ""}".`}
-            cancelLabel="Cancelar"
-            confirmLabel="Inhabilitar"
-            onConfirm={handleConfirm}
-            onClose={handleClose}
-            onCancel={handleClose}
-          />
-        </div>
-      )}
-    </>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>¿Inhabilitar material?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Se inhabilitará el material "{materialSelected.Name ?? ""}". Esta acción no se puede deshacer.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleConfirm}
+            disabled={busy}
+            className={buttonVariants({ variant: "destructive" })}
+          >
+            {busy ? "..." : "Inhabilitar"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
