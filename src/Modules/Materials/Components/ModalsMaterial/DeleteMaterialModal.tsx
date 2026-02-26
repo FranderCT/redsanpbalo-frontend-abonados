@@ -14,7 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../../../Components/ui/alert-dialog";
-import { buttonVariants } from "../../../../Components/ui/button";
+import { Button, buttonVariants } from "../../../../Components/ui/button";
 
 type Props = {
   materialSelected: Material;
@@ -44,16 +44,18 @@ export default function DeleteMaterialButton({ materialSelected, onSuccess }: Pr
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <button
+        <Button
           type="button"
           disabled={busy}
-          className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
-            ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
+          variant="destructive"
+          // className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
+          //   ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
           title="Inhabilitar material"
+
         >
-          <Trash className="h-4 w-4" />
+          <Trash />
           {busy ? "..." : "Inhabilitar"}
-        </button>
+        </Button>
       </AlertDialogTrigger>
 
       <AlertDialogContent>

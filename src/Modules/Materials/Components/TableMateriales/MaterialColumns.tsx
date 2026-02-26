@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Edit2} from "lucide-react";
 import DeleteMaterialButton from "../ModalsMaterial/DeleteMaterialModal";
 import type { Material } from "../../Models/Material";
+import { Button } from "@/Components/ui/button";
 
 
 export type RowMaterial = Material & {
@@ -23,15 +24,13 @@ export const MaterialColumns = (
       const material = row.original;
       return (
         <div className="flex gap-2">
-          <button
+          <Button
             onClick={() => onEdit(material)}
-            className="flex items-center gap-1 px-3 py-1 text-xs font-medium border 
-              text-[#1789FC] border-[#1789FC]
-              hover:bg-[#1789FC] hover:text-[#F9F5FF] transition0"
+            variant="outline"
           >
-            <Edit2 className="w-4 h-4" />
+            <Edit2 />
             Editar
-          </button>
+          </Button>
 
           <DeleteMaterialButton materialSelected={material} />
         </div>
