@@ -3,7 +3,7 @@ import { useSearchMaterials } from "../Hooks/MaterialHooks";
 import type { Material } from "../Models/Material";
 import MaterialHeaderBar from "../Components/PaginationMaterial/MaterialHeaderBar";
 import CreateMaterialModal from "../Components/ModalsMaterial/CreateMaterialModal";
-import MaterialTable from "../Components/TableMateriales/MaterialTable";
+import MaterialTable, { MaterialTableShadcn } from "../Components/TableMateriales/MaterialTable";
 
 export default function ListMaterials() {
   const [page, setPage] = useState(1);   // 1-based
@@ -66,7 +66,7 @@ export default function ListMaterials() {
         ) : error ? (
           <div className="p-6 text-center text-red-600">Ocurrió un error al cargar los Materiales.</div>
         ) : (
-          <MaterialTable
+          <MaterialTableShadcn
             data={rows}
             total={meta.total}
             page={meta.page}               // <- pasa paginación al footer

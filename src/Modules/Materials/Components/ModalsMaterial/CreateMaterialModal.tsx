@@ -5,6 +5,7 @@ import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useCreateMaterial } from "../../Hooks/MaterialHooks";
 import { newMaterialInitialState } from "../../Models/Material";
 import { MaterialSchema } from "../../schemas/Materials/MaterialSchema";
+import { Button } from "@/Components/ui/button";
 
 const CreateMaterialModal = () => {
   const [open, setOpen] = useState(false);
@@ -34,12 +35,12 @@ const CreateMaterialModal = () => {
 
   return (
     <div>
-      <button
+      <Button
         onClick={() => setOpen(true)}
-        className="inline-flex  px-5 py-2  bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
+        // className="inline-flex  px-5 py-2  bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
       >
         + Añadir Material
-      </button>
+      </Button>
 
       <ModalBase
         open={open}
