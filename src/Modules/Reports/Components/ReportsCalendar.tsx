@@ -48,7 +48,7 @@ export default function ReportsCalendar({ onViewDetails }: Props) {
     () =>
       reports.map((r) => ({
         id: String(r.Id),
-        title: r.Code,
+        title: r.Code + " - " + r.Description + " - " + r.User.Name + " " + r.User.Surname1,
         start: new Date(r.CreatedAt),
         extendedProps: { report: r } as { report: Report },
       })),
@@ -82,16 +82,15 @@ export default function ReportsCalendar({ onViewDetails }: Props) {
       )}
       <FullCalendar
         plugins={[dayGridPlugin, listPlugin]}
-        initialView="dayGridMonth"
+        initialView="listWeek"
         headerToolbar={{
           left: "prev,next today",
           center: "title",
-          right: "dayGridMonth,listWeek",
+          right: "listWeek",
         }}
         buttonText={{
           today: "Hoy",
           month: "Mes",
-          week: "Semana",
           list: "Lista",
         }}
         locale={esLocale}
