@@ -5,6 +5,7 @@ import type { ReportType } from "./ReportType";
 
 export interface Report {
     Id: number;
+    Code: string;
     Location: string;
     Description: string;
     User: User; // Cambiado de User[] a User basado en la respuesta del API
@@ -16,13 +17,20 @@ export interface Report {
     AdditionalInfo?: string;
 }
 
+/** Parámetros de consulta para listado paginado (alineado con ReportsPaginationDto) */
 export interface ReportPaginationParams {
-    page: number;
+    page?: number;
     limit: number;
-    search?: string;
+    q?: string;
     stateId?: number;
     locationId?: number;
-    ReportTypeId?: number;
+    reportTypeId?: number;
+    /** Dirección de orden: ASC | DESC. Por defecto ASC. */
+    sortDir?: "ASC" | "DESC";
+    /** Fecha desde (inclusive). Formato ISO 8601 (ej: 2024-01-01). */
+    startDate?: string;
+    /** Fecha hasta (inclusive). Formato ISO 8601 (ej: 2024-12-31). */
+    endDate?: string;
 }
 
 export interface CreateReportPayload {

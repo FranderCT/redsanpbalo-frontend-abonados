@@ -1,8 +1,8 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useEffect } from "react";
-import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { PaginatedResponse } from "@/core/pagination/pagination";
+import { showApiErrorToast } from "@/core/api-error";
 import type { Report, ReportPaginationParams } from "../Models/Report";
-import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport } from "../Services/ReportSV"
+import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport, getMonthlyCountsByLocation, exportReportsPdf } from "../Services/ReportSV";
 
 export const useGetAllReports = () => {
     const {data: reports, error, isLoading} = useQuery({
@@ -12,33 +12,14 @@ export const useGetAllReports = () => {
     return {reports, error, isLoading}
 }
 
-export const useSearchReports = (params: ReportPaginationParams) => {
-    const query = useQuery<PaginatedResponse<Report>, Error>({
-        queryKey: ["reports", "search", params],
-        queryFn: () => searchReports(params),
+export const useSearchReports = (query: ReportPaginationParams) => {
+    const { data, isLoading, isError, error } = useQuery<PaginatedResponse<Report>, Error>({
+        queryKey: ["reports", "search", query],
+        queryFn: () => searchReports(query),
         placeholderData: keepPreviousData,
         staleTime: 30_000,
     });
-
-    // Log en cada fetch/refetch exitoso
-    useEffect(() => {
-        if (query.data) {
-            const res = query.data;
-            console.log(
-                "[Reports fetched]",
-                {
-                    page: res.meta.page,
-                    limit: res.meta.limit,
-                    total: res.meta.total,
-                    pageCount: res.meta.pageCount,
-                    params,
-                },
-                res.data
-            );
-        }
-    }, [query.data, params]);
-
-    return query;
+    return { data, isLoading, isError, error };
 };
 
 export const useCreateReportByAdmin = () => {
@@ -52,7 +33,7 @@ export const useCreateReportByAdmin = () => {
             queryClient.invalidateQueries({ queryKey: ["reports"] });
         },
         onError: (error) => {
-            console.error("Error al crear el reporte:", error);
+            showApiErrorToast(error);
         }
     });
 };
@@ -102,4 +83,47 @@ export const useUpdateReport = () => {
             console.error("Error al actualizar el reporte:", error);
         }
     });
-}; 
+};
+
+/** Reportes por mes y ubicación para gráficos por barrio */
+export const useGetMonthlyCountsByLocation = (opts: {
+  months?: number;
+  year?: number;
+  month?: number;
+} = {}) => {
+  const { months = 12, year, month } = opts;
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: [
+      "reports",
+      "stats",
+      "monthly-by-location",
+      { months, year, month },
+    ],
+    queryFn: () => getMonthlyCountsByLocation({ months, year, month }),
+    staleTime: 60_000,
+  });
+  return { data, isLoading, isError, error };
+};
+
+/** Descarga el PDF de reportes del mes/año (listado + gráfico por ubicación) */
+function triggerDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export const useExportReportsPdf = () => {
+  return useMutation({
+    mutationFn: ({ year, month }: { year: number; month: number }) =>
+      exportReportsPdf(year, month),
+    onSuccess: ({ blob, filename }) => {
+      triggerDownload(blob, filename);
+    },
+  });
+};

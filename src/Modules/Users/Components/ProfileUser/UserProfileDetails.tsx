@@ -1,70 +1,93 @@
-import type { User } from "../../Models/User"
-
+import type { User } from "../../Models/User";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/Components/ui/card";
+import { Label } from "@/Components/ui/label";
+import { Separator } from "@/Components/ui/separator";
+import { Badge } from "@/Components/ui/badge";
+import { cn } from "@/lib/utils";
 
 type Props = {
-  User?: User
-}
+  User?: User;
+};
 
-const UserProfileDetails = ({User} : Props) => {
+function ProfileField({
+  label,
+  value,
+  className,
+}: {
+  label: string;
+  value: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <article className="md:col-span-2 bg-[#F9F5FF] border border-gray-200 gap-4 shadow-xl rounded-sm p-6">
-          <h3 className="text-center font-semibold text-[#091540] mb-4">
-            Su información
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10">
-            {/* Fila: Correo / Fecha nacimiento */}
-            <div className="py-2 border-b border-dashed border-gray-300">
-              <p className="text-[12px] text-gray-500">Correo</p>
-              <span className="text-sm font-medium break-all text-[#091540]">
-                {User?.Email}
-              </span>
-            </div>
-            <div className="py-2 border-b border-dashed border-gray-300">
-              <p className="text-[12px] text-gray-500">Fecha de Nacimiento</p>
-              <span className="text-sm font-medium text-[#091540]">
-                {User?.Birthdate ? new Date(User.Birthdate).toLocaleDateString() : ''}
-              </span>
-            </div>
-
-            {/* Fila: Teléfono / Cédula */}
-            <div className="py-2 border-b border-dashed border-gray-300">
-              <p className="text-[12px] text-gray-500">Teléfono</p>
-              <span className="text-sm font-medium text-[#091540]">
-                {User?.PhoneNumber}
-              </span>
-            </div>
-            <div className="py-2 border-b border-dashed border-gray-300">
-              <p className="text-[12px] text-gray-500">Cédula</p>
-              <span className="text-sm font-medium text-[#091540]">
-                {User?.IDcard}
-              </span>
-            </div>
-
-            {/* Fila: NIS / Rol */}
-            <div className="py-2 border-b border-dashed border-gray-300">
-              <p className="text-[12px] text-gray-500">NIS</p>
-              <span className="text-sm font-medium text-[#091540]">
-                {User?.Nis && User.Nis.length > 0 ? User.Nis.join(", ") : "—"}
-              </span>
-            </div>
-            <div className="py-2 border-b border-dashed border-gray-300">
-              <p className="text-[12px] text-gray-500">Rol</p>
-              <span className="text-sm font-medium text-[#091540]">
-                {User?.Roles?.map(role => role.Rolname).join(', ')}
-              </span>
-            </div>
-
-            {/* Fila: Dirección (a lo ancho) */}
-            <div className="sm:col-span-2 py-2">
-              <p className="text-[12px] text-gray-500">Dirección</p>
-              <span className="text-sm font-medium text-[#091540]">
-                {User?.Address}
-              </span>
-            </div>
-        </div>
-    </article>
-  )
+    <div className={cn("space-y-1.5", className)}>
+      <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        {label}
+      </Label>
+      <p className="text-sm font-medium text-foreground break-words">
+        {value ?? "—"}
+      </p>
+    </div>
+  );
 }
 
-export default UserProfileDetails
+const UserProfileDetails = ({ User }: Props) => {
+  const nisLabel =
+    User?.Nis && User.Nis.length > 0 ? User.Nis.join(", ") : "—";
+  const birthdateLabel = User?.Birthdate
+    ? new Date(User.Birthdate).toLocaleDateString("es-ES", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      })
+    : "—";
+
+  return (
+    <Card className="user-profile-details md:col-span-2 overflow-hidden border-border bg-card shadow-sm">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg font-semibold text-foreground">
+          Información personal
+        </CardTitle>
+        <CardDescription>
+          Datos de su cuenta y perfil en el sistema
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6 pt-0">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <ProfileField label="Correo" value={User?.Email} />
+          <ProfileField label="Fecha de nacimiento" value={birthdateLabel} />
+          <ProfileField label="Teléfono" value={User?.PhoneNumber} />
+          <ProfileField label="Cédula" value={User?.IDcard} />
+          <ProfileField label="NIS" value={nisLabel} />
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Rol
+            </Label>
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
+              {User?.Roles?.length ? (
+                User.Roles.map((role) => (
+                  <Badge key={role.Id} variant="secondary" className="font-normal">
+                    {role.Rolname}
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-sm font-medium text-muted-foreground">—</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <Separator className="bg-border" />
+
+        <ProfileField label="Dirección" value={User?.Address} />
+      </CardContent>
+    </Card>
+  );
+};
+
+export default UserProfileDetails;

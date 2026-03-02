@@ -1,22 +1,43 @@
 import React from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
-
 import { useGetUserProfile, useUpdateUserProfile } from "../../../Hooks/UsersHooks";
 import { EditProfileSchema, type EditProfileInput } from "../../../schemas/EditProfileSchema";
 import ConfirmActionModal from "../../../../../Components/Modals/ConfirmActionModal";
 import { updateUserMeInitialState } from "../../../Models/User";
 import PhoneField from "../../../../../Components/PhoneNumber/PhoneField";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/Components/ui/card";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/Components/ui/field";
+import { Input } from "@/Components/ui/input";
+import { Textarea } from "@/Components/ui/textarea";
+import { Button } from "@/Components/ui/button";
+import { Separator } from "@/Components/ui/separator";
+
+const MAX_PHOTO_MB = 5;
+const ACCEPT_IMAGES = "image/jpeg,image/png,image/webp,image/gif";
 
 const EditProfile = () => {
   const { UserProfile } = useGetUserProfile();
   const updateProfile = useUpdateUserProfile();
 
   const [openConfirm, setOpenConfirm] = React.useState(false);
+  const [photoFile, setPhotoFile] = React.useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = React.useState<string | null>(null);
   const pendingValuesRef = React.useRef<EditProfileInput | null>(null);
 
   const form = useForm({
-    defaultValues: updateUserMeInitialState, // { Birthdate: undefined, PhoneNumber:'', Address:'' }
+    defaultValues: updateUserMeInitialState,
     validators: { onChange: EditProfileSchema },
     onSubmit: async ({ value }) => {
       pendingValuesRef.current = value;
@@ -24,10 +45,34 @@ const EditProfile = () => {
     },
   });
 
-  // Cargar valores reales del usuario al form (si no, arranca vacío)
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      return;
+    }
+    if (file.size > MAX_PHOTO_MB * 1024 * 1024) {
+      toast.error(`La foto no puede superar ${MAX_PHOTO_MB} MB`, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      e.target.value = "";
+      return;
+    }
+    setPhotoFile(file);
+    const url = URL.createObjectURL(file);
+    setPhotoPreview(url);
+  };
+
+  const clearPhoto = () => {
+    setPhotoFile(null);
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(null);
+  };
+
   React.useEffect(() => {
     if (!UserProfile) return;
-
     form.reset({
       Birthdate: UserProfile.Birthdate ? new Date(UserProfile.Birthdate) : undefined,
       PhoneNumber: UserProfile.PhoneNumber ?? "",
@@ -35,49 +80,39 @@ const EditProfile = () => {
     });
   }, [UserProfile]);
 
-  // Construir PATCH: solo lo que se tocó (dirty) y sin mandar strings vacíos
   const buildPatch = (values: EditProfileInput) => {
     const patch: Partial<EditProfileInput> = {};
-
-    const meta = form.state.fieldMeta as Record<string, any>;
-
+    const meta = form.state.fieldMeta as Record<string, { isDirty?: boolean }>;
     for (const [key, m] of Object.entries(meta)) {
       if (!m?.isDirty) continue;
-
-      const v = (values as any)[key];
-
-      // No enviar vacíos ni undefined
+      const v = (values as Record<string, unknown>)[key];
       if (v === "" || v === undefined || v === null) continue;
-
-      // Para Date, validá que sea Date real
       if (v instanceof Date && Number.isNaN(v.getTime())) continue;
-
-      (patch as any)[key] = v;
+      (patch as Record<string, unknown>)[key] = v;
     }
-
     return patch;
   };
 
   const handleConfirmUpdate = async () => {
     if (!pendingValuesRef.current) return;
-
     try {
       const patch = buildPatch(pendingValuesRef.current);
-
-      if (Object.keys(patch).length === 0) {
+      const hasFormChanges = Object.keys(patch).length > 0;
+      const hasPhoto = !!photoFile;
+      if (!hasFormChanges && !hasPhoto) {
         toast.info("No hay cambios para guardar.", { position: "top-right", autoClose: 2500 });
         setOpenConfirm(false);
         pendingValuesRef.current = null;
         return;
       }
-
-      await updateProfile.mutateAsync(patch as any);
-
-      // Volvé a “sin cambios”
+      await updateProfile.mutateAsync({
+        payload: patch as EditProfileInput,
+        photo: photoFile ?? undefined,
+      });
       form.reset(form.state.values);
-
+      clearPhoto();
       toast.success("¡Actualización exitosa!", { position: "top-right", autoClose: 3000 });
-    } catch (err) {
+    } catch {
       toast.error("¡Error al actualizar el perfil!", { position: "top-right", autoClose: 3000 });
     } finally {
       setOpenConfirm(false);
@@ -91,114 +126,197 @@ const EditProfile = () => {
     pendingValuesRef.current = null;
   };
 
-  return (
-    <div className="bg-[#F9F5FF] flex flex-col content-center w-full max-w-6xl mx-auto px-4 md:px-25 pt-24 pb-20 gap-8">
-      <div>
-        <h1 className="text-2xl font-bold text-[#091540]">Editar información de usuario</h1>
-        <h3 className="text-[#091540]/70 text-md">Modifique los datos de su perfil</h3>
-        <div className="border-b border-dashed border-gray-300 p-2"></div>
-      </div>
+  const hasChanges =
+    form.state.isDirty || photoFile !== null;
 
-      <div className="w-full max-w-md mx-auto flex flex-col items-center border border-gray-200 gap-4 shadow-xl rounded-sm bg-[#F9F5FF] p-6">
-        <div className="p-3">
-          <h2 className="md:text-3xl font-bold text-[#091540] text-center gap-4">Edición de Perfil</h2>
-          <hr className="border-t-2 border-dashed border-[#091540]" />
+  const fullName = [UserProfile?.Name, UserProfile?.Surname1, UserProfile?.Surname2]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <main className="min-h-full w-full bg-background">
+      <div className="mx-auto w-full max-w-lg px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mb-8 space-y-1">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Editar información
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Modifique los datos de su perfil
+          </p>
         </div>
 
-        <h2 className="md:text-xl font-bold text-[#091540] text-center gap-4">
-          {UserProfile?.Name} {UserProfile?.Surname1} {UserProfile?.Surname2}
-        </h2>
+        <Separator className="mb-8 bg-border" />
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
-          className="w-full max-w-md p-2 flex flex-col gap-6"
-        >
-          {/* Birthdate */}
-          <form.Field name="Birthdate">
-            {(field) => (
-              <>
-                <input
-                  type="date"
-                  value={
-                    field.state.value instanceof Date && !Number.isNaN(field.state.value.getTime())
-                      ? field.state.value.toISOString().slice(0, 10)
-                      : ""
-                  }
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    field.handleChange(val ? new Date(val) : undefined);
+        <Card className="border-border bg-card shadow-sm">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-lg font-semibold text-foreground">
+              Edición de perfil
+            </CardTitle>
+            <CardDescription>
+              {fullName || "Usuario"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+              className="space-y-6"
+            >
+              <FieldGroup className="gap-4">
+                <Field className="gap-2">
+                  <FieldLabel>Foto de perfil</FieldLabel>
+                  <div className="flex flex-col sm:flex-row items-start gap-4">
+                    <div className="relative shrink-0">
+                      <div className="size-24 rounded-full overflow-hidden ring-2 ring-border bg-muted">
+                        {photoPreview ? (
+                          <img
+                            src={photoPreview}
+                            alt="Vista previa"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : UserProfile?.ProfilePhoto ? (
+                          <img
+                            src={UserProfile.ProfilePhoto}
+                            alt="Foto actual"
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs">
+                            Sin foto
+                          </div>
+                        )}
+                      </div>
+                      {photoFile && (
+                        <button
+                          type="button"
+                          onClick={clearPhoto}
+                          className="absolute -top-1 -right-1 rounded-full bg-destructive text-destructive-foreground size-6 flex items-center justify-center text-xs hover:bg-destructive/90"
+                          aria-label="Quitar foto"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <Input
+                        type="file"
+                        accept={ACCEPT_IMAGES}
+                        onChange={handlePhotoChange}
+                        className="cursor-pointer file:mr-2 file:text-sm file:font-medium"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        JPG, PNG, WebP o GIF. Máx. {MAX_PHOTO_MB} MB.
+                      </p>
+                    </div>
+                  </div>
+                </Field>
+
+                <form.Field name="Birthdate">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor="edit-birthdate">
+                          Fecha de nacimiento
+                        </FieldLabel>
+                        <Input
+                          id="edit-birthdate"
+                          type="date"
+                          value={
+                            field.state.value instanceof Date &&
+                            !Number.isNaN(field.state.value.getTime())
+                              ? field.state.value.toISOString().slice(0, 10)
+                              : ""
+                          }
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            field.handleChange(val ? new Date(val) : undefined);
+                          }}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
                   }}
-                  className="input-base"
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </>
-            )}
-          </form.Field>
+                </form.Field>
 
-          {/* PhoneNumber */}
-          <form.Field name="PhoneNumber">
-            {(field) => (
-              <>
-                <PhoneField
-                  value={field.state.value ?? ""}
-                  onChange={(val) => field.handleChange(val ?? "")}
-                  defaultCountry="CR"
-                  error={
-                    field.state.meta.isTouched && field.state.meta.errors[0]
-                      ? String((field.state.meta.errors[0] as any)?.message ?? field.state.meta.errors[0])
-                      : undefined
-                  }
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </>
-            )}
-          </form.Field>
+                <form.Field name="PhoneNumber">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel>Teléfono</FieldLabel>
+                        <PhoneField
+                          value={field.state.value ?? ""}
+                          onChange={(val) => field.handleChange(val ?? "")}
+                          defaultCountry="CR"
+                          error={
+                            isInvalid && field.state.meta.errors[0]
+                              ? String(
+                                  (field.state.meta.errors[0] as { message?: string })?.message ??
+                                    field.state.meta.errors[0]
+                                )
+                              : undefined
+                          }
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
 
-          {/* Address */}
-          <form.Field name="Address">
-            {(field) => (
-              <>
-                <span>Dirección</span>
-                <textarea
-                  value={field.state.value ?? ""}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  className="input-base"
-                  placeholder={UserProfile?.Address ?? "Dirección"}
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </>
-            )}
-          </form.Field>
+                <form.Field name="Address">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor="edit-address">Dirección</FieldLabel>
+                        <Textarea
+                          id="edit-address"
+                          value={field.state.value ?? ""}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder={UserProfile?.Address ?? "Su dirección"}
+                          rows={3}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
 
-          <div className="flex justify-end gap-4">
-            <form.Subscribe selector={(s) => [s.isSubmitting, s.isDirty]}>
-              {([isSubmitting, isDirty]) => (
-                <button
-                  type="submit"
-                  className="bg-[#091540] hover:bg-blue-600 text-white flex justify-center items-center font-bold w-25 disabled:opacity-50 px-4 py-2"
-                  disabled={!isDirty || updateProfile.isPending}
+              <div className="flex justify-end pt-2">
+                <form.Subscribe
+                  selector={(s) => [s.isSubmitting]}
                 >
-                  {isSubmitting || updateProfile.isPending ? "..." : "Confirmar"}
-                </button>
-              )}
-            </form.Subscribe>
-          </div>
-        </form>
+                  {([isSubmitting]) => (
+                    <Button
+                      type="submit"
+                      disabled={!hasChanges || isSubmitting || updateProfile.isPending}
+                    >
+                      {isSubmitting || updateProfile.isPending
+                        ? "Guardando…"
+                        : "Confirmar cambios"}
+                    </Button>
+                  )}
+                </form.Subscribe>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
 
       {openConfirm && (
@@ -208,11 +326,15 @@ const EditProfile = () => {
           onClick={handleCancelUpdate}
         >
           <div onClick={(e) => e.stopPropagation()}>
-            <ConfirmActionModal onConfirm={handleConfirmUpdate} onCancel={handleCancelUpdate} onClose={handleCancelUpdate} />
+            <ConfirmActionModal
+              onConfirm={handleConfirmUpdate}
+              onCancel={handleCancelUpdate}
+              onClose={handleCancelUpdate}
+            />
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 };
 

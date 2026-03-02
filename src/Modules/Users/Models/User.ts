@@ -1,17 +1,19 @@
 import type { Roles } from "./Roles";
-export interface User{
-    Id: number
-    IDcard : string;
-    Name : string;
-    Surname1 : string;
-    Surname2 : string;
-    Nis: number[];
-    Email: string;
-    PhoneNumber: string;
-    Birthdate: Date;
-    Address: string;
-    IsActive : boolean
-    Roles : Roles[]
+export interface User {
+  Id: number;
+  IDcard: string;
+  Name: string;
+  Surname1: string;
+  Surname2: string;
+  Nis: number[];
+  Email: string;
+  PhoneNumber: string;
+  Birthdate: Date;
+  Address: string;
+  IsActive: boolean;
+  Roles: Roles[];
+  /** URL de la foto de perfil (subida a Dropbox u otro storage). */
+  ProfilePhoto?: string;
 }
 
 export interface RegisterUserModal{
