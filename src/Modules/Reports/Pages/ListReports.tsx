@@ -9,11 +9,13 @@ import { DataPagination } from "@/Components/ui/data-pagination";
 import ReportHeaderBar from "../Components/Pagination/ReportHeaderBar";
 import ReportsGrid from "../Components/ReportsGrid";
 import ReportsCalendar from "../Components/ReportsCalendar";
+import ListReportLocationsView from "../Components/ListReportLocationsView";
 import GetInfoReportModal from "../Components/Modals/GetInfoReportModal";
 import CreateReportModal from "../Components/Modals/CreateReportModal";
+import CreateReportLocationModal from "../Components/Modals/CreateReportLocationModal";
 import EditReportModal from "../Components/Modals/EditReportModal";
 import { Button } from "@/Components/ui/button";
-import { LayoutGrid, Calendar } from "lucide-react";
+import { LayoutGrid, Calendar, MapPin } from "lucide-react";
 
 const ListReports = () => {
   const [page, setPage] = useState(1);
@@ -26,7 +28,7 @@ const ListReports = () => {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
-  const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
+  const [viewMode, setViewMode] = useState<"list" | "calendar" | "locations">("list");
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedEditReport, setSelectedEditReport] = useState<Report | null>(null);
@@ -158,7 +160,19 @@ const ListReports = () => {
               <Calendar className="size-4 mr-1.5" />
               Calendario
             </Button>
-            <CreateReportModal />
+            <Button
+              variant={viewMode === "locations" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("locations")}
+            >
+              <MapPin className="size-4 mr-1.5" />
+              Ubicaciones
+            </Button>
+            {viewMode === "locations" ? (
+              <CreateReportLocationModal />
+            ) : (
+              <CreateReportModal />
+            )}
           </div>
         </div>
         <div className="border-b border-dashed border-gray-300 pt-2" />
@@ -197,7 +211,9 @@ const ListReports = () => {
       )}
 
       <div className="flex-1 min-h-0">
-        {viewMode === "calendar" ? (
+        {viewMode === "locations" ? (
+          <ListReportLocationsView />
+        ) : viewMode === "calendar" ? (
           <ReportsCalendar onViewDetails={handleViewDetails} />
         ) : isLoading ? (
           <div className="p-6 sm:p-8 text-center text-muted-foreground">
