@@ -26,12 +26,12 @@ export async function searchReports(
     query: ReportPaginationParams
 ): Promise<PaginatedResponse<Report>> {
     try {
-        const { page = 1, limit = 10, search, stateId, locationId, ReportTypeId } = query ?? {};
+        const { page = 1, limit = 10, q, stateId, locationId, reportTypeId } = query ?? {};
         const cleanParams: Record<string, number | string | undefined> = { page, limit };
-        if (search?.trim()) cleanParams.q = search.trim();
+        if (q?.trim()) cleanParams.q = q.trim();
         if (stateId !== undefined && !isNaN(stateId)) cleanParams.stateId = stateId;
         if (locationId !== undefined && !isNaN(locationId)) cleanParams.locationId = locationId;
-        if (ReportTypeId !== undefined && !isNaN(ReportTypeId)) cleanParams.ReportTypeId = ReportTypeId;
+        if (reportTypeId !== undefined && !isNaN(reportTypeId)) cleanParams.reportTypeId = reportTypeId;
 
         const { data } = await apiAxios.get<PaginatedResponse<Report>>(`${BASE_URL}/search`, {
             params: cleanParams,

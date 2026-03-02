@@ -77,10 +77,10 @@ const ListReports = () => {
     () => ({
       page,
       limit,
-      search: search.trim() || undefined,
+      q: search.trim() || undefined,
       stateId,
       locationId,
-      ReportTypeId: reportTypeId,
+      reportTypeId,
     }),
     [page, limit, search, stateId, locationId, reportTypeId]
   );
@@ -102,7 +102,8 @@ const ListReports = () => {
   };
 
   return (
-    <section className="min-h-0 flex flex-col p-4 sm:p-6 space-y-4 md:space-y-6">
+    <section className="flex flex-col items-center w-full">
+      <div className="w-full max-w-4xl flex flex-col p-4 sm:p-6 space-y-4 md:space-y-6">
       <header className="space-y-1 shrink-0">
         <h1 className="text-xl sm:text-2xl font-bold text-[#091540]">
           Lista de Reportes
@@ -169,7 +170,7 @@ const ListReports = () => {
           />
         </div>
       )}
-
+      </div>
 
       {/* Modal de detalles */}
       {selectedReport && (

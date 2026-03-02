@@ -69,7 +69,7 @@ const DashboardLayout = () => {
           profileOpen={profileOpen}
           setProfileOpen={setProfileOpen}
         />
-        <main className="flex-1 p-6 overflow-y-auto bg-background">
+        <main className="flex-1 overflow-y-auto bg-background">
           <Outlet />
           <Can rule={{ any: ["ADMIN", "FONTANERO"] }}>
             <LiveReports />
