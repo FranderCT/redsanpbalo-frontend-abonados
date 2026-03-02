@@ -5,6 +5,7 @@ import type { ReportType } from "./ReportType";
 
 export interface Report {
     Id: number;
+    Code: string;
     Location: string;
     Description: string;
     User: User; // Cambiado de User[] a User basado en la respuesta del API
