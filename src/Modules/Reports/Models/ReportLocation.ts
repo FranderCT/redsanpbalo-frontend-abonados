@@ -1,6 +1,7 @@
 export interface ReportLocation {
   Id: number;
   Neighborhood: string;
+  IsActive?: boolean;
 }
 
 export interface CreateReportLocationPayload {
@@ -9,4 +10,5 @@ export interface CreateReportLocationPayload {
 
 export interface UpdateReportLocationPayload {
   Neighborhood?: string;
+  IsActive?: boolean;
 }

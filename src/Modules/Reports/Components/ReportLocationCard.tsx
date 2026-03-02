@@ -37,6 +37,9 @@ export default function ReportLocationCard({
             </CardTitle>
             <span className="text-xs text-muted-foreground">
               ID: {reportLocation.Id}
+              {reportLocation.IsActive === false && (
+                <span className="ml-1.5 text-destructive/80">· Inactiva</span>
+              )}
             </span>
           </div>
           <DropdownMenu>

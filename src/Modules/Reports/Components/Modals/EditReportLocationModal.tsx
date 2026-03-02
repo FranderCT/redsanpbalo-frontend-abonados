@@ -38,6 +38,7 @@ export default function EditReportLocationModal({
   const form = useForm({
     defaultValues: {
       Neighborhood: reportLocation.Neighborhood || "",
+      IsActive: reportLocation.IsActive ?? true,
     },
     validators: {
       onChange: updateReportLocationValidators,
@@ -47,7 +48,10 @@ export default function EditReportLocationModal({
       try {
         await updateMutation.mutateAsync({
           id: reportLocation.Id,
-          payload: { Neighborhood: value.Neighborhood.trim().toUpperCase() },
+          payload: {
+            Neighborhood: value.Neighborhood.trim().toUpperCase(),
+            IsActive: value.IsActive,
+          },
         });
         toast.success("¡Ubicación actualizada exitosamente!");
         form.reset();
@@ -61,6 +65,7 @@ export default function EditReportLocationModal({
   useEffect(() => {
     if (open && reportLocation) {
       form.setFieldValue("Neighborhood", reportLocation.Neighborhood || "");
+      form.setFieldValue("IsActive", reportLocation.IsActive ?? true);
     }
   }, [open, reportLocation]);
 
@@ -126,6 +131,30 @@ export default function EditReportLocationModal({
                     </Field>
                   );
                 }}
+              />
+
+              <LocationField
+                name="IsActive"
+                children={(field) => (
+                  <Field className="gap-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        id={field.name}
+                        type="checkbox"
+                        checked={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.checked)}
+                        onBlur={field.handleBlur}
+                        className="h-4 w-4 rounded border-input"
+                      />
+                      <FieldLabel
+                        htmlFor={field.name}
+                        className="font-normal cursor-pointer"
+                      >
+                        Ubicación activa
+                      </FieldLabel>
+                    </div>
+                  </Field>
+                )}
               />
             </FieldGroup>
           </div>
