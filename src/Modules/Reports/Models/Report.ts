@@ -24,6 +24,12 @@ export interface ReportPaginationParams {
     stateId?: number;
     locationId?: number;
     reportTypeId?: number;
+    /** Dirección de orden: ASC | DESC. Por defecto ASC. */
+    sortDir?: "ASC" | "DESC";
+    /** Fecha desde (inclusive). Formato ISO 8601 (ej: 2024-01-01). */
+    startDate?: string;
+    /** Fecha hasta (inclusive). Formato ISO 8601 (ej: 2024-12-31). */
+    endDate?: string;
 }
 
 export interface CreateReportPayload {

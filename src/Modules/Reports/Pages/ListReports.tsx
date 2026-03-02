@@ -19,6 +19,9 @@ const ListReports = () => {
   const [stateId, setStateId] = useState<number | undefined>(undefined);
   const [locationId, setLocationId] = useState<number | undefined>(undefined);
   const [reportTypeId, setReportTypeId] = useState<number | undefined>(undefined);
+  const [sortDir, setSortDir] = useState<"ASC" | "DESC">("DESC");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
 
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -45,11 +48,29 @@ const ListReports = () => {
     setPage(1);
   };
 
+  const handleSortDirChange = (dir: "ASC" | "DESC") => {
+    setSortDir(dir);
+    setPage(1);
+  };
+
+  const handleStartDateChange = (value: string) => {
+    setStartDate(value);
+    setPage(1);
+  };
+
+  const handleEndDateChange = (value: string) => {
+    setEndDate(value);
+    setPage(1);
+  };
+
   const handleResetFilters = () => {
     setSearch("");
     setStateId(undefined);
     setLocationId(undefined);
     setReportTypeId(undefined);
+    setSortDir("DESC");
+    setStartDate("");
+    setEndDate("");
     setPage(1);
   };
 
@@ -81,8 +102,11 @@ const ListReports = () => {
       stateId,
       locationId,
       reportTypeId,
+      sortDir,
+      startDate: startDate.trim() || undefined,
+      endDate: endDate.trim() || undefined,
     }),
-    [page, limit, search, stateId, locationId, reportTypeId]
+    [page, limit, search, stateId, locationId, reportTypeId, sortDir, startDate, endDate]
   );
 
   const { reportStates, isLoading: statesLoading } = useGetAllReportStates();
@@ -118,6 +142,9 @@ const ListReports = () => {
           limit={limit}
           totalItems={meta.totalItems}
           search={search}
+          sortDir={sortDir}
+          startDate={startDate}
+          endDate={endDate}
           stateId={stateId}
           locationId={locationId}
           reportTypeId={reportTypeId}
@@ -128,6 +155,9 @@ const ListReports = () => {
           typesLoading={typesLoading}
           locationsLoading={locationsLoading}
           onSearchChange={handleSearch}
+          onSortDirChange={handleSortDirChange}
+          onStartDateChange={handleStartDateChange}
+          onEndDateChange={handleEndDateChange}
           onStateChange={handleStateChange}
           onLocationChange={handleLocationChange}
           onReportTypeChange={handleTypeChange}

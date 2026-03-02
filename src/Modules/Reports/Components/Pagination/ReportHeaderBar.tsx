@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BrushCleaning, Filter, Search } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Button } from "@/Components/ui/button";
@@ -33,6 +33,9 @@ type Props = {
   limit: number;
   totalItems: number;
   search: string;
+  sortDir?: "ASC" | "DESC";
+  startDate?: string;
+  endDate?: string;
   stateId?: number;
   locationId?: number;
   reportTypeId?: number;
@@ -43,6 +46,9 @@ type Props = {
   typesLoading?: boolean;
   locationsLoading?: boolean;
   onSearchChange: (text: string) => void;
+  onSortDirChange?: (dir: "ASC" | "DESC") => void;
+  onStartDateChange?: (value: string) => void;
+  onEndDateChange?: (value: string) => void;
   onStateChange: (id?: number) => void;
   onLocationChange: (id?: number) => void;
   onReportTypeChange: (id?: number) => void;
@@ -52,6 +58,12 @@ type Props = {
 };
 
 function FilterSelects({
+  sortDir = "DESC",
+  onSortDirChange,
+  startDate = "",
+  endDate = "",
+  onStartDateChange,
+  onEndDateChange,
   stateId,
   locationId,
   reportTypeId,
@@ -67,8 +79,49 @@ function FilterSelects({
 }: Props & { onClose?: () => void }) {
   return (
     <div className="flex flex-col gap-4">
+      {onSortDirChange && (
+        <div className="space-y-2">
+          <Label>Orden de los reportes</Label>
+          <Select
+            value={sortDir}
+            onValueChange={(v) => onSortDirChange(v as "ASC" | "DESC")}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ASC">Antiguos</SelectItem>
+              <SelectItem value="DESC">Recientes</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      {(onStartDateChange || onEndDateChange) && (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="filter-start-date">Fecha desde</Label>
+            <Input
+              id="filter-start-date"
+              type="date"
+              value={startDate}
+              onChange={(e) => onStartDateChange?.(e.target.value)}
+              className="h-11 w-full rounded-lg text-base"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="filter-end-date">Fecha hasta</Label>
+            <Input
+              id="filter-end-date"
+              type="date"
+              value={endDate}
+              onChange={(e) => onEndDateChange?.(e.target.value)}
+              className="h-11 w-full rounded-lg text-base"
+            />
+          </div>
+        </>
+      )}
       <div className="space-y-2">
-        <Label>Estado</Label>
+        <Label>Estados de reporte</Label>
         <Select
           value={stateId != null ? String(stateId) : "all"}
           onValueChange={(v) =>
@@ -114,7 +167,7 @@ function FilterSelects({
       </div>
 
       <div className="space-y-2">
-        <Label>Ubicación</Label>
+        <Label>Ubicación del reporte</Label>
         <Select
           value={locationId != null ? String(locationId) : "all"}
           onValueChange={(v) =>
