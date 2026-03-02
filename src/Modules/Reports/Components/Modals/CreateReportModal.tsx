@@ -1,42 +1,65 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
-import { ModalBase } from "../../../../Components/Modals/ModalBase";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/Components/ui/dialog";
+import { Button } from "@/Components/ui/button";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/Components/ui/field";
+import { Input } from "@/Components/ui/input";
+import { Textarea } from "@/Components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/ui/select";
+import { FileText } from "lucide-react";
 import { useCreateReportByAdmin } from "../../Hooks/ReportsHooks";
 import { useGetAllReportStates } from "../../Hooks/ReportStatesHooks";
 import { useGetAllReportTypes } from "../../Hooks/ReportTypesHooks";
 import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 import { useGetUsersByRoleFontanero } from "../../../Users/Hooks/UsersHooks";
-import { CreateReportSchema } from "../../schemas/ReportSchema";
+import { createReportValidators } from "../../schemas/ReportSchema";
+
+const defaultValues = {
+  Location: "",
+  Description: "",
+  LocationId: 0,
+  ReportTypeId: 0,
+  ReportStateId: 0,
+  UserInChargeId: 0,
+};
 
 export default function CreateReportModal() {
   const [open, setOpen] = useState(false);
   const createReportMutation = useCreateReportByAdmin();
 
-  // Hooks para obtener datos
   const { reportStates = [], isLoading: statesLoading } = useGetAllReportStates();
   const { reportTypes = [], isLoading: typesLoading } = useGetAllReportTypes();
   const { reportLocations = [], isLoading: locationsLoading } = useGetAllReportLocations();
   const { UserProfile, isLoading: profileLoading } = useGetUserProfile();
   const { fontaneros = [], isPending: fontanerosLoading } = useGetUsersByRoleFontanero();
 
-  const handleClose = () => {
-    setOpen(false);
-    form.reset();
-  };
-
   const form = useForm({
-    defaultValues: {
-      Location: "",
-      Description: "",
-      LocationId: 0,
-      ReportTypeId: 0,
-      ReportStateId: 0,
-      UserInChargeId: 0,
-    },
+    defaultValues,
     validators: {
-      onChange: CreateReportSchema,
+      onChange: createReportValidators,
+      onSubmit: createReportValidators,
     },
     onSubmit: async ({ value }) => {
       if (!UserProfile?.Id) {
@@ -68,243 +91,286 @@ export default function CreateReportModal() {
 
   const isLoading = statesLoading || typesLoading || locationsLoading || profileLoading;
 
+  const formatErrors = (errors: unknown[]) =>
+    errors?.map((e) =>
+      typeof e === "object" && e !== null && "message" in e
+        ? { message: (e as { message: string }).message }
+        : { message: String(e) }
+    );
+
+  const ReportField = form.Field;
+
   return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className="px-4 py-2 bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
-      >
-        + Crear reporte
-      </button>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v);
+        if (!v) form.reset();
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button className="w-full sm:w-auto">
+          <FileText className="size-4" />
+          Crear reporte
+        </Button>
+      </DialogTrigger>
 
-      <ModalBase open={open} onClose={handleClose} panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]">
-      <div className="flex-shrink-0 flex flex-col">
-        <h2 className="text-2xl text-[#091540] font-bold">Crear Nuevo Reporte</h2>
-        <span className="text-md">Complete la información del reporte</span>
-      </div>
+      <DialogContent className="max-h-[90vh] gap-0 overflow-hidden ">
+        <DialogHeader className="space-y-1.5 border-b px-6 py-5">
+          <DialogTitle>
+            Crear nuevo reporte
+          </DialogTitle>
+          <DialogDescription>
+            Completa la información del reporte para registrarlo en el sistema.
+          </DialogDescription>
+        </DialogHeader>
 
-      <div className="p-6 bg-white overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {isLoading ? (
-          <p className="text-center text-gray-500">Cargando información...</p>
+          <div className="flex min-h-[200px] items-center justify-center px-6 py-10">
+            <p className="text-sm text-muted-foreground">Cargando información...</p>
+          </div>
         ) : (
           <form
+            id="create-report-form"
+            className="flex flex-col gap-4"
             onSubmit={(e) => {
               e.preventDefault();
-              e.stopPropagation();
               form.handleSubmit();
             }}
-            className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 "
           >
-            {/* Ubicación */}
-            <div>
-              <form.Field name="Location">
-                {(field) => (
-                  <div>
-                    <label className="block text-sm font-medium text-[#091540] mb-1">
-                      Ubicación *
-                    </label>
-                    <input
-                      type="text"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-[#091540] focus:border-transparent"
-                      placeholder="Ej: Calle principal, casa #123"
-                      required
-                    />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                        </p>
-                    )}
-                  </div>
-                )}
-              </form.Field>
+            <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
+              <FieldGroup className="gap-4">
+                <ReportField
+                  name="Location"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field
+                        data-invalid={isInvalid}
+                        className="gap-2"
+                      >
+                        <FieldLabel htmlFor={field.name}>Ubicación exacta del reporte</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          placeholder="Ej: Calle principal, casa #123"
+                        />
+                        {isInvalid && (
+                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+
+                <ReportField
+                  name="Description"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Descripción del reporte</FieldLabel>
+                        <Textarea
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          placeholder="Describe detalladamente el problema..."
+                          rows={3}
+                          className="resize-none"
+                        />
+                        {isInvalid && (
+                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+
+                <ReportField
+                  name="LocationId"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Barrio del origen del reporte</FieldLabel>
+                        <Select
+                          value={field.state.value === 0 ? "" : String(field.state.value)}
+                          onValueChange={(v) => field.handleChange(Number(v))}
+                        >
+                          <SelectTrigger id={field.name} aria-invalid={isInvalid}>
+                            <SelectValue placeholder="Seleccionar barrio" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {reportLocations.map((loc) => (
+                              <SelectItem key={loc.Id} value={String(loc.Id)}>
+                                {loc.Neighborhood}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {isInvalid && (
+                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+
+                <ReportField
+                  name="ReportTypeId"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Tipo de reporte a realizar</FieldLabel>
+                        <Select
+                          value={field.state.value === 0 ? "" : String(field.state.value)}
+                          onValueChange={(v) => field.handleChange(Number(v))}
+                        >
+                          <SelectTrigger id={field.name} aria-invalid={isInvalid}>
+                            <SelectValue placeholder="Seleccionar tipo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {reportTypes.map((type) => (
+                              <SelectItem key={type.Id} value={String(type.Id)}>
+                                {type.Name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {isInvalid && (
+                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+
+                <ReportField
+                  name="ReportStateId"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Estado en el que se encuentra el reporte</FieldLabel>
+                        <Select
+                          value={field.state.value === 0 ? "" : String(field.state.value)}
+                          onValueChange={(v) => field.handleChange(Number(v))}
+                        >
+                          <SelectTrigger id={field.name} aria-invalid={isInvalid}>
+                            <SelectValue placeholder="Seleccionar estado" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {reportStates.map((state) => (
+                              <SelectItem
+                                key={state.IdReportState}
+                                value={String(state.IdReportState)}
+                              >
+                                {state.Name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {isInvalid && (
+                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+
+                <ReportField
+                  name="UserInChargeId"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>
+                          Fontanero encargado (opcional)
+                        </FieldLabel>
+                        <Select
+                          value={String(field.state.value)}
+                          onValueChange={(v) => field.handleChange(Number(v))}
+                          disabled={fontanerosLoading}
+                        >
+                          <SelectTrigger id={field.name} aria-invalid={isInvalid}>
+                            <SelectValue
+                              placeholder={
+                                fontanerosLoading ? "Cargando..." : "Sin asignar"
+                              }
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="0">
+                              Sin asignar
+                            </SelectItem>
+                            {fontaneros.map((f) => (
+                              <SelectItem key={f.Id} value={String(f.Id)}>
+                                {f.Name} {f.Surname1}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {isInvalid && (
+                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                />
+              </FieldGroup>
+
+              {UserProfile ? (
+                <div className="rounded-lg border bg-muted/40 px-4 py-3">
+                  <p className="text-sm font-medium text-foreground">
+                    Reporte creado por: {UserProfile.Name} {UserProfile.Surname1}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {UserProfile.Email}
+                  </p>
+                </div>
+              ) : null}
             </div>
 
-            {/* Descripción */}
-            <div>
-              <form.Field name="Description">
-                {(field) => (
-                  <div>
-                    <label className="block text-sm font-medium text-[#091540] mb-1">
-                      Descripción *
-                    </label>
-                    <textarea
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-[#091540] focus:border-transparent"
-                      placeholder="Describe detalladamente el problema..."
-                      rows={3}
-                      required
-                    />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                        </p>
-                    )}
-                  </div>
-                )}
-              </form.Field>
-            </div>
-
-            {/* Barrio */}
-            <div>
-              <form.Field name="LocationId">
-                {(field) => (
-                  <div>
-                    <label className="block text-sm font-medium text-[#091540] mb-1">
-                      Barrio *
-                    </label>
-                    <select
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-[#091540] focus:border-transparent"
-                      required
-                    >
-                      <option value={0}>Seleccionar barrio</option>
-                      {reportLocations.map((location) => (
-                        <option key={location.Id} value={location.Id}>
-                          {location.Neighborhood}
-                        </option>
-                      ))}
-                    </select>
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                        </p>
-                    )}
-                  </div>
-                )}
-              </form.Field>
-            </div>
-
-            {/* Tipo de Reporte */}
-            <div>
-              <form.Field name="ReportTypeId">
-                {(field) => (
-                  <div>
-                    <label className="block text-sm font-medium text-[#091540] mb-1">
-                      Tipo de Reporte *
-                    </label>
-                    <select
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-[#091540] focus:border-transparent"
-                      required
-                    >
-                      <option value={0}>Seleccionar tipo</option>
-                      {reportTypes.map((type) => (
-                        <option key={type.Id} value={type.Id}>
-                          {type.Name}
-                        </option>
-                      ))}
-                    </select>
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                        </p>
-                    )}
-                  </div>
-                )}
-              </form.Field>
-            </div>
-
-            {/* Estado del Reporte */}
-            <div>
-              <form.Field name="ReportStateId">
-                {(field) => (
-                  <div>
-                    <label className="block text-sm font-medium text-[#091540] mb-1">
-                      Estado *
-                    </label>
-                    <select
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-[#091540] focus:border-transparent"
-                      required
-                    >
-                      <option value={0}>Seleccionar estado</option>
-                      {reportStates.map((state) => (
-                        <option key={state.IdReportState} value={state.IdReportState}>
-                          {state.Name}
-                        </option>
-                      ))}
-                    </select>
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                        </p>
-                    )}
-                  </div>
-                )}
-              </form.Field>
-            </div>
-
-            {/* Usuario Encargado (Fontanero) */}
-            <div>
-              <form.Field name="UserInChargeId">
-                {(field) => (
-                  <div>
-                    <label className="block text-sm font-medium text-[#091540] mb-1">
-                      Fontanero Encargado (Opcional)
-                    </label>
-                    <select
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-[#091540] focus:border-transparent"
-                      disabled={fontanerosLoading}
-                    >
-                      <option value={0}>
-                        {fontanerosLoading ? "Cargando fontaneros..." : "Sin asignar"}
-                      </option>
-                      {fontaneros.map((fontanero) => (
-                        <option key={fontanero.Id} value={fontanero.Id}>
-                          {fontanero.Name} {fontanero.Surname1}
-                        </option>
-                      ))}
-                    </select>
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                        <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                        </p>
-                    )}
-                  </div>
-                )}
-              </form.Field>
-            </div>
-
-            {/* Información del usuario que crea */}
-            {UserProfile && (
-              <div className="bg-gray-50 p-3 border border-gray-200">
-                <p className="text-sm text-gray-600">
-                  <strong>Reporte creado por:</strong> {UserProfile.Name} {UserProfile.Surname1}
-                </p>
-                <p className="text-xs text-gray-500">{UserProfile.Email}</p>
-              </div>
-            )}
-
-            {/* Botones */}
-            <div className="flex justify-end gap-3 pt-4">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-[#091540] text-white hover:bg-[#091540]/90 transition-colors disabled:opacity-50"
-                disabled={createReportMutation.isPending}
+            <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
+              <form.Subscribe
+                selector={(state) => [state.canSubmit, state.isSubmitting]}
               >
-                {createReportMutation.isPending ? "Creando..." : "Crear Reporte"}
-              </button>
-              <button
-                type="button"
-                onClick={handleClose}
-                className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 transition-colors"
-                disabled={createReportMutation.isPending}
-              >
-                Cancelar
-              </button>
-            </div>
+                {([canSubmit, isSubmitting]) => (
+                  <div className="w-full flex flex-col-reverse sm:flex-row-reverse items-center justify-between" >
+                    <DialogClose asChild>
+                      <Button type="button" variant="outline" className="w-full sm:w-auto">
+                        Cancelar
+                      </Button>
+                    </DialogClose>
+                    <Button
+                      type="submit"
+                      form="create-report-form"
+                      disabled={!canSubmit || isSubmitting}
+                      className="w-full sm:w-auto"
+                    >
+                      {isSubmitting ? "Creando reporte..." : "Crear reporte"}
+                    </Button>
+                  </div>
+                )}
+              </form.Subscribe>
+            </DialogFooter>
           </form>
         )}
-      </div>
-    </ModalBase>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 }
