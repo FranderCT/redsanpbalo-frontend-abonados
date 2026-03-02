@@ -8,9 +8,12 @@ import { useGetAllReportLocations } from "../Hooks/ReportLocationHooks";
 import { DataPagination } from "@/Components/ui/data-pagination";
 import ReportHeaderBar from "../Components/Pagination/ReportHeaderBar";
 import ReportsGrid from "../Components/ReportsGrid";
+import ReportsCalendar from "../Components/ReportsCalendar";
 import GetInfoReportModal from "../Components/Modals/GetInfoReportModal";
 import CreateReportModal from "../Components/Modals/CreateReportModal";
 import EditReportModal from "../Components/Modals/EditReportModal";
+import { Button } from "@/Components/ui/button";
+import { LayoutGrid, Calendar } from "lucide-react";
 
 const ListReports = () => {
   const [page, setPage] = useState(1);
@@ -23,6 +26,7 @@ const ListReports = () => {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
+  const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedEditReport, setSelectedEditReport] = useState<Report | null>(null);
@@ -128,15 +132,39 @@ const ListReports = () => {
   return (
     <section className=" flex flex-col p-4 sm:p-6 space-y-4 md:space-y-6">
       <header className="space-y-1 shrink-0">
-        <h1 className="text-xl sm:text-2xl font-bold text-[#091540]">
-          Lista de Reportes
-        </h1>
-        <p className="text-sm sm:text-base text-[#091540]/70">
-          Gestione todos los reportes del sistema
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-[#091540]">
+              Lista de Reportes
+            </h1>
+            <p className="text-sm sm:text-base text-[#091540]/70">
+              Gestione todos los reportes del sistema
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={viewMode === "list" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("list")}
+            >
+              <LayoutGrid className="size-4 mr-1.5" />
+              Lista
+            </Button>
+            <Button
+              variant={viewMode === "calendar" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("calendar")}
+            >
+              <Calendar className="size-4 mr-1.5" />
+              Calendario
+            </Button>
+            <CreateReportModal />
+          </div>
+        </div>
         <div className="border-b border-dashed border-gray-300 pt-2" />
       </header>
 
+      {viewMode === "list" && (
       <div className="space-y-4 flex-shrink-0">
         <ReportHeaderBar
           limit={limit}
@@ -163,12 +191,15 @@ const ListReports = () => {
           onReportTypeChange={handleTypeChange}
           onLimitChange={setLimit}
           onCleanFilters={handleResetFilters}
-          rightAction={<CreateReportModal />}
+          rightAction={null}
         />
       </div>
+      )}
 
       <div className="flex-1 min-h-0">
-        {isLoading ? (
+        {viewMode === "calendar" ? (
+          <ReportsCalendar onViewDetails={handleViewDetails} />
+        ) : isLoading ? (
           <div className="p-6 sm:p-8 text-center text-muted-foreground">
             Cargando reportes…
           </div>
@@ -186,7 +217,7 @@ const ListReports = () => {
         )}
       </div>
 
-      {meta.totalPages > 0 && (
+      {viewMode === "list" && meta.totalPages > 0 && (
         <div className="pt-4 border-t border-border flex-shrink-0">
           <DataPagination
             page={meta.currentPage}
