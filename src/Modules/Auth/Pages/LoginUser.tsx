@@ -4,6 +4,16 @@ import { useLogin } from '../Hooks/AuthHooks';
 import { AuthSchema } from '../schemas/AuthSchemas';
 import { toast } from 'react-toastify';
 import { Link, useNavigate } from '@tanstack/react-router';
+import { Button } from '@/Components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Input } from '@/Components/ui/input';
+import { ChevronLeft } from 'lucide-react';
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/Components/ui/field';
 
 const LoginUser = () => {
   const loginMutation = useLogin();
@@ -26,126 +36,128 @@ const LoginUser = () => {
   });
 
   return (
-    <div className="grid min-h-screen place-items-center bg-gray-100 p-4">
-      <div className="bg-white w-full max-w-4xl shadow-lg p-6 flex flex-col md:flex-row gap-6 md:h-[600px] mx-auto overflow-y-auto">
-        {/* Título para mobile */}
-        <div className="md:hidden flex flex-col items-center justify-center mb-4">
-          <h1 className="text-4xl font-extrabold text-[#091540]">ASADA</h1>
-          <h2 className="text-2xl font-semibold text-[#2F6690]">San Pablo</h2>
-        </div>
-
-        {/* Imagen y texto: solo escritorio */}
-        <div
-          className="hidden md:flex w-1/2 h-auto bg-cover bg-center bg-no-repeat flex-col justify-between items-center px-4 py-8 relative shadow-xl/30"
-          style={{ backgroundImage: "url('/Image01.jpg')" }}
-        >
-          <div className="flex-grow flex items-center justify-center">
-            <div className="relative z-10 text-center text-white">
-              <h1 className="text-4xl md:text-7xl font-extrabold leading-tight drop-shadow-lg">ASADA</h1>
-              <h2 className="text-3xl md:text-5xl font-semibold drop-shadow-lg">San Pablo</h2>
-            </div>
-          </div>
-          <p className="relative z-10 text-white text-sm md:text-base font-medium text-center">
-            Inicia sesión para continuar
-          </p>
-        </div>
-
-        {/* Formulario */}
-        <div className="w-full md:w-1/2 flex flex-col justify-between items-center h-full">
-          <div className="flex flex-col justify-center items-center flex-grow w-full">
-            <h2 className="text-3xl md:text-5xl font-bold text-[#091540] mb-6 text-center drop-shadow-lg">
-              Iniciar sesión
-            </h2>
-
-            <form
-              onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
-              className="w-full max-w-md p-2 flex flex-col gap-4 "
+    <div className="grid min-h-screen place-items-center bg-slate-100 p-4">
+      <Card className="w-full max-w-sm rounded-xl shadow-lg border border-slate-200">
+        <CardHeader className="relative pb-3">
+          {/* Botón volver (arriba izquierda) */}
+          <div className="flex absolute top-3 left-3">
+            <Link
+              to="/"
+              className="hover:underline underline-offset-4 inline-flex items-center gap-2 text-xs px-3 py-2"
             >
+              <ChevronLeft className="h-4 w-4" />
+              <span>Volver</span>
+            </Link>
+          </div>
+          {/* Logo centrado */}
+          <div className="mt-8 flex justify-center items-center">
+            <img
+              src="src\assets\images\LogoRedSanPabloHG.png"
+              alt="Logo ASADA"
+              className="h-15 w-auto object-contain"
+            />
+          </div>
+
+          {/* Título centrado y más grande */}
+          <CardTitle className="mt-4 text-center text-3xl font-extrabold tracking-tight text-slate-900">
+            Iniciar sesión
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className="pt-2">
+          <form
+            id="login-form"
+            onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
+            className="space-y-5"
+          >
+            <FieldGroup className="gap-4">
               <form.Field name="Email">
-                {(field) => (
-                  <>
-                    <input
-                      type="email"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Correo electrónico"
-                      className="input-base"
-                    />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                  </>
-                )}
+                {(field) => {
+                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid} className="gap-2">
+                      <FieldLabel htmlFor="email">
+                        Correo electrónico
+                      </FieldLabel>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="ejemplo@correo.com"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        className="h-10"
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
               </form.Field>
 
               <form.Field name="Password">
-                {(field) => (
-                  <>
-                    <input
-                      className="input-base"
-                      placeholder="Escriba su contraseña"
-                      value={field.state.value}
-                      type="password"
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                  </>
-                )}
+                {(field) => {
+                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid} className="gap-2">
+                      <FieldLabel htmlFor="password">
+                        Contraseña
+                      </FieldLabel>
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        className="h-10"
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
               </form.Field>
+            </FieldGroup>
+          </form>
+        </CardContent>
 
-              <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-                    {([canSubmit, isSubmitting]) => (
-                        <div
-                        className="
-                            flex flex-col gap-3
-                            md:flex-row md:items-end md:justify-between md:gap-0
-                        "
-                        >
-                        {/* Link: debajo del botón en mobile, a la izquierda en desktop */}
-                        <Link
-                            to="/forgot-password"
-                            className="
-                            underline font-medium cursor-pointer text-[#1789FC]
-                            text-center md:text-left hover:text-[#091540] cursor-pointer
-                            "
-                        >
-                            ¿Olvidó su contraseña?
-                        </Link>
-                        {/* Botón: full width en mobile, 1/3 en desktop */}
-                        <button
-                            type="submit"
-                            className="
-                            w-full md:w-1/3
-                            bg-[#091540] shadow-xl text-white py-2 font-semibold
-                            hover:bg-[#1789FC] transition cursor-pointer disabled:opacity-60
-                            "
-                            disabled={!canSubmit}
-                        >
-                            {isSubmitting ? "..." : "Iniciar sesión"}
-                        </button>
+        <CardFooter className="flex-col gap-3 pt-2 pb-6">
+          <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+            {([canSubmit, isSubmitting]) => (
+              <Button
+                type="submit"
+                form="login-form"
+                className="w-full h-10 font-semibold bg-blue-700 hover:bg-blue-800"
+                disabled={!canSubmit}
+              >
+                {isSubmitting ? "..." : "Iniciar sesión"}
+              </Button>
+            )}
+          </form.Subscribe>
 
-                        </div>
-                    )}
-                </form.Subscribe>
+          {/* Links abajo en fila como la imagen */}
+          <div className="flex w-full items-center justify-between text-sm">
+            <Link
+              to="/forgot-password"
+              className="hover:underline underline-offset-4"
+            >
+              ¿Olvidó su contraseña?
+            </Link>
 
-            </form>
-          </div>
-
-          <p className="mt-6 text-sm md:text-lg text-[#091540] text-center">
-            ¿No tienes una cuenta?{' '}
-            <Link to="/register" className="underline font-medium text-[#1789FC] hover:text-[#091540] cursor-pointer">
+            <Link
+              to="/register"
+              className="hover:underline underline-offset-4"
+            >
               Registrarse
             </Link>
-          </p>
-        </div>
-      </div>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 };
