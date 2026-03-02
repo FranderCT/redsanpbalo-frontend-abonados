@@ -1,16 +1,40 @@
 import React from "react";
 import { useForm } from "@tanstack/react-form";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "react-toastify";
 import ConfirmActionModal from "../../../Components/Modals/ConfirmActionModal";
 import { ChangePasswordSchema } from "../../Auth/schemas/ChangePasswordSchema";
 import { changePasswordInitialState } from "../../Auth/Models/changePassword";
 import { useChangePassword } from "../../Auth/Hooks/AuthHooks";
-
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/Components/ui/field";
+import { Input } from "@/Components/ui/input";
+import { Button } from "@/Components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/Components/ui/card";
 
 type EditPayload = typeof changePasswordInitialState;
 
+const formatErrors = (errors: unknown[]) =>
+  errors?.map((e) =>
+    typeof e === "object" && e !== null && "message" in e
+      ? { message: (e as { message: string }).message }
+      : { message: String(e) }
+  );
+
 const ChangePassword = () => {
   const changePasswdMutation = useChangePassword();
+  const navigate = useNavigate();
 
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const pendingValuesRef = React.useRef<EditPayload | null>(null);
@@ -20,10 +44,16 @@ const ChangePassword = () => {
     validators: { onChange: ChangePasswordSchema },
     onSubmit: async ({ value }) => {
       if (value.NewPassword !== value.ConfirmPassword) {
-        toast.error("Las contraseñas no coinciden", { position: "top-right", autoClose: 3000 });
+        toast.error("Las contraseñas no coinciden", {
+          position: "top-right",
+          autoClose: 3000,
+        });
         return;
       }
-      const NewPasswordObject = {OldPassword: value.OldPassword, NewPassword: value.NewPassword };
+      const NewPasswordObject = {
+        OldPassword: value.OldPassword,
+        NewPassword: value.NewPassword,
+      };
       pendingValuesRef.current = NewPasswordObject as EditPayload;
       setOpenConfirm(true);
     },
@@ -32,23 +62,33 @@ const ChangePassword = () => {
   const handleConfirmUpdate = async () => {
     if (!pendingValuesRef.current) return;
     try {
-      await changePasswdMutation.mutateAsync({ payload: pendingValuesRef.current, token: localStorage.getItem("token") || "" });
-
-      toast.success("¡Contraseña actualizada con éxito!", { position: "top-right", autoClose: 2500 });
-
-      // Opcional: invalidar credenciales locales antes de enviar al login
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
-      
-      toast.info("Tu sesión ha finalizado. Inicia sesión con tu nueva contraseña.", {
-        position: "top-right",
-        autoClose: 3500,
+      await changePasswdMutation.mutateAsync({
+        payload: pendingValuesRef.current,
+        token: localStorage.getItem("token") || "",
       });
 
-      form.reset();
+      toast.success("¡Contraseña actualizada con éxito!", {
+        position: "top-right",
+        autoClose: 2500,
+      });
 
-    } catch (err) {
-      toast.error("¡Error al actualizar la contraseña!", { position: "top-right", autoClose: 3000 });
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+
+      toast.info(
+        "Tu sesión ha finalizado. Inicia sesión con tu nueva contraseña.",
+        {
+          position: "top-right",
+          autoClose: 3500,
+        }
+      );
+
+      form.reset();
+    } catch {
+      toast.error("¡Error al actualizar la contraseña!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     } finally {
       setOpenConfirm(false);
       pendingValuesRef.current = null;
@@ -58,110 +98,158 @@ const ChangePassword = () => {
   const handleCancelUpdate = () => {
     setOpenConfirm(false);
     pendingValuesRef.current = null;
-    toast.info("Actualización cancelada", { position: "top-right", autoClose: 3000 });
+    toast.info("Actualización cancelada", {
+      position: "top-right",
+      autoClose: 3000,
+    });
   };
 
-  return (
-    <div className="bg-[#F9F5FF] flex flex-col content-center w-full max-w-6xl mx-auto px-4 md:px-25 pt-24 pb-20 gap-8">
-      <div>
-        <h1 className="text-2xl font-bold text-[#091540]">Editar información de usuario</h1>
-        <h3 className="text-[#091540]/70 text-md">Modifique aquí la contraseña de su cuenta</h3>
-        <div className="border-b border-dashed border-gray-300 p-2"></div>
-      </div>
+  const PasswordField = form.Field;
 
-      <div className="w-full max-w-md mx-auto flex flex-col items-center border border-gray-200 gap-4 shadow-xl rounded-sm bg-[#F9F5FF] p-6">
-        <div className="p-3">
-          <h2 className="md:text-3xl font-bold text-[#091540] text-center gap-4">
-            Cambiar su contraseña
-          </h2>
-          <hr className="border-t-2 border-dashed border-[#091540] m-1" />
-        </div>
+  return (
+    <section className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center p-3 sm:p-6 overflow-x-hidden">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-lg sm:text-2xl text-[#091540]">
+            Editar información de usuario
+          </CardTitle>
+          <CardDescription className="text-[#091540]/70">
+            Modifique aquí la contraseña de su cuenta
+          </CardDescription>
+        </CardHeader>
 
         <form
+          id="edit-password-user-form"
+          className="flex flex-col gap-4"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="w-full max-w-md p-2 flex flex-col gap-6"
         >
-          {/* Contraseña actual */}
-          <form.Field name="OldPassword">
-            {(field) => (
-              <>
-                <input
-                  type="password"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Ingrese su contraseña actual"
-                  className="input-base"
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </>
-            )}
-          </form.Field>
+          <CardContent className="flex flex-col gap-4 pt-0">
+            <FieldGroup className="gap-4">
+              <PasswordField name="OldPassword">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid} className="gap-2">
+                      <FieldLabel htmlFor={field.name}>
+                        Contraseña actual
+                      </FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type="password"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="Ingrese su contraseña actual"
+                      />
+                      {isInvalid && (
+                        <FieldError
+                          errors={formatErrors(field.state.meta.errors)}
+                        />
+                      )}
+                    </Field>
+                  );
+                }}
+              </PasswordField>
 
-          {/* Nueva contraseña */}
-          <form.Field name="NewPassword">
-            {(field) => (
-              <>
-                <input
-                  className="input-base"
-                  placeholder="Ingrese su nueva contraseña"
-                  value={field.state.value}
-                  type="password"
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </>
-            )}
-          </form.Field>
+              <PasswordField name="NewPassword">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid} className="gap-2">
+                      <FieldLabel htmlFor={field.name}>
+                        Nueva contraseña
+                      </FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type="password"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="Ingrese su nueva contraseña"
+                      />
+                      {isInvalid && (
+                        <FieldError
+                          errors={formatErrors(field.state.meta.errors)}
+                        />
+                      )}
+                    </Field>
+                  );
+                }}
+              </PasswordField>
 
-          {/* Confirmación nueva contraseña */}
-          <form.Field name="ConfirmPassword">
-            {(field) => (
-              <>
-                <input
-                  className="input-base"
-                  placeholder="Confirme su nueva contraseña"
-                  value={field.state.value}
-                  type="password"
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </>
-            )}
-          </form.Field>
+              <PasswordField name="ConfirmPassword">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid} className="gap-2">
+                      <FieldLabel htmlFor={field.name}>
+                        Confirmar nueva contraseña
+                      </FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type="password"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="Confirme su nueva contraseña"
+                      />
+                      {isInvalid && (
+                        <FieldError
+                          errors={formatErrors(field.state.meta.errors)}
+                        />
+                      )}
+                    </Field>
+                  );
+                }}
+              </PasswordField>
+            </FieldGroup>
+          </CardContent>
 
-          <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting, s.isDirty]}>
-            {([canSubmit, isSubmitting, isDirty]) => (
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="bg-[#091540] hover:bg-blue-600 text-white flex justify-center items-center font-bold w-25 rounded disabled:opacity-50 px-4 py-2"
-                  disabled={!canSubmit || !isDirty /* || changePasswordMutation?.isPending */}
-                >
-                  {isSubmitting /* || changePasswordMutation?.isPending */ ? "..." : "Confirmar"}
-                </button>
-              </div>
-            )}
-          </form.Subscribe>
+          <CardFooter className="flex flex-row flex-wrap items-center justify-end gap-2 pt-0">
+            <form.Subscribe
+              selector={(s) => [s.canSubmit, s.isSubmitting, s.isDirty]}
+            >
+              {([canSubmit, isSubmitting, isDirty]) => (
+                <div className="flex w-full flex-col-reverse items-center justify-end gap-2 sm:flex-row">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    onClick={() => navigate({ to: "/dashboard/users/profile" })}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="submit"
+                    form="edit-password-user-form"
+                    disabled={
+                      !canSubmit || !isDirty || changePasswdMutation.isPending
+                    }
+                    className="w-full sm:w-auto"
+                  >
+                    {isSubmitting || changePasswdMutation.isPending
+                      ? "Guardando..."
+                      : "Confirmar"}
+                  </Button>
+                </div>
+              )}
+            </form.Subscribe>
+          </CardFooter>
         </form>
-      </div>
+      </Card>
 
-      {/* Modal de confirmación */}
       {openConfirm && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
@@ -180,7 +268,7 @@ const ChangePassword = () => {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
