@@ -16,8 +16,9 @@ export interface Report {
     AdditionalInfo?: string;
 }
 
+/** Parámetros de consulta para listado paginado de reportes */
 export interface ReportPaginationParams {
-    page: number;
+    page?: number;
     limit: number;
     search?: string;
     stateId?: number;

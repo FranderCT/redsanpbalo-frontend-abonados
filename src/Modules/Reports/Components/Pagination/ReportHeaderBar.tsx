@@ -26,11 +26,11 @@ import type { ReportState } from "../../Models/ReportState";
 import type { ReportType } from "../../Models/ReportType";
 import type { ReportLocation } from "../../Models/ReportLocation";
 
-const PAGE_SIZES = [5, 10, 20, 50, 100] as const;
+const PAGE_SIZES = [3, 6, 9, 12, 15] as const;
 
 type Props = {
   limit: number;
-  total: number;
+  totalItems: number;
   search: string;
   stateId?: number;
   locationId?: number;
@@ -41,11 +41,11 @@ type Props = {
   statesLoading?: boolean;
   typesLoading?: boolean;
   locationsLoading?: boolean;
+  onSearchChange: (text: string) => void;
   onStateChange: (id?: number) => void;
   onLocationChange: (id?: number) => void;
   onReportTypeChange: (id?: number) => void;
   onLimitChange: (n: number) => void;
-  onSearchChange: (text: string) => void;
   onCleanFilters: () => void;
   rightAction?: ReactNode;
 };
@@ -196,18 +196,17 @@ export default function ReportHeaderBar(props: Props) {
     statesLoading,
     typesLoading,
     locationsLoading,
+    onSearchChange,
     onStateChange,
     onLocationChange,
     onReportTypeChange,
     onLimitChange,
-    onSearchChange,
     onCleanFilters,
     rightAction,
   } = props;
 
   return (
     <div className="space-y-4">
-      {/* Búsqueda + Filtros móvil + Acción principal */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <div className="relative flex-1 w-full min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -220,8 +219,6 @@ export default function ReportHeaderBar(props: Props) {
             aria-label="Buscar reportes"
           />
         </div>
-
-        {/* En móvil: botón Filtros que abre Sheet */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
             <SheetTrigger asChild>

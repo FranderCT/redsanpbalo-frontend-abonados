@@ -14,37 +14,34 @@ import EditReportModal from "../Components/Modals/EditReportModal";
 
 const ListReports = () => {
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(3);
   const [search, setSearch] = useState("");
   const [stateId, setStateId] = useState<number | undefined>(undefined);
   const [locationId, setLocationId] = useState<number | undefined>(undefined);
   const [reportTypeId, setReportTypeId] = useState<number | undefined>(undefined);
-  
-    // Estado para el modal de detalles
+
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-
-  // Estado para el modal de edición
   const [selectedEditReport, setSelectedEditReport] = useState<Report | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  
+
   const handleSearch = (txt: string) => {
     setSearch(txt);
     setPage(1);
   };
 
-  const handleStateChange = (stateId: number | undefined) => {
-    setStateId(stateId);
+  const handleStateChange = (id: number | undefined) => {
+    setStateId(id);
     setPage(1);
   };
 
-  const handleTypeChange = (typeId: number | undefined) => {
-    setReportTypeId(typeId);
+  const handleTypeChange = (id: number | undefined) => {
+    setReportTypeId(id);
     setPage(1);
   };
 
-  const handleLocationChange = (locationId: number | undefined) => {
-    setLocationId(locationId);
+  const handleLocationChange = (id: number | undefined) => {
+    setLocationId(id);
     setPage(1);
   };
 
@@ -76,30 +73,30 @@ const ListReports = () => {
     setSelectedEditReport(null);
   };
 
-  const params: ReportPaginationParams = useMemo(
-    () => ({ 
-      page, 
-      limit, 
-      search: search || undefined,
-      stateId, 
-      locationId, 
-      ReportTypeId: reportTypeId 
+  const query = useMemo<ReportPaginationParams>(
+    () => ({
+      page,
+      limit,
+      search: search.trim() || undefined,
+      stateId,
+      locationId,
+      ReportTypeId: reportTypeId,
     }),
     [page, limit, search, stateId, locationId, reportTypeId]
   );
 
-  // Hooks para obtener datos
   const { reportStates, isLoading: statesLoading } = useGetAllReportStates();
   const { reportTypes, isLoading: typesLoading } = useGetAllReportTypes();
   const { reportLocations, isLoading: locationsLoading } = useGetAllReportLocations();
-  const { data, isLoading, error } = useSearchReports(params);
+  const { data, isLoading, isError, error } = useSearchReports(query);
 
   const items = data?.data ?? [];
   const meta = data?.meta ?? {
-    total: 0,
-    page: 1,
-    limit,
-    pageCount: 1,
+    totalItems: 0,
+    itemCount: 0,
+    itemsPerPage: limit,
+    totalPages: 1,
+    currentPage: 1,
     hasNextPage: false,
     hasPrevPage: false,
   };
@@ -119,7 +116,7 @@ const ListReports = () => {
       <div className="space-y-4 flex-shrink-0">
         <ReportHeaderBar
           limit={limit}
-          total={meta.total}
+          totalItems={meta.totalItems}
           search={search}
           stateId={stateId}
           locationId={locationId}
@@ -130,11 +127,11 @@ const ListReports = () => {
           statesLoading={statesLoading}
           typesLoading={typesLoading}
           locationsLoading={locationsLoading}
+          onSearchChange={handleSearch}
           onStateChange={handleStateChange}
           onLocationChange={handleLocationChange}
           onReportTypeChange={handleTypeChange}
           onLimitChange={setLimit}
-          onSearchChange={handleSearch}
           onCleanFilters={handleResetFilters}
           rightAction={<CreateReportModal />}
         />
@@ -145,9 +142,9 @@ const ListReports = () => {
           <div className="p-6 sm:p-8 text-center text-muted-foreground">
             Cargando reportes…
           </div>
-        ) : error ? (
+        ) : isError ? (
           <div className="p-6 sm:p-8 text-center text-destructive">
-            Ocurrió un error al cargar los reportes.
+            {error?.message ?? "Ocurrió un error al cargar los reportes."}
           </div>
         ) : (
           <ReportsGrid
@@ -159,18 +156,20 @@ const ListReports = () => {
         )}
       </div>
 
-      {!isLoading && !error && meta.pageCount > 0 && (
+      {meta.totalPages > 0 && (
         <div className="pt-4 border-t border-border flex-shrink-0">
           <DataPagination
-            page={meta.page}
-            pageCount={meta.pageCount}
-            total={meta.total}
-            pageSize={limit}
+            page={meta.currentPage}
+            pageCount={meta.totalPages}
+            total={meta.totalItems}
+            pageSize={meta.itemsPerPage}
             onPageChange={setPage}
+            labels={{ totalItems: "reportes" }}
             compact
           />
         </div>
       )}
+
 
       {/* Modal de detalles */}
       {selectedReport && (
