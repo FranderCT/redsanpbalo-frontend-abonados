@@ -178,7 +178,7 @@ export default function GetInfoReportModal({
         </div>
 
         <DialogFooter className="border-t px-6 py-4">
-          <Button variant="outline" onClick={close} className="w-full">
+          <Button variant="ghost" onClick={close} className="w-full">
             Cerrar
           </Button>
         </DialogFooter>
