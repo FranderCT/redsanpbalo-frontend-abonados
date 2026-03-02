@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { toast } from "react-toastify";
 import {
   Card,
   CardContent,
@@ -15,8 +16,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/Components/ui/select";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/Components/ui/dialog";
+import { Button } from "@/Components/ui/button";
 import { Skeleton } from "@/Components/ui/skeleton";
-import { useGetMonthlyCountsByLocation } from "../Hooks/ReportsHooks";
+import { Label } from "@/Components/ui/label";
+import { useGetMonthlyCountsByLocation, useExportReportsPdf } from "../Hooks/ReportsHooks";
+import { FileDown } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -73,9 +87,13 @@ function aggregateByNeighborhood(
 export default function ReportsMonthlyByLocationChart() {
   const [year, setYear] = useState(CURRENT_YEAR);
   const [month, setMonth] = useState(CURRENT_MONTH);
+  const [openExportDialog, setOpenExportDialog] = useState(false);
+  const [exportYear, setExportYear] = useState(CURRENT_YEAR);
+  const [exportMonth, setExportMonth] = useState(CURRENT_MONTH);
 
   const { data: rawData, isLoading, isError, error } =
     useGetMonthlyCountsByLocation({ months: 12, year, month });
+  const exportPdf = useExportReportsPdf();
 
   const chartData = useMemo(
     () => (rawData ? aggregateByNeighborhood(rawData) : []),
@@ -95,7 +113,10 @@ export default function ReportsMonthlyByLocationChart() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <p className="text-sm font-medium text-foreground">Filtros</p>
+            <p className="text-sm font-medium text-foreground">Mes y año del reporte</p>
+            <p className="text-xs text-muted-foreground">
+              Elija el mes y el año. El gráfico y el PDF exportado usarán esta selección.
+            </p>
             <div className="flex flex-wrap items-center gap-3">
               <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
                 <SelectTrigger className="w-[120px]">
@@ -121,6 +142,98 @@ export default function ReportsMonthlyByLocationChart() {
                   ))}
                 </SelectContent>
               </Select>
+              <Dialog open={openExportDialog} onOpenChange={setOpenExportDialog}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setExportYear(year);
+                      setExportMonth(month);
+                    }}
+                  >
+                    <FileDown className="size-4 mr-1.5" />
+                    Exportar PDF
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-h-[90vh] gap-0 overflow-hidden sm:max-w-md">
+                  <DialogHeader className="space-y-1.5 border-b px-6 py-5">
+                    <DialogTitle>Exportar reporte en PDF</DialogTitle>
+                    <DialogDescription>
+                      Elija el mes y el año del reporte que desea descargar.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 px-6 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="export-year">Año</Label>
+                      <Select
+                        value={String(exportYear)}
+                        onValueChange={(v) => setExportYear(Number(v))}
+                      >
+                        <SelectTrigger id="export-year">
+                          <SelectValue placeholder="Año" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {YEARS.map((y) => (
+                            <SelectItem key={y} value={String(y)}>
+                              {y}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="export-month">Mes</Label>
+                      <Select
+                        value={String(exportMonth)}
+                        onValueChange={(v) => setExportMonth(Number(v))}
+                      >
+                        <SelectTrigger id="export-month">
+                          <SelectValue placeholder="Mes" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {MONTHS.map((m) => (
+                            <SelectItem key={m.value} value={String(m.value)}>
+                              {m.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <DialogFooter className="gap-2 border-t px-4 py-4">
+                    <div className="w-full flex flex-col-reverse sm:flex-row-reverse sm:justify-between sm:space-x-2">
+                      <DialogClose asChild>
+                        <Button type="button" variant="outline">
+                          Cancelar
+                        </Button>
+                      </DialogClose>
+                      <Button
+                        disabled={exportPdf.isPending}
+                        onClick={() => {
+                          exportPdf.mutate(
+                            { year: exportYear, month: exportMonth },
+                            {
+                              onSuccess: () => {
+                                toast.success("PDF descargado correctamente");
+                                setOpenExportDialog(false);
+                              },
+                              onError: (err) => {
+                                toast.error(
+                                  err instanceof Error ? err.message : "Error al exportar el PDF"
+                                );
+                              },
+                            }
+                          );
+                        }}
+                      >
+                        <FileDown className="size-4 mr-1.5" />
+                        {exportPdf.isPending ? "Exportando…" : "Descargar PDF"}
+                      </Button>
+                    </div>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 

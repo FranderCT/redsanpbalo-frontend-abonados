@@ -128,3 +128,60 @@ export async function getMonthlyCountsByLocation(opts: {
     throw new Error(getErrorMessage(error));
   }
 }
+
+const MONTH_NAMES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
+
+/**
+ * Exporta PDF de reportes del mes/año con listado y gráfico por ubicación.
+ * GET /reports/export/pdf?year=YYYY&month=M
+ * Descarga el archivo con nombre reportes-{Mes}-{year}.pdf
+ */
+export async function exportReportsPdf(
+  year: number,
+  month: number
+): Promise<{ blob: Blob; filename: string }> {
+  if (!Number.isInteger(year) || year < 2000 || year > 2100) {
+    throw new Error("El año debe estar entre 2000 y 2100");
+  }
+  if (!Number.isInteger(month) || month < 1 || month > 12) {
+    throw new Error("El mes debe estar entre 1 y 12");
+  }
+
+  try {
+    const { data, headers } = await apiAxios.get<Blob>(
+      `${BASE_URL}/export/pdf`,
+      {
+        params: { year, month },
+        responseType: "blob",
+      }
+    );
+
+    const disposition = headers["content-disposition"];
+    let filename = `reportes-${MONTH_NAMES[month - 1]}-${year}.pdf`;
+    if (typeof disposition === "string" && disposition.includes("filename=")) {
+      const match = disposition.match(/filename="?([^";\n]+)"?/);
+      if (match?.[1]) filename = match[1].trim();
+    }
+
+    return { blob: data, filename };
+  } catch (err) {
+    if (err && typeof err === "object" && "response" in err) {
+      const res = (err as { response?: { data?: Blob; status?: number } }).response;
+      if (res?.data instanceof Blob) {
+        const text = await (res.data as Blob).text();
+        let msg = "Error al exportar el PDF";
+        try {
+          const json = JSON.parse(text);
+          if (json?.message) msg = json.message;
+        } catch {
+          if (text) msg = text;
+        }
+        throw new Error(msg);
+      }
+    }
+    throw new Error(getErrorMessage(err));
+  }
+}
