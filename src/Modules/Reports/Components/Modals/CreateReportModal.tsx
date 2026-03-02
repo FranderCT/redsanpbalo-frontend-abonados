@@ -84,20 +84,13 @@ export default function CreateReportModal() {
         toast.success("¡Reporte creado exitosamente!");
         form.reset();
         setOpen(false);
-      } catch (error: any) {
-        toast.error(error.message);
+      } catch {
+        // El mensaje de error ya se muestra en onError del hook (ReportsHooks)
       }
     },
   });
 
   const isLoading = statesLoading || typesLoading || locationsLoading || profileLoading;
-
-  const formatErrors = (errors: unknown[]) =>
-    errors?.map((e) =>
-      typeof e === "object" && e !== null && "message" in e
-        ? { message: (e as { message: string }).message }
-        : { message: String(e) }
-    );
 
   const ReportField = form.Field;
 
@@ -162,7 +155,7 @@ export default function CreateReportModal() {
                           placeholder="Ej: Calle principal, casa #123"
                         />
                         {isInvalid && (
-                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );
@@ -189,7 +182,7 @@ export default function CreateReportModal() {
                           className="resize-none"
                         />
                         {isInvalid && (
-                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );
@@ -220,7 +213,7 @@ export default function CreateReportModal() {
                           </SelectContent>
                         </Select>
                         {isInvalid && (
-                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );
@@ -251,7 +244,7 @@ export default function CreateReportModal() {
                           </SelectContent>
                         </Select>
                         {isInvalid && (
-                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );
@@ -285,7 +278,7 @@ export default function CreateReportModal() {
                           </SelectContent>
                         </Select>
                         {isInvalid && (
-                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );
@@ -326,7 +319,7 @@ export default function CreateReportModal() {
                           </SelectContent>
                         </Select>
                         {isInvalid && (
-                          <FieldError errors={formatErrors(field.state.meta.errors)} />
+                          <FieldError errors={field.state.meta.errors} />
                         )}
                       </Field>
                     );

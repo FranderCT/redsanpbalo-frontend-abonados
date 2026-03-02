@@ -194,19 +194,45 @@ function FieldError({
       return children
     }
 
-    if (!errors) {
+    if (!errors?.length) {
       return null
     }
 
-    if (errors?.length === 1 && errors[0]?.message) {
-      return errors[0].message
+    // Evitar mensajes duplicados (ej. cuando validadores onChange y onSubmit devuelven lo mismo)
+    const seen = new Set<string>()
+    const uniqueErrors = errors.filter((e) => {
+      const msg = e?.message ?? ""
+      if (!msg || seen.has(msg)) return false
+      seen.add(msg)
+      return true
+    })
+
+    if (uniqueErrors.length === 0) return null
+    if (uniqueErrors.length === 1 && uniqueErrors[0]?.message) {
+      return (
+        <span className="flex items-center gap-2">
+          <span
+            className="h-1.5 w-1.5 shrink-0 rounded-full bg-current"
+            aria-hidden
+          />
+          {uniqueErrors[0].message}
+        </span>
+      )
     }
 
     return (
-      <ul className="ml-4 flex list-disc flex-col gap-1">
-        {errors.map(
+      <ul className="flex flex-col gap-1.5">
+        {uniqueErrors.map(
           (error, index) =>
-            error?.message && <li key={index}>{error.message}</li>
+            error?.message && (
+              <li key={index} className="flex items-center gap-2">
+                <span
+                  className="h-1.5 w-1.5 shrink-0 rounded-full bg-current"
+                  aria-hidden
+                />
+                {error.message}
+              </li>
+            )
         )}
       </ul>
     )
