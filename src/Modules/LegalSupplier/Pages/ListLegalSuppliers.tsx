@@ -4,9 +4,6 @@ import { useSearchLegalSupplier } from "../Hooks/LegalSupplierHooks";
 import type { LegalSupplier } from "../Models/LegalSupplier";
 import LegalSupplierTable from "../Components/Table/LegalSupplierTable";
 import CreateLegalSupplierModal from "../Components/Modals/CreateLegalSupplierModal";
-import ListPhysicalSuppliers from "../../PhysicalSupplier/Pages/ListPhysicalSuppliers";
-
-
 
 export default function ListLegalSuppliers() {
   const [page, setPage] = useState(1);   // 1-based
@@ -77,8 +74,6 @@ export default function ListLegalSuppliers() {
           />
         )}
       </div>
-
-      <ListPhysicalSuppliers />
 
     </div>
   );

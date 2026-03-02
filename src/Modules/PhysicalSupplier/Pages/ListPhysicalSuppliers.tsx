@@ -1,13 +1,12 @@
 import { useState, useMemo } from "react";
-import ProductHeaderBar from "../../Products/Components/PaginationProducts/ProductHeaderBar";
-import PhysicalSupplierTable from "../Components/PhysicalSupplierTable/PhysicalSupplierTable";
+import PhysicalSupplierHeaderBar from "../Components/Pagination/PhysicalSupplierHeaderBar";
+import PhysicalSupplierCards from "../Components/ListPhysicalSuppliers/PhysicalSupplierCards";
 import type { PhysicalSupplier } from "../Models/PhysicalSupplier";
 import { useSearchPhysicalSupplier } from "../Hooks/PhysicalSupplierHooks";
 import CreatePhysicalSupplierModal from "../Components/Modals/CreatePhysicalSupplierModal";
 
-
 export default function ListPhysicalSuppliers() {
-  const [page, setPage] = useState(1);   // 1-based
+  const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
   const [name, setName] = useState<string | undefined>(undefined);
@@ -15,12 +14,10 @@ export default function ListPhysicalSuppliers() {
 
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
-    const trimmed = txt.trim();
-    setName(trimmed ? trimmed : undefined);
+    setName(txt.trim() ? txt.trim() : undefined);
     setPage(1);
   };
 
-   // Manejo de filtro por estado
   const handleStateChange = (newState: string) => {
     setState(newState || undefined);
     setPage(1);
@@ -31,51 +28,61 @@ export default function ListPhysicalSuppliers() {
     setName(undefined);
     setState(undefined);
     setPage(1);
-  }
-  
+  };
+
   const params = useMemo(() => ({ page, limit, name, state }), [page, limit, name, state]);
   const { data, isLoading, error } = useSearchPhysicalSupplier(params);
 
   const rows: PhysicalSupplier[] = data?.data ?? [];
   const meta = data?.meta ?? {
-    total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false,
+    total: 0,
+    page: 1,
+    limit,
+    pageCount: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
   };
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-[#091540]">Lista proveedores físicos</h1>
-        <p className="text-[#091540]/70 text-md">
-            Gestione todos los proveedores físicos
-        </p>
-        <div className="border-b border-dashed border-gray-300 mb-8"></div>
+      <h1 className="text-2xl font-bold text-foreground">Proveedores físicos</h1>
+      <p className="text-muted-foreground text-base">
+        Gestione todos los proveedores físicos.
+      </p>
+      <div className="border-b border-border mb-6" />
 
-      <ProductHeaderBar
+      <PhysicalSupplierHeaderBar
         limit={meta.limit}
         total={meta.total}
         search={search}
-        onLimitChange={(l) => { setLimit(l); setPage(1); }}
+        state={state}
+        onLimitChange={(l) => {
+          setLimit(l);
+          setPage(1);
+        }}
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
         rightAction={<CreatePhysicalSupplierModal />}
       />
 
-      <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
+      <div className="overflow-x-auto rounded-md border border-border shadow-sm">
         {isLoading ? (
-          <div className="p-6 text-center text-gray-500">Cargando…</div>
+          <div className="p-6 text-center text-muted-foreground">Cargando…</div>
         ) : error ? (
-          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar los Productos.</div>
+          <div className="p-6 text-center text-destructive">
+            Ocurrió un error al cargar los proveedores físicos.
+          </div>
         ) : (
-          <PhysicalSupplierTable
+          <PhysicalSupplierCards
             data={rows}
             total={meta.total}
-            page={meta.page}               // <- pasa paginación al footer
+            page={meta.page}
             pageCount={meta.pageCount}
             onPageChange={setPage}
           />
         )}
       </div>
-
     </div>
   );
 }

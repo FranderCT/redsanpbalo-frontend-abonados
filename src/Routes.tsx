@@ -9,8 +9,11 @@ import { uniteMeasureRoute } from "./Modules/UnitMeasure/routes/RoutesUnitMeasur
 import { productsRoutes } from "./Modules/Products/routes/ProductsRoutes";
 import { listSupplierRoute, newSupplierRoute, supplierRoute, viewSuppliertRoute } from "./Modules/Supplier/Routes/SuppliersRoutes";
 import { createProjectRoute, listProjectRoute, projectRoute, updateProjectRoute, viewProjectRoute } from "./Modules/Project/Routes/ProjectsRoutes";
-import { listPhysicalSuppliers, PhysicalSupplierRoute } from "./Modules/PhysicalSupplier/Routes/PhysicalSupplierRoutes";
-import { legalSupplierRoute, listLegalSuppliers } from "./Modules/LegalSupplier/Routes/LegalSupplierRoutes";
+import {
+  suppliersRoute,
+  physicalSuppliersRoute,
+  legalSuppliersRoute,
+} from "./Modules/Suppliers/Routes/SuppliersRoutes";
 import {requestListSupervisionRoute, requestSupervisionUserRoute } from "./Modules/Requests/RequestSupervisionMeter/Routes/RequestsSupervisionWaterRoute";
 import { requestsRoute } from "./Modules/Requests/Routes/RequestRoutes";
 import { requestListAvailWaterRoute, requestUserAvailWaterRoute } from "./Modules/Requests/RequestAvailabilityWater/Routes/RequestsAvailWaterRoute";
@@ -80,13 +83,11 @@ export const routeTree = rootRoute.addChildren([
       requestListAssociatedRoute
     ]),
     commentRoute,
-    editLandingRoute
-  ]),
-  PhysicalSupplierRoute.addChildren([
-    listPhysicalSuppliers
-  ]),
-  legalSupplierRoute.addChildren([
-    listLegalSuppliers
+    editLandingRoute,
+    suppliersRoute.addChildren([
+      physicalSuppliersRoute,
+      legalSuppliersRoute,
+    ]),
   ]),
   reportRoutes.addChildren([
     reportIndexRoute
