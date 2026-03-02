@@ -79,29 +79,35 @@ export default function ReportCard({ report, onViewDetails, onEditReport }: Prop
           )}
         </div>
 
-        {report.UserInCharge && (
-          <>
-            <Separator />
-            <div className="flex items-center gap-3">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                <Wrench className="size-4 text-primary" />
-              </div>
-              <div className="min-w-0">
-                <CardDescription className="text-xs font-medium uppercase tracking-wider">
-                  Encargado
-                </CardDescription>
-                <p className="truncate text-sm font-medium text-foreground">
-                  {report.UserInCharge.Name} {report.UserInCharge.Surname1}
-                </p>
-                {report.UserInCharge.Email && (
-                  <p className="truncate text-xs text-muted-foreground">
-                    {report.UserInCharge.Email}
-                  </p>
-                )}
-              </div>
+        <>
+          <Separator />
+          <div className="flex items-center gap-3">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <Wrench className="size-4 text-primary" />
             </div>
-          </>
-        )}
+            <div className="min-w-0 flex-1">
+              <CardDescription className="text-xs font-medium uppercase tracking-wider">
+                Encargado
+              </CardDescription>
+              {report.UserInCharge ? (
+                <>
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {report.UserInCharge.Name} {report.UserInCharge.Surname1}
+                  </p>
+                  {report.UserInCharge.Email && (
+                    <p className="truncate text-xs text-muted-foreground">
+                      {report.UserInCharge.Email}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm font-medium italic text-amber-600 dark:text-amber-500">
+                  Asigne un encargado
+                </p>
+              )}
+            </div>
+          </div>
+        </>
       </CardContent>
 
       <CardFooter className="flex gap-2 border-t pt-4">
