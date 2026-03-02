@@ -1,8 +1,7 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useEffect } from "react";
-import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { PaginatedResponse } from "@/core/pagination/pagination";
 import type { Report, ReportPaginationParams } from "../Models/Report";
-import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport } from "../Services/ReportSV"
+import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport } from "../Services/ReportSV";
 
 export const useGetAllReports = () => {
     const {data: reports, error, isLoading} = useQuery({
@@ -12,33 +11,14 @@ export const useGetAllReports = () => {
     return {reports, error, isLoading}
 }
 
-export const useSearchReports = (params: ReportPaginationParams) => {
-    const query = useQuery<PaginatedResponse<Report>, Error>({
-        queryKey: ["reports", "search", params],
-        queryFn: () => searchReports(params),
+export const useSearchReports = (query: ReportPaginationParams) => {
+    const { data, isLoading, isError, error } = useQuery<PaginatedResponse<Report>, Error>({
+        queryKey: ["reports", "search", query],
+        queryFn: () => searchReports(query),
         placeholderData: keepPreviousData,
         staleTime: 30_000,
     });
-
-    // Log en cada fetch/refetch exitoso
-    useEffect(() => {
-        if (query.data) {
-            const res = query.data;
-            console.log(
-                "[Reports fetched]",
-                {
-                    page: res.meta.page,
-                    limit: res.meta.limit,
-                    total: res.meta.total,
-                    pageCount: res.meta.pageCount,
-                    params,
-                },
-                res.data
-            );
-        }
-    }, [query.data, params]);
-
-    return query;
+    return { data, isLoading, isError, error };
 };
 
 export const useCreateReportByAdmin = () => {

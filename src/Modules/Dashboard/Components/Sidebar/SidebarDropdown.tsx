@@ -49,12 +49,12 @@ export default function SidebarDropdown({
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+        className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
       >
         <span className="grid place-items-center">{icon}</span>
         <span className="transition-colors">{label}</span>
         <ChevronDown
-          className={`ml-auto size-4 transition-transform group-hover:text-white ${
+          className={`ml-auto size-4 transition-transform group-hover:text-sidebar-accent-foreground ${
             open ? "rotate-180" : ""
           }`}
         />
@@ -63,7 +63,7 @@ export default function SidebarDropdown({
       {open && (
         <div
           role="menu"
-          className="mt-1 ml-2 flex flex-col overflow-hidden border border-black/10 bg-white shadow-md max-h-64 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400"
+          className="mt-1 ml-2 flex flex-col overflow-hidden rounded-md border border-sidebar-border bg-popover text-popover-foreground shadow-md max-h-64 overflow-y-auto"
         >
           {items.map((item, idx) => (
             <button
@@ -73,7 +73,7 @@ export default function SidebarDropdown({
                 setOpen(false);
                 item.onClick();
               }}
-              className="px-4 py-2 text-left transition-all hover:bg-[#091540] hover:text-white"
+              className="px-4 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground first:rounded-t-md last:rounded-b-md"
             >
               {item.label}
             </button>

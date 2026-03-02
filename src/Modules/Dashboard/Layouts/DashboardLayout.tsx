@@ -40,13 +40,13 @@ const DashboardLayout = () => {
   }, [activeRole, pathname, navigate]);
 
   return (
-    <div className="flex h-screen bg-[#F9F5FF] overflow-hidden relative">
-      <aside className="hidden md:flex flex-col bg-white border-r border-gray-200">
+    <div className="flex h-screen bg-background overflow-hidden relative">
+      <aside className="hidden md:flex flex-col shrink-0 bg-sidebar border-r border-sidebar-border text-sidebar-foreground">
         <AsideDashboard />
       </aside>
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-56 bg-white border-r border-gray-200 transform transition-transform duration-300 
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-sidebar border-r border-sidebar-border text-sidebar-foreground transform transition-transform duration-300 
         ${menuOpen ? "translate-x-0" : "-translate-x-full"} md:hidden`}
       >
         <AsideDashboard />
@@ -69,7 +69,7 @@ const DashboardLayout = () => {
           profileOpen={profileOpen}
           setProfileOpen={setProfileOpen}
         />
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-background">
           <Outlet />
           <Can rule={{ any: ["ADMIN", "FONTANERO"] }}>
             <LiveReports />

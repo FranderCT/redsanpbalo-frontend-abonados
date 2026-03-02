@@ -1,8 +1,16 @@
 import apiAxios from "../../../api/apiConfig";
-import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
+import type { PaginatedResponse } from "@/core/pagination/pagination";
 import type { CreateReportPayload, UpdateReportPayload, Report, ReportPaginationParams } from "../Models/Report";
 
 const BASE_URL = '/reports';
+
+function getErrorMessage(error: unknown): string {
+  if (error && typeof error === "object" && "response" in error) {
+    const res = (error as { response?: { data?: { message?: string } } }).response;
+    return res?.data?.message ?? "Error al obtener los reportes";
+  }
+  return "Error de conexión al servidor";
+}
 
 export async function getAllReports() : Promise<Report[]>{
     try{
@@ -15,31 +23,22 @@ export async function getAllReports() : Promise<Report[]>{
 }
 
 export async function searchReports(
-    params: ReportPaginationParams
+    query: ReportPaginationParams
 ): Promise<PaginatedResponse<Report>> {
     try {
-        const { page = 1, limit = 10, stateId, locationId, ReportTypeId } = params ?? {};
-        
-        // Filtrar parámetros undefined para evitar enviar NaN al backend
-        const cleanParams: Record<string, any> = { page, limit };
-        
-        if (stateId !== undefined && !isNaN(stateId)) {
-            cleanParams.stateId = stateId;
-        }
-        if (locationId !== undefined && !isNaN(locationId)) {
-            cleanParams.locationId = locationId;
-        }
-        if (ReportTypeId !== undefined && !isNaN(ReportTypeId)) {
-            cleanParams.ReportTypeId = ReportTypeId;
-        }
-        
+        const { page = 1, limit = 10, q, stateId, locationId, reportTypeId } = query ?? {};
+        const cleanParams: Record<string, number | string | undefined> = { page, limit };
+        if (q?.trim()) cleanParams.q = q.trim();
+        if (stateId !== undefined && !isNaN(stateId)) cleanParams.stateId = stateId;
+        if (locationId !== undefined && !isNaN(locationId)) cleanParams.locationId = locationId;
+        if (reportTypeId !== undefined && !isNaN(reportTypeId)) cleanParams.reportTypeId = reportTypeId;
+
         const { data } = await apiAxios.get<PaginatedResponse<Report>>(`${BASE_URL}/search`, {
             params: cleanParams,
         });
         return data;
     } catch (error) {
-        console.error("Error searching reports:", error);
-        throw error;
+        throw new Error(getErrorMessage(error));
     }
 }
 

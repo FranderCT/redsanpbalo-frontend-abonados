@@ -1,4 +1,10 @@
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Badge } from "@/Components/ui/badge";
+
+import { MapPin, Calendar, Wrench } from "lucide-react";
 import type { Report } from "../Models/Report";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   report: Report;
@@ -6,96 +12,117 @@ type Props = {
   onEditReport?: (report: Report) => void;
 };
 
-const ReportCard = ({ report, onViewDetails, onEditReport }: Props) => {
+function formatDate(d: Date | string) {
+  return new Date(d).toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function getStatusVariant(
+  name?: string
+): "default" | "secondary" | "destructive" | "outline" {
+  const n = (name ?? "").toLowerCase();
+  if (n.includes("resuelto") || n.includes("completado")) return "default";
+  if (n.includes("curso") || n.includes("proceso")) return "secondary";
+  if (n.includes("pendiente") || n.includes("espera")) return "outline";
+  return "secondary";
+}
+
+export default function ReportCard({ report, onViewDetails, onEditReport }: Props) {
   return (
-    <div className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 overflow-hidden group">
-        {/* Header Section */}
-        <div className="border-b border-gray-100 p-4">
-            <div className="flex items-center justify-between">
-                <h2 className="font-bold text-lg text-[#091540]">{`Reporte #${report.Id}`}</h2>
-                <span className="text-xs text-gray-500 bg-gray-50 px-2 py-1 font-medium">
-                    {new Date(report.CreatedAt).toLocaleDateString('es-ES', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                    })}
-                </span>
-            </div>
+    <Card className="overflow-hidden transition-shadow hover:shadow-md">
+      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-3">
+        <div>
+          <CardTitle className="text-lg">Reporte #{report.Id}</CardTitle>
+          <CardDescription className="mt-1 flex items-center gap-1.5 text-xs">
+            <Calendar className="size-3.5" />
+            {formatDate(report.CreatedAt)}
+          </CardDescription>
         </div>
-        
-        <div className="p-5 space-y-4">
-            {/* Description Section */}
-            <div>
-                <h3 className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Descripción</h3>
-                <p className="text-sm text-gray-800 leading-relaxed">
-                    {report.Description}
+        <Badge variant={getStatusVariant(report.ReportState?.Name)}>
+          {report.ReportState?.Name ?? "—"}
+        </Badge>
+      </CardHeader>
+
+      <CardContent className="space-y-4 pt-0">
+        <div>
+          <CardDescription className="mb-1 text-xs font-medium uppercase tracking-wider">
+            Descripción
+          </CardDescription>
+          <p className="line-clamp-2 text-sm leading-relaxed text-foreground">
+            {report.Description}
+          </p>
+        </div>
+
+        <Separator />
+
+        <div>
+          <CardDescription className="mb-1 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider">
+            <MapPin className="size-3.5" />
+            Dirección exacta
+          </CardDescription>
+          <p className="text-sm font-medium text-foreground">{report.Location}</p>
+          {report.ReportLocation?.Neighborhood && (
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Barrio: {report.ReportLocation.Neighborhood}
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {report.ReportType?.Name && (
+            <Badge variant="secondary" className="text-xs">
+              {report.ReportType.Name}
+            </Badge>
+          )}
+        </div>
+
+        {report.UserInCharge && (
+          <>
+            <Separator />
+            <div className="flex items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                <Wrench className="size-4 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <CardDescription className="text-xs font-medium uppercase tracking-wider">
+                  Encargado
+                </CardDescription>
+                <p className="truncate text-sm font-medium text-foreground">
+                  {report.UserInCharge.Name} {report.UserInCharge.Surname1}
                 </p>
-            </div>
-            
-            {/* Location Section */}
-            <div>
-                <h3 className="text-xs font-medium text-gray-500 mb-1 uppercase tracking-wide">Ubicación</h3>
-                <p className="text-sm text-gray-800">
-                    {report.Location}
-                    {report.ReportLocation?.Neighborhood && (
-                        <span className="text-gray-600"> • {report.ReportLocation.Neighborhood}</span>
-                    )}
-                </p>
-            </div>
-
-            {/* Tags Section */}
-            <div className="flex flex-wrap gap-2">
-                {report.ReportType?.Name && (
-                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-200">
-                        {report.ReportType.Name}
-                    </span>
+                {report.UserInCharge.Email && (
+                  <p className="truncate text-xs text-muted-foreground">
+                    {report.UserInCharge.Email}
+                  </p>
                 )}
-                {report.ReportState?.Name && (
-                    <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-200">
-                        {report.ReportState.Name}
-                    </span>
-                )}
+              </div>
             </div>
+          </>
+        )}
+      </CardContent>
 
-            {/* User in Charge Section */}
-            {report.UserInCharge?.Name && (
-                <div className="border-t border-gray-100 pt-4">
-                    <h3 className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Fontanero a Cargo</h3>
-                    <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-gray-200 flex items-center justify-center text-gray-700 text-sm font-medium">
-                            {report.UserInCharge.Name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-gray-800">{report.UserInCharge.Name}</p>
-                            <p className="text-xs text-gray-500">{report.UserInCharge.Email}</p>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-        
-        {/* Footer Actions */}
-        <div className="border-t border-gray-100 group-hover:bg-gray-50 transition-all duration-300 p-3">
-            <div className="flex gap-2">
-                {onEditReport && (
-                    <button
-                        className="flex-1 text-sm font-medium text-white bg-[#091540] hover:bg-[#1789FC] transition-colors duration-300 py-2 px-3"
-                        onClick={() => onEditReport(report)}
-                    >
-                        Gestionar
-                    </button>
-                )}
-                <button
-                    className="flex-1 text-sm font-medium text-gray-600 hover:text-[#091540] transition-colors duration-300 py-2 px-3 border border-gray-200 hover:border-[#091540] hover:bg-white"
-                    onClick={() => onViewDetails?.(report)}
-                >
-                    Ver detalles
-                </button>
-                
-            </div>
-        </div>
-    </div>
-);
-};
-
-export default ReportCard;
+      <CardFooter className="flex gap-2 border-t pt-4">
+        {onEditReport && (
+          <Button 
+            size="sm"
+            className="flex-1"
+            onClick={() => onEditReport(report)}
+          >
+            Gestionar
+          </Button>
+        )}
+        <Button
+          size="sm"
+          variant="outline"
+          className="flex-1"
+          onClick={() => onViewDetails?.(report)}
+        >
+          Ver detalles
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
