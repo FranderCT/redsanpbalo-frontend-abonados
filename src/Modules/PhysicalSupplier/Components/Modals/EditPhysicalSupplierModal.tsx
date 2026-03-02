@@ -1,7 +1,24 @@
 import { useEffect } from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
-import { ModalBase } from "../../../../Components/Modals/ModalBase";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/Components/ui/field";
+import { Textarea } from "@/Components/ui/textarea";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { useEditPhysicalSupplier } from "../../Hooks/PhysicalSupplierHooks";
 import type { PhysicalSupplier } from "../../Models/PhysicalSupplier";
@@ -14,47 +31,44 @@ type Props = {
   onSuccess?: () => void;
 };
 
-const EditPhysicalSupplierModal = ({ supplier: physicalSupplier, open, onClose, onSuccess }: Props) => {
-  const updateSupplierMutation = useEditPhysicalSupplier();
-
-  const SPANSTYLES = "text text-[#222]";
-  const LABELSTYLES = "grid gap-1";
-  const INPUTSTYLES = "w-full px-4 py-2 bg-gray-50 border";
-  
+export default function EditPhysicalSupplierModal({
+  supplier: physicalSupplier,
+  open,
+  onClose,
+  onSuccess,
+}: Props) {
   const supplier = physicalSupplier.Supplier;
-  
+  const updateMutation = useEditPhysicalSupplier();
+
   const form = useForm({
     defaultValues: {
-      IDcard: supplier?.IDcard ?? '',
-      Name: supplier?.Name ?? '',
-      Surname1: physicalSupplier.Surname1 ?? '',
-      Surname2: physicalSupplier.Surname2 ?? '',
-      Email: supplier?.Email ?? '',
-      PhoneNumber: supplier?.PhoneNumber ?? '',
-      Location: supplier?.Location ?? '',
+      IDcard: supplier?.IDcard ?? "",
+      Name: supplier?.Name ?? "",
+      Surname1: physicalSupplier.Surname1 ?? "",
+      Surname2: physicalSupplier.Surname2 ?? "",
+      Email: supplier?.Email ?? "",
+      PhoneNumber: supplier?.PhoneNumber ?? "",
+      Location: supplier?.Location ?? "",
       IsActive: supplier?.IsActive ?? true,
     },
-    validators:{
-      onChange: UpdatePhysicalSupplierSchema
-    },
+    validators: { onChange: UpdatePhysicalSupplierSchema },
     onSubmit: async ({ value }) => {
       try {
-        await updateSupplierMutation.mutateAsync({
+        await updateMutation.mutateAsync({
           id: physicalSupplier.Id,
           data: value,
         });
         form.reset();
         onSuccess?.();
-        onClose?.();
+        onClose();
       } catch (err) {
-        console.error("Error al actualizar el proveedor", err);
+        console.error(err);
       }
     },
   });
 
-  // Cuando cambia el supplier o se abre el modal, sincroniza los campos
   useEffect(() => {
-    if (!physicalSupplier || !supplier) return;
+    if (!open || !supplier) return;
     form.setFieldValue("IDcard", supplier.IDcard ?? "");
     form.setFieldValue("Name", supplier.Name ?? "");
     form.setFieldValue("Surname1", physicalSupplier.Surname1 ?? "");
@@ -63,240 +77,242 @@ const EditPhysicalSupplierModal = ({ supplier: physicalSupplier, open, onClose, 
     form.setFieldValue("PhoneNumber", supplier.PhoneNumber ?? "");
     form.setFieldValue("Location", supplier.Location ?? "");
     form.setFieldValue("IsActive", supplier.IsActive ?? true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [physicalSupplier, open]);
+  }, [physicalSupplier, supplier, open]);
 
   const handleClose = () => {
-    toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
-    form.reset();
     onClose();
+    form.reset();
   };
 
-  const toMsg = (e: unknown) =>
-  typeof e === 'string' ? e : (e as any)?.message ?? '';
-
   return (
-    <ModalBase
-      open={open}
-      onClose={handleClose}
-      panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]"
-    >
-      <header className="flex flex-col">
-        <h2 className="text-2xl text-[#091540] font-bold">Editar proveedor físico</h2>
-        <p className="text-md">Actualice la información del proveedor</p>
-      </header>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
+      <DialogContent className="max-h-[90vh] max-w-xl gap-0 overflow-hidden p-0">
+        <DialogHeader className="space-y-1.5 border-b px-6 py-5">
+          <DialogTitle>Editar proveedor físico</DialogTitle>
+          <DialogDescription>
+            Actualice la información del proveedor.
+          </DialogDescription>
+        </DialogHeader>
+        <form
+          id="edit-physical-supplier-form"
+          className="flex flex-col gap-4"
+          onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
+        >
+          <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
+            <FieldGroup className="gap-4">
+              <FieldGroup className="gap-2">
+                <form.Field name="IDcard">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Número de cédula</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          placeholder="Ej: 504440123"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
 
-      <div className="border-b border-[#222]/10 my-2" />
+              <FieldGroup className="gap-2">
+                <form.Field name="Name">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Nombre</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          placeholder="Nombre"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
 
-      <form
-        id="create-physical-supplier-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-        className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-      >
-
-        {/* IDcard */}
-        <form.Field name="IDcard">
-          {(field) => (
-            <label className={LABELSTYLES}>
-              <span className={SPANSTYLES}>Número de Cédula</span>
-              <input
-                className={INPUTSTYLES}
-                placeholder="ejm. 504440123"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-              {field.state.meta.isTouched && field.state.meta.errors[0] && (
-                <p className="text-sm text-red-500 mt-1">
-                  {toMsg(field.state.meta.errors[0] as any)}
-                </p>
-              )}
-            </label>
-          )}
-        </form.Field>
-
-        {/* Name */}
-        <form.Field name="Name">
-          {(field) => (
-            <label className={LABELSTYLES}>
-              <span className={SPANSTYLES}>Nombre</span>
-              <input
-                className={INPUTSTYLES}
-                placeholder="ejm. GILBERT ADAN"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-              {field.state.meta.isTouched && field.state.meta.errors[0] && (
-                <p className="text-sm text-red-500 mt-1">
-                  {toMsg(field.state.meta.errors[0] as any)}
-                </p>
-              )}
-            </label>
-          )}
-        </form.Field>
-
-        {/* Surname1 */}
-        <form.Field name="Surname1">
-          {(field) => (
-            <label className={LABELSTYLES}>
-              <span className={SPANSTYLES}>Primer apellido</span>
-              <input
-                className={INPUTSTYLES}
-                placeholder="ejm. CERDAS"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-              {field.state.meta.isTouched && field.state.meta.errors[0] && (
-                <p className="text-sm text-red-500 mt-1">
-                  {toMsg(field.state.meta.errors[0] as any)}
-                </p>
-              )}
-            </label>
-          )}
-        </form.Field>
-
-        {/* Surname2 */}
-        <form.Field name="Surname2">
-          {(field) => (
-            <label className={LABELSTYLES}>
-              <span className={SPANSTYLES}>Segundo apellido</span>
-              <input
-                className={INPUTSTYLES}
-                placeholder="ejm. CHAVES"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-              {field.state.meta.isTouched && field.state.meta.errors[0] && (
-                <p className="text-sm text-red-500 mt-1">
-                  {toMsg(field.state.meta.errors[0] as any)}
-                </p>
-              )}
-            </label>
-          )}
-        </form.Field>
-
-        {/* Email */}
-        <form.Field name="Email">
-          {(field) => (
-            <label className={LABELSTYLES}>
-              <span className={SPANSTYLES}>Correo electrónico del proveedor</span>
-              <input
-                className={INPUTSTYLES}
-                placeholder="ejm. joseroman2@gmail.com"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-              {field.state.meta.isTouched && field.state.meta.errors[0] && (
-                <p className="text-sm text-red-500 mt-1">
-                  {toMsg(field.state.meta.errors[0] as any)}
-                </p>
-              )}
-            </label>
-          )}
-        </form.Field>
-
-        {/* Teléfono (PhoneField) */}
-        <form.Field name="PhoneNumber">
-          {(field) => (
-            <>
-              <PhoneField
-                value={field.state.value}
-                onChange={(val) => field.handleChange(val ?? "")}
-                defaultCountry="CR"
-                required
-                error={
-                  field.state.meta.isTouched && field.state.meta.errors[0]
-                    ? toMsg(field.state.meta.errors[0])
-                    : undefined
-                }
-              />
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                  {(field.state.meta.errors[0] as any)?.message ??
-                    toMsg(field.state.meta.errors[0])}
-                </p>
-              )}
-            </>
-          )}
-        </form.Field>
-
-        {/* Dirección */}
-        <form.Field name="Location">
-          {(field) => (
-            <label className={LABELSTYLES}>
-              <span className={SPANSTYLES}>Dirección del proveedor</span>
-              <textarea
-                className={`${INPUTSTYLES} resize-none min-h-[70px] leading-relaxed`}
-                placeholder={supplier?.Location || "Ingrese la dirección"}
-                rows={4}
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-              {field.state.meta.isTouched && field.state.meta.errors[0] && (
-                <p className="text-sm text-red-500 mt-1">
-                  {toMsg(field.state.meta.errors[0] as any)}
-                </p>
-              )}
-            </label>
-          )}
-        </form.Field>
-
-        <form.Field name="IsActive">
-          {(field) => (
-            <label className="flex items-center gap-3 cursor-pointer select-none">
-              {/* Texto dinámico */}
-              <span className="text-sm text-gray-700">
-                {field.state.value ? "Activo" : "Inactivo"}
-              </span>
-
-              {/* Toggle */}
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={!!field.state.value}
-                  onChange={(e) => field.handleChange(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors"></div>
-                <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-5"></div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <form.Field name="Surname1">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Primer apellido</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          placeholder="Primer apellido"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+                <form.Field name="Surname2">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Segundo apellido</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          placeholder="Segundo apellido"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
               </div>
 
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                  {(field.state.meta.errors[0] as any)?.message ??
-                    toMsg(field.state.meta.errors[0])}
-                </p>
-              )}
-            </label>
-          )}
-        </form.Field>
-      </form>
-      <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
-          {([canSubmit, isSubmitting]) => (
-            <div className="flex-shrink-0 mt-4 flex justify-end gap-2 border-t border-gray-200 pt-3">
-              <button
-                form="create-physical-supplier-form"
-                type="submit"
-                className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
-                disabled={!canSubmit}
-              >
-                {isSubmitting ? "Guardando…" : "Guardar cambios"}
-              </button>
-              <button
-                form="create-physical-supplier-form"
-                type="button"
-                onClick={handleClose}
-                className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
-              >
-                Cancelar
-              </button>
-            </div>
-          )}
-      </form.Subscribe>
-    </ModalBase>
-  );
-};
+              <FieldGroup className="gap-2">
+                <form.Field name="Email">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Correo electrónico</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="email"
+                          placeholder="proveedor@ejemplo.com"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
 
-export default EditPhysicalSupplierModal;
+              <FieldGroup className="gap-2">
+                <form.Field name="PhoneNumber">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <PhoneField
+                          label="Teléfono"
+                          value={field.state.value}
+                          onChange={(val) => field.handleChange(val ?? "")}
+                          defaultCountry="CR"
+                          required
+                          data-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
+
+              <FieldGroup className="gap-2">
+                <form.Field name="Location">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Dirección</FieldLabel>
+                        <Textarea
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value ?? ""}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="Dirección del proveedor"
+                          rows={4}
+                          className="min-h-[80px] resize-y"
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
+
+              <form.Field name="IsActive">
+                {(field) => (
+                  <Field className="gap-2">
+                    <label className="flex cursor-pointer select-none items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={!!field.state.value}
+                        onChange={(e) => field.handleChange(e.target.checked)}
+                        className="h-4 w-4 rounded border-input"
+                      />
+                      <FieldLabel className="cursor-pointer font-medium">
+                        Proveedor activo
+                      </FieldLabel>
+                    </label>
+                  </Field>
+                )}
+              </form.Field>
+            </FieldGroup>
+          </div>
+          <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
+            <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+              {([canSubmit, isSubmitting]) => (
+                <div className="flex w-full flex-col-reverse items-center justify-between gap-2 sm:flex-row-reverse">
+                  <DialogClose asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                      onClick={handleClose}
+                    >
+                      Cancelar
+                    </Button>
+                  </DialogClose>
+                  <Button
+                    type="submit"
+                    form="edit-physical-supplier-form"
+                    disabled={!canSubmit || isSubmitting}
+                    className="w-full sm:w-auto"
+                  >
+                    {isSubmitting ? "Guardando…" : "Guardar cambios"}
+                  </Button>
+                </div>
+              )}
+            </form.Subscribe>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

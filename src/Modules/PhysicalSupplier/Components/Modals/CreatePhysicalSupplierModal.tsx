@@ -1,9 +1,27 @@
 import { useForm } from "@tanstack/react-form";
 import { useRef, useState } from "react";
-import { useCreatePhysicalSupplier } from "../../Hooks/PhysicalSupplierHooks";
-import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { toast } from "react-toastify";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/Components/ui/dialog";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/Components/ui/field";
+import { Textarea } from "@/Components/ui/textarea";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
+import { useCreatePhysicalSupplier } from "../../Hooks/PhysicalSupplierHooks";
 import { PhysicalSupplierSchema } from "../../Schemas/PhysicalSupplierSchema";
 
 type CedulaLookup = {
@@ -12,56 +30,46 @@ type CedulaLookup = {
   surname2: string | null;
 };
 
-const CreatePhysicalSupplierModal = () => {
-  const [open, setOpen] = useState(false);
-  const CreateSupplierMutation = useCreatePhysicalSupplier();
+const limpiar = (v: string) => v.replace(/\D/g, "");
 
-  const SPANSTYLES = "text text-[#222]";
-  const LABELSTYLES = "grid gap-1";
-  const INPUTSTYLES = "w-full px-4 py-2 bg-gray-50 border";
-
-  // --- Helpers ---
-  const limpiar = (v: string) => v.replace(/\D/g, ""); // solo dígitos
-
-  async function fetchPersonaFisica(
-    cedula: string,
-    signal?: AbortSignal
-  ): Promise<CedulaLookup | null> {
-    const c = limpiar(cedula);
-    if (c.length < 9) return null; // cédulas físicas suelen tener >= 9 dígitos
-
-    const res = await fetch(`https://apis.gometa.org/cedulas/${c}`, { signal });
-    if (!res.ok) throw new Error("No se encontró este número de cédula");
-
-    const data = await res.json();
-
-    // Nueva estructura: data.results[0]
-    if (data?.results && data.results.length > 0) {
-      const person = data.results[0];
-      const fn1 = (person.firstname || "").trim().replace(/\s+/g, " ");
-      const fn2 = (person.firstname2 || "").trim();
-      const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const nombre = fn2 && new RegExp(`\\b${esc(fn2)}\\b`, "i").test(fn1)
+async function fetchPersonaFisica(
+  cedula: string,
+  signal?: AbortSignal
+): Promise<CedulaLookup | null> {
+  const c = limpiar(cedula);
+  if (c.length < 9) return null;
+  const res = await fetch(`https://apis.gometa.org/cedulas/${c}`, { signal });
+  if (!res.ok) throw new Error("No se encontró este número de cédula");
+  const data = await res.json();
+  if (data?.results && data.results.length > 0) {
+    const person = data.results[0];
+    const fn1 = (person.firstname || "").trim().replace(/\s+/g, " ");
+    const fn2 = (person.firstname2 || "").trim();
+    const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const nombre =
+      fn2 && new RegExp(`\\b${esc(fn2)}\\b`, "i").test(fn1)
         ? fn1
         : [fn1, fn2].filter(Boolean).join(" ").trim();
-      const apellido1 = person.lastname1 || "";
-      const apellido2 = person.lastname2 || "";
-
-      if (nombre || apellido1 || apellido2) {
-        return {
-          name: nombre || null,
-          surname1: apellido1 || null,
-          surname2: apellido2 || null,
-        };
-      }
+    const apellido1 = person.lastname1 || "";
+    const apellido2 = person.lastname2 || "";
+    if (nombre || apellido1 || apellido2) {
+      return {
+        name: nombre || null,
+        surname1: apellido1 || null,
+        surname2: apellido2 || null,
+      };
     }
-
-    return null;
   }
+  return null;
+}
 
-  // Debounce + cancelación
+export default function CreatePhysicalSupplierModal() {
+  const [open, setOpen] = useState(false);
   const [lookingUp, setLookingUp] = useState(false);
-  const lookupRef = useRef<{ timer: any; abort?: AbortController }>({ timer: null });
+  const lookupRef = useRef<{ timer: ReturnType<typeof setTimeout> | null; abort?: AbortController }>({
+    timer: null,
+  });
+  const createMutation = useCreatePhysicalSupplier();
 
   const form = useForm({
     defaultValues: {
@@ -73,52 +81,42 @@ const CreatePhysicalSupplierModal = () => {
       PhoneNumber: "",
       Location: "",
     },
-    validators:{
-        onChange:PhysicalSupplierSchema
-    },
+    validators: { onChange: PhysicalSupplierSchema },
     onSubmit: async ({ value }) => {
       try {
-        await CreateSupplierMutation.mutateAsync(value);
+        await createMutation.mutateAsync(value);
+        toast.success("Proveedor físico creado");
         form.reset();
         setOpen(false);
       } catch (err) {
-        console.error("error al crear el proveedor", err);
+        console.error("Error al crear el proveedor", err);
+        toast.error("No se pudo crear el proveedor");
       }
     },
   });
 
   const handleClose = () => {
-    toast.warning("Registro cancelado", { position: "top-right", autoClose: 3000 });
     setOpen(false);
     form.reset();
   };
 
-  // --- Handler del IDcard con autocompletado de Nombre ---
   const handleIdCardChange =
-    (field: any, formApi: any) =>
+    (field: { handleChange: (v: string) => void; state: { value: string } }, formApi: typeof form) =>
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value;
       field.handleChange(raw);
-
-      // cancelar timers/requests anteriores
       if (lookupRef.current.timer) clearTimeout(lookupRef.current.timer);
       lookupRef.current.abort?.abort();
-
       const c = limpiar(raw);
-
-      // ✅ Si la cédula quedó vacía o es muy corta, limpiar inmediatamente y NO consultar
       if (c.length === 0 || c.length < 9) {
         formApi.setFieldValue("Name", "");
         formApi.setFieldValue("Surname1", "");
         formApi.setFieldValue("Surname2", "");
         return;
       }
-
-      // debounce
       lookupRef.current.timer = setTimeout(async () => {
         const ac = new AbortController();
         lookupRef.current.abort = ac;
-
         setLookingUp(true);
         try {
           const persona = await fetchPersonaFisica(raw, ac.signal);
@@ -131,8 +129,7 @@ const CreatePhysicalSupplierModal = () => {
             formApi.setFieldValue("Surname1", "");
             formApi.setFieldValue("Surname2", "");
           }
-        } catch (err) {
-          console.warn("Error buscando cédula:", err);
+        } catch {
           formApi.setFieldValue("Name", "");
           formApi.setFieldValue("Surname1", "");
           formApi.setFieldValue("Surname2", "");
@@ -143,26 +140,19 @@ const CreatePhysicalSupplierModal = () => {
     };
 
   const handleIdCardBlur =
-    (field: any, formApi: any) =>
+    (field: { state: { value: string } }, formApi: typeof form) =>
     async () => {
       const raw = field.state.value;
-
-      // cancelar request anterior
       lookupRef.current.abort?.abort();
-
       const c = limpiar(raw);
-
-      // ✅ Si está vacío o corto, no consultar y asegurar limpieza
       if (c.length === 0 || c.length < 9) {
         formApi.setFieldValue("Name", "");
         formApi.setFieldValue("Surname1", "");
         formApi.setFieldValue("Surname2", "");
         return;
       }
-
       const ac = new AbortController();
       lookupRef.current.abort = ac;
-
       setLookingUp(true);
       try {
         const persona = await fetchPersonaFisica(raw, ac.signal);
@@ -185,225 +175,216 @@ const CreatePhysicalSupplierModal = () => {
     };
 
   return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className="px-4 py-2 bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
-      >
-        + Crear proveedor físico
-      </button>
-
-      <ModalBase open={open} onClose={handleClose} panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]">
-        <header className="flex-shrink-0 flex flex-col">
-          <h2 className="text-2xl text-[#091540] font-bold">Crear proveedor físico</h2>
-          <p className="text-md">Complete la información para crear un proveedor físico</p>
-        </header>
-
-        <div className="border-b border-[#222]/10"></div>
-
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) form.reset(); }}>
+      <DialogTrigger asChild>
+        <Button className="w-full sm:w-auto">+ Crear proveedor físico</Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[90vh] max-w-xl gap-0 overflow-hidden p-0">
+        <DialogHeader className="space-y-1.5 border-b px-6 py-5">
+          <DialogTitle>Crear proveedor físico</DialogTitle>
+          <DialogDescription>
+            Complete la información para registrar un nuevo proveedor físico.
+          </DialogDescription>
+        </DialogHeader>
         <form
           id="create-physical-supplier-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            form.handleSubmit();
-          }}
-          className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          className="flex flex-col gap-4"
+          onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
         >
-          {/* Cédula física */}
-          <form.Field name="IDcard">
-            {(field) => (
-              <>
-                <label className={LABELSTYLES}>
-                  <span className={SPANSTYLES}>Número de cédula física del proveedor</span>
-                  <input
-                    className={INPUTSTYLES}
-                    placeholder="ejm. 505550555"
-                    value={field.state.value}
-                    onChange={handleIdCardChange(field, form)}
-                    onBlur={handleIdCardBlur(field, form)}
-                    inputMode="numeric"
-                    autoComplete="off"
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                  )}
-                </label>
-                {lookingUp && <p className="text-xs text-gray-500 mt-1">Consultando nombre…</p>}
-              </>
-            )}
-          </form.Field>
+          <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
+            <FieldGroup className="gap-4">
+              <FieldGroup className="gap-2">
+                <form.Field name="IDcard">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Número de cédula</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          placeholder="Ej: 505550555"
+                          value={field.state.value}
+                          onBlur={() => handleIdCardBlur(field, form)()}
+                          onChange={handleIdCardChange(field, form)}
+                          inputMode="numeric"
+                          autoComplete="off"
+                          aria-invalid={isInvalid}
+                        />
+                        {lookingUp && (
+                          <p className="text-xs text-muted-foreground">Consultando nombre…</p>
+                        )}
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
 
-          {/* Nombre (autocompletado y deshabilitado) */}
-          <form.Field name="Name">
-              {(field) => (
-              <>
-                  <label className={LABELSTYLES}>
-                  <span className={SPANSTYLES}>Nombre</span>
-                  <input
-                      className={`${INPUTSTYLES} opacity-75 cursor-not-allowed`}
-                      placeholder="Se autocompleta según cédula"
-                      value={field.state.value}
-                      onChange={() => {}}
-                      readOnly
-                      disabled
-                      aria-disabled="true"
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                  )}
-                  </label>
-              </>
-              )}
-          </form.Field>
+              <FieldGroup className="gap-2">
+                <form.Field name="Name">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Nombre</FieldLabel>
+                        <Input
+                          id={field.name}
+                          value={field.state.value}
+                          disabled
+                          className="bg-muted"
+                          placeholder="Se autocompleta según cédula"
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
 
-          {/* Primer apellido (autocompletado) */}
-          <form.Field name="Surname1">
-              {(field) => (
-              <>
-                  <label className={LABELSTYLES}>
-                  <span className={SPANSTYLES}>Primer apellido</span>
-                  <input
-                      className={`${INPUTSTYLES} opacity-75 cursor-not-allowed`}
-                      placeholder="Se autocompleta según cédula"
-                      value={field.state.value}
-                      onChange={() => {}}
-                      readOnly
-                      disabled
-                      aria-disabled="true"
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                  )}
-                  </label>
-              </>
-              )}
-          </form.Field>
-
-          {/* Segundo apellido (autocompletado) */}
-          <form.Field name="Surname2">
-              {(field) => (
-              <>
-                  <label className={LABELSTYLES}>
-                  <span className={SPANSTYLES}>Segundo apellido</span>
-                  <input
-                      className={`${INPUTSTYLES} opacity-75 cursor-not-allowed`}
-                      placeholder="Se autocompleta según cédula"
-                      value={field.state.value}
-                      onChange={() => {}}
-                      readOnly
-                      disabled
-                      aria-disabled="true"
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                  )}
-                  </label>
-              </>
-              )}
-          </form.Field>
-
-          {/* Email */}
-          <form.Field name="Email">
-            {(field) => (
-              <>
-                <label className={LABELSTYLES}>
-                  <span className={SPANSTYLES}>Correo electrónico del proveedor</span>
-                  <input
-                    className={INPUTSTYLES}
-                    placeholder="ejm. proveedor@gmail.com"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                </label>
-              </>
-            )}
-          </form.Field>
-
-          {/* Teléfono */}
-          <form.Field name="PhoneNumber">
-            {(field) => (
-              <>
-                <PhoneField
-                  value={field.state.value}
-                  onChange={(val) => field.handleChange(val ?? "")}
-                  defaultCountry="CR"
-                  required
-                  error={
-                    field.state.meta.isTouched && field.state.meta.errors[0]
-                      ? String(field.state.meta.errors[0])
-                      : undefined
-                  }
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ??
-                      String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </>
-            )}
-          </form.Field>
-
-          {/* Dirección */}
-          <form.Field name="Location">
-            {(field) => (
-              <>
-                <label className={LABELSTYLES}>
-                  <span className={SPANSTYLES}>Dirección del proveedor</span>
-                  <textarea
-                    className={`${INPUTSTYLES} resize-none min-h-[70px] leading-relaxed`}
-                    placeholder="ejm. 150 metros este del banco nacional en Carmona"
-                    rows={4}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                </label>
-              </>
-            )}
-          </form.Field>
-        </form>
-        <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
-            {([canSubmit, isSubmitting]) => (
-              <div className="flex-shrink-0 mt-4 flex justify-end gap-2 border-t border-gray-200 pt-3">
-                <button
-                  form="create-physical-supplier-form"
-                  type="submit"
-                  className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
-                  disabled={!canSubmit}
-                >
-                  {isSubmitting ? "Registrando…" : "Registrar"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
-                >
-                  Cancelar
-                </button>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <form.Field name="Surname1">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Primer apellido</FieldLabel>
+                        <Input
+                          id={field.name}
+                          value={field.state.value}
+                          disabled
+                          className="bg-muted"
+                          placeholder="Se autocompleta"
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+                <form.Field name="Surname2">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Segundo apellido</FieldLabel>
+                        <Input
+                          id={field.name}
+                          value={field.state.value}
+                          disabled
+                          className="bg-muted"
+                          placeholder="Se autocompleta"
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
               </div>
-            )}
-        </form.Subscribe>
-      </ModalBase>
-    </>
-  );
-};
 
-export default CreatePhysicalSupplierModal;
+              <FieldGroup className="gap-2">
+                <form.Field name="Email">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Correo electrónico</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="email"
+                          placeholder="proveedor@ejemplo.com"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
+
+              <FieldGroup className="gap-2">
+                <form.Field name="PhoneNumber">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <PhoneField
+                          label="Teléfono"
+                          value={field.state.value}
+                          onChange={(val) => field.handleChange(val ?? "")}
+                          defaultCountry="CR"
+                          required
+                          data-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
+
+              <FieldGroup className="gap-2">
+                <form.Field name="Location">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Dirección</FieldLabel>
+                        <Textarea
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value ?? ""}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="Ej: 150 m este del banco nacional, Carmona"
+                          rows={4}
+                          className="min-h-[80px] resize-y"
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
+            </FieldGroup>
+          </div>
+          <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
+            <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+              {([canSubmit, isSubmitting]) => (
+                <div className="flex w-full flex-col-reverse items-center justify-between gap-2 sm:flex-row-reverse">
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline" className="w-full sm:w-auto">
+                      Cancelar
+                    </Button>
+                  </DialogClose>
+                  <Button
+                    type="submit"
+                    form="create-physical-supplier-form"
+                    disabled={!canSubmit || isSubmitting}
+                    className="w-full sm:w-auto"
+                  >
+                    {isSubmitting ? "Registrando…" : "Registrar"}
+                  </Button>
+                </div>
+              )}
+            </form.Subscribe>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
