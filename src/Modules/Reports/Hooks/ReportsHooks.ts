@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import type { PaginatedResponse } from "@/core/pagination/pagination";
 import { showApiErrorToast } from "@/core/api-error";
 import type { Report, ReportPaginationParams } from "../Models/Report";
-import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport, getMonthlyCountsByLocation } from "../Services/ReportSV";
+import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport, getMonthlyCountsByLocation, exportReportsPdf } from "../Services/ReportSV";
 
 export const useGetAllReports = () => {
     const {data: reports, error, isLoading} = useQuery({
@@ -104,4 +104,26 @@ export const useGetMonthlyCountsByLocation = (opts: {
     staleTime: 60_000,
   });
   return { data, isLoading, isError, error };
+};
+
+/** Descarga el PDF de reportes del mes/año (listado + gráfico por ubicación) */
+function triggerDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export const useExportReportsPdf = () => {
+  return useMutation({
+    mutationFn: ({ year, month }: { year: number; month: number }) =>
+      exportReportsPdf(year, month),
+    onSuccess: ({ blob, filename }) => {
+      triggerDownload(blob, filename);
+    },
+  });
 };

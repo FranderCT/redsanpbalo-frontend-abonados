@@ -6,14 +6,36 @@ import { EmailUserInitialState } from "../Models/EmailUser";
 import { EditEmailUserSchema } from "../schemas/EditEmailUserSchema";
 import ConfirmActionModal from "../../../Components/Modals/ConfirmActionModal";
 import { toast } from "react-toastify";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/Components/ui/field";
+import { Input } from "@/Components/ui/input";
+import { Button } from "@/Components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/Components/ui/card";
 
 type EditPayload = typeof EmailUserInitialState;
+
+const formatErrors = (errors: unknown[]) =>
+  errors?.map((e) =>
+    typeof e === "object" && e !== null && "message" in e
+      ? { message: (e as { message: string }).message }
+      : { message: String(e) }
+  );
 
 const EditEmailUser = () => {
   const updateProfile = useUpdateUserEmail();
   const navigate = useNavigate();
 
-  // Estado para modal y payload pendiente
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const pendingValuesRef = React.useRef<EditPayload | null>(null);
 
@@ -21,123 +43,157 @@ const EditEmailUser = () => {
     defaultValues: EmailUserInitialState,
     validators: { onChange: EditEmailUserSchema },
     onSubmit: async ({ value }) => {
-      // Primero confirmamos con modal
       pendingValuesRef.current = value as EditPayload;
       setOpenConfirm(true);
     },
   });
 
   const handleConfirmUpdate = async () => {
-  if (!pendingValuesRef.current) return;
-  try {
-    await updateProfile.mutateAsync(pendingValuesRef.current);
-    toast.success("¡Actualización exitosa!", {
+    if (!pendingValuesRef.current) return;
+    try {
+      await updateProfile.mutateAsync(pendingValuesRef.current);
+      toast.success("¡Actualización exitosa!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      navigate({ to: "/dashboard/users/profile" });
+    } catch {
+      toast.error("¡Error al actualizar el correo!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } finally {
+      setOpenConfirm(false);
+      pendingValuesRef.current = null;
+    }
+  };
+
+  const handleCancelUpdate = () => {
+    toast.info("¡Actualización cancelada!", {
       position: "top-right",
       autoClose: 3000,
     });
-    navigate({ to: "/dashboard/users/profile" });
-  } catch (error) {
-    toast.error("¡Error al actualizar el correo!", {
-      position: "top-right",
-      autoClose: 3000,
-    });
-  } finally {
     setOpenConfirm(false);
     pendingValuesRef.current = null;
-  }
-};
+  };
 
-const handleCancelUpdate = () => {
-  toast.info("¡Actualización cancelada!", {
-    position: "top-right",
-    autoClose: 3000,
-  });
-  setOpenConfirm(false);
-  pendingValuesRef.current = null;
-};
+  const EmailField = form.Field;
 
   return (
-    <div className="bg-[#F9F5FF] flex flex-col content-center w-full max-w-6xl mx-auto px-4 md:px-25 pt-24 pb-20 gap-8">
-      <div>
-        <h1 className="text-2xl font-bold text-[#091540]">Editar información de usuario</h1>
-        <h3 className="text-[#091540]/70 text-md">Modifique aquí su correo electrónico</h3>
-        <div className="border-b border-dashed border-gray-300 p-2"></div>
-      </div>
-
-      <div className="w-full max-w-md mx-auto flex flex-col items-center border border-gray-200 gap-4 shadow-xl rounded-sm bg-[#F9F5FF] p-6">
-        <div className="p-3">
-          <h2 className="md:text-3xl font-bold text-[#091540] text-center gap-4">
-            Cambiar correo electrónico
-          </h2>
-          <hr className="border-t-2 border-dashed border-[#091540] m-1" />
-        </div>
+    <section className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center p-3 sm:p-6 overflow-x-hidden">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-lg sm:text-2xl text-[#091540]">
+            Editar información de usuario
+          </CardTitle>
+          <CardDescription className="text-[#091540]/70">
+            Modifique aquí su correo electrónico
+          </CardDescription>
+        </CardHeader>
 
         <form
+          id="edit-email-user-form"
+          className="flex flex-col gap-4"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="w-full max-w-md p-2 flex flex-col gap-6"
         >
-          {/* Email actual */}
-          <form.Field name="OldEmail">
-            {(field) => (
-              <>
-                <input
-                  type="email"
-                  placeholder="Correo electrónico actual"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  className="input-base"
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ??
-                      String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </>
-            )}
-          </form.Field>
+          <CardContent className="flex flex-col gap-4 pt-0">
+          <FieldGroup className="gap-4">
+            <EmailField name="OldEmail">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid} className="gap-2">
+                    <FieldLabel htmlFor={field.name}>
+                      Correo electrónico actual
+                    </FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="email"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      placeholder="Ej: usuario@ejemplo.com"
+                    />
+                    {isInvalid && (
+                      <FieldError
+                        errors={formatErrors(field.state.meta.errors)}
+                      />
+                    )}
+                  </Field>
+                );
+              }}
+            </EmailField>
 
-          {/* Email nuevo */}
-          <form.Field name="NewEmail">
-            {(field) => (
-              <>
-                <input
-                  type="email"
-                  placeholder="Correo electrónico nuevo"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  className="input-base"
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ??
-                      String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </>
-            )}
-          </form.Field>
+            <EmailField name="NewEmail">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid} className="gap-2">
+                    <FieldLabel htmlFor={field.name}>
+                      Correo electrónico nuevo
+                    </FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="email"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      placeholder="Ej: nuevo@ejemplo.com"
+                    />
+                    {isInvalid && (
+                      <FieldError
+                        errors={formatErrors(field.state.meta.errors)}
+                      />
+                    )}
+                  </Field>
+                );
+              }}
+            </EmailField>
+          </FieldGroup>
+          </CardContent>
 
-          <div className="flex justify-end gap-4">
-            <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting, s.isDirty]}>
+          <CardFooter className="flex flex-row flex-wrap items-center justify-end gap-2 pt-0">
+            <form.Subscribe
+              selector={(s) => [s.canSubmit, s.isSubmitting, s.isDirty]}
+            >
               {([canSubmit, isSubmitting, isDirty]) => (
-                <button
-                  type="submit"
-                  className="bg-[#091540] hover:bg-blue-600 text-white flex justify-center items-center font-bold w-25 disabled:opacity-50 px-4 py-2"
-                  disabled={!canSubmit || !isDirty || updateProfile.isPending}
-                >
-                  {isSubmitting || updateProfile.isPending ? "..." : "Confirmar"}
-                </button>
+                <div className="flex w-full flex-col-reverse items-center justify-end gap-2 sm:flex-row">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    onClick={() => navigate({ to: "/dashboard/users/profile" })}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="submit"
+                    form="edit-email-user-form"
+                    disabled={
+                      !canSubmit || !isDirty || updateProfile.isPending
+                    }
+                    className="w-full sm:w-auto"
+                  >
+                    {isSubmitting || updateProfile.isPending
+                      ? "Guardando..."
+                      : "Confirmar"}
+                  </Button>
+                </div>
               )}
             </form.Subscribe>
-          </div>
+          </CardFooter>
         </form>
-      </div>
+      </Card>
 
-      {/* Modal de confirmación (mismo patrón que en EditProfile) */}
       {openConfirm && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
@@ -160,7 +216,7 @@ const handleCancelUpdate = () => {
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
