@@ -9,6 +9,7 @@ import {
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
+import { Field, FieldGroup, FieldLabel } from "@/Components/ui/field";
 import { Mail, Phone, IdCard, UserCircle } from "lucide-react";
 import { useGetUserById } from "../../Hooks/UsersHooks";
 import type { User } from "../../Models/User";
@@ -19,25 +20,6 @@ type Props = {
   onClose: () => void;
   onSuccess?: () => void;
 };
-
-function InfoRow({
-  label,
-  value,
-  className = "",
-}: {
-  label: string;
-  value: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        {label}
-      </dt>
-      <dd className="mt-1 text-sm text-foreground">{value ?? "—"}</dd>
-    </div>
-  );
-}
 
 export default function GetInfoUserModal({
   user: selectedUser,
@@ -115,82 +97,82 @@ export default function GetInfoUserModal({
                 </CardHeader>
 
                 <CardContent className="space-y-4 px-6 py-5">
-                  <div className="rounded-md border bg-muted/40 px-4 py-3 text-sm">
-                    <div className="flex flex-wrap items-start gap-x-8 gap-y-4 text-muted-foreground">
-                      <div className="flex items-start gap-2">
-                        <Mail className="mt-0.5 h-4 w-4" />
-                        <div className="flex flex-col">
-                          <span className="text-[11px] font-medium uppercase tracking-wide">
-                            Correo
-                          </span>
-                          <span className="max-w-[260px] truncate font-medium text-foreground">
-                            {user.Email || "Sin correo"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Phone className="mt-0.5 h-4 w-4" />
-                        <div className="flex flex-col">
-                          <span className="text-[11px] font-medium uppercase tracking-wide">
-                            Teléfono
-                          </span>
-                          <span className="text-foreground">
-                            {user.PhoneNumber || "Sin teléfono"}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <IdCard className="mt-0.5 h-4 w-4" />
-                        <div className="flex flex-col">
-                          <span className="text-[11px] font-medium uppercase tracking-wide">
-                            Cédula
-                          </span>
-                          <span className="text-foreground">
-                            {user.IDcard || "Sin cédula"}
-                          </span>
-                        </div>
-                      </div>
+                  <div className="rounded-lg border bg-muted/40 px-4 py-3">
+                    <FieldGroup className="gap-4">
+                      <Field className="gap-2">
+                        <FieldLabel className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          <Mail className="h-4 w-4" />
+                          Correo
+                        </FieldLabel>
+                        <p className="max-w-[260px] truncate text-sm font-medium text-foreground">
+                          {user.Email || "Sin correo"}
+                        </p>
+                      </Field>
+                      <Field className="gap-2">
+                        <FieldLabel className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          <Phone className="h-4 w-4" />
+                          Teléfono
+                        </FieldLabel>
+                        <p className="text-sm font-medium text-foreground">
+                          {user.PhoneNumber || "Sin teléfono"}
+                        </p>
+                      </Field>
+                      <Field className="gap-2">
+                        <FieldLabel className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          <IdCard className="h-4 w-4" />
+                          Cédula
+                        </FieldLabel>
+                        <p className="text-sm font-medium text-foreground">
+                          {user.IDcard || "Sin cédula"}
+                        </p>
+                      </Field>
                       {user.Nis?.length ? (
-                        <div className="flex items-start gap-2">
-                          <UserCircle className="mt-0.5 h-4 w-4" />
-                          <div className="flex flex-col">
-                            <span className="text-[11px] font-medium uppercase tracking-wide">
-                              NIS
-                            </span>
-                            <span className="text-foreground">
-                              {user.Nis.join(", ")}
-                            </span>
-                          </div>
-                        </div>
+                        <Field className="gap-2">
+                          <FieldLabel className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                            <UserCircle className="h-4 w-4" />
+                            NIS
+                          </FieldLabel>
+                          <p className="text-sm font-medium text-foreground">
+                            {user.Nis.join(", ")}
+                          </p>
+                        </Field>
                       ) : null}
-                    </div>
+                    </FieldGroup>
                   </div>
 
                   <div className="h-px w-full bg-border" />
 
-                  <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <InfoRow
-                      label="Fecha de nacimiento"
-                      value={
-                        user.Birthdate
+                  <FieldGroup className="gap-4">
+                    <Field className="gap-2">
+                      <FieldLabel className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Fecha de nacimiento
+                      </FieldLabel>
+                      <p className="text-sm font-medium text-foreground">
+                        {user.Birthdate
                           ? new Date(user.Birthdate).toLocaleDateString("es-CR")
-                          : "—"
-                      }
-                    />
-                    <InfoRow
-                      label="Roles"
-                      value={user.Roles?.map((r) => r.Rolname).join(", ") || "—"}
-                    />
-                  </dl>
+                          : "—"}
+                      </p>
+                    </Field>
+                    <Field className="gap-2">
+                      <FieldLabel className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Roles
+                      </FieldLabel>
+                      <p className="text-sm font-medium text-foreground">
+                        {user.Roles?.map((r) => r.Rolname).join(", ") || "—"}
+                      </p>
+                    </Field>
+                  </FieldGroup>
 
                   {user.Address ? (
-                    <div className="rounded-md bg-muted/40 px-4 py-3">
-                      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        Dirección
-                      </p>
-                      <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">
-                        {user.Address}
-                      </p>
+                    <div className="rounded-lg border bg-muted/40 px-4 py-3">
+                      <Field className="gap-2">
+                        <FieldLabel className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          Dirección
+                        </FieldLabel>
+                        <p className="whitespace-pre-wrap text-sm font-medium text-foreground">
+                          {user.Address}
+                        </p>
+                      </Field>
                     </div>
                   ) : null}
                 </CardContent>
