@@ -45,8 +45,9 @@ export default function ReportCard({ report, onViewDetails, onEditReport }: Prop
           {report.ReportState?.Name ?? "—"}
         </Badge>
       </CardHeader>
-
       <CardContent className="space-y-4 pt-0">
+        <Separator />
+        
         <div>
           <CardDescription className="mb-1 text-xs font-medium uppercase tracking-wider">
             Descripción
