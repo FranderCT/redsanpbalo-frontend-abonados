@@ -35,9 +35,10 @@ export default function ReportCard({ report, onViewDetails, onEditReport }: Prop
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
       <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-3">
         <div>
-          <CardTitle className="text-lg">Número de reporte</CardTitle>
-          <CardDescription className="">
-            {report.Code}
+          <CardTitle className="text-xl">Código de reporte <br /> <span className="text-primary text-lg font-normal">{report.Code}</span></CardTitle>
+          <CardDescription className="flex items-center gap-1.5">
+            <Calendar className="size-3.5" />
+            {formatDate(report.CreatedAt)}
           </CardDescription>
         </div>
         <Badge variant={getStatusVariant(report.ReportState?.Name)}>
