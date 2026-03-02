@@ -54,24 +54,24 @@ useEffect(() => {
   const showRoleSelector = availableRoles.length > 1;
 
   return (
-    <div className="bg-[#F9F5FF] h-dvh min-h-0 flex flex-col">
+    <div className="bg-sidebar h-dvh min-h-0 flex flex-col text-sidebar-foreground">
       {/* Branding */}
       <div className="flex items-center gap-3 px-4 pt-6 pb-4 flex-col">
         <img src={g28} alt="Logo ASADA" className="w-16 h-16 object-contain" />
-        <h1 className="text-2xl text-[#091540] font-bold leading-tight">RedSanPablo</h1>
+        <h1 className="text-2xl text-sidebar-foreground font-bold leading-tight">RedSanPablo</h1>
       </div>
 
       {/* Línea separadora */}
-      <div className="h-px bg-black/10 mx-4 mb-2" />
+      <div className="h-px bg-sidebar-border mx-4 mb-2" />
 
       {/* Navegación con scroll + scrollbar estilizado */}
       <nav className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <Can rule={{ any: ["ADMIN","ABONADO", "GUEST", "JUNTA", "FONTANERO"] }}>
           <button
             onClick={() => navigate({ to: "/dashboard" })}
-            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
           >
-            <Home className="size-[20px] transition-colors group-hover:text-white" />
+            <Home className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
             <span className="transition-colors">Principal</span>
           </button>
         </Can>
@@ -79,9 +79,9 @@ useEffect(() => {
         {/* <Can rule={{ any: ["ABONADO", "GUEST"] }}>
           <button
             onClick={() => navigate({ to: "/dashboard/principal-user" })}
-            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
           >
-            <Home className="size-[20px] transition-colors group-hover:text-white" />
+            <Home className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
             <span className="transition-colors">Principal</span>
           </button>
         </Can> */}
@@ -89,16 +89,16 @@ useEffect(() => {
         <Can rule={{ any: ["ADMIN"] }}>
           <button
             onClick={() => navigate({ to: "/dashboard/edit-landing" })}
-            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
           >
-            <PencilOff  className="size-[20px] transition-colors group-hover:text-white" />
+            <PencilOff  className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
             <span className="transition-colors">Pagina Informativa</span>
           </button>
         </Can>
 
         <Can rule={{ any: ["GUEST"] }}>
           <SidebarDropdown
-            icon={<FileText className="size-[20px] transition-colors group-hover:text-white" />}
+            icon={<FileText className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />}
             label="Solicitudes"
             items={[
               { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests/availability-water" }) },
@@ -108,7 +108,7 @@ useEffect(() => {
 
         <Can rule={{ any: ["ABONADO"] }}>
           <SidebarDropdown
-            icon={<FileText className="size-[20px] transition-colors group-hover:text-white" />}
+            icon={<FileText className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />}
             label="Solicitudes"
             items={[
               { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests/availability-water" }) },
@@ -122,7 +122,7 @@ useEffect(() => {
 
         <Can rule={{ any: ["ADMIN", "JUNTA"] }}>
           <SidebarDropdown
-            icon={<FileText className="size-[20px] transition-colors group-hover:text-white" />}
+            icon={<FileText className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />}
             label="Solicitudes"
             items={[
               { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests/availability-water/admin" }) },
@@ -137,16 +137,16 @@ useEffect(() => {
         <Can rule={{ any: ["ADMIN", "JUNTA"] }}>
           <button
             onClick={() => navigate({ to: "/dashboard/users" })}
-            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
           >
-            <UserCog className="size-[20px] transition-colors group-hover:text-white" />
+            <UserCog className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
             <span className="transition-colors">Usuarios</span>
           </button>
         </Can>
 
         <Can rule={{ all: ["ADMIN"] }}>
           <SidebarDropdown
-            icon={<Forklift className="size-[20px] transition-colors group-hover:text-white" />}
+            icon={<Forklift className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />}
             label="Productos"
             items={[
               { label: "Productos", onClick: () => navigate({ to: "/dashboard/products" }) },
@@ -159,45 +159,45 @@ useEffect(() => {
         </Can>
 
         <Can rule={{ any: ["ADMIN", "ABONADO", "GUEST"] }}>
-          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40">
-            <Bell className="size-[20px] transition-colors group-hover:text-white" />
+          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none">
+            <Bell className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
             <span className="transition-colors">Notificaciones</span>
           </button>
         </Can>
 
         <Can rule={{ none: ["GUEST", "ABONADO", "JUNTA"] }}>
           <button 
-            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
             onClick={() => navigate({ to: "/dashboard/reports" })}
           >
-            <OctagonAlert className="size-[20px] transition-colors group-hover:text-white" />
+            <OctagonAlert className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
             <span className="transition-colors">Reportes</span>
           </button>
         </Can>
 
         <Can rule={{ any: ["ADMIN", "JUNTA"] }}>
           <button 
-            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
             onClick={() => navigate({ to: "/dashboard/projects" })}
           >
-            <Hammer className="size-[20px] transition-colors group-hover:text-white" />
+            <Hammer className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
             <span className="transition-colors">Proyectos</span>
           </button>
         </Can>
 
         <Can rule={{ any: ["ADMIN", "JUNTA"] }}>
           <button 
-            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#091540] hover:text-white hover:translate-x-1 hover:shadow-md hover:shadow-[#091540]/40"
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
             onClick={() => navigate({ to: "/dashboard/comments" })}
           >
-            <MessageSquare className="size-[20px] transition-colors group-hover:text-white" />
+            <MessageSquare className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
             <span className="transition-colors">Comentarios</span>
           </button>
         </Can>
 
         <Can rule={{ any: ["ADMIN", "GUEST", "ABONADO"] }}>
           <SidebarDropdown
-            icon={<Settings className="size-[20px] transition-colors group-hover:text-white" />}
+            icon={<Settings className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />}
             label="Ajustes"
             items={[
               { label: "Cambio de contraseña", onClick: () => navigate({ to: "/dashboard/settings/change-password" }) },
@@ -211,7 +211,7 @@ useEffect(() => {
 {/* Selector de Rol */}
 {showRoleSelector && (
   <div className="w-full mt-3">
-    <label className="block text-xs text-[#091540]/70 mb-1 text-center">
+    <label className="block text-xs text-muted-foreground mb-1 text-center">
       Rol activo
     </label>
 
@@ -222,25 +222,25 @@ useEffect(() => {
         className="
           w-full text-center
           bg-transparent
-          text-[#091540] font-medium
+          text-sidebar-foreground font-medium
           border-none
           focus:outline-none
           focus:ring-0
           appearance-none
           cursor-pointer
-          hover:text-[#1789FC]
+          hover:text-sidebar-primary
           transition-colors
         "
       >
         {availableRoles.map((role) => (
-          <option key={role} value={role} className="text-[#091540]">
+          <option key={role} value={role} className="text-sidebar-foreground bg-sidebar">
             {role}
           </option>
         ))}
       </select>
 
       {/* Flecha hacia abajo */}
-      <span className="pointer-events-none absolute right-10 top-1/2 -translate-y-1/2 text-[#091540]/60 text-xs">
+      <span className="pointer-events-none absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
         ▼
       </span>
     </div>
@@ -254,10 +254,10 @@ useEffect(() => {
         <button
           onClick={goLogin}
           type="button"
-          className="group flex w-full items-center gap-3 px-4 py-2 transition-all hover:bg-[#F6132D] hover:text-white"
+          className="group flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm text-destructive transition-colors hover:bg-destructive hover:text-primary-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <LogOut className="size-[20px] text-[#F6132D] group-hover:text-white" />
-          <span className="text-[#F6132D] group-hover:text-white">Cerrar sesión</span>
+          <LogOut className="size-[20px] transition-colors group-hover:text-primary-foreground" />
+          <span className="transition-colors group-hover:text-primary-foreground">Cerrar sesión</span>
         </button>
       </div>
     </div>

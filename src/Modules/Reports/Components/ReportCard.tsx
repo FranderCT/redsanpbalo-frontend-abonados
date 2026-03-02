@@ -1,9 +1,10 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
-import { Button } from "@/Components/ui/button";
-import { Separator } from "@/Components/ui/separator";
+
 import { MapPin, Calendar, Wrench } from "lucide-react";
 import type { Report } from "../Models/Report";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   report: Report;

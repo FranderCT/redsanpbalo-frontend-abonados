@@ -10,7 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/Components/ui/dialog";
-import { Button } from "@/Components/ui/button";
 import {
   Field,
   FieldError,
@@ -25,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/Components/ui/select";
-import { Input } from "@/Components/ui/input";
+
 import { useUpdateReport } from "../../Hooks/ReportsHooks";
 import { useGetAllReportStates } from "../../Hooks/ReportStatesHooks";
 import { useGetAllReportTypes } from "../../Hooks/ReportTypesHooks";
@@ -33,6 +32,8 @@ import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
 import { useGetUsersByRoleFontanero } from "../../../Users/Hooks/UsersHooks";
 import type { Report } from "../../Models/Report";
 import { updateReportValidators } from "../../schemas/ReportSchema";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface EditReportModalProps {
   report: Report;
