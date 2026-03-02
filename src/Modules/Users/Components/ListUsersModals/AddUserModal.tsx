@@ -547,7 +547,7 @@ export default function RegisterAbonadosModal() {
           <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
             <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
-                <div className="flex w-full flex-col-reverse items-center justify-between sm:flex-row-reverse">
+                <div className="flex w-full gap-2 flex-col-reverse items-center justify-between sm:flex-row-reverse">
                   <DialogClose asChild>
                     <Button type="button" variant="outline" className="w-full sm:w-auto">
                       Cancelar
