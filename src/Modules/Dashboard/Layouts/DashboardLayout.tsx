@@ -8,7 +8,6 @@ import { useRole } from "../../Auth/Components/RolesContext";
 
 const DashboardLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -52,13 +51,11 @@ const DashboardLayout = () => {
         <AsideDashboard />
       </aside>
 
-      {(menuOpen || profileOpen) && (
+      {menuOpen && (
         <div
           className="fixed inset-0 z-40"
-          onClick={() => {
-            setMenuOpen(false);
-            setProfileOpen(false);
-          }}
+          onClick={() => setMenuOpen(false)}
+          aria-hidden
         />
       )}
 
@@ -66,8 +63,6 @@ const DashboardLayout = () => {
         <HeaderDashboard
           menuOpen={menuOpen}
           setMenuOpen={setMenuOpen}
-          profileOpen={profileOpen}
-          setProfileOpen={setProfileOpen}
         />
         <main className="flex-1 overflow-y-auto bg-background">
           <Outlet />
