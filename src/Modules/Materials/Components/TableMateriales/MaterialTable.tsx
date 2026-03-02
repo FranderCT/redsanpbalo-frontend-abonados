@@ -1,7 +1,6 @@
 // src/Modules/Category/Components/TableCategory/CategoryTable.tsx
 import { useState } from "react";
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
-import MaterialPager from "../PaginationMaterial/MaterialPager";
 import UpdateMaterialModal from "../ModalsMaterial/UpdateMaterialModal";
 import type { Material } from "../../Models/Material";
 import { MaterialColumns } from "./MaterialColumns";
@@ -14,6 +13,15 @@ import {
   TableHead,
   TableCell,
 } from "@/Components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationEllipsis,
+} from "@/Components/ui/pagination";
 
 type Props = {
   data: Material[];
@@ -85,12 +93,23 @@ export default function MaterialTable({ data, total, page, pageCount, onPageChan
               <div className="w-full flex items-center justify-between gap-3">
                 <span className="flex-none text-sm">Total registros: <b>{total ?? data.length}</b></span>
                 <div className="flex-1 flex justify-center">
-                <MaterialPager
-                  page={page}
-                  pageCount={pageCount}
-                  onPageChange={onPageChange}
-                  variant="inline"  // <- sin caja/borde
-                />
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); page > 1 && onPageChange(page - 1); }} className={page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} />
+                      </PaginationItem>
+                      {page > 2 && <PaginationItem><PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(1); }}>1</PaginationLink></PaginationItem>}
+                      {page > 3 && <PaginationItem><PaginationEllipsis /></PaginationItem>}
+                      {page > 1 && <PaginationItem><PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(page - 1); }}>{page - 1}</PaginationLink></PaginationItem>}
+                      <PaginationItem><PaginationLink href="#" isActive>{page}</PaginationLink></PaginationItem>
+                      {page < pageCount && <PaginationItem><PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(page + 1); }}>{page + 1}</PaginationLink></PaginationItem>}
+                      {page < pageCount - 2 && <PaginationItem><PaginationEllipsis /></PaginationItem>}
+                      {page < pageCount - 1 && <PaginationItem><PaginationLink href="#" onClick={(e) => { e.preventDefault(); onPageChange(pageCount); }}>{pageCount}</PaginationLink></PaginationItem>}
+                      <PaginationItem>
+                        <PaginationNext href="#" onClick={(e) => { e.preventDefault(); page < pageCount && onPageChange(page + 1); }} className={page >= pageCount ? "pointer-events-none opacity-50" : "cursor-pointer"} />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
                 </div>
               </div>
             </td>
@@ -161,12 +180,23 @@ export function MaterialTableShadcn({ data, total, page, pageCount, onPageChange
               <div className="w-full flex items-center justify-between gap-3">
                 <span className="flex-none text-sm">Total registros: <b>{total ?? data.length}</b></span>
                 <div className="flex-1 flex justify-center">
-                  <MaterialPager
-                    page={page}
-                    pageCount={pageCount}
-                    onPageChange={onPageChange}
-                    variant="inline"
-                  />
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious onClick={(e) => { e.preventDefault(); page > 1 && onPageChange(page - 1); }} className={page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"} />
+                      </PaginationItem>
+                      {page > 2 && <PaginationItem><PaginationLink onClick={(e) => { e.preventDefault(); onPageChange(1); }}>1</PaginationLink></PaginationItem>}
+                      {page > 3 && <PaginationItem><PaginationEllipsis /></PaginationItem>}
+                      {page > 1 && <PaginationItem><PaginationLink  onClick={(e) => { e.preventDefault(); onPageChange(page - 1); }}>{page - 1}</PaginationLink></PaginationItem>}
+                      <PaginationItem><PaginationLink isActive>{page}</PaginationLink></PaginationItem>
+                      {page < pageCount && <PaginationItem><PaginationLink onClick={(e) => { e.preventDefault(); onPageChange(page + 1); }}>{page + 1}</PaginationLink></PaginationItem>}
+                      {page < pageCount - 2 && <PaginationItem><PaginationEllipsis /></PaginationItem>}
+                      {page < pageCount - 1 && <PaginationItem><PaginationLink onClick={(e) => { e.preventDefault(); onPageChange(pageCount); }}>{pageCount}</PaginationLink></PaginationItem>}
+                      <PaginationItem>
+                        <PaginationNext onClick={(e) => { e.preventDefault(); page < pageCount && onPageChange(page + 1); }} className={page >= pageCount ? "pointer-events-none opacity-50" : "cursor-pointer"} />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
                 </div>
               </div>
             </TableCell>

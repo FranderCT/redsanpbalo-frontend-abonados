@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import UsersTable from "../Components/ListUsers/UsersTables";
+import UsersCards from "../Components/ListUsers/UsersCards";
 import type { User } from "../Models/User";
 import RegisterAbonadosModal from "../Components/ListUsersModals/AddUserModal";
 import { useGetAllUsersPaginate } from "../Hooks/UsersHooks";
@@ -47,23 +47,24 @@ export default function ListUsers() {
       <div className="border-b border-dashed border-gray-300 mb-8"></div>
 
     <UserHeaderBar
-    limit={meta.limit}
-    total={meta.total}
-    search={search}
-    onLimitChange={(l) => { setLimit(l); setPage(1); }}
-    onFilterClick={handleStateChange}
-    onSearchChange={handleSearchChange}
-    onCleanFilters={handleCleanFilters}
-    rightAction={<RegisterAbonadosModal />}
+      limit={meta.limit}
+      total={meta.total}
+      search={search}
+      state={state}
+      onLimitChange={(l) => { setLimit(l); setPage(1); }}
+      onFilterClick={handleStateChange}
+      onSearchChange={handleSearchChange}
+      onCleanFilters={handleCleanFilters}
+      rightAction={<RegisterAbonadosModal />}
     />
 
-      <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
+      <div className="">
         {isLoading ? (
           <div className="p-6 text-center text-gray-500">Cargando…</div>
         ) : error ? (
           <div className="p-6 text-center text-red-600">Ocurrió un error al cargar los Usuarios.</div>
         ) : (
-          <UsersTable
+          <UsersCards
             data={rows}
             total={meta.total}
             page={meta.page}

@@ -86,7 +86,7 @@
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
+  --background: #020618;
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.208 0.042 265.755);
   --card-foreground: oklch(0.984 0.003 247.858);
@@ -101,10 +101,11 @@
   --accent: oklch(0.279 0.041 260.031);
   --accent-foreground: oklch(0.984 0.003 247.858);
   --destructive: oklch(0.704 0.191 22.216);
+  --outline: #1789FC;
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-1: #1447e6;
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
@@ -117,6 +118,48 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+/* PhoneField: un solo borde tipo shadcn Input, sin bordes internos */
+.PhoneField-root {
+  height: 2.25rem;
+  min-height: 2.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--input);
+  background-color: transparent;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+}
+.PhoneField-root:focus-within {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--ring);
+}
+.PhoneField-root[data-invalid="true"],
+.PhoneField-root[data-invalid="true"]:focus-within {
+  border-color: var(--destructive);
+  box-shadow: 0 0 0 1px var(--destructive);
+}
+.PhoneField-root .PhoneInput {
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  border: none;
+  box-shadow: none;
+}
+.PhoneField-root .PhoneInputInput {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding-left: 0.5rem;
+  padding-right: 0.75rem;
+  height: 100%;
+  min-height: 2rem;
+}
+.PhoneField-root .PhoneInputCountry {
+  margin-right: 0.25rem;
+  padding-left: 0.5rem;
 }
 
 @layer base {
