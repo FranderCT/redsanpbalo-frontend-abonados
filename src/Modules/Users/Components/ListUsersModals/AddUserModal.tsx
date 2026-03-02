@@ -13,7 +13,20 @@ import {
 } from "@/Components/ui/dialog";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
-import { FieldGroup } from "@/Components/ui/field";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/Components/ui/field";
+import { Textarea } from "@/Components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/ui/select";
 import { useCreateUser } from "../../../Auth/Hooks/AuthHooks";
 import { AdminUserInitialState } from "../../../Auth/Models/RegisterUser";
 import { useGetAllRoles } from "../../Hooks/UsersHooks";
@@ -29,7 +42,7 @@ export default function RegisterAbonadosModal() {
   const form = useForm({
     defaultValues: AdminUserInitialState,
     validators: {
-      onChange: AddUserSchema,
+      onSubmit: AddUserSchema,
     },
     onSubmit: async ({ value }) => {
       try {
@@ -76,125 +89,152 @@ export default function RegisterAbonadosModal() {
         >
           <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
             <FieldGroup className="gap-4">
-            <form.Field name="IDcard">
-              {(field) => (
-                <label className="grid gap-1">
-                  <span className="text-sm font-medium">Cédula</span>
-                  <Input
-                    placeholder="Cédula"
-                    value={field.state.value}
-                    onChange={async (e) => {
-                      const cedula = e.target.value;
-                      field.handleChange(cedula);
-                      if (cedula.length >= 9) {
-                        try {
-                          const res = await fetch(
-                            `https://apis.gometa.org/cedulas/${cedula}`
-                          );
-                          if (!res.ok) throw new Error("No se encontró este número de cédula");
-                          const data = await res.json();
-                          if (data?.results?.length > 0) {
-                            const person = data.results[0];
-                            const apellido1 = person.lastname1 || "";
-                            const apellido2 = person.lastname2 || "";
-                            const fn1 = (person.firstname || "").trim().replace(/\s+/g, " ");
-                            const fn2 = (person.firstname2 || "").trim();
-                            const esc = (s: string) =>
-                              s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-                            const nombre =
-                              fn2 && new RegExp(`\\b${esc(fn2)}\\b`, "i").test(fn1)
-                                ? fn1
-                                : [fn1, fn2].filter(Boolean).join(" ").trim();
-                            form.setFieldValue("Name", nombre);
-                            form.setFieldValue("Surname1", apellido1);
-                            form.setFieldValue("Surname2", apellido2);
-                          }
-                        } catch (err) {
-                          console.warn("Error buscando cédula:", err);
-                          form.setFieldValue("Name", "");
-                          form.setFieldValue("Surname1", "");
-                          form.setFieldValue("Surname2", "");
-                        }
-                      }
-                    }}
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-destructive">
-                      {(field.state.meta.errors[0] as any)?.message ??
-                        String(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </label>
-              )}
-            </form.Field>
+              <FieldGroup className="gap-2">
+                <form.Field name="IDcard">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Cédula</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          placeholder="Cédula"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={async (e) => {
+                            const cedula = e.target.value;
+                            field.handleChange(cedula);
+                            if (cedula.length >= 9) {
+                              try {
+                                const res = await fetch(
+                                  `https://apis.gometa.org/cedulas/${cedula}`
+                                );
+                                if (!res.ok) throw new Error("No se encontró este número de cédula");
+                                const data = await res.json();
+                                if (data?.results?.length > 0) {
+                                  const person = data.results[0];
+                                  const apellido1 = person.lastname1 || "";
+                                  const apellido2 = person.lastname2 || "";
+                                  const fn1 = (person.firstname || "").trim().replace(/\s+/g, " ");
+                                  const fn2 = (person.firstname2 || "").trim();
+                                  const esc = (s: string) =>
+                                    s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                                  const nombre =
+                                    fn2 && new RegExp(`\\b${esc(fn2)}\\b`, "i").test(fn1)
+                                      ? fn1
+                                      : [fn1, fn2].filter(Boolean).join(" ").trim();
+                                  form.setFieldValue("Name", nombre);
+                                  form.setFieldValue("Surname1", apellido1);
+                                  form.setFieldValue("Surname2", apellido2);
+                                }
+                              } catch (err) {
+                                console.warn("Error buscando cédula:", err);
+                                form.setFieldValue("Name", "");
+                                form.setFieldValue("Surname1", "");
+                                form.setFieldValue("Surname2", "");
+                              }
+                            }
+                          }}
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
 
-            <form.Field name="Name">
-              {(field) => (
-                <label className="grid gap-1">
-                  <span className="text-sm font-medium">Nombre</span>
-                  <Input
-                    placeholder="Nombre"
-                    value={field.state.value}
-                    disabled
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    className="bg-muted"
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-destructive">
-                      {(field.state.meta.errors[0] as any)?.message ??
-                        String(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </label>
-              )}
-            </form.Field>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <form.Field name="Surname1">
-                {(field) => (
-                  <label className="grid gap-1">
-                    <span className="text-sm font-medium">Primer apellido</span>
+              <FieldGroup className="gap-2">
+                <form.Field name="Name">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid} className="gap-2">
+                    <FieldLabel htmlFor={field.name}>Nombre</FieldLabel>
                     <Input
-                      placeholder="Primer apellido"
+                      id={field.name}
+                      name={field.name}
+                      placeholder="Nombre"
                       value={field.state.value}
                       disabled
+                      onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       className="bg-muted"
+                      aria-invalid={isInvalid}
                     />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-destructive">
-                        {(field.state.meta.errors[0] as any)?.message ??
-                          String(field.state.meta.errors[0])}
-                      </p>
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </label>
-                )}
+                  </Field>
+                );
+              }}
+                </form.Field>
+              </FieldGroup>
+
+              <FieldGroup className="gap-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <form.Field name="Surname1">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid} className="gap-2">
+                      <FieldLabel htmlFor={field.name}>Primer apellido</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        placeholder="Primer apellido"
+                        value={field.state.value}
+                        disabled
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        className="bg-muted"
+                        aria-invalid={isInvalid}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
               </form.Field>
               <form.Field name="Surname2">
-                {(field) => (
-                  <label className="grid gap-1">
-                    <span className="text-sm font-medium">Segundo apellido</span>
-                    <Input
-                      placeholder="Segundo apellido"
-                      value={field.state.value}
-                      disabled
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      className="bg-muted"
-                    />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-destructive">
-                        {(field.state.meta.errors[0] as any)?.message ??
-                          String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                  </label>
-                )}
-              </form.Field>
-            </div>
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid} className="gap-2">
+                      <FieldLabel htmlFor={field.name}>Segundo apellido</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        placeholder="Segundo apellido"
+                        value={field.state.value}
+                        disabled
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        className="bg-muted"
+                        aria-invalid={isInvalid}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                  </Field>
+                );
+              }}
+                  </form.Field>
+                </div>
+              </FieldGroup>
 
-            <div className="space-y-3">
-              <form.Field name="IsAbonado">
-                {(field) => (
+              <FieldGroup className="gap-2">
+                <form.Field name="IsAbonado">
+              {(field) => (
+                <Field className="gap-2">
                   <label className="flex cursor-pointer select-none items-center gap-3">
                     <input
                       type="checkbox"
@@ -206,199 +246,225 @@ export default function RegisterAbonadosModal() {
                       }}
                       className="h-4 w-4 rounded border-input"
                     />
-                    <span className="text-sm font-medium">Soy abonado</span>
+                    <FieldLabel className="cursor-pointer font-medium">
+                      Soy abonado
+                    </FieldLabel>
                   </label>
-                )}
-              </form.Field>
+                </Field>
+              )}
+                </form.Field>
+              </FieldGroup>
 
               <form.Subscribe selector={(s) => s.values.IsAbonado ?? false}>
                 {(isAbonado) => (
-                  <form.Field name="Nis">
-                    {(field) => {
-                      const nisList: number[] = field.state.value ?? [];
-                      const addNis = () => {
-                        const trimmed = tempNis.trim();
-                        if (!trimmed || !/^\d{1,10}$/.test(trimmed)) {
-                          toast.error("El NIS debe tener entre 1 y 10 dígitos numéricos");
-                          return;
-                        }
-                        const nisNum = Number(trimmed);
-                        if (nisList.includes(nisNum)) {
-                          toast.warning("Este NIS ya está agregado");
-                          return;
-                        }
-                        field.handleChange([...nisList, nisNum]);
-                        setTempNis("");
-                      };
-                      const removeNis = (nis: number) =>
-                        field.handleChange(nisList.filter((n) => n !== nis));
+                  <FieldGroup className="gap-2">
+                    <form.Field name="Nis">
+                  {(field) => {
+                    const nisList: number[] = field.state.value ?? [];
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    const addNis = () => {
+                      const trimmed = tempNis.trim();
+                      if (!trimmed || !/^\d{1,10}$/.test(trimmed)) {
+                        toast.error("El NIS debe tener entre 1 y 10 dígitos numéricos");
+                        return;
+                      }
+                      const nisNum = Number(trimmed);
+                      if (nisList.includes(nisNum)) {
+                        toast.warning("Este NIS ya está agregado");
+                        return;
+                      }
+                      field.handleChange([...nisList, nisNum]);
+                      setTempNis("");
+                    };
+                    const removeNis = (nis: number) =>
+                      field.handleChange(nisList.filter((n) => n !== nis));
 
-                      return (
-                        <div className="grid gap-2">
-                          <span className="text-sm font-medium">
-                            NIS (Números de identificación)
-                          </span>
-                          <div className="flex flex-wrap gap-2">
-                            {nisList.length === 0 && (
-                              <span className="text-xs text-muted-foreground">
-                                {isAbonado ? "Agregue al menos un NIS" : "Sin NIS asignados"}
-                              </span>
-                            )}
-                            {nisList.map((nis) => (
-                              <span
-                                key={nis}
-                                className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground"
-                              >
-                                <span className="truncate">{nis}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => removeNis(nis)}
-                                  disabled={!isAbonado}
-                                  className="flex h-4 w-4 flex-shrink-0 items-center justify-center disabled:opacity-50 hover:opacity-80"
-                                  title="Quitar NIS"
-                                >
-                                  ×
-                                </button>
-                              </span>
-                            ))}
-                          </div>
-                          <div className="flex flex-col gap-2 sm:flex-row">
-                            <Input
-                              type="text"
-                              value={tempNis}
-                              onChange={(e) => setTempNis(e.target.value.replace(/\D/g, ""))}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") {
-                                  e.preventDefault();
-                                  if (isAbonado) addNis();
-                                }
-                              }}
-                              placeholder={
-                                isAbonado
-                                  ? "Ingrese un NIS y presione Agregar"
-                                  : "Marque 'Soy abonado' primero"
-                              }
-                              disabled={!isAbonado}
-                              maxLength={10}
-                              inputMode="numeric"
-                              className={!isAbonado ? "bg-muted" : ""}
-                            />
-                            <Button
-                              type="button"
-                              variant="secondary"
-                              onClick={addNis}
-                              disabled={!isAbonado || !tempNis.trim()}
-                            >
-                              + Agregar
-                            </Button>
-                          </div>
-                          {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                            <p className="text-sm text-destructive">
-                              {(field.state.meta.errors[0] as any)?.message ??
-                                String(field.state.meta.errors[0])}
-                            </p>
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel>NIS (Números de identificación)</FieldLabel>
+                        <div className="flex flex-wrap gap-2">
+                          {nisList.length === 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              {isAbonado ? "Agregue al menos un NIS" : "Sin NIS asignados"}
+                            </span>
                           )}
+                          {nisList.map((nis) => (
+                            <span
+                              key={nis}
+                              className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground"
+                            >
+                              <span className="truncate">{nis}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeNis(nis)}
+                                disabled={!isAbonado}
+                                className="flex h-4 w-4 flex-shrink-0 items-center justify-center disabled:opacity-50 hover:opacity-80"
+                                title="Quitar NIS"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
                         </div>
-                      );
-                    }}
-                  </form.Field>
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <Input
+                            type="text"
+                            value={tempNis}
+                            onChange={(e) => setTempNis(e.target.value.replace(/\D/g, ""))}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                if (isAbonado) addNis();
+                              }
+                            }}
+                            placeholder={
+                              isAbonado
+                                ? "Ingrese un NIS y presione Agregar"
+                                : "Marque 'Soy abonado' primero"
+                            }
+                            disabled={!isAbonado}
+                            maxLength={10}
+                            inputMode="numeric"
+                            className={!isAbonado ? "bg-muted" : ""}
+                          />
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={addNis}
+                            disabled={!isAbonado || !tempNis.trim()}
+                          >
+                            + Agregar
+                          </Button>
+                        </div>
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                    </form.Field>
+                  </FieldGroup>
                 )}
               </form.Subscribe>
-            </div>
 
-            <form.Field name="Email">
-              {(field) => (
-                <label className="grid gap-1">
-                  <span className="text-sm font-medium">Correo electrónico</span>
-                  <Input
-                    type="email"
-                    placeholder="Correo electrónico"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-destructive">
-                      {(field.state.meta.errors[0] as any)?.message ??
-                        String(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </label>
-              )}
-            </form.Field>
+              <FieldGroup className="gap-2">
+                <form.Field name="Email">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid} className="gap-2">
+                    <FieldLabel htmlFor={field.name}>Correo electrónico</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="email"
+                      placeholder="Correo electrónico"
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+                </form.Field>
+              </FieldGroup>
 
-            <form.Field name="PhoneNumber">
-              {(field) => (
-                <>
-                  <PhoneField
-                    value={field.state.value}
-                    onChange={(val) => field.handleChange(val ?? "")}
-                    defaultCountry="CR"
-                    required
-                    error={
-                      field.state.meta.isTouched && field.state.meta.errors[0]
-                        ? String(field.state.meta.errors[0])
-                        : undefined
-                    }
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-destructive">
-                      {(field.state.meta.errors[0] as any)?.message ??
-                        String(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </>
-              )}
-            </form.Field>
+              <FieldGroup className="gap-2">
+                <form.Field name="PhoneNumber">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid} className="gap-2">
+                    <PhoneField
+                      label="Teléfono"
+                      value={field.state.value}
+                      onChange={(val) => field.handleChange(val ?? "")}
+                      defaultCountry="CR"
+                      required
+                      data-invalid={isInvalid}
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+                </form.Field>
+              </FieldGroup>
 
-            <form.Field name="Birthdate">
-              {(field) => (
-                <label className="grid gap-1">
-                  <span className="text-sm font-medium">Fecha de nacimiento</span>
-                  <Input
-                    type="date"
-                    value={
-                      field.state.value
-                        ? field.state.value instanceof Date
-                          ? field.state.value.toISOString().split("T")[0]
-                          : String(field.state.value)
-                        : ""
-                    }
-                    onChange={(e) => field.handleChange(new Date(e.target.value))}
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-destructive">
-                      {(field.state.meta.errors[0] as any)?.message ??
-                        String(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </label>
-              )}
-            </form.Field>
+              <FieldGroup className="gap-2">
+                <form.Field name="Birthdate">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid} className="gap-2">
+                    <FieldLabel htmlFor={field.name}>Fecha de nacimiento</FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type="date"
+                      value={
+                        field.state.value
+                          ? field.state.value instanceof Date
+                            ? field.state.value.toISOString().split("T")[0]
+                            : String(field.state.value)
+                          : ""
+                      }
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(new Date(e.target.value))}
+                      aria-invalid={isInvalid}
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+                </form.Field>
+              </FieldGroup>
 
-            <form.Field name="Address">
-              {(field) => (
-                <label className="grid gap-1">
-                  <span className="text-sm font-medium">Dirección</span>
-                  <textarea
-                    className="flex min-h-[96px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-y"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder="Dirección del usuario"
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-destructive">
-                      {(field.state.meta.errors[0] as any)?.message ??
-                        String(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </label>
-              )}
-            </form.Field>
+              <FieldGroup className="gap-2">
+                <form.Field name="Address">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid} className="gap-2">
+                    <FieldLabel htmlFor={field.name}>Dirección</FieldLabel>
+                    <Textarea
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value ?? ""}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="Dirección del usuario"
+                      className="min-h-[96px] resize-none"
+                      aria-invalid={isInvalid}
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+                </form.Field>
+              </FieldGroup>
 
-            <form.Field name="roleIds">
+              <FieldGroup className="gap-2">
+                <form.Field name="roleIds">
               {(field) => {
                 const selectedIds: number[] = field.state.value ?? [];
                 const notSelected = roles?.filter((r: any) => !selectedIds.includes(r.Id)) ?? [];
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
                 const removeRole = (id: number) =>
                   field.handleChange(selectedIds.filter((x) => x !== id));
                 const addRole = (id: number) =>
@@ -406,8 +472,8 @@ export default function RegisterAbonadosModal() {
                 const clearAll = () => field.handleChange([]);
 
                 return (
-                  <div className="grid gap-2">
-                    <span className="text-sm font-medium">Roles</span>
+                  <Field data-invalid={isInvalid} className="gap-2">
+                    <FieldLabel>Roles</FieldLabel>
                     <div className="flex flex-wrap gap-2">
                       {selectedIds.length === 0 && (
                         <span className="text-xs text-muted-foreground">Sin roles asignados.</span>
@@ -433,41 +499,48 @@ export default function RegisterAbonadosModal() {
                       })}
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                      <select
-                        className="h-9 flex-1 min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                        defaultValue=""
-                        onChange={(e) => {
-                          const v = e.currentTarget.value;
+                      <Select
+                        value=""
+                        onValueChange={(v) => {
                           if (!v) return;
                           addRole(Number(v));
-                          e.currentTarget.value = "";
                         }}
                       >
-                        <option value="" disabled>
-                          {notSelected.length ? "Agregar rol…" : "No hay más roles disponibles"}
-                        </option>
-                        {notSelected.map((r: any) => (
-                          <option key={r.Id} value={String(r.Id)}>
-                            {r.Rolname}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger
+                          id="roleIds-select"
+                          className="flex-1 min-w-0"
+                          aria-invalid={isInvalid}
+                        >
+                          <SelectValue
+                            placeholder={
+                              notSelected.length
+                                ? "Agregar rol…"
+                                : "No hay más roles disponibles"
+                            }
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {notSelected.map((r: any) => (
+                            <SelectItem key={r.Id} value={String(r.Id)}>
+                              {r.Rolname}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {selectedIds.length > 0 && (
                         <Button type="button" variant="outline" size="sm" onClick={clearAll}>
                           Quitar todos
                         </Button>
                       )}
                     </div>
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-destructive">
-                        {(field.state.meta.errors[0] as any)?.message ??
-                          String(field.state.meta.errors[0])}
-                      </p>
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </div>
+                  </Field>
                 );
               }}
-            </form.Field>
+                </form.Field>
+              </FieldGroup>
             </FieldGroup>
           </div>
 
