@@ -132,47 +132,52 @@ const ListReports = () => {
   };
 
   return (
-    <section className=" flex flex-col p-4 sm:p-6 space-y-4 md:space-y-6">
-      <header className="space-y-1 shrink-0">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#091540]">
+    <section className="flex flex-col p-3 sm:p-6 space-y-4 md:space-y-6 min-w-0 overflow-x-hidden">
+      <header className="space-y-3 shrink-0 min-w-0">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-lg sm:text-2xl font-bold text-[#091540] truncate">
               Lista de Reportes
             </h1>
-            <p className="text-sm sm:text-base text-[#091540]/70">
+            <p className="text-xs sm:text-base text-[#091540]/70">
               Gestione todos los reportes del sistema
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch gap-2 min-w-0">
             <Button
               variant={viewMode === "list" ? "default" : "outline"}
               size="sm"
+              className="h-9 text-xs sm:text-sm justify-center"
               onClick={() => setViewMode("list")}
             >
-              <LayoutGrid className="size-4 mr-1.5" />
+              <LayoutGrid className="size-3.5 sm:size-4 shrink-0 mr-1" />
               Lista
             </Button>
             <Button
               variant={viewMode === "calendar" ? "default" : "outline"}
               size="sm"
+              className="h-9 text-xs sm:text-sm justify-center"
               onClick={() => setViewMode("calendar")}
             >
-              <Calendar className="size-4 mr-1.5" />
+              <Calendar className="size-3.5 sm:size-4 shrink-0 mr-1" />
               Calendario
             </Button>
             <Button
               variant={viewMode === "locations" ? "default" : "outline"}
               size="sm"
+              className="h-9 text-xs sm:text-sm justify-center"
               onClick={() => setViewMode("locations")}
             >
-              <MapPin className="size-4 mr-1.5" />
+              <MapPin className="size-3.5 sm:size-4 shrink-0 mr-1" />
               Ubicaciones
             </Button>
-            {viewMode === "locations" ? (
-              <CreateReportLocationModal />
-            ) : (
-              <CreateReportModal />
-            )}
+            <div className="col-span-2 sm:col-span-1 sm:flex sm:shrink-0">
+              {viewMode === "locations" ? (
+                <CreateReportLocationModal />
+              ) : (
+                <CreateReportModal />
+              )}
+            </div>
           </div>
         </div>
         <div className="border-b border-dashed border-gray-300 pt-2" />
@@ -210,7 +215,7 @@ const ListReports = () => {
       </div>
       )}
 
-      <div className="flex-1 min-h-0">
+      <div className="">
         {viewMode === "locations" ? (
           <ListReportLocationsView />
         ) : viewMode === "calendar" ? (

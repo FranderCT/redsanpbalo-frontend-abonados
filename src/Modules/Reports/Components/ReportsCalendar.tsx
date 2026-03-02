@@ -74,7 +74,50 @@ export default function ReportsCalendar({ onViewDetails }: Props) {
   }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
+    <div className="reports-calendar min-w-0 max-w-full rounded-lg border border-border bg-card p-2 sm:p-4 overflow-x-auto">
+      <style>{`
+        .reports-calendar .fc-event {
+          background: transparent !important;
+          border-color: hsl(var(--border)) !important;
+          color: hsl(var(--foreground)) !important;
+        }
+        .reports-calendar .fc-event:hover {
+          background: hsl(var(--muted)) !important;
+          border-color: hsl(var(--border)) !important;
+        }
+        /* Mobile: evita truncado en vista lista */
+        .reports-calendar .fc-list-event-title,
+        .reports-calendar .fc-list-event-dot {
+          flex-shrink: 0;
+        }
+        .reports-calendar .fc-list-event-title {
+          white-space: normal !important;
+          word-break: break-word !important;
+          overflow-wrap: anywhere;
+          min-width: 0;
+        }
+        .reports-calendar .fc-list-day-text,
+        .reports-calendar .fc-list-day-side-text {
+          white-space: normal !important;
+          word-break: break-word;
+          font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+        }
+        .reports-calendar .fc-toolbar-title {
+          font-size: clamp(0.875rem, 3vw, 1.25rem) !important;
+          white-space: normal;
+          text-align: center;
+        }
+        .reports-calendar .fc-toolbar-chunk {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 0.25rem;
+        }
+        .reports-calendar .fc-button {
+          padding: 0.25rem 0.5rem;
+          font-size: 0.8125rem;
+        }
+      `}</style>
       {isLoading && (
         <div className="mb-2 text-center text-sm text-muted-foreground">
           Cargando reportes…
@@ -84,9 +127,9 @@ export default function ReportsCalendar({ onViewDetails }: Props) {
         plugins={[dayGridPlugin, listPlugin]}
         initialView="listWeek"
         headerToolbar={{
-          left: "prev,next today",
+          left: "prev,next",
           center: "title",
-          right: "listWeek",
+          right: "today listWeek",
         }}
         buttonText={{
           today: "Hoy",
