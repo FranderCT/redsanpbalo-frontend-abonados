@@ -89,3 +89,42 @@ export async function updateReport(reportId: string, payload: UpdateReportPayloa
         throw error;
     }
 }
+
+/** Respuesta del endpoint de reportes por mes y ubicación */
+export interface MonthlyCountByLocationRow {
+  locationId: number;
+  neighborhood: string;
+  year: number;
+  month: number;
+  count: number;
+}
+
+/**
+ * Obtiene la cantidad de reportes por ubicación y mes.
+ * - Si se pasa year y month: estadísticas SOLO para ese mes/año.
+ * - Si no: últimos `months` meses hacia atrás.
+ *
+ * GET /reports/stats/monthly-by-location?months=12&year=2025&month=3
+ */
+export async function getMonthlyCountsByLocation(opts: {
+  months?: number;
+  year?: number;
+  month?: number;
+} = {}): Promise<MonthlyCountByLocationRow[]> {
+  const { months = 12, year, month } = opts;
+
+  const params: { months?: number; year?: number; month?: number } = {};
+  if (months) params.months = months;
+  if (year) params.year = year;
+  if (month) params.month = month;
+
+  try {
+    const { data } = await apiAxios.get<MonthlyCountByLocationRow[]>(
+      `${BASE_URL}/stats/monthly-by-location`,
+      { params }
+    );
+    return data ?? [];
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}

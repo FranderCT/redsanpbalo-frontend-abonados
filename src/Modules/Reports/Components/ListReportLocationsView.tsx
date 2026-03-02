@@ -1,9 +1,10 @@
 import { useGetAllReportLocations } from "../Hooks/ReportLocationHooks";
 import ReportLocationCard from "./ReportLocationCard";
+import ReportsMonthlyByLocationChart from "./ReportsMonthlyByLocationChart";
 
 /**
  * Vista de CRUD de ubicaciones (barrios) para reportes.
- * Se muestra dentro del módulo de reportes cuando el usuario elige "Ubicaciones".
+ * Incluye gráfico de reportes por barrio y lista de ubicaciones.
  */
 export default function ListReportLocationsView() {
   const { reportLocations, isLoading, isError, error, refetch } =
@@ -45,14 +46,23 @@ export default function ListReportLocationsView() {
   }
 
   return (
-    <div className="flex flex-wrap gap-4">
-      {items.map((loc) => (
-        <ReportLocationCard
-          key={loc.Id}
-          reportLocation={loc}
-          onDeleteSuccess={() => refetch()}
-        />
-      ))}
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-lg font-semibold text-[#091540] mb-4">
+          Ubicaciones (barrios)
+        </h2>
+        <div className="flex flex-wrap gap-4">
+          {items.map((loc) => (
+            <ReportLocationCard
+              key={loc.Id}
+              reportLocation={loc}
+              onDeleteSuccess={() => refetch()}
+            />
+          ))}
+        </div>
+      </div>
+
+      <ReportsMonthlyByLocationChart />
     </div>
   );
 }
