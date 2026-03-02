@@ -60,8 +60,8 @@ export default function CreateReportModal() {
   const form = useForm({
     defaultValues,
     validators: {
-      onChange: createReportValidators,
-      onSubmit: createReportValidators,
+       onChange: createReportValidators,
+       onSubmit: createReportValidators,
     },
     onSubmit: async ({ value }) => {
       if (!UserProfile?.Id) {
@@ -84,9 +84,8 @@ export default function CreateReportModal() {
         toast.success("¡Reporte creado exitosamente!");
         form.reset();
         setOpen(false);
-      } catch (error) {
-        toast.error("Error al crear el reporte");
-        console.error(error);
+      } catch (error: any) {
+        toast.error(error.message);
       }
     },
   });

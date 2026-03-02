@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import type { PaginatedResponse } from "@/core/pagination/pagination";
 import type { Report, ReportPaginationParams } from "../Models/Report";
 import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport } from "../Services/ReportSV";
+import { toast } from "sonner";
 
 export const useGetAllReports = () => {
     const {data: reports, error, isLoading} = useQuery({
@@ -32,6 +33,7 @@ export const useCreateReportByAdmin = () => {
             queryClient.invalidateQueries({ queryKey: ["reports"] });
         },
         onError: (error) => {
+            toast.error(error.message);
             console.error("Error al crear el reporte:", error);
         }
     });

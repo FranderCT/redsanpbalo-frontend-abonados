@@ -16,22 +16,22 @@ export const createReportValidators = z.object({
 
   LocationId: z
     .number()
-    .int({ message: "Seleccione un barrio" })
+    .int({ })
     .min(1, { message: "Seleccione un barrio" }),
 
   ReportTypeId: z
     .number()
-    .int({ message: "Seleccione un tipo de reporte" })
+    .int({ })
     .min(1, { message: "Seleccione un tipo de reporte" }),
 
   ReportStateId: z
     .number()
-    .int({ message: "Seleccione un estado" })
+    .int({ })
     .min(1, { message: "Seleccione un estado" }),
 
   UserInChargeId: z
     .number()
-    .int({ message: "Valor inválido" })
+    .int({ })
     .min(0, { message: "Valor inválido" }),
 });
 
@@ -55,12 +55,12 @@ export const createReportUserValidators = z.object({
 
   LocationId: z
     .number()
-    .int({ message: "Selecciona tu barrio" })
+    .int({ })
     .min(1, { message: "Selecciona tu barrio" }),
 
   ReportTypeId: z
     .number()
-    .int({ message: "Seleccione tipo de reporte" })
+    .int({ })
     .min(1, { message: "Seleccione tipo de reporte" }),
 });
 
@@ -79,22 +79,22 @@ export const updateReportValidators = z.object({
 
   LocationId: z
     .number()
-    .int({ message: "Valor inválido" })
+    .int({ })
     .min(0, { message: "Valor inválido" }),
 
   ReportTypeId: z
     .number()
-    .int({ message: "Valor inválido" })
+    .int({ })
     .min(0, { message: "Valor inválido" }),
 
   ReportStateId: z
     .number()
-    .int({ message: "Valor inválido" })
+    .int({ })
     .min(0, { message: "Valor inválido" }),
 
   UserInChargeId: z
     .number()
-    .int({ message: "Valor inválido" })
+    .int({ })
     .min(0, { message: "Valor inválido" }),
 
   AdditionalInfo: z.string(),
