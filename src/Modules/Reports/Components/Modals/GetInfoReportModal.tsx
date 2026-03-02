@@ -56,7 +56,7 @@ export default function GetInfoReportModal({
       <DialogContent className="max-h-[90vh] w-full max-w-md gap-0 overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="space-y-2 px-6 pt-6">
           <div className="flex items-center justify-between gap-2">
-            <DialogTitle className="text-xl">Reporte #{report.Id}</DialogTitle>
+            <DialogTitle className="text-xl">Reporte {report.Code}</DialogTitle>
             <Badge variant={getStatusVariant(report.ReportState?.Name)}>
               {report.ReportState?.Name ?? "—"}
             </Badge>
