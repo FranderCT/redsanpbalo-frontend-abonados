@@ -41,7 +41,7 @@ const DashboardLayout = () => {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
-      <aside className="hidden md:flex flex-col w-64 shrink-0 bg-sidebar border-r border-sidebar-border text-sidebar-foreground">
+      <aside className="hidden md:flex flex-col shrink-0 bg-sidebar border-r border-sidebar-border text-sidebar-foreground">
         <AsideDashboard />
       </aside>
 
