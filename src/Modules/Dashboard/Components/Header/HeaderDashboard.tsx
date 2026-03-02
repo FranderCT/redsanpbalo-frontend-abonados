@@ -13,7 +13,7 @@ const HeaderDashboard = ({
   setProfileOpen: (val: boolean) => void;
 }) => {
   return (
-    <header className="h-16 bg-background border-b border-border shadow-sm px-6 flex items-center justify-between sticky top-0 z-30">
+    <header className="h-16 bg-background border-b border-border  px-6 flex items-center justify-between sticky top-0 z-30">
 
       {/* Botón hamburguesa mobile */}
       <button
@@ -23,10 +23,6 @@ const HeaderDashboard = ({
         {menuOpen ? <X size={26} /> : <Menu size={26} />}
       </button>
 
-      {/* Título (opcional) */}
-      <h2 className="text-lg font-semibold text-foreground hidden md:block">
-        Dashboard
-      </h2>
 
       {/* Menú de perfil */}
       <ProfileUserMenu profileOpen={profileOpen} setProfileOpen={setProfileOpen} />
