@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import type { PaginatedResponse } from "@/core/pagination/pagination";
 import { showApiErrorToast } from "@/core/api-error";
 import type { Report, ReportPaginationParams } from "../Models/Report";
-import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport } from "../Services/ReportSV";
+import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport, getMonthlyCountsByLocation } from "../Services/ReportSV";
 
 export const useGetAllReports = () => {
     const {data: reports, error, isLoading} = useQuery({
@@ -83,4 +83,25 @@ export const useUpdateReport = () => {
             console.error("Error al actualizar el reporte:", error);
         }
     });
-}; 
+};
+
+/** Reportes por mes y ubicación para gráficos por barrio */
+export const useGetMonthlyCountsByLocation = (opts: {
+  months?: number;
+  year?: number;
+  month?: number;
+} = {}) => {
+  const { months = 12, year, month } = opts;
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: [
+      "reports",
+      "stats",
+      "monthly-by-location",
+      { months, year, month },
+    ],
+    queryFn: () => getMonthlyCountsByLocation({ months, year, month }),
+    staleTime: 60_000,
+  });
+  return { data, isLoading, isError, error };
+};
