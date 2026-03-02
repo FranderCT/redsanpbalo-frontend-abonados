@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import UsersTable from "../Components/ListUsers/UsersTables";
+import UsersCards from "../Components/ListUsers/UsersCards";
 import type { User } from "../Models/User";
 import RegisterAbonadosModal from "../Components/ListUsersModals/AddUserModal";
 import { useGetAllUsersPaginate } from "../Hooks/UsersHooks";
@@ -63,7 +63,7 @@ export default function ListUsers() {
         ) : error ? (
           <div className="p-6 text-center text-red-600">Ocurrió un error al cargar los Usuarios.</div>
         ) : (
-          <UsersTable
+          <UsersCards
             data={rows}
             total={meta.total}
             page={meta.page}
