@@ -105,7 +105,7 @@ function FilterSelects({
               type="date"
               value={startDate}
               onChange={(e) => onStartDateChange?.(e.target.value)}
-              className="h-11 w-full rounded-lg text-base"
+              className="h-11 w-full  text-base"
             />
           </div>
           <div className="space-y-2">
@@ -115,7 +115,7 @@ function FilterSelects({
               type="date"
               value={endDate}
               onChange={(e) => onEndDateChange?.(e.target.value)}
-              className="h-11 w-full rounded-lg text-base"
+              className="h-11 w-full  text-base"
             />
           </div>
         </>
