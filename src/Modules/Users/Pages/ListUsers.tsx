@@ -47,17 +47,18 @@ export default function ListUsers() {
       <div className="border-b border-dashed border-gray-300 mb-8"></div>
 
     <UserHeaderBar
-    limit={meta.limit}
-    total={meta.total}
-    search={search}
-    onLimitChange={(l) => { setLimit(l); setPage(1); }}
-    onFilterClick={handleStateChange}
-    onSearchChange={handleSearchChange}
-    onCleanFilters={handleCleanFilters}
-    rightAction={<RegisterAbonadosModal />}
+      limit={meta.limit}
+      total={meta.total}
+      search={search}
+      state={state}
+      onLimitChange={(l) => { setLimit(l); setPage(1); }}
+      onFilterClick={handleStateChange}
+      onSearchChange={handleSearchChange}
+      onCleanFilters={handleCleanFilters}
+      rightAction={<RegisterAbonadosModal />}
     />
 
-      <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
+      <div className="">
         {isLoading ? (
           <div className="p-6 text-center text-gray-500">Cargando…</div>
         ) : error ? (
