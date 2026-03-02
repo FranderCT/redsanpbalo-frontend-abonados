@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
 
-import { MapPin, Calendar, Wrench } from "lucide-react";
+import { MapPin, Calendar, Wrench, UserCircle } from "lucide-react";
 import type { Report } from "../Models/Report";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -78,6 +78,36 @@ export default function ReportCard({ report, onViewDetails, onEditReport }: Prop
             </Badge>
           )}
         </div>
+
+        <>
+          <Separator />
+          <div className="flex items-center gap-3">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+              <UserCircle className="size-4 text-muted-foreground" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <CardDescription className="text-xs font-medium uppercase tracking-wider">
+                Reportado por
+              </CardDescription>
+              {report.User ? (
+                <>
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {report.User.Name} {report.User.Surname1}
+                  </p>
+                  {report.User.Email && (
+                    <p className="truncate text-xs text-muted-foreground">
+                      {report.User.Email}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm font-medium italic text-muted-foreground">
+                  —
+                </p>
+              )}
+            </div>
+          </div>
+        </>
 
         <>
           <Separator />
