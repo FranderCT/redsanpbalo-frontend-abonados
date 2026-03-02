@@ -22,11 +22,13 @@ export const useUpdateUserProfile = () => {
   const navigate = useNavigate();
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: updateUserProfile,
+    mutationFn: ({
+      payload,
+      photo,
+    }: { payload: Parameters<typeof updateUserProfile>[0]; photo?: File }) =>
+      updateUserProfile(payload, photo),
     onSuccess: () => {
-      // Invalidar el perfil del usuario logueado
       qc.invalidateQueries({ queryKey: ["user-profile"] });
-      console.log("Usuario Actualizado");
       navigate({ to: "/dashboard/users/profile" });
     },
   });

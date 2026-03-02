@@ -29,15 +29,36 @@ export async function updateUserEmail(User: UpdateEmailUser) : Promise<UpdateEma
   }
 }
 
-export async function updateUserProfile(User: UserUpdateMe) : Promise<User>{
-  try{
-  const res = await apiAxios.put<User>(`${BASE}/me`, User)
-  return res.data;  
-  }catch(err){
+/**
+ * Actualiza el perfil del usuario logueado.
+ * Si se pasa `photo`, envía multipart/form-data (campo "photo" + Address, PhoneNumber, Birthdate).
+ * Si no hay photo, envía JSON.
+ */
+export async function updateUserProfile(
+  payload: UserUpdateMe,
+  photo?: File
+): Promise<User> {
+  try {
+    if (photo) {
+      const formData = new FormData();
+      formData.append("photo", photo);
+      if (payload.Address !== undefined && payload.Address !== "")
+        formData.append("Address", payload.Address);
+      if (payload.PhoneNumber !== undefined && payload.PhoneNumber !== "")
+        formData.append("PhoneNumber", payload.PhoneNumber);
+      if (payload.Birthdate instanceof Date)
+        formData.append("Birthdate", payload.Birthdate.toISOString().slice(0, 10));
+      const res = await apiAxios.put<User>(`${BASE}/me`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return res.data;
+    }
+    const res = await apiAxios.put<User>(`${BASE}/me`, payload);
+    return res.data;
+  } catch (err) {
     console.error(err);
     return Promise.reject(err);
   }
-  
 }
 
 export async function getAllUsers(): Promise<User[]> {

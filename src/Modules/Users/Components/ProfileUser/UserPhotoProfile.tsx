@@ -1,3 +1,4 @@
+import React from "react";
 import type { User } from "../../Models/User";
 import {
   Card,
@@ -7,6 +8,8 @@ import {
 } from "@/Components/ui/card";
 import { cn } from "@/lib/utils";
 
+const DEFAULT_AVATAR = "/Image02.png";
+
 type Props = {
   User?: User;
 };
@@ -15,6 +18,11 @@ const UserPhotoProfile = ({ User }: Props) => {
   const fullName = [User?.Name, User?.Surname1, User?.Surname2]
     .filter(Boolean)
     .join(" ");
+  const [imgError, setImgError] = React.useState(false);
+  React.useEffect(() => {
+    setImgError(false);
+  }, [User?.ProfilePhoto]);
+  const photoSrc = User?.ProfilePhoto && !imgError ? User.ProfilePhoto : DEFAULT_AVATAR;
 
   return (
     <Card className="user-profile-photo overflow-hidden border-border bg-card shadow-sm">
@@ -31,9 +39,10 @@ const UserPhotoProfile = ({ User }: Props) => {
           )}
         >
           <img
-            src="/Image02.png"
+            src={photoSrc}
             alt={fullName ? `Foto de ${fullName}` : "Foto de perfil"}
             className="h-full w-full object-cover"
+            onError={() => setImgError(true)}
           />
         </div>
       </CardContent>

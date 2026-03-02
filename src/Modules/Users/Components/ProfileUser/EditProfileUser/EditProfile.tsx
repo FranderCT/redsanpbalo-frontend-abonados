@@ -24,11 +24,16 @@ import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
 import { Separator } from "@/Components/ui/separator";
 
+const MAX_PHOTO_MB = 5;
+const ACCEPT_IMAGES = "image/jpeg,image/png,image/webp,image/gif";
+
 const EditProfile = () => {
   const { UserProfile } = useGetUserProfile();
   const updateProfile = useUpdateUserProfile();
 
   const [openConfirm, setOpenConfirm] = React.useState(false);
+  const [photoFile, setPhotoFile] = React.useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = React.useState<string | null>(null);
   const pendingValuesRef = React.useRef<EditProfileInput | null>(null);
 
   const form = useForm({
@@ -39,6 +44,32 @@ const EditProfile = () => {
       setOpenConfirm(true);
     },
   });
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      return;
+    }
+    if (file.size > MAX_PHOTO_MB * 1024 * 1024) {
+      toast.error(`La foto no puede superar ${MAX_PHOTO_MB} MB`, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      e.target.value = "";
+      return;
+    }
+    setPhotoFile(file);
+    const url = URL.createObjectURL(file);
+    setPhotoPreview(url);
+  };
+
+  const clearPhoto = () => {
+    setPhotoFile(null);
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(null);
+  };
 
   React.useEffect(() => {
     if (!UserProfile) return;
@@ -66,14 +97,20 @@ const EditProfile = () => {
     if (!pendingValuesRef.current) return;
     try {
       const patch = buildPatch(pendingValuesRef.current);
-      if (Object.keys(patch).length === 0) {
+      const hasFormChanges = Object.keys(patch).length > 0;
+      const hasPhoto = !!photoFile;
+      if (!hasFormChanges && !hasPhoto) {
         toast.info("No hay cambios para guardar.", { position: "top-right", autoClose: 2500 });
         setOpenConfirm(false);
         pendingValuesRef.current = null;
         return;
       }
-      await updateProfile.mutateAsync(patch as Parameters<typeof updateProfile.mutateAsync>[0]);
+      await updateProfile.mutateAsync({
+        payload: patch as EditProfileInput,
+        photo: photoFile ?? undefined,
+      });
       form.reset(form.state.values);
+      clearPhoto();
       toast.success("¡Actualización exitosa!", { position: "top-right", autoClose: 3000 });
     } catch {
       toast.error("¡Error al actualizar el perfil!", { position: "top-right", autoClose: 3000 });
@@ -88,6 +125,9 @@ const EditProfile = () => {
     toast.info("¡Actualización cancelada!", { position: "top-right", autoClose: 2500 });
     pendingValuesRef.current = null;
   };
+
+  const hasChanges =
+    form.state.isDirty || photoFile !== null;
 
   const fullName = [UserProfile?.Name, UserProfile?.Surname1, UserProfile?.Surname2]
     .filter(Boolean)
@@ -125,6 +165,57 @@ const EditProfile = () => {
               className="space-y-6"
             >
               <FieldGroup className="gap-4">
+                <Field className="gap-2">
+                  <FieldLabel>Foto de perfil</FieldLabel>
+                  <div className="flex flex-col sm:flex-row items-start gap-4">
+                    <div className="relative shrink-0">
+                      <div className="size-24 rounded-full overflow-hidden ring-2 ring-border bg-muted">
+                        {photoPreview ? (
+                          <img
+                            src={photoPreview}
+                            alt="Vista previa"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : UserProfile?.ProfilePhoto ? (
+                          <img
+                            src={UserProfile.ProfilePhoto}
+                            alt="Foto actual"
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs">
+                            Sin foto
+                          </div>
+                        )}
+                      </div>
+                      {photoFile && (
+                        <button
+                          type="button"
+                          onClick={clearPhoto}
+                          className="absolute -top-1 -right-1 rounded-full bg-destructive text-destructive-foreground size-6 flex items-center justify-center text-xs hover:bg-destructive/90"
+                          aria-label="Quitar foto"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <Input
+                        type="file"
+                        accept={ACCEPT_IMAGES}
+                        onChange={handlePhotoChange}
+                        className="cursor-pointer file:mr-2 file:text-sm file:font-medium"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        JPG, PNG, WebP o GIF. Máx. {MAX_PHOTO_MB} MB.
+                      </p>
+                    </div>
+                  </div>
+                </Field>
+
                 <form.Field name="Birthdate">
                   {(field) => {
                     const isInvalid =
@@ -209,12 +300,12 @@ const EditProfile = () => {
 
               <div className="flex justify-end pt-2">
                 <form.Subscribe
-                  selector={(s) => [s.isSubmitting, s.isDirty]}
+                  selector={(s) => [s.isSubmitting]}
                 >
-                  {([isSubmitting, isDirty]) => (
+                  {([isSubmitting]) => (
                     <Button
                       type="submit"
-                      disabled={!isDirty || updateProfile.isPending}
+                      disabled={!hasChanges || isSubmitting || updateProfile.isPending}
                     >
                       {isSubmitting || updateProfile.isPending
                         ? "Guardando…"
