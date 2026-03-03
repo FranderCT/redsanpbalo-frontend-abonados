@@ -95,10 +95,6 @@ export default function CreatePhysicalSupplierModal() {
     },
   });
 
-  const handleClose = () => {
-    setOpen(false);
-    form.reset();
-  };
 
   const handleIdCardChange =
     (field: { handleChange: (v: string) => void; state: { value: string } }, formApi: typeof form) =>
@@ -177,7 +173,7 @@ export default function CreatePhysicalSupplierModal() {
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) form.reset(); }}>
       <DialogTrigger asChild>
-        <Button className="w-full sm:w-auto">+ Crear proveedor físico</Button>
+        <Button className="w-full sm:w-auto">+ Crear proveedor</Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] max-w-xl gap-0 overflow-hidden p-0">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">

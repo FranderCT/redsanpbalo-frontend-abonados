@@ -1,12 +1,12 @@
 import { useState, useMemo } from "react";
-import ProductHeaderBar from "../../Products/Components/PaginationProducts/ProductHeaderBar";
+import LegalSupplierHeaderBar from "../Components/Pagination/LegalSupplierHeaderBar";
 import { useSearchLegalSupplier } from "../Hooks/LegalSupplierHooks";
 import type { LegalSupplier } from "../Models/LegalSupplier";
-import LegalSupplierTable from "../Components/Table/LegalSupplierTable";
+import LegalSupplierCards from "../Components/ListLegalSuppliers/LegalSupplierCards";
 import CreateLegalSupplierModal from "../Components/Modals/CreateLegalSupplierModal";
 
 export default function ListLegalSuppliers() {
-  const [page, setPage] = useState(1);   // 1-based
+  const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
   const [name, setName] = useState<string | undefined>(undefined);
@@ -14,12 +14,10 @@ export default function ListLegalSuppliers() {
 
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
-    const trimmed = txt.trim();
-    setName(trimmed ? trimmed : undefined);
+    setName(txt.trim() ? txt.trim() : undefined);
     setPage(1);
   };
 
-   // Manejo de filtro por estado
   const handleStateChange = (newState: string) => {
     setState(newState || undefined);
     setPage(1);
@@ -30,51 +28,74 @@ export default function ListLegalSuppliers() {
     setName(undefined);
     setState(undefined);
     setPage(1);
-  }
-  
-  const params = useMemo(() => ({ page, limit, name, state }), [page, limit, name, state]);
+  };
+
+  const params = useMemo(
+    () => ({ page, limit, name, state }),
+    [page, limit, name, state]
+  );
   const { data, isLoading, error } = useSearchLegalSupplier(params);
 
   const rows: LegalSupplier[] = data?.data ?? [];
   const meta = data?.meta ?? {
-    total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false,
+    total: 0,
+    page: 1,
+    limit,
+    pageCount: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-[#091540]">Lista proveedores jurídicos</h1>
-        <p className="text-[#091540]/70 text-md">
-            Gestione todos los proveedores jurídicos
+    <div className="space-y-6 p-4">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Lista proveedores jurídicos
+        </h1>
+        <p className="mt-1 text-muted-foreground">
+          Gestione todos los proveedores jurídicos
         </p>
-        <div className="border-b border-dashed border-gray-300 mb-8"></div>
+        <div className="mt-4 border-b border-dashed border-border" />
+      </div>
 
-      <ProductHeaderBar
+      <LegalSupplierHeaderBar
         limit={meta.limit}
         total={meta.total}
         search={search}
-        onLimitChange={(l) => { setLimit(l); setPage(1); }}
+        state={state}
+        onLimitChange={(l) => {
+          setLimit(l);
+          setPage(1);
+        }}
         onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
         rightAction={<CreateLegalSupplierModal />}
       />
 
-      <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
+      <div>
         {isLoading ? (
-          <div className="p-6 text-center text-gray-500">Cargando…</div>
+          <div className="flex items-center justify-center py-12">
+            <p className="text-sm text-muted-foreground">Cargando…</p>
+          </div>
         ) : error ? (
-          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar los Productos.</div>
+          <div className="flex items-center justify-center py-12">
+            <p className="text-sm text-destructive">
+              Ocurrió un error al cargar los proveedores jurídicos.
+            </p>
+          </div>
         ) : (
-          <LegalSupplierTable
-            data={rows}
-            total={meta.total}
-            page={meta.page}               // <- pasa paginación al footer
-            pageCount={meta.pageCount}
-            onPageChange={setPage}
-          />
+          <div className="p-4">
+            <LegalSupplierCards
+              data={rows}
+              total={meta.total}
+              page={meta.page}
+              pageCount={meta.pageCount}
+              onPageChange={setPage}
+            />
+          </div>
         )}
       </div>
-
     </div>
   );
 }

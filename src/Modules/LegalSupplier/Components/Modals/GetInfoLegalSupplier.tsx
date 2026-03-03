@@ -1,5 +1,16 @@
-// Components/GetInfoLegalSupplierModal.tsx
-import { ModalBase } from "../../../../Components/Modals/ModalBase";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
+import { Button } from "@/Components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Badge } from "@/Components/ui/badge";
+import { Field, FieldGroup, FieldLabel } from "@/Components/ui/field";
+import { Mail, Phone, Building2, Globe, MapPin } from "lucide-react";
 import type { LegalSupplier } from "../../Models/LegalSupplier";
 
 type Props = {
@@ -15,141 +26,128 @@ export default function GetInfoLegalSupplierModal({
   onClose,
   onSuccess,
 }: Props) {
-  // ✅ Clases reutilizables
-  const PANEL = "w-full max-w-2xl !p-0 overflow-hidden shadow-2xl";
-  const WRAP = "bg-white";
-  const HEADER = "px-6 py-5 border-b border-gray-200";
-  const SECTION = "p-6";
-  const GRID = "grid grid-cols-1 sm:grid-cols-2 gap-3";
-  const CARD = "bg-gray-50 p-3";
-  const LABEL = "text-[11px] uppercase text-gray-500";
-  const VALUE = "mt-1 text-sm text-[#091540]";
-  const FOOTER = "mt-6 flex justify-end";
+  const s = supplier?.Supplier;
+  const companyName = s?.Name ?? "—";
+  const isActive = s?.IsActive ?? true;
 
-  const show = (v?: string | number | null) =>
-    v === null || v === undefined || v === "" ? "—" : String(v);
-
-  const emailHref = supplier?.Email ? `mailto:${supplier.Email}` : undefined;
-  const telHref = supplier?.PhoneNumber ? `tel:${supplier.PhoneNumber}` : undefined;
-  const websiteHref = supplier?.WebSite ? supplier.WebSite : undefined;
+  const handleClose = (v: boolean) => {
+    if (!v) {
+      onClose();
+      onSuccess?.();
+    }
+  };
 
   return (
-    <ModalBase
-      open={open}
-      onClose={() => {
-        onClose();
-        onSuccess?.();
-      }}
-      panelClassName={PANEL}
-    >
-      <div className={WRAP}>
-        {/* Header */}
-        <header className={HEADER}>
-          <h3 className="text-xl font-bold text-[#091540]">Información del proveedor</h3>
-          <p className="text-sm text-gray-600">Proveedor jurídico</p>
-        </header>
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-h-[90vh] max-w-2xl gap-0 overflow-hidden p-0">
+        <DialogHeader className="space-y-1.5 border-b px-6 py-5">
+          <DialogTitle>Información del proveedor</DialogTitle>
+          <DialogDescription>
+            Ficha del proveedor jurídico y su estado en el sistema.
+          </DialogDescription>
+        </DialogHeader>
 
-        {/* Body */}
-        <section className={SECTION} aria-labelledby="legal-supplier-info">
-          <h4 id="legal-supplier-info" className="sr-only">
-            Datos del proveedor jurídico
-          </h4>
+        <div className="flex max-h-[50vh] flex-col gap-3 overflow-y-auto overflow-x-hidden px-6 py-4">
+          <Card className="overflow-hidden">
+            <CardHeader className="flex flex-col gap-4 border-b bg-muted/40 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted ring-2 ring-border">
+                  <Building2 className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <div className="space-y-1">
+                  <CardTitle className="text-lg font-semibold leading-tight">
+                    {companyName}
+                  </CardTitle>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Cédula jurídica: {s?.IDcard ?? "—"}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-2 flex items-start gap-2 sm:mt-0 sm:flex-col sm:items-end">
+                <Badge variant={isActive ? "outline" : "destructive"} className="text-xs">
+                  {isActive ? "Activo" : "Inactivo"}
+                </Badge>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  ID interno: <span className="font-semibold text-foreground">{supplier.Id}</span>
+                </p>
+              </div>
+            </CardHeader>
 
-          <dl className={GRID}>
-            <div className={CARD}>
-              <dt className={LABEL}>ID interno</dt>
-              <dd className={VALUE}>{show(supplier?.Id)}</dd>
-            </div>
+            <CardContent className="space-y-4 px-6 py-5">
+              <div className="rounded-lg border bg-muted/40 px-4 py-3">
+                <FieldGroup className="gap-4">
+                  <Field className="gap-2">
+                    <FieldLabel className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      <Mail className="h-4 w-4" />
+                      Correo
+                    </FieldLabel>
+                    <p className="text-sm font-medium text-foreground">
+                      {s?.Email ? (
+                        <a
+                          href={`mailto:${s.Email}`}
+                          className="hover:text-primary"
+                        >
+                          {s.Email}
+                        </a>
+                      ) : (
+                        "Sin correo"
+                      )}
+                    </p>
+                  </Field>
+                  <Field className="gap-2">
+                    <FieldLabel className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      <Phone className="h-4 w-4" />
+                      Teléfono
+                    </FieldLabel>
+                    <p className="text-sm font-medium text-foreground">
+                      {s?.PhoneNumber ? (
+                        <a href={`tel:${s.PhoneNumber}`} className="hover:text-primary">
+                          {s.PhoneNumber}
+                        </a>
+                      ) : (
+                        "Sin teléfono"
+                      )}
+                    </p>
+                  </Field>
+                  {supplier?.WebSite ? (
+                    <Field className="gap-2">
+                      <FieldLabel className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        <Globe className="h-4 w-4" />
+                        Sitio web
+                      </FieldLabel>
+                      <p className="text-sm font-medium text-foreground">
+                        <a
+                          href={supplier.WebSite.startsWith("http") ? supplier.WebSite : `https://${supplier.WebSite}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-primary"
+                        >
+                          {supplier.WebSite}
+                        </a>
+                      </p>
+                    </Field>
+                  ) : null}
+                  <Field className="gap-2">
+                    <FieldLabel className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      Ubicación
+                    </FieldLabel>
+                    <p className="text-sm font-medium text-foreground whitespace-pre-wrap">
+                      {s?.Location ?? "—"}
+                    </p>
+                  </Field>
+                </FieldGroup>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            <div className={CARD}>
-              <dt className={LABEL}>Cédula jurídica</dt>
-              <dd className={VALUE}>{show(supplier?.LegalID)}</dd>
-            </div>
-
-            <div className={CARD}>
-              <dt className={LABEL}>Nombre de empresa</dt>
-              <dd className={`${VALUE} break-words`}>{show(supplier?.CompanyName)}</dd>
-            </div>
-
-            <div className={CARD}>
-              <dt className={LABEL}>Correo electrónico</dt>
-              <dd className={`${VALUE} break-words`}>
-                {supplier?.Email ? (
-                  <a href={emailHref} className="underline underline-offset-2">
-                    {supplier.Email}
-                  </a>
-                ) : (
-                  "—"
-                )}
-              </dd>
-            </div>
-
-            <div className={CARD}>
-              <dt className={LABEL}>Teléfono</dt>
-              <dd className={VALUE}>
-                {supplier?.PhoneNumber ? (
-                  <a href={telHref} className="underline underline-offset-2">
-                    {supplier.PhoneNumber}
-                  </a>
-                ) : (
-                  "—"
-                )}
-              </dd>
-            </div>
-
-            <div className={CARD}>
-              <dt className={LABEL}>Sitio web</dt>
-              <dd className={`${VALUE} break-words`}>
-                {websiteHref ? (
-                  <a
-                    href={websiteHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline underline-offset-2"
-                  >
-                    {supplier.WebSite}
-                  </a>
-                ) : (
-                  "—"
-                )}
-              </dd>
-            </div>
-
-            <div className={CARD}>
-              <dt className={LABEL}>Estado</dt>
-              <dd
-                className={`${VALUE} font-semibold ${
-                  supplier?.IsActive ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {supplier?.IsActive ? "Activo" : "Inactivo"}
-              </dd>
-            </div>
-
-            <div className={`${CARD} sm:col-span-2`}>
-              <dt className={LABEL}>Ubicación</dt>
-              <dd className={`${VALUE} whitespace-pre-wrap`}>
-                {supplier?.Location ? (
-                  <address className="not-italic">{supplier.Location}</address>
-                ) : (
-                  "—"
-                )}
-              </dd>
-            </div>
-          </dl>
-
-          {/* Footer */}
-          <footer className={FOOTER}>
-            <button
-              type="button"
-              onClick={onClose}
-              className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
-            >
-              Cerrar
-            </button>
-          </footer>
-        </section>
-      </div>
-    </ModalBase>
+        <DialogFooter className="flex flex-row justify-end gap-2 border-t px-6 py-4">
+          <Button type="button" variant="outline" onClick={() => handleClose(false)}>
+            Cerrar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
