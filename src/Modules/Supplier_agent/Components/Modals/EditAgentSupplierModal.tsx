@@ -65,14 +65,9 @@ export default function EditAgentSupplierModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agent, open]);
 
-  const handleClose = () => {
-    toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
-    form.reset();
-    onClose();
-  };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className="flex max-h-[70vh] max-w-xl flex-col gap-0 overflow-hidden p-0">
         <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Editar agente</DialogTitle>
@@ -170,7 +165,6 @@ export default function EditAgentSupplierModal({
                       type="button"
                       variant="outline"
                       className="w-full sm:w-auto"
-                      onClick={handleClose}
                     >
                       Cancelar
                     </Button>

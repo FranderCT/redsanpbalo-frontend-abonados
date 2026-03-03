@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 import {
   Dialog,
   DialogContent,
@@ -9,15 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/Components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/Components/ui/alert-dialog";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
@@ -28,9 +18,9 @@ import {
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
 import { useLegalSupplierById } from "../../LegalSupplier/Hooks/LegalSupplierHooks";
-import { useDeleteAgentSupplier } from "../Hooks/SupplierAgentHooks";
 import CreateAgentSupplierModal from "./Modals/CreateAgentSupplierModal";
 import EditAgentSupplierModal from "./Modals/EditAgentSupplierModal";
+import DeleteAgentSupplierModal from "./Modals/DeleteAgentSupplierModal";
 import type { AgentSupppliers } from "../Models/SupplierAgent";
 import { Building2, Mail, MoreVertical, Phone, User } from "lucide-react";
 
@@ -59,7 +49,6 @@ export default function AgentSupplierModal({
   const [editOpen, setEditOpen] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<AgentSupppliers | null>(null);
   const [agentToDelete, setAgentToDelete] = useState<AgentSupppliers | null>(null);
-  const deleteMutation = useDeleteAgentSupplier();
 
   const refresh = () =>
     queryClient.invalidateQueries({
@@ -74,19 +63,6 @@ export default function AgentSupplierModal({
   const closeEdit = () => {
     setEditOpen(false);
     setSelectedAgent(null);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!agentToDelete || typeof agentToDelete.Id !== "number") return;
-    try {
-      await deleteMutation.mutateAsync(agentToDelete.Id);
-      toast.success("Agente inhabilitado");
-      setAgentToDelete(null);
-      refresh();
-    } catch (err) {
-      console.error("Error al inhabilitar agente:", err);
-      toast.error("No se pudo inhabilitar el agente");
-    }
   };
 
   const supplierName = legalSup?.Supplier?.Name ?? "—";
@@ -248,38 +224,15 @@ export default function AgentSupplierModal({
         />
       )}
 
-      <AlertDialog
+      <DeleteAgentSupplierModal
+        agent={agentToDelete}
         open={!!agentToDelete}
-        onOpenChange={(v) => { if (!v) setAgentToDelete(null); }}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Inhabilitar agente?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Se inhabilitará el agente &quot;
-              {agentToDelete
-                ? [agentToDelete.Name, agentToDelete.Surname1, agentToDelete.Surname2]
-                    .filter(Boolean)
-                    .join(" ") || agentToDelete.Name || "sin nombre"
-                : ""}
-              &quot;. Esta acción puede revertirse desde la edición del agente.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex flex-row flex-wrap items-center justify-end gap-2">
-            <AlertDialogCancel onClick={() => setAgentToDelete(null)} className="w-full sm:w-auto">
-              Cancelar
-            </AlertDialogCancel>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDelete}
-              disabled={deleteMutation.isPending}
-              className="w-full sm:w-auto"
-            >
-              {deleteMutation.isPending ? "Inhabilitando…" : "Inhabilitar"}
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onClose={() => setAgentToDelete(null)}
+        onSuccess={() => {
+          refresh();
+          setAgentToDelete(null);
+        }}
+      />
     </>
   );
 }
