@@ -82,7 +82,7 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
         if (!v) onClose();
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-xl gap-0 overflow-hidden p-0">
+      <DialogContent className="max-h-[70vh] max-w-xl gap-0 overflow-hidden p-0">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Editar usuario</DialogTitle>
           <DialogDescription>

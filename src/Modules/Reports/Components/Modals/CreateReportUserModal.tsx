@@ -107,7 +107,7 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
         if (!v) form.reset();
       }}
     >
-      <DialogContent className="max-h-[90vh] gap-0 overflow-hidden">
+      <DialogContent className="max-h-[70vh] gap-0 overflow-hidden">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Crear nuevo reporte</DialogTitle>
           <DialogDescription>

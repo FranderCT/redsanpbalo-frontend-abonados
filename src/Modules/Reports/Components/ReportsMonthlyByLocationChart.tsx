@@ -156,7 +156,7 @@ export default function ReportsMonthlyByLocationChart() {
                     Exportar PDF
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-h-[90vh] gap-0 overflow-hidden sm:max-w-md">
+                <DialogContent className="max-h-[70vh] gap-0 overflow-hidden sm:max-w-md">
                   <DialogHeader className="space-y-1.5 border-b px-6 py-5">
                     <DialogTitle>Exportar reporte en PDF</DialogTitle>
                     <DialogDescription>

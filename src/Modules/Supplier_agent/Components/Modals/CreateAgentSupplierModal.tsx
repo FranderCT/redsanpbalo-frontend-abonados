@@ -238,7 +238,7 @@ const CreateAgentSupplierModal = ({LegalSupplierId} : Props) => {
         <ModalBase
             open={open}
             onClose={handleClose}
-            panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh] "
+            panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[70vh] "
         >
             <header
                 className="flex flex-col"
