@@ -153,7 +153,8 @@ useEffect(() => {
               { label: "Materiales", onClick: () => navigate({ to: "/dashboard/materials" }) },
               { label: "Categorías", onClick: () => navigate({ to: "/dashboard/categories" }) },
               { label: "Unidad de medidas", onClick: () => navigate({ to: "/dashboard/units-measure" }) },
-              { label: "Proveedor", onClick: () => navigate({ to: "/dashboard/legal-suppliers" }) },
+              { label: "Proveedores físicos", onClick: () => navigate({ to: "/dashboard/suppliers/physical" }) },
+              { label: "Proveedores jurídicos", onClick: () => navigate({ to: "/dashboard/suppliers/legal" }) },
             ]}
           />
         </Can>

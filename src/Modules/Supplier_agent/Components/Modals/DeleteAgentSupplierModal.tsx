@@ -1,5 +1,4 @@
 import { toast } from "react-toastify";
-import { Trash } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -8,32 +7,42 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog";
 import { Button } from "@/Components/ui/button";
 import { useDeleteAgentSupplier } from "../../Hooks/SupplierAgentHooks";
-import type { AgentSupplier } from "../../../Supplier/Models/AgentSupplier";
+import type { AgentSupppliers } from "../../Models/SupplierAgent";
 
 type Props = {
-  agent: AgentSupplier;
+  agent: AgentSupppliers | null;
+  open: boolean;
+  onClose: () => void;
   onSuccess?: () => void;
 };
 
-export default function DeleteAgentSupplierButton({ agent, onSuccess }: Props) {
-  const deleteMutation = useDeleteAgentSupplier();
-  const displayName = [agent.Name, agent.Surname1, agent.Surname2]
+function getDisplayName(agent: AgentSupppliers | null): string {
+  if (!agent) return "sin nombre";
+  const full = [agent.Name, agent.Surname1, agent.Surname2]
     .filter(Boolean)
     .join(" ")
-    .trim() || agent.Name || "sin nombre";
+    .trim();
+  return full || agent.Name || "sin nombre";
+}
+
+export default function DeleteAgentSupplierModal({
+  agent,
+  open,
+  onClose,
+  onSuccess,
+}: Props) {
+  const deleteMutation = useDeleteAgentSupplier();
+  const displayName = getDisplayName(agent);
 
   const handleConfirm = async () => {
-    if (typeof agent.Id !== "number") {
-      toast.error("No se encontró el Id del agente");
-      return;
-    }
+    if (!agent || typeof agent.Id !== "number") return;
     try {
       await deleteMutation.mutateAsync(agent.Id);
       toast.success("Agente inhabilitado");
+      onClose();
       onSuccess?.();
     } catch (err) {
       console.error("Error al inhabilitar agente:", err);
@@ -42,17 +51,7 @@ export default function DeleteAgentSupplierButton({ agent, onSuccess }: Props) {
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="gap-1 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
-        >
-          Inhabilitar
-        </Button>
-      </AlertDialogTrigger>
+    <AlertDialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>¿Inhabilitar agente?</AlertDialogTitle>
@@ -62,12 +61,15 @@ export default function DeleteAgentSupplierButton({ agent, onSuccess }: Props) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <div className="flex flex-row-reverse">
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <div className="w-full flex flex-row-reverse items-center justify-between ">
+            <AlertDialogCancel onClick={onClose} className="w-full sm:w-auto">
+              Cancelar
+            </AlertDialogCancel>
             <Button
               variant="destructive"
               onClick={handleConfirm}
               disabled={deleteMutation.isPending}
+              className="w-full sm:w-auto"
             >
               {deleteMutation.isPending ? "Inhabilitando…" : "Inhabilitar"}
             </Button>

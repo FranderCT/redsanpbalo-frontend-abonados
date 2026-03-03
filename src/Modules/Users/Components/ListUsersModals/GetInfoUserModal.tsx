@@ -44,7 +44,7 @@ export default function GetInfoUserModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[90vh] max-w-2xl gap-0 overflow-hidden p-0">
+      <DialogContent className="max-h-[70vh] max-w-2xl gap-0 overflow-hidden p-0">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Información del usuario</DialogTitle>
           <DialogDescription>

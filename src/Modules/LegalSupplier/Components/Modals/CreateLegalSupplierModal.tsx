@@ -1,75 +1,86 @@
 import { useForm } from "@tanstack/react-form";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { ModalBase } from "../../../../Components/Modals/ModalBase";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/Components/ui/dialog";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/Components/ui/field";
+import { Textarea } from "@/Components/ui/textarea";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { useCreateLegalSupplier } from "../../Hooks/LegalSupplierHooks";
 import { LegalSupplierSchema } from "../../Schemas/LegalSupplierSchema";
 
-const CreateLegalSupplierModal = () => {
-  const [open, setOpen] = useState(false);
-  const CreateSupplierMutation = useCreateLegalSupplier();
+const limpiar = (ced: string) => ced.replace(/\D/g, "");
+const esCedulaJuridica = (digits: string) =>
+  digits.length === 10 && /^[34]/.test(digits);
 
-  const SPANSTYLES = "text text-[#222]";
-  const LABELSTYLES = "grid gap-1";
-  const INPUTSTYLES = "w-full px-4 py-2 bg-gray-50 border";
+const formatearCedulaJuridica = (raw: string) => {
+  const d = limpiar(raw).slice(0, 10);
+  if (d.length <= 1) return d;
+  if (d.length <= 4) return `${d.slice(0, 1)}-${d.slice(1)}`;
+  return `${d.slice(0, 1)}-${d.slice(1, 4)}-${d.slice(4)}`;
+};
 
-  // -------- Helpers SOLO JURÍDICAS --------
-  const limpiar = (ced: string) => ced.replace(/\D/g, "");
-
-  const esCedulaJuridica = (digits: string) =>
-    digits.length === 10 && /^[34]/.test(digits); // 10 dígitos y empieza en 3 o 4
-
-  // Formateo en vivo: 1-3-6 => 3-101-354271
-  const formatearCedulaJuridica = (raw: string) => {
-    const d = limpiar(raw).slice(0, 10);
-    if (d.length <= 1) return d;
-    if (d.length <= 4) return `${d.slice(0, 1)}-${d.slice(1)}`;
-    return `${d.slice(0, 1)}-${d.slice(1, 4)}-${d.slice(4)}`;
+async function fetchNombreJuridico(
+  ced: string,
+  signal?: AbortSignal
+): Promise<string | null> {
+  const digits = limpiar(ced);
+  if (!esCedulaJuridica(digits)) return null;
+  const tryFetch = async (url: string) => {
+    const res = await fetch(url, { signal });
+    if (!res.ok) throw new Error("HTTP");
+    return res.json();
   };
+  try {
+    const d = await tryFetch(`https://apis.gometa.org/cedulas/${digits}`);
+    const nombre: string =
+      d?.razon_social ||
+      d?.razonsocial ||
+      d?.nombre_comercial ||
+      d?.nombreComercial ||
+      d?.nombre ||
+      "";
+    if (nombre?.trim()) return nombre.trim();
+  } catch {}
+  try {
+    const d = await tryFetch(
+      `https://api.hacienda.go.cr/fe/ae?identificacion=${digits}`
+    );
+    const nombre: string =
+      d?.razon_social ||
+      d?.razonsocial ||
+      d?.nombre_comercial ||
+      d?.nombreComercial ||
+      d?.nombre ||
+      "";
+    if (nombre?.trim()) return nombre.trim();
+  } catch {}
+  return null;
+}
 
-  async function fetchNombreJuridico(ced: string, signal?: AbortSignal): Promise<string | null> {
-    const digits = limpiar(ced);
-    if (!esCedulaJuridica(digits)) return null;
-
-    const tryFetch = async (url: string) => {
-      const res = await fetch(url, { signal });
-      if (!res.ok) throw new Error("HTTP");
-      return res.json();
-    };
-
-    // 1) GoMeta (proxy/cache de Hacienda)
-    try {
-      const d = await tryFetch(`https://apis.gometa.org/cedulas/${digits}`);
-      const nombre: string =
-        d?.razon_social ||
-        d?.razonsocial ||
-        d?.nombre_comercial ||
-        d?.nombreComercial ||
-        d?.nombre ||
-        "";
-      if (nombre?.trim()) return nombre.trim();
-    } catch {}
-
-    // 2) Hacienda directa
-    try {
-      const d = await tryFetch(`https://api.hacienda.go.cr/fe/ae?identificacion=${digits}`);
-      const nombre: string =
-        d?.razon_social ||
-        d?.razonsocial ||
-        d?.nombre_comercial ||
-        d?.nombreComercial ||
-        d?.nombre ||
-        "";
-      if (nombre?.trim()) return nombre.trim();
-    } catch {}
-
-    return null;
-  }
-
-  // -------- UX: lookup con debounce + abort --------
+export default function CreateLegalSupplierModal() {
+  const [open, setOpen] = useState(false);
   const [lookingUp, setLookingUp] = useState(false);
-  const lookupRef = useRef<{ timer: any; abort?: AbortController }>({ timer: null });
+  const lookupRef = useRef<{
+    timer: ReturnType<typeof setTimeout> | null;
+    abort?: AbortController;
+  }>({ timer: null });
+  const createMutation = useCreateLegalSupplier();
 
   const form = useForm({
     defaultValues: {
@@ -80,14 +91,11 @@ const CreateLegalSupplierModal = () => {
       Location: "",
       WebSite: "",
     },
-    validators:{
-        onChange:LegalSupplierSchema
-    },
+    validators: { onChange: LegalSupplierSchema },
     onSubmit: async ({ value }) => {
       try {
-        await CreateSupplierMutation.mutateAsync({
+        await createMutation.mutateAsync({
           ...value,
-          // Enviar LegalID sin guiones al backend (ajústalo si quieres guardarlo con guiones):
           LegalID: limpiar(value.LegalID),
         });
         form.reset();
@@ -99,27 +107,26 @@ const CreateLegalSupplierModal = () => {
   });
 
   const handleClose = () => {
-    toast.warning("Registro cancelado", { position: "top-right", autoClose: 3000 });
+    toast.warning("Registro cancelado", {
+      position: "top-right",
+      autoClose: 3000,
+    });
     setOpen(false);
     form.reset();
   };
 
   return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className="px-4 py-2 bg-[#091540] text-white shadow hover:bg-[#1789FC] transition"
-      >
-        + Crear proveedor jurídico
-      </button>
-
-      <ModalBase open={open} onClose={handleClose} panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]">
-        <header className="flex-shrink-0 flex flex-col">
-          <h2 className="text-2xl text-[#091540] font-bold">Crear proveedor jurídico</h2>
-          <p className="text-md">Complete la información para crear un proveedor jurídico</p>
-        </header>
-
-        <div className="border-b border-[#222]/10 my-2" />
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>+ Crear proveedor</Button>
+      </DialogTrigger>
+      <DialogContent className="flex max-h-[70vh] max-w-2xl flex-col gap-0 overflow-hidden p-0">
+        <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 py-5">
+          <DialogTitle>Crear proveedor jurídico</DialogTitle>
+          <DialogDescription>
+            Complete la información para crear un proveedor jurídico.
+          </DialogDescription>
+        </DialogHeader>
 
         <form
           id="create-legal-supplier-form"
@@ -127,214 +134,218 @@ const CreateLegalSupplierModal = () => {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
-          {/* LegalID */}
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+            <div className="flex flex-col gap-4">
           <form.Field name="LegalID">
-            {(field) => (
-              <label className={LABELSTYLES}>
-                <span className={SPANSTYLES}>Número de cédula jurídica del proveedor</span>
-                <input
-                  className={INPUTSTYLES}
-                  placeholder="ejm. 3-101-354271"
-                  value={field.state.value}
-                  onChange={(e) => {
-                    const formatted = formatearCedulaJuridica(e.target.value);
-                    field.handleChange(formatted);
-
-                    // ---- lookup con debounce usando solo dígitos ----
-                    if (lookupRef.current.timer) clearTimeout(lookupRef.current.timer);
-                    lookupRef.current.abort?.abort();
-
-                    const digits = limpiar(formatted);
-                    if (digits.length < 10) {
-                      form.setFieldValue("CompanyName", "");
-                      return;
-                    }
-
-                    lookupRef.current.timer = setTimeout(async () => {
-                      lookupRef.current.abort?.abort();
-                      const ac = new AbortController();
-                      lookupRef.current.abort = ac;
-
-                      if (!esCedulaJuridica(digits)) {
-                        form.setFieldValue("CompanyName", "");
-                        return;
-                      }
-
-                      setLookingUp(true);
-                      try {
-                        // consulta con dígitos; mostramos el nombre, pero mantenemos LegalID con guiones
-                        const nombre = await fetchNombreJuridico(digits, ac.signal);
-                        form.setFieldValue("CompanyName", nombre ?? "");
-                      } finally {
-                        setLookingUp(false);
-                      }
-                    }, 400);
-                  }}
-                  onBlur={async () => {
-                    // cancelar request anterior
-                    lookupRef.current.abort?.abort();
-
-                    const digits = limpiar(field.state.value);
-                    if (digits.length < 10 || !esCedulaJuridica(digits)) {
-                      form.setFieldValue("CompanyName", "");
-                      return;
-                    }
-
-                    const ac = new AbortController();
-                    lookupRef.current.abort = ac;
-
-                    setLookingUp(true);
-                    try {
-                      const nombre = await fetchNombreJuridico(digits, ac.signal);
-                      form.setFieldValue("CompanyName", nombre ?? "");
-                    } finally {
-                      setLookingUp(false);
-                    }
-                  }}
-                  maxLength={12}           // "3-101-354271" = 12 caracteres (con guiones)
-                  inputMode="numeric"
-                  autoComplete="off"
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                  </p>
-                )}
-                {lookingUp && <span className="text-xs text-gray-500 mt-1">Consultando…</span>}
-              </label>
-            )}
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && field.state.meta.errors.length > 0;
+              return (
+                <FieldGroup className="gap-2">
+                  <Field>
+                    <FieldLabel>Número de cédula jurídica del proveedor</FieldLabel>
+                    <Input
+                      placeholder="ejm. 3-101-354271"
+                      value={field.state.value}
+                      onChange={(e) => {
+                        const formatted = formatearCedulaJuridica(e.target.value);
+                        field.handleChange(formatted);
+                        if (lookupRef.current.timer)
+                          clearTimeout(lookupRef.current.timer);
+                        lookupRef.current.abort?.abort();
+                        const digits = limpiar(formatted);
+                        if (digits.length < 10) {
+                          form.setFieldValue("CompanyName", "");
+                          return;
+                        }
+                        lookupRef.current.timer = setTimeout(async () => {
+                          lookupRef.current.abort?.abort();
+                          const ac = new AbortController();
+                          lookupRef.current.abort = ac;
+                          if (!esCedulaJuridica(digits)) {
+                            form.setFieldValue("CompanyName", "");
+                            return;
+                          }
+                          setLookingUp(true);
+                          try {
+                            const nombre = await fetchNombreJuridico(
+                              digits,
+                              ac.signal
+                            );
+                            form.setFieldValue("CompanyName", nombre ?? "");
+                          } finally {
+                            setLookingUp(false);
+                          }
+                        }, 400);
+                      }}
+                      onBlur={async () => {
+                        lookupRef.current.abort?.abort();
+                        const digits = limpiar(field.state.value);
+                        if (digits.length < 10 || !esCedulaJuridica(digits)) {
+                          form.setFieldValue("CompanyName", "");
+                          return;
+                        }
+                        const ac = new AbortController();
+                        lookupRef.current.abort = ac;
+                        setLookingUp(true);
+                        try {
+                          const nombre = await fetchNombreJuridico(
+                            digits,
+                            ac.signal
+                          );
+                          form.setFieldValue("CompanyName", nombre ?? "");
+                        } finally {
+                          setLookingUp(false);
+                        }
+                      }}
+                      maxLength={12}
+                      inputMode="numeric"
+                      autoComplete="off"
+                      className={isInvalid ? "border-destructive" : ""}
+                    />
+                    {lookingUp && (
+                      <span className="text-xs text-muted-foreground">
+                        Consultando…
+                      </span>
+                    )}
+                    <FieldError errors={field.state.meta.errors} />
+                  </Field>
+                </FieldGroup>
+              );
+            }}
           </form.Field>
 
-          {/* CompanyName (autocompletado, deshabilitado) */}
           <form.Field name="CompanyName">
             {(field) => (
-              <label className={LABELSTYLES}>
-                <span className={SPANSTYLES}>Nombre del proveedor jurídico</span>
-                <input
-                  className={`${INPUTSTYLES} opacity-75 cursor-not-allowed`}
-                  placeholder="Se autocompleta según la cédula jurídica"
-                  value={field.state.value}
-                  onChange={() => {}}
-                  readOnly
-                  disabled
-                  aria-disabled="true"
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                )}
-              </label>
+              <FieldGroup className="gap-2">
+                <Field>
+                  <FieldLabel>Nombre del proveedor jurídico</FieldLabel>
+                  <Input
+                    placeholder="Se autocompleta según la cédula jurídica"
+                    value={field.state.value}
+                    readOnly
+                    disabled
+                    className="opacity-75 cursor-not-allowed"
+                  />
+                  <FieldError errors={field.state.meta.errors} />
+                </Field>
+              </FieldGroup>
             )}
           </form.Field>
 
-          {/* Email */}
           <form.Field name="Email">
-            {(field) => (
-              <label className={LABELSTYLES}>
-                <span className={SPANSTYLES}>Correo electrónico del proveedor</span>
-                <input
-                  className={INPUTSTYLES}
-                  placeholder="ejm. contacto@proveedor.com"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-              </label>
-            )}
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && field.state.meta.errors.length > 0;
+              return (
+                <FieldGroup className="gap-2">
+                  <Field>
+                    <FieldLabel>Correo electrónico del proveedor</FieldLabel>
+                    <Input
+                      type="email"
+                      placeholder="ejm. contacto@proveedor.com"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      className={isInvalid ? "border-destructive" : ""}
+                    />
+                    <FieldError errors={field.state.meta.errors} />
+                  </Field>
+                </FieldGroup>
+              );
+            }}
           </form.Field>
 
-          {/* PhoneNumber */}
           <form.Field name="PhoneNumber">
             {(field) => (
-              <>
-                <PhoneField
-                  value={field.state.value}
-                  onChange={(val) => field.handleChange(val ?? "")}
-                  defaultCountry="CR"
-                  required
-                  error={
-                    field.state.meta.isTouched && field.state.meta.errors[0]
-                      ? String(field.state.meta.errors[0])
-                      : undefined
-                  }
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </>
+              <FieldGroup className="gap-2">
+                <Field>
+                  <FieldLabel>Teléfono</FieldLabel>
+                  <PhoneField
+                    value={field.state.value}
+                    onChange={(val) => field.handleChange(val ?? "")}
+                    defaultCountry="CR"
+                    error={
+                      field.state.meta.isTouched && field.state.meta.errors[0]
+                        ? String(field.state.meta.errors[0])
+                        : undefined
+                    }
+                  />
+                  <FieldError errors={field.state.meta.errors} />
+                </Field>
+              </FieldGroup>
             )}
           </form.Field>
 
-          {/* Location */}
           <form.Field name="Location">
-            {(field) => (
-              <label className={LABELSTYLES}>
-                <span className={SPANSTYLES}>Dirección del proveedor</span>
-                <textarea
-                  className={`${INPUTSTYLES} resize-none min-h-[70px] leading-relaxed`}
-                  placeholder="ejm. 150 metros este del Banco Nacional en Carmona"
-                  rows={4}
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
-                )}
-              </label>
-            )}
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && field.state.meta.errors.length > 0;
+              return (
+                <FieldGroup className="gap-2">
+                  <Field>
+                    <FieldLabel>Dirección del proveedor</FieldLabel>
+                    <Textarea
+                      placeholder="ejm. 150 metros este del Banco Nacional en Carmona"
+                      rows={4}
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      className={isInvalid ? "border-destructive" : ""}
+                    />
+                    <FieldError errors={field.state.meta.errors} />
+                  </Field>
+                </FieldGroup>
+              );
+            }}
           </form.Field>
 
-          {/* WebSite */}
           <form.Field name="WebSite">
-            {(field) => (
-              <label className={LABELSTYLES}>
-                <span className={SPANSTYLES}>Sitio web del proveedor</span>
-                <input
-                  className={INPUTSTYLES}
-                  placeholder="ejm. www.proveedor.com"
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
-                )}
-              </label>
-            )}
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && field.state.meta.errors.length > 0;
+              return (
+                <FieldGroup className="gap-2">
+                  <Field>
+                    <FieldLabel>Sitio web del proveedor</FieldLabel>
+                    <Input
+                      placeholder="ejm. www.proveedor.com"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      className={isInvalid ? "border-destructive" : ""}
+                    />
+                    <FieldError errors={field.state.meta.errors} />
+                  </Field>
+                </FieldGroup>
+              );
+            }}
           </form.Field>
+            </div>
+          </div>
         </form>
-        <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+
+        <DialogFooter className="shrink-0 flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
+          <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (
-              <div className="flex-shrink-0 mt-4 flex justify-end gap-2 border-t border-gray-200 pt-3">
-                <button
-                  form="create-legal-supplier-form"
+              <div className="flex w-full flex-col-reverse items-center justify-between gap-2 sm:flex-row-reverse">
+                <DialogClose asChild>
+                  <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={handleClose}>
+                    Cancelar
+                  </Button>
+                </DialogClose>
+                <Button
                   type="submit"
-                  className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
-                  disabled={!canSubmit}
+                  form="create-legal-supplier-form"
+                  disabled={!canSubmit || isSubmitting}
+                  className="w-full sm:w-auto"
                 >
                   {isSubmitting ? "Registrando…" : "Registrar"}
-                </button>
-                <button type="button" onClick={handleClose} className="h-10 px-4 bg-gray-200 hover:bg-gray-300">
-                  Cancelar
-                </button>
+                </Button>
               </div>
             )}
-        </form.Subscribe>
-      </ModalBase>
-    </>
+          </form.Subscribe>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
-};
-
-export default CreateLegalSupplierModal;
+}

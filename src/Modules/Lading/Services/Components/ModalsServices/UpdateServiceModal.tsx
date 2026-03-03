@@ -93,7 +93,7 @@ const UpdateServiceModal = ({ service, open, onClose, onSuccess }: Props) => {
           max-w-2xl 
           !p-0 
           shadow-2xl 
-          max-h-[90vh] 
+          max-h-[70vh] 
           flex 
           flex-col
         "
