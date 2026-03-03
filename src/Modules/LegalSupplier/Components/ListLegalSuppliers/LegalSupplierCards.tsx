@@ -125,7 +125,7 @@ export default function LegalSupplierCards({
                         href={item.WebSite.startsWith("http") ? item.WebSite : `https://${item.WebSite}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="truncate underline underline-offset-2 hover:text-primary"
+                        className="hover:text-primary"
                       >
                         {item.WebSite}
                       </a>

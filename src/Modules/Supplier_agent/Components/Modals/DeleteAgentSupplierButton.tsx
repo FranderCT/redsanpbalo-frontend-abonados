@@ -1,72 +1,79 @@
-import { useState } from "react";
 import { toast } from "react-toastify";
-import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { Trash } from "lucide-react";
-
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/Components/ui/alert-dialog";
+import { Button } from "@/Components/ui/button";
 import { useDeleteAgentSupplier } from "../../Hooks/SupplierAgentHooks";
 import type { AgentSupplier } from "../../../Supplier/Models/AgentSupplier";
 
 type Props = {
-  agent: AgentSupplier;       // ← SINGULAR y usando el modelo unificado
+  agent: AgentSupplier;
   onSuccess?: () => void;
 };
 
 export default function DeleteAgentSupplierButton({ agent, onSuccess }: Props) {
-  const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const deleteAgentSupplierMutation = useDeleteAgentSupplier();
-
-  const handleClose = () => {
-    toast.warning("Acción cancelada", { position: "top-right", autoClose: 3000 });
-    setOpen(false);
-  };
+  const deleteMutation = useDeleteAgentSupplier();
+  const displayName = [agent.Name, agent.Surname1, agent.Surname2]
+    .filter(Boolean)
+    .join(" ")
+    .trim() || agent.Name || "sin nombre";
 
   const handleConfirm = async () => {
     if (typeof agent.Id !== "number") {
-      toast.error("No se encontró el Id del agente", { position: "top-right", autoClose: 3000 });
+      toast.error("No se encontró el Id del agente");
       return;
     }
     try {
-      setBusy(true);
-      await deleteAgentSupplierMutation.mutateAsync(agent.Id);
-      toast.success("Agente físico inhabilitado", { position: "top-right", autoClose: 3000 });
-      setOpen(false);
+      await deleteMutation.mutateAsync(agent.Id);
+      toast.success("Agente inhabilitado");
       onSuccess?.();
     } catch (err) {
-      console.error("Error al inhabilitar proveedor físico:", err);
-      toast.error("No se pudo inhabilitar el agente", { position: "top-right", autoClose: 3000 });
-    } finally {
-      setBusy(false);
+      console.error("Error al inhabilitar agente:", err);
+      toast.error("No se pudo inhabilitar el agente");
     }
   };
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        disabled={busy || typeof agent.Id !== "number"}
-        className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
-          ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
-        title="Inhabilitar agente"
-      >
-        <Trash className="h-4 w-4" />
-        {busy ? "..." : "Inhabilitar"}
-      </button>
-
-      {open && (
-        <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
-          <InhabilityActionModal
-            title="¿Inhabilitar agente?"
-            description={`Se inhabilitará el agente "${agent.Name ?? ""}".`}
-            cancelLabel="Cancelar"
-            confirmLabel="Inhabilitar"
-            onConfirm={handleConfirm}
-            onClose={handleClose}
-            onCancel={handleClose}
-          />
-        </div>
-      )}
-    </>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="gap-1 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+        >
+          Inhabilitar
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>¿Inhabilitar agente?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Se inhabilitará el agente &quot;{displayName}&quot;.
+            Esta acción puede revertirse desde la edición del agente.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <div className="flex flex-row-reverse">
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={handleConfirm}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Inhabilitando…" : "Inhabilitar"}
+            </Button>
+          </div>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
