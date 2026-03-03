@@ -71,7 +71,7 @@ export default function RegisterAbonadosModal() {
         <Button className="w-full sm:w-auto">+ Agregar Usuario</Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[90vh] max-w-xl gap-0 overflow-hidden p-0">
+      <DialogContent className="max-h-[70vh] max-w-xl gap-0 overflow-hidden p-0">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Crear cuenta</DialogTitle>
           <DialogDescription>

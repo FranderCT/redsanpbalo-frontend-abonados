@@ -129,7 +129,7 @@ export default function EditReportModal({
         }
       }}
     >
-      <DialogContent className="max-h-[90vh] gap-0 overflow-hidden">
+      <DialogContent className="max-h-[70vh] gap-0 overflow-hidden">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Editar reporte #{report.Id}</DialogTitle>
           <DialogDescription>

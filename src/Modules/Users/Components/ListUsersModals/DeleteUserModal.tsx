@@ -58,7 +58,7 @@ export default function DeleteUserModal({ user, open, onClose, onSuccess }: Prop
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-xl gap-0 overflow-hidden p-0">
+      <DialogContent className="max-h-[70vh] max-w-xl gap-0 overflow-hidden p-0">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Desactivar usuario</DialogTitle>
           <DialogDescription>

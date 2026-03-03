@@ -139,8 +139,8 @@ export default function EditLegalSupplierModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
-      <DialogContent className="max-h-[90vh] max-w-2xl gap-0 overflow-hidden p-0">
-        <DialogHeader className="space-y-1.5 border-b px-6 py-5">
+      <DialogContent className="flex max-h-[70vh] max-w-2xl flex-col gap-0 overflow-hidden p-0">
+        <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Editar proveedor jurídico</DialogTitle>
           <DialogDescription>
             Actualice la información del proveedor.
@@ -153,8 +153,10 @@ export default function EditLegalSupplierModal({
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-4"
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
+            <div className="flex flex-col gap-4">
           <form.Field name="LegalID">
             {(field) => {
               const isInvalid =
@@ -363,25 +365,33 @@ export default function EditLegalSupplierModal({
               </FieldGroup>
             )}
           </form.Field>
+            </div>
+          </div>
         </form>
 
-        <DialogFooter className="flex flex-row justify-end gap-2 border-t px-6 py-4">
+        <DialogFooter className="shrink-0 flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
           <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
             {([canSubmit, isSubmitting]) => (
-              <>
+              <div className="flex w-full flex-col-reverse items-center justify-between gap-2 sm:flex-row-reverse">
                 <DialogClose asChild>
-                  <Button type="button" variant="outline" onClick={handleClose}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                    onClick={handleClose}
+                  >
                     Cancelar
                   </Button>
                 </DialogClose>
                 <Button
-                  form="edit-legal-supplier-form"
                   type="submit"
+                  form="edit-legal-supplier-form"
                   disabled={!canSubmit || isSubmitting}
+                  className="w-full sm:w-auto"
                 >
                   {isSubmitting ? "Guardando…" : "Guardar cambios"}
                 </Button>
-              </>
+              </div>
             )}
           </form.Subscribe>
         </DialogFooter>

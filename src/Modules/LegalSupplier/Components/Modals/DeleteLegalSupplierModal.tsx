@@ -51,7 +51,7 @@ export default function DeleteLegalSupplierModal({
             Esta acción puede revertirse desde la edición del proveedor.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="gap-2">
+        <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>Cancelar</AlertDialogCancel>
           <Button
             variant="destructive"

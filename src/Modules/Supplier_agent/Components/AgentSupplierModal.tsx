@@ -57,7 +57,7 @@ const AgentSupplierModal = ({ legalSupplierId, open, onClose }: Props) => {
       <ModalBase
         open={open}
         onClose={onClose}
-        panelClassName="w-full max-w-6xl max-h-[90vh] bg-white shadow-2xl overflow-hidden flex flex-col"
+        panelClassName="w-full max-w-6xl max-h-[70vh] bg-white shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Header fijo */}
         <header className="p-6 border-b border-gray-200 flex justify-between items-start sticky top-0 bg-white z-10">

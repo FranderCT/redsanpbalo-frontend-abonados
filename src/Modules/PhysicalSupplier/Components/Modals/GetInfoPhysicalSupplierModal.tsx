@@ -42,15 +42,15 @@ export default function GetInfoPhysicalSupplierModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-h-[90vh] max-w-2xl gap-0 overflow-hidden p-0">
-        <DialogHeader className="space-y-1.5 border-b px-6 py-5">
+      <DialogContent className="flex max-h-[70vh] max-w-2xl flex-col gap-0 overflow-hidden p-0">
+        <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Información del proveedor</DialogTitle>
           <DialogDescription>
             Ficha del proveedor físico y su estado en el sistema.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex max-h-[50vh] flex-col gap-3 overflow-y-auto overflow-x-hidden px-6 py-4">
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-6 py-4">
           <Card className="overflow-hidden">
             <CardHeader className="flex flex-col gap-4 border-b bg-muted/40 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
@@ -132,7 +132,7 @@ export default function GetInfoPhysicalSupplierModal({
           </Card>
         </div>
 
-        <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
+        <DialogFooter className="shrink-0 flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
           <Button
             type="button"
             variant="outline"

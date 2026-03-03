@@ -86,8 +86,8 @@ export default function EditPhysicalSupplierModal({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
-      <DialogContent className="max-h-[90vh] max-w-xl gap-0 overflow-hidden p-0">
-        <DialogHeader className="space-y-1.5 border-b px-6 py-5">
+      <DialogContent className="flex max-h-[70vh] max-w-xl flex-col gap-0 overflow-hidden p-0">
+        <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Editar proveedor físico</DialogTitle>
           <DialogDescription>
             Actualice la información del proveedor.
@@ -95,10 +95,11 @@ export default function EditPhysicalSupplierModal({
         </DialogHeader>
         <form
           id="edit-physical-supplier-form"
-          className="flex flex-col gap-4"
+          className="flex min-h-0 flex-1 flex-col"
           onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
         >
-          <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-6 py-4">
+            <div className="flex flex-col gap-4">
             <FieldGroup className="gap-4">
               <FieldGroup className="gap-2">
                 <form.Field name="IDcard">
@@ -284,8 +285,9 @@ export default function EditPhysicalSupplierModal({
                 )}
               </form.Field>
             </FieldGroup>
+            </div>
           </div>
-          <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
+          <DialogFooter className="shrink-0 flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
             <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
                 <div className="flex w-full flex-col-reverse items-center justify-between gap-2 sm:flex-row-reverse">
