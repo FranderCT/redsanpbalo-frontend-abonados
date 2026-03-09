@@ -1,17 +1,17 @@
 
-import { AlertCircle, ClipboardList, FileText, Wrench } from "lucide-react"
+import { ClipboardList, FileText, Wrench } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "./card"
 
 type Activity = {
   id: string
-  type: "solicitud" | "reporte" | "proyecto"
+  type: "solicitud" | "proyecto"
   title: string
   description?: string
   time: string
   status?: "pendiente" | "urgente" | "completado" | "en-proceso"
 }
 
-const typeIcon = { solicitud: FileText, reporte: AlertCircle, proyecto: Wrench } as const
+const typeIcon = { solicitud: FileText, proyecto: Wrench } as const
 const statusChip = {
   pendiente:  "bg-amber-50 text-amber-700 border border-amber-200",
   urgente:    "bg-red-50 text-red-700 border border-red-200",

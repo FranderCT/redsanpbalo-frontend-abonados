@@ -60,7 +60,7 @@ export default function UserDashboard() {
                 </div>
               </div>
               <p className="text-gray-500 text-sm max-w-2xl">
-                Sistema de gestión <span className="font-medium text-[#091540]">Red San Pablo</span> - Administra tus solicitudes y reportes
+                Sistema de gestión <span className="font-medium text-[#091540]">Red San Pablo</span> - Administra tus solicitudes
               </p>
             </div>
           </div>

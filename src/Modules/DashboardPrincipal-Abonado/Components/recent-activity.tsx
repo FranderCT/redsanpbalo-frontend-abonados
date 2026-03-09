@@ -1,10 +1,10 @@
-import { ClipboardList, FileText, Wrench, MessageSquare, OctagonAlert } from "lucide-react"
+import { ClipboardList, FileText, Wrench, MessageSquare } from "lucide-react"
 import { Badge } from "./badge"
 import { Card, CardContent, CardHeader, CardTitle } from "../../DashboardPrincipal-Admin/Components/card"
 
 export type Activity = {
   id: string
-  type: "solicitud" | "reporte" | "proyecto" | "comentario"
+  type: "solicitud" | "proyecto" | "comentario"
   title: string
   description?: string
   time: string
@@ -13,7 +13,6 @@ export type Activity = {
 
 const typeIcon = {
   solicitud: FileText,
-  reporte: OctagonAlert,
   proyecto: Wrench,
   comentario: MessageSquare,
 } as const
