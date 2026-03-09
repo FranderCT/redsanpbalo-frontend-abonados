@@ -26,11 +26,12 @@ import {
 } from "@/Components/ui/select";
 
 import { useUpdateReport } from "../../Hooks/ReportsHooks";
-import { useGetAllReportStates } from "../../Hooks/ReportStatesHooks";
+import { useReportStateOptions } from "../../Hooks/ReportStatesHooks";
 import { useGetAllReportTypes } from "../../Hooks/ReportTypesHooks";
 import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
-import { useGetUsersByRoleFontanero } from "../../../Users/Hooks/UsersHooks";
 import type { Report } from "../../Models/Report";
+import type { ReportStateValue, ReportUrgencyValue } from "../../Models/ReportEnums";
+import { REPORT_URGENCY_OPTIONS } from "../../Models/ReportEnums";
 import { updateReportValidators } from "../../schemas/ReportSchema";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -48,36 +49,36 @@ export default function EditReportModal({
 }: EditReportModalProps) {
   const updateReportMutation = useUpdateReport();
 
-  const { reportStates = [], isLoading: statesLoading } = useGetAllReportStates();
+  const { reportStateOptions } = useReportStateOptions();
   const { reportTypes = [], isLoading: typesLoading } = useGetAllReportTypes();
   const { reportLocations = [], isLoading: locationsLoading } =
     useGetAllReportLocations();
-  const { fontaneros = [], isPending: fontanerosLoading } =
-    useGetUsersByRoleFontanero();
 
   const form = useForm({
     defaultValues: {
-      Location: report.Location || "",
+      ExactLocation: report.ExactLocation || "",
       Description: report.Description || "",
       LocationId: report.ReportLocation?.Id || 0,
       ReportTypeId: report.ReportType?.Id || 0,
-      ReportStateId: report.ReportState?.IdReportState || 0,
-      UserInChargeId: report.UserInCharge?.Id || 0,
+      State: (report.State || "") as ReportStateValue | "",
+      Urgency: (report.Urgency || "media") as ReportUrgencyValue,
       AdditionalInfo: report.AdditionalInfo || "",
+      stateChangeNote: "",
     },
-    validators: {
-      onChange: updateReportValidators,
-      onSubmit: updateReportValidators,
-    },
+    // validators: {
+    //   onChange: updateReportValidators,
+    //   onSubmit: updateReportValidators,
+    // },
     onSubmit: async ({ value }) => {
       const payload = {
-        Location: value.Location,
+        ExactLocation: value.ExactLocation,
         Description: value.Description,
         LocationId: Number(value.LocationId) || undefined,
         ReportTypeId: Number(value.ReportTypeId) || undefined,
-        ReportStateId: Number(value.ReportStateId) || undefined,
-        UserInChargeId: Number(value.UserInChargeId) || undefined,
+        State: value.State || undefined,
+        Urgency: value.Urgency || undefined,
         AdditionalInfo: value.AdditionalInfo || undefined,
+        stateChangeNote: value.stateChangeNote || undefined,
       };
 
       try {
@@ -97,18 +98,18 @@ export default function EditReportModal({
 
   useEffect(() => {
     if (open && report) {
-      form.setFieldValue("Location", report.Location || "");
+      form.setFieldValue("ExactLocation", report.ExactLocation || "");
       form.setFieldValue("Description", report.Description || "");
       form.setFieldValue("LocationId", report.ReportLocation?.Id || 0);
       form.setFieldValue("ReportTypeId", report.ReportType?.Id || 0);
-      form.setFieldValue("ReportStateId", report.ReportState?.IdReportState || 0);
-      form.setFieldValue("UserInChargeId", report.UserInCharge?.Id || 0);
+      form.setFieldValue("State", (report.State || "") as ReportStateValue | "");
+      form.setFieldValue("Urgency", (report.Urgency || "media") as ReportUrgencyValue);
       form.setFieldValue("AdditionalInfo", report.AdditionalInfo || "");
+      form.setFieldValue("stateChangeNote", "");
     }
   }, [open, report]);
 
-  const isLoading =
-    statesLoading || typesLoading || locationsLoading || fontanerosLoading;
+  const isLoading = typesLoading || locationsLoading;
 
   const formatErrors = (errors: unknown[]) =>
     errors?.map((e) =>
@@ -131,9 +132,9 @@ export default function EditReportModal({
     >
       <DialogContent className="max-h-[70vh] gap-0 overflow-hidden">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
-          <DialogTitle>Editar reporte #{report.Id}</DialogTitle>
+          <DialogTitle>Editar reporte {report.Code}</DialogTitle>
           <DialogDescription>
-            Modifica la información del reporte según sea necesario.
+            Modifica la información del reporte. Las asignaciones de fontaneros se gestionan en el detalle del reporte.
           </DialogDescription>
         </DialogHeader>
 
@@ -155,13 +156,13 @@ export default function EditReportModal({
             <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
               <FieldGroup className="gap-4">
                 <ReportField
-                  name="Location"
+                  name="ExactLocation"
                   children={(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>Ubicación</FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Ubicación exacta</FieldLabel>
                         <Input
                           id={field.name}
                           name={field.name}
@@ -299,92 +300,75 @@ export default function EditReportModal({
                 />
 
                 <ReportField
-                  name="ReportStateId"
-                  children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>Estado</FieldLabel>
-                        <Select
-                          value={
-                            field.state.value === 0
-                              ? ""
-                              : String(field.state.value)
-                          }
-                          onValueChange={(v) => field.handleChange(Number(v))}
-                        >
-                          <SelectTrigger
-                            id={field.name}
-                            aria-invalid={isInvalid}
-                          >
-                            <SelectValue placeholder="Seleccionar estado" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {reportStates.map((state) => (
-                              <SelectItem
-                                key={state.IdReportState}
-                                value={String(state.IdReportState)}
-                              >
-                                {state.Name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {isInvalid && (
-                          <FieldError
-                            errors={formatErrors(field.state.meta.errors)}
-                          />
-                        )}
-                      </Field>
-                    );
-                  }}
+                  name="State"
+                  children={(field) => (
+                    <Field className="gap-2">
+                      <FieldLabel htmlFor={field.name}>Estado</FieldLabel>
+                      <Select
+                        value={field.state.value || "all"}
+                        onValueChange={(v) =>
+                          field.handleChange(v === "all" ? "" : (v as ReportStateValue))
+                        }
+                      >
+                        <SelectTrigger id={field.name}>
+                          <SelectValue placeholder="Seleccionar estado" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">—</SelectItem>
+                          {reportStateOptions.map((s) => (
+                            <SelectItem key={s.value} value={s.value}>
+                              {s.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )}
                 />
 
                 <ReportField
-                  name="UserInChargeId"
-                  children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>
-                          Fontanero encargado (opcional)
-                        </FieldLabel>
-                        <Select
-                          value={String(field.state.value)}
-                          onValueChange={(v) => field.handleChange(Number(v))}
-                          disabled={fontanerosLoading}
-                        >
-                          <SelectTrigger
-                            id={field.name}
-                            aria-invalid={isInvalid}
-                          >
-                            <SelectValue
-                              placeholder={
-                                fontanerosLoading
-                                  ? "Cargando..."
-                                  : "Sin asignar"
-                              }
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0">Sin asignar</SelectItem>
-                            {fontaneros.map((f) => (
-                              <SelectItem key={f.Id} value={String(f.Id)}>
-                                {f.Name} {f.Surname1}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {isInvalid && (
-                          <FieldError
-                            errors={formatErrors(field.state.meta.errors)}
-                          />
-                        )}
-                      </Field>
-                    );
-                  }}
+                  name="Urgency"
+                  children={(field) => (
+                    <Field className="gap-2">
+                      <FieldLabel htmlFor={field.name}>Urgencia</FieldLabel>
+                      <Select
+                        value={field.state.value}
+                        onValueChange={(v) =>
+                          field.handleChange(v as ReportUrgencyValue)
+                        }
+                      >
+                        <SelectTrigger id={field.name}>
+                          <SelectValue placeholder="Urgencia" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {REPORT_URGENCY_OPTIONS.map((u) => (
+                            <SelectItem key={u.value} value={u.value}>
+                              {u.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )}
+                />
+
+                <ReportField
+                  name="stateChangeNote"
+                  children={(field) => (
+                    <Field className="gap-2">
+                      <FieldLabel htmlFor={field.name}>
+                        Nota al cambiar estado (opcional)
+                      </FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Se guarda en el historial si cambias el estado"
+                      />
+                    </Field>
+                  )}
                 />
 
                 <ReportField
@@ -395,7 +379,7 @@ export default function EditReportModal({
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
                         <FieldLabel htmlFor={field.name}>
-                          Información adicional
+                          Información adicional / seguimiento
                         </FieldLabel>
                         <Textarea
                           id={field.name}
@@ -423,10 +407,10 @@ export default function EditReportModal({
 
               <div className="rounded-lg border bg-muted/40 px-4 py-3">
                 <p className="text-sm font-medium text-foreground">
-                  Reportado por: {report.User.Name} {report.User.Surname1}
+                  Reportado por: {report.User?.Name} {report.User?.Surname1}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {report.User.Email}
+                  {report.User?.Email}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Fecha de creación:{" "}

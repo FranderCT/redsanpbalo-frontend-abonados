@@ -39,9 +39,10 @@ export async function getMyReportsSummary(): Promise<MyReportsSummary> {
   return data;
 }
 
+/** GET /reports/me/count-by-state — state = valor del enum (ej. "En progreso") */
 export async function getMyReportsCountByState(state: string): Promise<number> {
   const { data } = await apiAxios.get<{ state: string; count: number }>(
-    `${BASE}/me/count-by-state`,
+    `${BASEREPORT}/me/count-by-state`,
     { params: { state } }
   );
   return data.count;

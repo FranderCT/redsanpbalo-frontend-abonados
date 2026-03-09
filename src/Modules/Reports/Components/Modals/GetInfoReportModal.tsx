@@ -31,12 +31,13 @@ function formatDate(d: Date | string) {
 }
 
 function getStatusVariant(
-  name?: string
+  state?: string
 ): "default" | "secondary" | "destructive" | "outline" {
-  const n = (name ?? "").toLowerCase();
+  const n = (state ?? "").toLowerCase();
   if (n.includes("resuelto") || n.includes("completado")) return "default";
-  if (n.includes("curso") || n.includes("proceso")) return "secondary";
+  if (n.includes("proceso")) return "secondary";
   if (n.includes("pendiente") || n.includes("espera")) return "outline";
+  if (n.includes("cancelado")) return "destructive";
   return "secondary";
 }
 
@@ -51,15 +52,24 @@ export default function GetInfoReportModal({
     onSuccess?.();
   };
 
+  const assignments = report.Assignments ?? [];
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && close()}>
       <DialogContent className="max-h-[70vh] w-full max-w-md gap-0 overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="space-y-2 px-6 pt-6">
           <div className="flex items-center justify-between gap-2">
             <DialogTitle className="text-xl">Reporte {report.Code}</DialogTitle>
-            <Badge variant={getStatusVariant(report.ReportState?.Name)}>
-              {report.ReportState?.Name ?? "—"}
-            </Badge>
+            <div className="flex flex-col gap-1 items-end">
+              <Badge variant={getStatusVariant(report.State)}>
+                {report.State ?? "—"}
+              </Badge>
+              {report.Urgency && (
+                <Badge variant="outline" className="text-xs capitalize">
+                  {report.Urgency}
+                </Badge>
+              )}
+            </div>
           </div>
           <DialogDescription className="flex items-center gap-2 text-sm">
             <Calendar className="size-4 shrink-0" />
@@ -91,7 +101,7 @@ export default function GetInfoReportModal({
                   Dirección exacta
                 </CardDescription>
                 <p className="text-base font-medium leading-snug text-foreground">
-                  {report.Location}
+                  {report.ExactLocation}
                 </p>
                 {report.ReportLocation?.Neighborhood && (
                   <p className="mt-1.5 text-sm text-muted-foreground">
@@ -140,23 +150,34 @@ export default function GetInfoReportModal({
             </Card>
           )}
 
-          {report.UserInCharge && (
+          {assignments.length > 0 && (
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Wrench className="size-4" />
-                  Encargado
+                  Encargados
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <p className="font-medium text-foreground">
-                  {report.UserInCharge.Name} {report.UserInCharge.Surname1}
-                </p>
-                {report.UserInCharge.Email && (
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {report.UserInCharge.Email}
-                  </p>
-                )}
+              <CardContent className="pt-0 space-y-3">
+                {assignments.map((a) => (
+                  <div key={a.Id} className="rounded-md border bg-muted/30 p-2">
+                    <p className="font-medium text-foreground">
+                      {a.User
+                        ? `${a.User.Name} ${a.User.Surname1}`
+                        : "—"}
+                    </p>
+                    {a.User?.Email && (
+                      <p className="text-xs text-muted-foreground">
+                        {a.User.Email}
+                      </p>
+                    )}
+                    {a.Instructions && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {a.Instructions}
+                      </p>
+                    )}
+                  </div>
+                ))}
               </CardContent>
             </Card>
           )}

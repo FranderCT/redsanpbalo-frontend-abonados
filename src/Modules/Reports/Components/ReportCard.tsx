@@ -1,15 +1,14 @@
+import { useNavigate } from "@tanstack/react-router";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
 
-import { MapPin, Calendar, Wrench, UserCircle } from "lucide-react";
+import { MapPin, Calendar, Wrench, UserCircle, ArrowRight } from "lucide-react";
 import type { Report } from "../Models/Report";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import { Separator } from "@/Components/ui/separator";
+import { Button } from "@/Components/ui/button";
 
 type Props = {
   report: Report;
-  onViewDetails?: (report: Report) => void;
-  onEditReport?: (report: Report) => void;
 };
 
 function formatDate(d: Date | string) {
@@ -21,33 +20,55 @@ function formatDate(d: Date | string) {
 }
 
 function getStatusVariant(
-  name?: string
+  state?: string
 ): "default" | "secondary" | "destructive" | "outline" {
-  const n = (name ?? "").toLowerCase();
+  const n = (state ?? "").toLowerCase();
   if (n.includes("resuelto") || n.includes("completado")) return "default";
-  if (n.includes("curso") || n.includes("proceso")) return "secondary";
+  if (n.includes("proceso")) return "secondary";
   if (n.includes("pendiente") || n.includes("espera")) return "outline";
+  if (n.includes("cancelado")) return "destructive";
   return "secondary";
 }
 
-export default function ReportCard({ report, onViewDetails, onEditReport }: Props) {
+export default function ReportCard({ report }: Props) {
+  const navigate = useNavigate();
+  const assignments = report.Assignments ?? [];
+  const firstAssigned = assignments[0]?.User;
+
+  const goToDetail = () => {
+    navigate({ to: "/dashboard/reports/$reportId", params: { reportId: String(report.Id) } });
+  };
+
   return (
-    <Card className="overflow-hidden transition-shadow hover:shadow-md">
+    <Card
+      className="overflow-hidden transition-shadow hover:shadow-md cursor-pointer group"
+      onClick={goToDetail}
+    >
       <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-3">
         <div>
-          <CardTitle className="text-xl">Código de reporte <br /> <span className="text-primary text-lg font-normal">{report.Code}</span></CardTitle>
+          <CardTitle className="text-xl">
+            Código de reporte <br />{" "}
+            <span className="text-primary text-lg font-normal">{report.Code}</span>
+          </CardTitle>
           <CardDescription className="flex items-center gap-1.5">
             <Calendar className="size-3.5" />
             {formatDate(report.CreatedAt)}
           </CardDescription>
         </div>
-        <Badge variant={getStatusVariant(report.ReportState?.Name)}>
-          {report.ReportState?.Name ?? "—"}
-        </Badge>
+        <div className="flex flex-col gap-1 items-end">
+          <Badge variant={getStatusVariant(report.State)}>
+            {report.State ?? "—"}
+          </Badge>
+          {report.Urgency && (
+            <Badge variant="outline" className="text-xs capitalize">
+              {report.Urgency}
+            </Badge>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
         <Separator />
-        
+
         <div>
           <CardDescription className="mb-1 text-xs font-medium uppercase tracking-wider">
             Descripción
@@ -64,7 +85,7 @@ export default function ReportCard({ report, onViewDetails, onEditReport }: Prop
             <MapPin className="size-3.5" />
             Dirección exacta
           </CardDescription>
-          <p className="text-sm font-medium text-foreground">{report.Location}</p>
+          <p className="text-sm font-medium text-foreground">{report.ExactLocation}</p>
           {report.ReportLocation?.Neighborhood && (
             <p className="mt-0.5 text-xs text-muted-foreground">
               Barrio: {report.ReportLocation.Neighborhood}
@@ -102,9 +123,7 @@ export default function ReportCard({ report, onViewDetails, onEditReport }: Prop
                   )}
                 </>
               ) : (
-                <p className="text-sm font-medium italic text-muted-foreground">
-                  —
-                </p>
+                <p className="text-sm font-medium italic text-muted-foreground">—</p>
               )}
             </div>
           </div>
@@ -118,22 +137,18 @@ export default function ReportCard({ report, onViewDetails, onEditReport }: Prop
             </div>
             <div className="min-w-0 flex-1">
               <CardDescription className="text-xs font-medium uppercase tracking-wider">
-                Encargado
+                Encargados
               </CardDescription>
-              {report.UserInCharge ? (
-                <>
-                  <p className="truncate text-sm font-medium text-foreground">
-                    {report.UserInCharge.Name} {report.UserInCharge.Surname1}
-                  </p>
-                  {report.UserInCharge.Email && (
-                    <p className="truncate text-xs text-muted-foreground">
-                      {report.UserInCharge.Email}
-                    </p>
-                  )}
-                </>
+              {assignments.length > 0 ? (
+                <p className="truncate text-sm font-medium text-foreground">
+                  {firstAssigned
+                    ? `${firstAssigned.Name} ${firstAssigned.Surname1}`
+                    : "—"}
+                  {assignments.length > 1 && ` +${assignments.length - 1} más`}
+                </p>
               ) : (
                 <p className="text-sm font-medium italic text-amber-600 dark:text-amber-500">
-                  Asigne un encargado
+                  Sin asignar
                 </p>
               )}
             </div>
@@ -141,23 +156,14 @@ export default function ReportCard({ report, onViewDetails, onEditReport }: Prop
         </>
       </CardContent>
 
-      <CardFooter className="flex gap-2 border-t pt-4">
-        {onEditReport && (
-          <Button 
-            size="sm"
-            className="flex-1"
-            onClick={() => onEditReport(report)}
-          >
-            Gestionar
-          </Button>
-        )}
+      <CardFooter className="border-t pt-4" onClick={(e) => e.stopPropagation()}>
         <Button
           size="sm"
-          variant="outline"
-          className="flex-1"
-          onClick={() => onViewDetails?.(report)}
+          className="w-full group-hover:bg-primary/90"
+          onClick={goToDetail}
         >
-          Ver detalles
+          Ver y gestionar
+          <ArrowRight className="size-4 ml-2" />
         </Button>
       </CardFooter>
     </Card>

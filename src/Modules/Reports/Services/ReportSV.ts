@@ -1,8 +1,15 @@
 import apiAxios from "../../../api/apiConfig";
 import type { PaginatedResponse } from "@/core/pagination/pagination";
-import type { CreateReportPayload, UpdateReportPayload, Report, ReportPaginationParams } from "../Models/Report";
+import type {
+  CreateReportPayload,
+  UpdateReportPayload,
+  Report,
+  ReportPaginationParams,
+  ReportAssignment,
+  ReportStateHistoryEntry,
+} from "../Models/Report";
 
-const BASE_URL = '/reports';
+const BASE_URL = "/reports";
 
 function getErrorMessage(error: unknown): string {
   if (error && typeof error === "object" && "response" in error) {
@@ -12,82 +19,223 @@ function getErrorMessage(error: unknown): string {
   return "Error de conexión al servidor";
 }
 
-export async function getAllReports() : Promise<Report[]>{
-    try{
-        const {data} = await apiAxios.get<Report[]>(`${BASE_URL}`);
-        return data;
-    }catch(error){
-        console.error("Error fetching reports:", error);
-        throw error;
-    }
+export async function getAllReports(): Promise<Report[]> {
+  try {
+    const { data } = await apiAxios.get<Report[]>(`${BASE_URL}`);
+    return data;
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+    throw error;
+  }
+}
+
+export async function getReportById(id: number): Promise<Report> {
+  const { data } = await apiAxios.get<Report>(`${BASE_URL}/${id}`);
+  return data;
+}
+
+/** Cantidad de reportes en estado "En progreso" (para dashboard admin) */
+export async function getReportsInProcessCount(): Promise<number> {
+  try {
+    const { data } = await apiAxios.get<PaginatedResponse<Report>>(
+      `${BASE_URL}/search`,
+      { params: { state: "En progreso", limit: 1, page: 1 } }
+    );
+    return data?.meta?.totalItems ?? 0;
+  } catch {
+    return 0;
+  }
 }
 
 export async function searchReports(
-    query: ReportPaginationParams
+  query: ReportPaginationParams
 ): Promise<PaginatedResponse<Report>> {
-    try {
-        const { page = 1, limit = 10, q, stateId, locationId, reportTypeId, sortDir, startDate, endDate } = query ?? {};
-        const cleanParams: Record<string, number | string | undefined> = { page, limit };
-        if (q?.trim()) cleanParams.q = q.trim();
-        if (stateId !== undefined && !isNaN(stateId)) cleanParams.stateId = stateId;
-        if (locationId !== undefined && !isNaN(locationId)) cleanParams.locationId = locationId;
-        if (reportTypeId !== undefined && !isNaN(reportTypeId)) cleanParams.reportTypeId = reportTypeId;
-        if (sortDir === "ASC" || sortDir === "DESC") cleanParams.sortDir = sortDir;
-        if (startDate?.trim()) cleanParams.startDate = startDate.trim();
-        if (endDate?.trim()) cleanParams.endDate = endDate.trim();
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      q,
+      state,
+      locationId,
+      reportTypeId,
+      sortDir,
+      startDate,
+      endDate,
+    } = query ?? {};
+    const cleanParams: Record<string, number | string | undefined> = {
+      page,
+      limit,
+    };
+    if (q?.trim()) cleanParams.q = q.trim();
+    if (state) cleanParams.state = state;
+    if (locationId !== undefined && !isNaN(locationId))
+      cleanParams.locationId = locationId;
+    if (reportTypeId !== undefined && !isNaN(reportTypeId))
+      cleanParams.reportTypeId = reportTypeId;
+    if (sortDir === "ASC" || sortDir === "DESC") cleanParams.sortDir = sortDir;
+    if (startDate?.trim()) cleanParams.startDate = startDate.trim();
+    if (endDate?.trim()) cleanParams.endDate = endDate.trim();
 
-        const { data } = await apiAxios.get<PaginatedResponse<Report>>(`${BASE_URL}/search`, {
-            params: cleanParams,
-        });
-        return data;
-    } catch (error) {
-        throw new Error(getErrorMessage(error));
-    }
+    const { data } = await apiAxios.get<PaginatedResponse<Report>>(
+      `${BASE_URL}/search`,
+      { params: cleanParams }
+    );
+    return data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
 }
 
-
-
-export async function createReportByAdmin(payload: CreateReportPayload): Promise<Report> {
-    try {
-        const { data } = await apiAxios.post<Report>(`${BASE_URL}/admin`, payload);
-        return data;
-    } catch (error) {
-        console.error("Error creating report:", error);
-        throw error;
-    }
+export async function createReportByAdmin(
+  payload: CreateReportPayload
+): Promise<Report> {
+  try {
+    const { data } = await apiAxios.post<Report>(`${BASE_URL}/admin`, payload);
+    return data;
+  } catch (error) {
+    console.error("Error creating report:", error);
+    throw error;
+  }
 }
 
-
-export async function createReportByUser(payload: CreateReportPayload): Promise<Report> {
-    try {
-        const { data } = await apiAxios.post<Report>(`${BASE_URL}`, payload);
-        return data;
-    } catch (error) {
-        console.error("Error creating report:", error);
-        throw error;
-    }       
+export async function createReportByUser(
+  payload: CreateReportPayload
+): Promise<Report> {
+  try {
+    const { data } = await apiAxios.post<Report>(`${BASE_URL}`, payload);
+    return data;
+  } catch (error) {
+    console.error("Error creating report:", error);
+    throw error;
+  }
 }
 
-export async function assignUserInCharge(reportId: string, userInChargeId: number): Promise<Report> {
-    try {
-        const { data } = await apiAxios.patch<Report>(`${BASE_URL}/${reportId}/assign-user-in-charge`, {
-            userInChargeId
-        });
-        return data;
-    } catch (error) {
-        console.error("Error assigning user in charge:", error);
-        throw error;
-    }
+export async function updateReport(
+  reportId: string,
+  payload: UpdateReportPayload
+): Promise<Report> {
+  try {
+    const { data } = await apiAxios.patch<Report>(
+      `${BASE_URL}/${reportId}`,
+      payload
+    );
+    return data;
+  } catch (error) {
+    console.error("Error updating report:", error);
+    throw error;
+  }
 }
 
-export async function updateReport(reportId: string, payload: UpdateReportPayload): Promise<Report> {
-    try {
-        const { data } = await apiAxios.patch<Report>(`${BASE_URL}/${reportId}`, payload);
-        return data;
-    } catch (error) {
-        console.error("Error updating report:", error);
-        throw error;
-    }
+// ---------- Cambio de estado (dedicado: historial + socket) ----------
+export interface ChangeReportStatePayload {
+  state: "Pendiente" | "En progreso" | "Cancelado" | "Resuelto";
+  note?: string;
+}
+
+export async function patchReportState(
+  reportId: number,
+  payload: ChangeReportStatePayload
+): Promise<Report> {
+  const { data } = await apiAxios.patch<Report>(
+    `${BASE_URL}/${reportId}/state`,
+    payload
+  );
+  return data;
+}
+
+// ---------- Asignaciones ----------
+export interface AddAssignmentPayload {
+  userId: number;
+  instructions?: string;
+}
+
+export async function getReportAssignments(
+  reportId: number
+): Promise<ReportAssignment[]> {
+  const { data } = await apiAxios.get<ReportAssignment[]>(
+    `${BASE_URL}/${reportId}/assignments`
+  );
+  return data ?? [];
+}
+
+export async function addReportAssignment(
+  reportId: number,
+  payload: AddAssignmentPayload
+): Promise<ReportAssignment> {
+  const { data } = await apiAxios.post<ReportAssignment>(
+    `${BASE_URL}/${reportId}/assignments`,
+    payload
+  );
+  return data;
+}
+
+// ---------- Historial de estado ----------
+export async function getReportStateHistory(
+  reportId: number
+): Promise<ReportStateHistoryEntry[]> {
+  const { data } = await apiAxios.get<ReportStateHistoryEntry[]>(
+    `${BASE_URL}/${reportId}/state-history`
+  );
+  return data ?? [];
+}
+
+// ---------- Comentarios ----------
+export interface CreateReportCommentPayload {
+  content: string;
+  visibleToReporter?: boolean;
+}
+
+export interface ReportComment {
+  Id: number;
+  Content: string;
+  UserId: number;
+  User?: { Id: number; Name: string; Surname1?: string; Email?: string };
+  VisibleToReporter: boolean;
+  CreatedAt: string;
+}
+
+export async function getReportComments(
+  reportId: number,
+  requestUserId?: number
+): Promise<ReportComment[]> {
+  const params =
+    requestUserId != null ? { requestUserId } : {};
+  const { data } = await apiAxios.get<ReportComment[]>(
+    `${BASE_URL}/${reportId}/comments`,
+    { params }
+  );
+  return data ?? [];
+}
+
+export async function addReportComment(
+  reportId: number,
+  payload: CreateReportCommentPayload
+): Promise<ReportComment> {
+  const { data } = await apiAxios.post<ReportComment>(
+    `${BASE_URL}/${reportId}/comments`,
+    payload
+  );
+  return data;
+}
+
+// ---------- Estadísticas ----------
+/** GET /reports/stats/monthly — state es valor del enum (string) */
+export async function getMonthlyReports(params?: {
+  months?: number;
+  state?: string;
+  locationId?: number;
+  reportTypeId?: number;
+}): Promise<{ year: number; month: number; count: number }[]> {
+  const { months = 12, state, locationId, reportTypeId } = params ?? {};
+  const search = new URLSearchParams();
+  search.set("months", String(months));
+  if (state) search.set("state", state);
+  if (locationId) search.set("locationId", String(locationId));
+  if (reportTypeId) search.set("reportTypeId", String(reportTypeId));
+  const { data } = await apiAxios.get<{ year: number; month: number; count: number }[]>(
+    `${BASE_URL}/stats/monthly?${search.toString()}`
+  );
+  return data ?? [];
 }
 
 /** Respuesta del endpoint de reportes por mes y ubicación */
@@ -99,21 +247,13 @@ export interface MonthlyCountByLocationRow {
   count: number;
 }
 
-/**
- * Obtiene la cantidad de reportes por ubicación y mes.
- * - Si se pasa year y month: estadísticas SOLO para ese mes/año.
- * - Si no: últimos `months` meses hacia atrás.
- *
- * GET /reports/stats/monthly-by-location?months=12&year=2025&month=3
- */
 export async function getMonthlyCountsByLocation(opts: {
   months?: number;
   year?: number;
   month?: number;
 } = {}): Promise<MonthlyCountByLocationRow[]> {
   const { months = 12, year, month } = opts;
-
-  const params: { months?: number; year?: number; month?: number } = {};
+  const params: Record<string, number> = {};
   if (months) params.months = months;
   if (year) params.year = year;
   if (month) params.month = month;
@@ -134,11 +274,6 @@ const MONTH_NAMES = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
 
-/**
- * Exporta PDF de reportes del mes/año con listado y gráfico por ubicación.
- * GET /reports/export/pdf?year=YYYY&month=M
- * Descarga el archivo con nombre reportes-{Mes}-{year}.pdf
- */
 export async function exportReportsPdf(
   year: number,
   month: number
@@ -169,7 +304,8 @@ export async function exportReportsPdf(
     return { blob: data, filename };
   } catch (err) {
     if (err && typeof err === "object" && "response" in err) {
-      const res = (err as { response?: { data?: Blob; status?: number } }).response;
+      const res = (err as { response?: { data?: Blob; status?: number } })
+        .response;
       if (res?.data instanceof Blob) {
         const text = await (res.data as Blob).text();
         let msg = "Error al exportar el PDF";

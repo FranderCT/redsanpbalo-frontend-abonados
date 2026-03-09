@@ -30,9 +30,9 @@ import { useGetAllReportTypes } from "../../Hooks/ReportTypesHooks";
 import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 import { createReportUserValidators } from "../../schemas/ReportSchema";
+import { REPORT_URGENCY_OPTIONS } from "../../Models/ReportEnums";
 import { Input } from "@/Components/ui/input";
-import { Button } from "@/Components/ui/button";    
-
+import { Button } from "@/Components/ui/button";
 
 type Props = {
   open: boolean;
@@ -40,10 +40,11 @@ type Props = {
 };
 
 const defaultValues = {
-  Location: "",
+  ExactLocation: "",
   Description: "",
   LocationId: 0,
   ReportTypeId: 0,
+  Urgency: "media" as "baja" | "media" | "alta" | "critica",
 };
 
 export default function CreateReportUserModal({ open, setOpen }: Props) {
@@ -56,10 +57,10 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
 
   const form = useForm({
     defaultValues,
-    validators: {
-      onChange: createReportUserValidators,
-      onSubmit: createReportUserValidators,
-    },
+    // validators: {
+    //   onChange: createReportUserValidators,
+    //   onSubmit: createReportUserValidators,
+    // },
     onSubmit: async ({ value }) => {
       if (!UserProfile?.Id) {
         toast.error("Debes estar logueado para crear un reporte");
@@ -67,13 +68,12 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
       }
 
       const payload = {
-        Location: value.Location,
+        ExactLocation: value.ExactLocation,
         Description: value.Description,
         UserId: UserProfile.Id,
         LocationId: Number(value.LocationId),
         ReportTypeId: Number(value.ReportTypeId),
-        ReportStateId: 1,
-        UserInChargeId: undefined,
+        Urgency: value.Urgency || undefined,
       };
 
       try {
@@ -137,7 +137,7 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
             <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
               <FieldGroup className="gap-4">
                 <ReportField
-                  name="Location"
+                  name="ExactLocation"
                   children={(field) => {
                     const isInvalid =
                       field.state.meta.isTouched && !field.state.meta.isValid;
@@ -260,6 +260,30 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
                       </Field>
                     );
                   }}
+                />
+
+                <ReportField
+                  name="Urgency"
+                  children={(field) => (
+                    <Field className="gap-2">
+                      <FieldLabel htmlFor={field.name}>Urgencia</FieldLabel>
+                      <Select
+                        value={field.state.value}
+                        onValueChange={(v) => field.handleChange(v as typeof field.state.value)}
+                      >
+                        <SelectTrigger id={field.name}>
+                          <SelectValue placeholder="Urgencia" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {REPORT_URGENCY_OPTIONS.map((u) => (
+                            <SelectItem key={u.value} value={u.value}>
+                              {u.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  )}
                 />
               </FieldGroup>
 

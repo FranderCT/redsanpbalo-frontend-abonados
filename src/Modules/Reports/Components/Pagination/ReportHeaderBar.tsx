@@ -23,11 +23,13 @@ import {
   SheetTrigger,
 } from "@/Components/ui/sheet";
 
-import type { ReportState } from "../../Models/ReportState";
 import type { ReportType } from "../../Models/ReportType";
 import type { ReportLocation } from "../../Models/ReportLocation";
+import type { ReportStateValue } from "../../Models/ReportEnums";
 
 const PAGE_SIZES = [3, 6, 9, 12, 15] as const;
+
+type StateOption = { value: ReportStateValue; label: string };
 
 type Props = {
   limit: number;
@@ -36,10 +38,10 @@ type Props = {
   sortDir?: "ASC" | "DESC";
   startDate?: string;
   endDate?: string;
-  stateId?: number;
+  state?: ReportStateValue;
   locationId?: number;
   reportTypeId?: number;
-  reportStates: ReportState[];
+  reportStateOptions: StateOption[];
   reportTypes: ReportType[];
   reportLocations: ReportLocation[];
   statesLoading?: boolean;
@@ -49,7 +51,7 @@ type Props = {
   onSortDirChange?: (dir: "ASC" | "DESC") => void;
   onStartDateChange?: (value: string) => void;
   onEndDateChange?: (value: string) => void;
-  onStateChange: (id?: number) => void;
+  onStateChange: (value?: ReportStateValue) => void;
   onLocationChange: (id?: number) => void;
   onReportTypeChange: (id?: number) => void;
   onLimitChange: (n: number) => void;
@@ -64,10 +66,10 @@ function FilterSelects({
   endDate = "",
   onStartDateChange,
   onEndDateChange,
-  stateId,
+  state,
   locationId,
   reportTypeId,
-  reportStates,
+  reportStateOptions,
   reportTypes,
   reportLocations,
   statesLoading,
@@ -105,7 +107,7 @@ function FilterSelects({
               type="date"
               value={startDate}
               onChange={(e) => onStartDateChange?.(e.target.value)}
-              className="h-11 w-full  text-base"
+              className="h-11 w-full text-base"
             />
           </div>
           <div className="space-y-2">
@@ -115,17 +117,17 @@ function FilterSelects({
               type="date"
               value={endDate}
               onChange={(e) => onEndDateChange?.(e.target.value)}
-              className="h-11 w-full  text-base"
+              className="h-11 w-full text-base"
             />
           </div>
         </>
       )}
       <div className="space-y-2">
-        <Label>Estados de reporte</Label>
+        <Label>Estado del reporte</Label>
         <Select
-          value={stateId != null ? String(stateId) : "all"}
+          value={state ?? "all"}
           onValueChange={(v) =>
-            onStateChange(v === "all" ? undefined : Number(v))
+            onStateChange(v === "all" ? undefined : (v as ReportStateValue))
           }
           disabled={!!statesLoading}
         >
@@ -134,9 +136,9 @@ function FilterSelects({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
-            {reportStates.map((s) => (
-              <SelectItem key={s.IdReportState} value={String(s.IdReportState)}>
-                {s.Name}
+            {reportStateOptions.map((s) => (
+              <SelectItem key={s.value} value={s.value}>
+                {s.label}
               </SelectItem>
             ))}
           </SelectContent>
@@ -194,7 +196,14 @@ function FilterSelects({
 
 export default function ReportHeaderBar(props: Props) {
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const { search, limit, onSearchChange, onLimitChange, onCleanFilters, rightAction } = props;
+  const {
+    search,
+    limit,
+    onSearchChange,
+    onLimitChange,
+    onCleanFilters,
+    rightAction,
+  } = props;
 
   return (
     <div className="space-y-4">
@@ -212,10 +221,16 @@ export default function ReportHeaderBar(props: Props) {
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <Label htmlFor="limit-select" className="text-sm text-muted-foreground whitespace-nowrap">
+            <Label
+              htmlFor="limit-select"
+              className="text-sm text-muted-foreground whitespace-nowrap"
+            >
               Filas:
             </Label>
-            <Select value={String(limit)} onValueChange={(v) => onLimitChange(Number(v))}>
+            <Select
+              value={String(limit)}
+              onValueChange={(v) => onLimitChange(Number(v))}
+            >
               <SelectTrigger id="limit-select" className="w-[72px]">
                 <SelectValue />
               </SelectTrigger>
@@ -235,7 +250,10 @@ export default function ReportHeaderBar(props: Props) {
                 Filtros
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="flex w-full flex-col sm:max-w-sm p-0">
+            <SheetContent
+              side="right"
+              className="flex w-full flex-col sm:max-w-sm p-0"
+            >
               <SheetHeader className="px-6 pt-6 pb-4">
                 <SheetTitle>Filtros</SheetTitle>
               </SheetHeader>
@@ -253,7 +271,6 @@ export default function ReportHeaderBar(props: Props) {
                       setFiltersOpen(false);
                     }}
                   >
-
                     Limpiar filtros
                   </Button>
                   <Button

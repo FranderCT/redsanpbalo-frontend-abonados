@@ -2,7 +2,25 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import type { PaginatedResponse } from "@/core/pagination/pagination";
 import { showApiErrorToast } from "@/core/api-error";
 import type { Report, ReportPaginationParams } from "../Models/Report";
-import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport, getMonthlyCountsByLocation, exportReportsPdf } from "../Services/ReportSV";
+import {
+  getAllReports,
+  getReportById,
+  searchReports,
+  createReportByAdmin,
+  createReportByUser,
+  updateReport,
+  patchReportState,
+  getMonthlyCountsByLocation,
+  exportReportsPdf,
+  getReportAssignments,
+  addReportAssignment,
+  type AddAssignmentPayload,
+  getReportStateHistory,
+  getReportComments,
+  addReportComment,
+  type CreateReportCommentPayload,
+  type ChangeReportStatePayload,
+} from "../Services/ReportSV";
 
 export const useGetAllReports = () => {
     const {data: reports, error, isLoading} = useQuery({
@@ -53,31 +71,102 @@ export const useCreateReportByUser = () => {
     });
 };
 
-export const useAssignUserInCharge = () => {
-    const queryClient = useQueryClient();
-    
-    return useMutation({
-        mutationFn: ({ reportId, userInChargeId }: { reportId: string; userInChargeId: number }) =>
-            assignUserInCharge(reportId, userInChargeId),
-        onSuccess: () => {
-            console.log("Usuario asignado exitosamente");
-            queryClient.invalidateQueries({ queryKey: ["reports"] });
-        },
-        onError: (error) => {
-            console.error("Error al asignar usuario:", error);
-        }
-    });
+export const useGetReportById = (reportId: number | null) => {
+  return useQuery({
+    queryKey: ["report", reportId],
+    queryFn: () => getReportById(reportId!),
+    enabled: reportId != null && !isNaN(reportId),
+  });
+};
+
+export const useGetReportAssignments = (reportId: number | null) => {
+  return useQuery({
+    queryKey: ["reports", reportId, "assignments"],
+    queryFn: () => getReportAssignments(reportId!),
+    enabled: reportId != null && !isNaN(reportId),
+  });
+};
+
+export const useAddReportAssignment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      reportId,
+      payload,
+    }: { reportId: number; payload: AddAssignmentPayload }) =>
+      addReportAssignment(reportId, payload),
+    onSuccess: (_, { reportId }) => {
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+      queryClient.invalidateQueries({ queryKey: ["reports", reportId, "assignments"] });
+      queryClient.invalidateQueries({ queryKey: ["report", reportId] });
+    },
+  });
+};
+
+export const useGetReportStateHistory = (reportId: number | null) => {
+  return useQuery({
+    queryKey: ["reports", reportId, "state-history"],
+    queryFn: () => getReportStateHistory(reportId!),
+    enabled: reportId != null && !isNaN(reportId),
+  });
+};
+
+export const useGetReportComments = (
+  reportId: number | null,
+  requestUserId?: number
+) => {
+  return useQuery({
+    queryKey: ["reports", reportId, "comments", requestUserId],
+    queryFn: () => getReportComments(reportId!, requestUserId),
+    enabled: reportId != null && !isNaN(reportId),
+  });
+};
+
+export const useAddReportComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      reportId,
+      payload,
+    }: { reportId: number; payload: CreateReportCommentPayload }) =>
+      addReportComment(reportId, payload),
+    onSuccess: (_, { reportId }) => {
+      queryClient.invalidateQueries({ queryKey: ["reports", reportId, "comments"] });
+    },
+  });
+};
+
+/** Cambio de estado dedicado (PATCH /reports/:id/state) — actualiza historial y emite socket */
+export const useChangeReportState = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      reportId,
+      payload,
+    }: { reportId: number; payload: ChangeReportStatePayload }) =>
+      patchReportState(reportId, payload),
+    onSuccess: (updatedReport) => {
+      const id = updatedReport?.Id;
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+      if (id != null) {
+        queryClient.invalidateQueries({ queryKey: ["report", id] });
+        queryClient.invalidateQueries({ queryKey: ["reports", id, "state-history"] });
+      }
+    },
+  });
 };
 
 export const useUpdateReport = () => {
     const queryClient = useQueryClient();
-    
+
     return useMutation({
         mutationFn: ({ reportId, payload }: { reportId: string; payload: any }) =>
             updateReport(reportId, payload),
-        onSuccess: () => {
-            console.log("Reporte actualizado exitosamente");
+        onSuccess: (_, { reportId }) => {
             queryClient.invalidateQueries({ queryKey: ["reports"] });
+            if (reportId) {
+              queryClient.invalidateQueries({ queryKey: ["report", Number(reportId)] });
+            }
         },
         onError: (error) => {
             console.error("Error al actualizar el reporte:", error);

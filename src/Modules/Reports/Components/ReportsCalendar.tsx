@@ -48,7 +48,7 @@ export default function ReportsCalendar({ onViewDetails }: Props) {
     () =>
       reports.map((r) => ({
         id: String(r.Id),
-        title: r.Code + " - " + r.Description + " - " + r.User.Name + " " + r.User.Surname1,
+        title: [r.Code, r.Description, r.User ? `${r.User.Name} ${r.User.Surname1}` : ""].filter(Boolean).join(" - "),
         start: new Date(r.CreatedAt),
         extendedProps: { report: r } as { report: Report },
       })),

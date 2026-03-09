@@ -1,55 +1,79 @@
 import type { User } from "../../Users/Models/User";
 import type { ReportLocation } from "./ReportLocation";
-import type { ReportState } from "./ReportState";
 import type { ReportType } from "./ReportType";
+import type { ReportStateValue, ReportUrgencyValue } from "./ReportEnums";
 
-export interface Report {
-    Id: number;
-    Code: string;
-    Location: string;
-    Description: string;
-    User: User; // Cambiado de User[] a User basado en la respuesta del API
-    ReportLocation: ReportLocation;
-    ReportType: ReportType;
-    CreatedAt: Date;
-    ReportState: ReportState;
-    UserInCharge: User | null;
-    AdditionalInfo?: string;
+/** Asignación de fontanero a un reporte */
+export interface ReportAssignment {
+  Id: number;
+  ReportId: number;
+  UserId: number;
+  Instructions?: string | null;
+  AssignedById?: number | null;
+  AssignedAt: string;
+  User?: User;
+  AssignedBy?: User | null;
 }
 
-/** Parámetros de consulta para listado paginado (alineado con ReportsPaginationDto) */
+/** Entrada del historial de cambio de estado */
+export interface ReportStateHistoryEntry {
+  FromState: string;
+  ToState: string;
+  ChangedBy?: User | null;
+  ChangedAt: string;
+  Note?: string | null;
+}
+
+export interface Report {
+  Id: number;
+  Code: string;
+  ExactLocation: string;
+  Description: string;
+  CreatedAt: string;
+  UserId: number;
+  LocationId: number;
+  ReportTypeId: number;
+  State: ReportStateValue;
+  Urgency: ReportUrgencyValue;
+  AdditionalInfo?: string | null;
+  User?: User;
+  ReportLocation?: ReportLocation;
+  ReportType?: ReportType;
+  Assignments?: ReportAssignment[];
+}
+
+/** Parámetros de consulta para listado paginado (state es enum string) */
 export interface ReportPaginationParams {
-    page?: number;
-    limit: number;
-    q?: string;
-    stateId?: number;
-    locationId?: number;
-    reportTypeId?: number;
-    /** Dirección de orden: ASC | DESC. Por defecto ASC. */
-    sortDir?: "ASC" | "DESC";
-    /** Fecha desde (inclusive). Formato ISO 8601 (ej: 2024-01-01). */
-    startDate?: string;
-    /** Fecha hasta (inclusive). Formato ISO 8601 (ej: 2024-12-31). */
-    endDate?: string;
+  page?: number;
+  limit: number;
+  q?: string;
+  state?: ReportStateValue;
+  locationId?: number;
+  reportTypeId?: number;
+  sortDir?: "ASC" | "DESC";
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface CreateReportPayload {
-    Location: string;
-    Description: string;
-    UserId: number;
-    LocationId: number;
-    ReportTypeId: number;
-    ReportStateId?: number;
-    UserInChargeId?: number;
+  ExactLocation: string;
+  Description: string;
+  UserId: number;
+  LocationId: number;
+  ReportTypeId: number;
+  State?: ReportStateValue;
+  Urgency?: ReportUrgencyValue;
+  AdditionalInfo?: string;
 }
 
 export interface UpdateReportPayload {
-    Location?: string;
-    Description?: string;
-    UserId?: number;
-    LocationId?: number;
-    ReportTypeId?: number;
-    ReportStateId?: number;
-    UserInChargeId?: number;
-    AdditionalInfo?: string;
+  ExactLocation?: string;
+  Description?: string;
+  LocationId?: number;
+  ReportTypeId?: number;
+  State?: ReportStateValue;
+  Urgency?: ReportUrgencyValue;
+  AdditionalInfo?: string;
+  /** Nota para el historial al cambiar estado (solo tiene efecto si se cambia State) */
+  stateChangeNote?: string;
 }

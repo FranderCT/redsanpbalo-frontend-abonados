@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import type { ReportPaginationParams } from "../Models/Report";
-import type { Report } from "../Models/Report";
+import { useNavigate } from "@tanstack/react-router";
+import type { ReportPaginationParams, Report } from "../Models/Report";
+import type { ReportStateValue } from "../Models/ReportEnums";
 import { useSearchReports } from "../Hooks/ReportsHooks";
-import { useGetAllReportStates } from "../Hooks/ReportStatesHooks";
+import { useReportStateOptions } from "../Hooks/ReportStatesHooks";
 import { useGetAllReportTypes } from "../Hooks/ReportTypesHooks";
 import { useGetAllReportLocations } from "../Hooks/ReportLocationHooks";
 import { DataPagination } from "@/Components/ui/data-pagination";
@@ -10,18 +11,17 @@ import ReportHeaderBar from "../Components/Pagination/ReportHeaderBar";
 import ReportsGrid from "../Components/ReportsGrid";
 import ReportsCalendar from "../Components/ReportsCalendar";
 import ListReportLocationsView from "../Components/ListReportLocationsView";
-import GetInfoReportModal from "../Components/Modals/GetInfoReportModal";
 import CreateReportModal from "../Components/Modals/CreateReportModal";
 import CreateReportLocationModal from "../Components/Modals/CreateReportLocationModal";
-import EditReportModal from "../Components/Modals/EditReportModal";
 import { Button } from "@/Components/ui/button";
 import { LayoutGrid, Calendar, MapPin } from "lucide-react";
 
 const ListReports = () => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(3);
   const [search, setSearch] = useState("");
-  const [stateId, setStateId] = useState<number | undefined>(undefined);
+  const [state, setState] = useState<ReportStateValue | undefined>(undefined);
   const [locationId, setLocationId] = useState<number | undefined>(undefined);
   const [reportTypeId, setReportTypeId] = useState<number | undefined>(undefined);
   const [sortDir, setSortDir] = useState<"ASC" | "DESC">("DESC");
@@ -29,18 +29,18 @@ const ListReports = () => {
   const [endDate, setEndDate] = useState<string>("");
 
   const [viewMode, setViewMode] = useState<"list" | "calendar" | "locations">("list");
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [selectedEditReport, setSelectedEditReport] = useState<Report | null>(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const handleOpenReport = (report: Report) => {
+    navigate({ to: "/dashboard/reports/$reportId", params: { reportId: String(report.Id) } });
+  };
 
   const handleSearch = (txt: string) => {
     setSearch(txt);
     setPage(1);
   };
 
-  const handleStateChange = (id: number | undefined) => {
-    setStateId(id);
+  const handleStateChange = (value: ReportStateValue | undefined) => {
+    setState(value);
     setPage(1);
   };
 
@@ -71,7 +71,7 @@ const ListReports = () => {
 
   const handleResetFilters = () => {
     setSearch("");
-    setStateId(undefined);
+    setState(undefined);
     setLocationId(undefined);
     setReportTypeId(undefined);
     setSortDir("DESC");
@@ -80,42 +80,22 @@ const ListReports = () => {
     setPage(1);
   };
 
-  const handleViewDetails = (report: Report) => {
-    setSelectedReport(report);
-    setIsDetailModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsDetailModalOpen(false);
-    setSelectedReport(null);
-  };
-
-  const handleEditReport = (report: Report) => {
-    setSelectedEditReport(report);
-    setIsEditModalOpen(true);
-  };
-
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-    setSelectedEditReport(null);
-  };
-
   const query = useMemo<ReportPaginationParams>(
     () => ({
       page,
       limit,
       q: search.trim() || undefined,
-      stateId,
+      state,
       locationId,
       reportTypeId,
       sortDir,
       startDate: startDate.trim() || undefined,
       endDate: endDate.trim() || undefined,
     }),
-    [page, limit, search, stateId, locationId, reportTypeId, sortDir, startDate, endDate]
+    [page, limit, search, state, locationId, reportTypeId, sortDir, startDate, endDate]
   );
 
-  const { reportStates, isLoading: statesLoading } = useGetAllReportStates();
+  const { reportStateOptions, isLoading: statesLoading } = useReportStateOptions();
   const { reportTypes, isLoading: typesLoading } = useGetAllReportTypes();
   const { reportLocations, isLoading: locationsLoading } = useGetAllReportLocations();
   const { data, isLoading, isError, error } = useSearchReports(query);
@@ -192,10 +172,10 @@ const ListReports = () => {
           sortDir={sortDir}
           startDate={startDate}
           endDate={endDate}
-          stateId={stateId}
+          state={state}
           locationId={locationId}
           reportTypeId={reportTypeId}
-          reportStates={reportStates ?? []}
+          reportStateOptions={reportStateOptions}
           reportTypes={reportTypes ?? []}
           reportLocations={reportLocations ?? []}
           statesLoading={statesLoading}
@@ -219,7 +199,7 @@ const ListReports = () => {
         {viewMode === "locations" ? (
           <ListReportLocationsView />
         ) : viewMode === "calendar" ? (
-          <ReportsCalendar onViewDetails={handleViewDetails} />
+          <ReportsCalendar onViewDetails={handleOpenReport} />
         ) : isLoading ? (
           <div className="p-6 sm:p-8 text-center text-muted-foreground">
             Cargando reportes…
@@ -231,8 +211,6 @@ const ListReports = () => {
         ) : (
           <ReportsGrid
             reports={items}
-            onViewDetails={handleViewDetails}
-            onEditReport={handleEditReport}
             emptyText="No se encontraron reportes con los filtros aplicados."
           />
         )}
@@ -251,26 +229,6 @@ const ListReports = () => {
           />
         </div>
       )}
-
-
-      {/* Modal de detalles */}
-      {selectedReport && (
-        <GetInfoReportModal
-          report={selectedReport}
-          open={isDetailModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
-
-      {/* Modal de edición */}
-      {selectedEditReport && (
-        <EditReportModal
-          report={selectedEditReport}
-          open={isEditModalOpen}
-          onClose={handleCloseEditModal}
-        />
-      )}
-
 
     </section>
   );
