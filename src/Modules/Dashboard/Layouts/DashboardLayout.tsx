@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import AsideDashboard from "../../Dashboard/Components/Sidebar/AsideDashboard";
 import HeaderDashboard from "../../Dashboard/Components/Header/HeaderDashboard";
 import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import LiveReports from "../../../Sockets/LiveReports";
-import { Can } from "../../Auth/Components/Can";
 import { useRole } from "../../Auth/Components/RolesContext";
 
 const DashboardLayout = () => {
@@ -66,9 +64,6 @@ const DashboardLayout = () => {
         />
         <main className="flex-1 overflow-y-auto bg-background">
           <Outlet />
-          <Can rule={{ any: ["ADMIN", "FONTANERO"] }}>
-            <LiveReports />
-          </Can>
         </main>
       </div>
     </div>

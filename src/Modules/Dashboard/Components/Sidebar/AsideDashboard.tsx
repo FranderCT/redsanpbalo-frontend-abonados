@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import g28 from "../../../Auth/Assets/g28.png";
-import { Home, OctagonAlert, Settings, LogOut, FileText, Hammer, Bell, UserCog, Forklift, MessageSquare, PencilOff } from "lucide-react";
+import { Home, Settings, LogOut, FileText, Hammer, Bell, UserCog, Forklift, MessageSquare, PencilOff } from "lucide-react";
 import { Can } from "../../../Auth/Components/Can";
 
 import SidebarDropdown from "./SidebarDropdown";
@@ -163,16 +163,6 @@ useEffect(() => {
           <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none">
             <Bell className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
             <span className="transition-colors">Notificaciones</span>
-          </button>
-        </Can>
-
-        <Can rule={{ none: ["GUEST", "ABONADO", "JUNTA"] }}>
-          <button 
-            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
-            onClick={() => navigate({ to: "/dashboard/reports" })}
-          >
-            <OctagonAlert className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
-            <span className="transition-colors">Reportes</span>
           </button>
         </Can>
 

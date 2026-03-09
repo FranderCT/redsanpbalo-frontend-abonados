@@ -27,24 +27,3 @@ export async function getMyRequestsSummary(): Promise<MyRequestsSummary> {
   }
 }
 
-export type MyReportsSummary = {
-  total: number;
-  inProcess: number;
-};
-
-const BASEREPORT = "/reports";
-
-export async function getMyReportsSummary(): Promise<MyReportsSummary> {
-  const { data } = await apiAxios.get<MyReportsSummary>(`${BASEREPORT}/me/count`);
-  return data;
-}
-
-/** GET /reports/me/count-by-state — state = valor del enum (ej. "En progreso") */
-export async function getMyReportsCountByState(state: string): Promise<number> {
-  const { data } = await apiAxios.get<{ state: string; count: number }>(
-    `${BASEREPORT}/me/count-by-state`,
-    { params: { state } }
-  );
-  return data.count;
-}
-
