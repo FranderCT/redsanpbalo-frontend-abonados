@@ -14,28 +14,35 @@ export interface Product {
   Id: number;
   Name: string;
   Type: string;
-  Observation: string;
+  Observation?: string | null;
   Category: Category;
   Material: Material;
   UnitMeasure: Unit;
   IsActive: boolean;
   ProductSuppliers: ProductSupplier[];
-  // Campos legacy (opcionales para compatibilidad)
   PhysicalSupplier?: PhysicalSupplier;
   LegalSupplier?: LegalSupplier;
 }
 
-
 export interface NewProduct {
   Name: string;
   Type: string;
-  Observation: string;
+  Observation?: string;
   CategoryId: number;
   MaterialId: number;
   UnitMeasureId: number;
   SuppliersIds: number[];
 }
 
+export const newProductInitialState: NewProduct = {
+  Name: "",
+  Type: "",
+  Observation: "",
+  CategoryId: 0,
+  MaterialId: 0,
+  UnitMeasureId: 0,
+  SuppliersIds: [],
+};
 
 export interface UpdateProduct {
   Name?: string;
@@ -48,13 +55,24 @@ export interface UpdateProduct {
   IsActive?: boolean;
 }
 
+export type ProductStateFilter = "all" | "active" | "inactive";
 
 export interface ProductPaginationParams {
-  page: number;
-    limit: number;
-    name?: string;
-    categoryId?: number;
-    materialId?: number;
-    unitId?: number;
-    state?: string;
+  page?: number;
+  limit?: number;
+  q?: string;
+  name?: string;
+  categoryId?: number;
+  materialId?: number;
+  unitId?: number;
+  supplierId?: number;
+  state?: boolean | "true" | "false" | "1" | "0";
+}
+
+export function getProductSuppliers(product: Product): Supplier[] {
+  return product.ProductSuppliers?.map((item) => item.Supplier).filter(Boolean) ?? [];
+}
+
+export function getProductSupplierNames(product: Product): string[] {
+  return getProductSuppliers(product).map((supplier) => supplier.Name);
 }
