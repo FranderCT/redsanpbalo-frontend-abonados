@@ -23,7 +23,7 @@ import { commentRoute } from "./Modules/Comment/Routes/CommentRoutes";
 import { reportIndexRoute, reportRoutes } from "./Modules/Reports/Routes/ReportRoutes";
 import { requestListChangeNameMeter, requestUserChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
 import HeroPage from "./Modules/Lading/HeroPage";
-import { editLandingRoute } from "./Modules/Lading/Routes/RoutesEditLanding";
+import { editLandingFaqRoute, editLandingIndexRoute, editLandingRoute, editLandingServicesRoute } from "./Modules/Lading/Routes/RoutesEditLanding";
 
 
 export const rootRoute = createRootRoute();
@@ -81,7 +81,11 @@ export const routeTree = rootRoute.addChildren([
       requestListAssociatedRoute
     ]),
     commentRoute,
-    editLandingRoute,
+    editLandingRoute.addChildren([
+      editLandingIndexRoute,
+      editLandingFaqRoute,
+      editLandingServicesRoute
+    ]),
     suppliersRoute.addChildren([
       physicalSuppliersRoute,
       legalSuppliersRoute,

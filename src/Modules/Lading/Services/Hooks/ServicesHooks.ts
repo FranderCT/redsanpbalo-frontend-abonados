@@ -35,12 +35,12 @@ export const useSearchServices = (params: ServicePaginationParams) => {
         if (query.data) {
         const res = query.data; 
         console.log(
-            "[Materials fetched]",
+            "[Services fetched]",
             {
-            page: res.meta.page,
-            limit: res.meta.limit,
-            total: res.meta.total,
-            pageCount: res.meta.pageCount,
+            page: res.meta.currentPage,
+            limit: res.meta.itemsPerPage,
+            total: res.meta.totalItems,
+            pageCount: res.meta.totalPages,
             params,
             },
             res.data 
@@ -77,7 +77,24 @@ export const useUpdateService = () => {
         mutationFn: ({id, data}) => updateService(id, data),
         onSuccess: (res) => {
             console.log('Servicio actualizado correctamente', res);
+            qc.setQueryData<Service[] | undefined>(["services"], (prev) =>
+                prev?.map((service) => (service.Id === res.Id ? res : service))
+            );
+
+            qc.setQueriesData<PaginatedResponse<Service>>(
+                { queryKey: ["services", "search"] },
+                (prev) =>
+                    prev
+                        ? {
+                            ...prev,
+                            data: prev.data.map((service) => (service.Id === res.Id ? res : service)),
+                          }
+                        : prev
+            );
+
+            qc.setQueryData<Service | undefined>(["services", res.Id], res);
             qc.invalidateQueries({queryKey: ['services']});
+            qc.refetchQueries({ queryKey: ["services", "search"] });
         },
         onError: (err) => {
             console.error('Error al actualizar servicio:', err);
