@@ -52,7 +52,7 @@ export function BarChartCard({
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
-                cursor={{ fill: "rgba(0,0,0,0.05)" }}
+                cursor={{ fill: "#0915400d" }}
                 formatter={(v: number) =>
                   valueFormatter ? valueFormatter(v) : v.toString()
                 }
