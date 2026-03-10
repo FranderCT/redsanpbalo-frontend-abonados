@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { User } from "../../Models/User";
 import EditUserModal from "../ListUsersModals/EditUserModal";
 import GetInfoUserModal from "../ListUsersModals/GetInfoUserModal";
-import CategoryPager from "../../../Category/Components/PaginationCategory/CategoryPager";
+import { DataPagination } from "@/Components/ui/data-pagination";
 import { useDeleteUser } from "../../Hooks/UsersHooks";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { toast } from "react-toastify";
@@ -187,15 +187,14 @@ export default function UsersCards({ data, total, page, pageCount, onPageChange 
       )}
 
       <div className="border-t pt-4">
-        <CategoryPager
+        <DataPagination
           page={page}
           pageCount={pageCount}
+          total={total ?? data.length}
           onPageChange={onPageChange}
-          variant="inline"
+          labels={{ totalItems: "usuarios" }}
+          compact
         />
-        <p className="mt-2 text-right text-xs text-muted-foreground">
-          Total registros: <span className="font-semibold">{total ?? data.length}</span>
-        </p>
       </div>
 
       {disableUser && (

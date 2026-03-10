@@ -4,7 +4,7 @@ import EditLegalSupplierModal from "../Modals/EditLegalSupplierModal";
 import GetInfoLegalSupplierModal from "../Modals/GetInfoLegalSupplier";
 import AgentSupplierModal from "../../../Supplier_agent/Components/AgentSupplierModal";
 import DeleteLegalSupplierModal from "../Modals/DeleteLegalSupplierModal";
-import CategoryPager from "../../../Category/Components/PaginationCategory/CategoryPager";
+import { DataPagination } from "@/Components/ui/data-pagination";
 import {
   Card,
   CardContent,
@@ -181,15 +181,14 @@ export default function LegalSupplierCards({
       )}
 
       <div className="border-t border-border pt-4">
-        <CategoryPager
+        <DataPagination
           page={page}
           pageCount={pageCount}
+          total={total ?? data.length}
           onPageChange={onPageChange}
-          variant="inline"
+          labels={{ totalItems: "proveedores" }}
+          compact
         />
-        <p className="mt-2 text-right text-xs text-muted-foreground">
-          Total registros: <span className="font-semibold">{total ?? data.length}</span>
-        </p>
       </div>
 
       <DeleteLegalSupplierModal

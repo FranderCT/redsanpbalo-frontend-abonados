@@ -1,8 +1,9 @@
 export type PaginationMeta = {
-  total: number;
-  page: number;
-  limit: number;
-  pageCount: number;
+  totalItems: number;
+  itemCount: number;
+  itemsPerPage: number;
+  totalPages: number;
+  currentPage: number;
   hasNextPage: boolean;
   hasPrevPage: boolean;
 };
