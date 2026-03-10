@@ -1,95 +1,72 @@
-import { useQueryClient, useMutation, useQuery, keepPreviousData } from "@tanstack/react-query";
-import { createProduct, deleteProduct, getAllProducts, getProductById, searchProducts, updateProduct } from "../Services/ProductServices";
-import type { Product, ProductPaginationParams, UpdateProduct } from "../Models/CreateProduct";
-import { useEffect } from "react";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
+import type { NewProduct, Product, ProductPaginationParams, UpdateProduct } from "../Models/CreateProduct";
+import {
+  createProduct,
+  deleteProduct,
+  getAllProducts,
+  getProductById,
+  searchProducts,
+  updateProduct,
+} from "../Services/ProductServices";
 
-export const useCreateProduct = () =>{
-    const qc = useQueryClient();
-    const mutation = useMutation({
-        mutationFn: createProduct,
-        onSuccess: (res) =>{
-            console.log('producto creado', res);
-            qc.invalidateQueries({queryKey: ['products']})
-        },
-        onError: (err) =>{
-            console.log("error al crear", err)
-        }
-    })
-    return mutation;
-}
+export const useCreateProduct = () => {
+  const qc = useQueryClient();
 
-export const useGetAllProducts = () =>{
-    const { data: products, isPending, error } = useQuery({
-        queryKey: ["product"],
-        queryFn: getAllProducts,
-    });
-    return { products, isPending, error };
-}
+  return useMutation<Product, Error, NewProduct>({
+    mutationFn: createProduct,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+};
+
+export const useGetAllProducts = () => {
+  const { data: products = [], isPending, error } = useQuery({
+    queryKey: ["products"],
+    queryFn: getAllProducts,
+  });
+
+  return { products, isPending, error };
+};
 
 export const useGetProductById = (id: number) => {
-  const {data: product, isLoading,error} = useQuery({
-    queryKey: ["product", id],
+  const { data: product, isLoading, error } = useQuery({
+    queryKey: ["products", id],
     queryFn: () => getProductById(id),
+    enabled: id > 0,
   });
 
   return { product, isLoading, error };
 };
 
-
-
-
 export const useUpdateProduct = () => {
-    const qc = useQueryClient();
-    return useMutation({
-        mutationFn: ({ id, data }: { id: number; data: UpdateProduct }) =>
-        updateProduct(id, data),
-        onSuccess: () => {
-        // refresca listas donde corresponda
-            qc.invalidateQueries({ queryKey: ["products"] });
-        },
-    });
+  const qc = useQueryClient();
+
+  return useMutation<Product, Error, { id: number; data: UpdateProduct }>({
+    mutationFn: ({ id, data }) => updateProduct(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
 };
 
 export const useDeleteProduct = () => {
-    const qc = useQueryClient();
-    return useMutation({
-        mutationFn: (id: number) => deleteProduct(id),
-        onSuccess: (res) => {
-            qc.invalidateQueries({ queryKey: ["products"] });
-            console.log("Producto inhabilitado", res);
-        },
-        onError: (err)=>{
-            console.error("Error al inhabilitar", err);
-        }
-    });
+  const qc = useQueryClient();
+
+  return useMutation<void, Error, number>({
+    mutationFn: deleteProduct,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
 };
 
 export const useSearchProducts = (params: ProductPaginationParams) => {
-    const query = useQuery<PaginatedResponse<Product>, Error>({
-        queryKey: ["products", "search", params],
-        queryFn: () => searchProducts(params),
-        placeholderData: keepPreviousData,   // v5
-        staleTime: 30_000,
-    });
-
-    // ⬇️ Log en cada fetch/refetch exitoso
-    useEffect(() => {
-        if (query.data) {
-        const res = query.data; // res: PaginatedResponse<Category>
-        console.log(
-            "[Products fetched]",
-            {
-            page: res.meta.page,
-            limit: res.meta.limit,
-            total: res.meta.total,
-            pageCount: res.meta.pageCount,
-            params,
-            },
-            res.data // array de Category
-        );
-        }
-    }, [query.data, params]);
-
-    return query;
+  return useQuery<PaginatedResponse<Product>, Error>({
+    queryKey: ["products", "search", params],
+    queryFn: () => searchProducts(params),
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  });
 };

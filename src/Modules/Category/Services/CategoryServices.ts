@@ -4,7 +4,7 @@ import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory"
 
 export async function createCategory(payloads: NewCategory): Promise<NewCategory> {
   try {
-    const { data } = await apiAxios.post<NewCategory>("categories", payloads);
+    const { data } = await apiAxios.post<NewCategory>("category", payloads);
     return data;
   } catch (err) {
     return Promise.reject(err);
@@ -13,7 +13,7 @@ export async function createCategory(payloads: NewCategory): Promise<NewCategory
 
 export async function updateCategory(id: number, payloads: UpdateCategoryDto): Promise<Category> {
   try {
-    const { data } = await apiAxios.put<Category>(`categories/${id}`, payloads);
+    const { data } = await apiAxios.put<Category>(`category/${id}`, payloads);
     return data;
   } catch (err) {
     return Promise.reject(err);
@@ -34,7 +34,7 @@ export async function searchCategories(
 ): Promise<PaginatedResponse<Category>> {
   try {
     const { page = 1, limit = 10, q, state } = params ?? {};
-    const { data } = await apiAxios.get<PaginatedResponse<Category>>("categories/search", {
+    const { data } = await apiAxios.get<PaginatedResponse<Category>>("category/search", {
       params: {
         page,
         limit,
@@ -50,7 +50,7 @@ export async function searchCategories(
 
 export async function deleteCategory(id: number): Promise<void> {
   try {
-    await apiAxios.delete(`/categories/${id}`);
+    await apiAxios.delete(`/category/${id}`);
   } catch (error) {
     return Promise.reject(error);
   }

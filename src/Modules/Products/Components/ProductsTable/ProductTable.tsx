@@ -1,105 +1,140 @@
-// src/Modules/Category/Components/TableCategory/CategoryTable.tsx
 import { useState } from "react";
-import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
-import { ProductColumns } from "./ProductColumns";
+import { flexRender, getCoreRowModel, getSortedRowModel, useReactTable, type SortingState } from "@tanstack/react-table";
+import { DataPagination } from "@/Components/ui/data-pagination";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/Components/ui/table";
 import type { Product } from "../../Models/CreateProduct";
-import UpdateProductModal from "../Modals/UpdateProductModal";
-import ProductPager from "../PaginationProducts/ProductPager";
 import GetInfoProductModal from "../Modals/GetInfoProductModal";
+import UpdateProductModal from "../Modals/UpdateProductModal";
+import DeleteProductModal from "../Modals/DeleteProductModal";
+import { ProductColumns } from "./ProductColumns";
 
 type Props = {
   data: Product[];
   total?: number;
-  page: number;                 // <- NUEVO
-  pageCount: number;            // <- NUEVO
-  onPageChange: (p: number) => void; // <- NUEVO
+  page: number;
+  pageCount: number;
+  pageSize?: number;
+  onPageChange: (page: number) => void;
 };
 
-export default function ProductsTable({ data, total, page, pageCount, onPageChange }: Props) {
+export default function ProductTable({
+  data,
+  total,
+  page,
+  pageCount,
+  pageSize = 10,
+  onPageChange,
+}: Props) {
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [getInfoProduct, setGetInfoProduct] = useState<Product | null>(null);
+  const [infoProduct, setInfoProduct] = useState<Product | null>(null);
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
 
   const table = useReactTable({
     data,
     columns: ProductColumns(
       (product) => setEditingProduct(product),
-      (product) => setGetInfoProduct(product),
+      (product) => setInfoProduct(product),
+      (product) => setDeletingProduct(product),
     ),
+    state: { sorting },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   return (
-    <div className="w-full">
-      {editingProduct && (
+    <>
+      {editingProduct ? (
         <UpdateProductModal
           product={editingProduct}
           open={true}
           onClose={() => setEditingProduct(null)}
           onSuccess={() => setEditingProduct(null)}
         />
-      )}
+      ) : null}
 
-      {getInfoProduct && (
-        <GetInfoProductModal 
-          product={getInfoProduct}
+      {infoProduct ? (
+        <GetInfoProductModal
+          product={infoProduct}
           open={true}
-          onClose={() => setGetInfoProduct(null)}
-          onSuccess={() => setGetInfoProduct(null)}
+          onClose={() => setInfoProduct(null)}
+          onSuccess={() => setInfoProduct(null)}
         />
-      )}
+      ) : null}
 
-      <table className="min-w-full border-collapse border border-gray-300">
-        <thead>
-          {table.getHeaderGroups().map((hg) => (
-            <tr key={hg.id}>
-              {hg.headers.map((header) => (
-                <th key={header.id} className="px-4 py-2 text-left text-[#091540] border border-gray-300">
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
+      {deletingProduct ? (
+        <DeleteProductModal
+          product={deletingProduct}
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) setDeletingProduct(null);
+          }}
+          onSuccess={() => setDeletingProduct(null)}
+        />
+      ) : null}
+
+      <div className="w-full overflow-hidden rounded-lg border">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="bg-muted/40 hover:bg-muted/40">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="whitespace-nowrap py-3">
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  ))}
+                </TableRow>
               ))}
-            </tr>
-          ))}
-        </thead>
+            </TableHeader>
 
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-50">
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-4 py-2 border border-gray-300">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-
-          {table.getRowModel().rows.length === 0 && (
-            <tr>
-              <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-6 text-center text-gray-500 border border-gray-300">
-                No hay Productos para mostrar
-              </td>
-            </tr>
-          )}
-        </tbody>
-
-        <tfoot>
-          <tr>
-            <td colSpan={table.getVisibleLeafColumns().length} className="px-4 py-3 border border-gray-300">
-              {/* Total (izq) + Paginación incrustada (der) */}
-              <div className="w-full flex items-center justify-between gap-3">
-                <span className="flex-none text-sm">Total registros: <b>{total ?? data.length}</b></span>
-                <div className="flex-1 flex justify-center">
-                <ProductPager
-                  page={page}
-                  pageCount={pageCount}
-                  onPageChange={onPageChange}
-                  variant="inline"  // <- sin caja/borde
-                />
-                </div>
-              </div>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+            <TableBody>
+              {table.getRowModel().rows.length > 0 ? table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} className="transition-colors hover:bg-muted/30">
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="py-3">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              )) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={table.getVisibleLeafColumns().length}
+                    className="h-32 text-center text-muted-foreground"
+                  >
+                    No hay productos para mostrar con los filtros actuales.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t bg-muted/20 px-4 py-2">
+          <span className="text-xs text-muted-foreground">
+            {total ?? data.length} producto{(total ?? data.length) !== 1 ? "s" : ""} en total
+          </span>
+          {pageCount > 1 ? (
+            <DataPagination
+              page={page}
+              pageCount={pageCount}
+              total={total ?? data.length}
+              pageSize={pageSize}
+              onPageChange={onPageChange}
+              labels={{ totalItems: "productos" }}
+              compact
+            />
+          ) : null}
+        </div>
+      </div>
+    </>
   );
 }

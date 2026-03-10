@@ -1,67 +1,68 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
-import { Trash } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/Components/ui/alert-dialog";
 import type { Product } from "../../Models/CreateProduct";
 import { useDeleteProduct } from "../../Hooks/ProductsHooks";
 
-
 type Props = {
-    product: Product;
-    onSuccess?: () => void;
-  
+  product: Product;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
 };
 
-export default function DeleteProductButton({ product, onSuccess }: Props) {
-    const [open, setOpen] = useState(false);
-    const [busy, setBusy] = useState(false);
-    const deleteProductMutation = useDeleteProduct();
-    const handleClose = () =>{
-    toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
-    setOpen(false);
- }
-    const handleConfirm = async () => {
-        try {
-        setBusy(true);
-        await deleteProductMutation.mutateAsync(product.Id);
-        toast.success("Producto inhabilitado");
-        setOpen(false);
-        onSuccess?.();
-        } catch (err) {
-        console.error("Error al inhabilitar producto:", err);
-        toast.error("No se pudo inhabilitar la producto");
-        } finally {
-        setBusy(false);
-        }
-    };
+export default function DeleteProductModal({ product, open, onOpenChange, onSuccess }: Props) {
+  const [busy, setBusy] = useState(false);
+  const deleteProductMutation = useDeleteProduct();
 
-    return (
-        <>
-        <button
-            type="button"
-            onClick={() => setOpen(true)}
+  const handleConfirm = async () => {
+    try {
+      setBusy(true);
+      await deleteProductMutation.mutateAsync(product.Id);
+      toast.success("Producto inhabilitado");
+      onOpenChange(false);
+      onSuccess?.();
+    } catch (err) {
+      console.error("Error al inhabilitar producto:", err);
+      toast.error("No se pudo inhabilitar el producto");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>¿Inhabilitar producto?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Se inhabilitará el producto "{product.Name}" y dejará de estar disponible para nuevos registros.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter className="justify-between sm:justify-between sm:space-x-0">
+          <AlertDialogAction
+            onClick={(event) => {
+              event.preventDefault();
+              void handleConfirm();
+            }}
+            className="bg-red-600 hover:bg-red-700"
             disabled={busy}
-            className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
-            ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
-            title="Inhabilitar categoría"
-        >
-            <Trash  className="h-4 w-4"/>
-            {busy ? "..." : "Inhabilitar"}
-        </button>
-
-        {open && (
-            <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
-            <InhabilityActionModal
-                title="¿Inhabilitar categoría?"
-                description={`Se inhabilitará la categoría "${product.Name ?? ""}".`}
-                cancelLabel="Cancelar"
-                confirmLabel="Inhabilitar"
-                onConfirm={handleConfirm}
-                onClose={handleClose}
-                onCancel={handleClose}
-            />
-            </div>
-        )}
-        </>
-    );
+          >
+            {busy ? "Inhabilitando..." : "Inhabilitar"}
+          </AlertDialogAction>
+          <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 }

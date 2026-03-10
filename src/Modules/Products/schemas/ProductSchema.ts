@@ -1,23 +1,20 @@
 import { z } from "zod";
 
 export const ProductSchema = z.object({
-  Name: z.string().min(1, "El nombre debe tener al menos 2 caracteres").max(100, "Máx. 100 caracteres"),
-  Type: z.string().min(1, "El tipo debe tener al menos 2 caracteres").max(60, "Máx. 60 caracteres"),
-  Observation: z.string().max(500, "Máx. 500 caracteres"),
-
-  CategoryId: z.number().int().min(0, "Valor inválido"),
-  MaterialId: z.number().int().min(0, "Valor inválido"),
-  UnitMeasureId: z.number().int().min(0, "Valor inválido"),
+  Name: z.string().trim().min(1, "El nombre es obligatorio").max(100, "Máx. 100 caracteres"),
+  Type: z.string().trim().min(1, "El tipo es obligatorio").max(60, "Máx. 60 caracteres"),
+  Observation: z.string().trim().max(500, "Máx. 500 caracteres"),
+  CategoryId: z.number().int().min(1, "Selecciona una categoría"),
+  MaterialId: z.number().int().min(1, "Selecciona un material"),
+  UnitMeasureId: z.number().int().min(1, "Selecciona una unidad"),
 });
 
 export const UpdateProductSchema = z.object({
-  Name: z.string().max(100, "Máx. 100 caracteres").optional(),
-  Type: z.string().max(60, "Máx. 60 caracteres").optional(),
-  Observation: z.string().max(500, "Máx. 500 caracteres").optional(),
-
-  CategoryId: z.number().int().optional(),
-  MaterialId: z.number().int().optional(),
-  UnitMeasureId: z.number().int().optional(),
-  
-  IsActive: z.boolean().optional(),
+  Name: z.string().trim().min(1, "El nombre es obligatorio").max(100, "Máx. 100 caracteres"),
+  Type: z.string().trim().min(1, "El tipo es obligatorio").max(60, "Máx. 60 caracteres"),
+  Observation: z.string().trim().max(500, "Máx. 500 caracteres"),
+  CategoryId: z.number().int().min(1, "Selecciona una categoría"),
+  MaterialId: z.number().int().min(1, "Selecciona un material"),
+  UnitMeasureId: z.number().int().min(1, "Selecciona una unidad"),
+  IsActive: z.boolean(),
 });
