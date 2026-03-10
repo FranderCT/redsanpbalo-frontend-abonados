@@ -42,6 +42,7 @@ export default function RegisterAbonadosModal() {
   const form = useForm({
     defaultValues: AdminUserInitialState,
     validators: {
+      onChange: AddUserSchema,
       onSubmit: AddUserSchema,
     },
     onSubmit: async ({ value }) => {
@@ -71,7 +72,7 @@ export default function RegisterAbonadosModal() {
         <Button className="w-full sm:w-auto">+ Agregar Usuario</Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[70vh] max-w-xl gap-0 overflow-hidden p-0">
+      <DialogContent className="flex max-h-[85vh] max-w-xl flex-col gap-0 overflow-hidden p-0">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Crear cuenta</DialogTitle>
           <DialogDescription>
@@ -81,13 +82,13 @@ export default function RegisterAbonadosModal() {
 
         <form
           id="add-user-form"
-          className="flex flex-col gap-4"
+          className="flex min-h-0 flex-1 flex-col"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
           }}
         >
-          <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-6 py-4">
             <FieldGroup className="gap-4">
               <FieldGroup className="gap-2">
                 <form.Field name="IDcard">
