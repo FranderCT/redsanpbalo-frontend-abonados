@@ -82,13 +82,19 @@ export default function ProductTable({
       ) : null}
 
       <div className="w-full overflow-hidden rounded-lg border">
+        <div className="border-b bg-slate-50 px-4 py-2 text-xs text-slate-500 md:hidden">
+          Desliza horizontalmente para ver más columnas.
+        </div>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="bg-muted/40 hover:bg-muted/40">
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="whitespace-nowrap py-3">
+                    <TableHead
+                      key={header.id}
+                      className={`whitespace-nowrap py-3 ${String(header.column.columnDef.meta?.headerClassName ?? "")}`}
+                    >
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
@@ -100,7 +106,10 @@ export default function ProductTable({
               {table.getRowModel().rows.length > 0 ? table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} className="transition-colors hover:bg-muted/30">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-3">
+                    <TableCell
+                      key={cell.id}
+                      className={`py-3 ${String(cell.column.columnDef.meta?.cellClassName ?? "")}`}
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -118,7 +127,7 @@ export default function ProductTable({
             </TableBody>
           </Table>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t bg-muted/20 px-4 py-2">
+        <div className="flex flex-col gap-3 border-t bg-muted/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-xs text-muted-foreground">
             {total ?? data.length} producto{(total ?? data.length) !== 1 ? "s" : ""} en total
           </span>

@@ -45,13 +45,13 @@ export default function ProductHeaderBar({
           </p>
         </div>
 
-        <div className="flex w-full flex-wrap items-center gap-3 lg:w-auto lg:justify-end">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto lg:justify-end">
           {rightAction}
         </div>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-4 pt-0">
-        <div className="grid gap-3 md:grid-cols-[160px_180px_minmax(0,1fr)_auto] md:items-end">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[160px_180px_minmax(0,1fr)_120px] xl:items-end">
           <div className="flex w-full flex-col gap-2">
             <span className="text-sm font-medium text-foreground">Filas por página</span>
             <Select value={String(limit)} onValueChange={(value) => onLimitChange(Number(value))}>
@@ -98,12 +98,12 @@ export default function ProductHeaderBar({
           <Button
             type="button"
             variant="outline"
-            size="icon"
             onClick={onCleanFilters}
             title="Limpiar filtros"
-            className="w-full md:w-9"
+            className="w-full xl:w-auto"
           >
             <BrushCleaning className="size-4" />
+            Limpiar filtros
           </Button>
         </div>
       </CardContent>

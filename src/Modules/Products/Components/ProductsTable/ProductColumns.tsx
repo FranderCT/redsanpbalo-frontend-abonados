@@ -49,6 +49,10 @@ export const ProductColumns = (
         <span className="text-xs text-muted-foreground">{row.original.Type}</span>
       </div>
     ),
+    meta: {
+      headerClassName: "min-w-[220px]",
+      cellClassName: "min-w-[220px]",
+    },
   }),
   columnHelper.accessor("Category.Name", {
     id: "category",
@@ -56,6 +60,10 @@ export const ProductColumns = (
     cell: ({ getValue }) => (
       <span className="text-sm text-muted-foreground">{getValue() || "—"}</span>
     ),
+    meta: {
+      headerClassName: "hidden md:table-cell",
+      cellClassName: "hidden md:table-cell",
+    },
   }),
   columnHelper.accessor("Material.Name", {
     id: "material",
@@ -63,6 +71,10 @@ export const ProductColumns = (
     cell: ({ getValue }) => (
       <span className="text-sm text-muted-foreground">{getValue() || "—"}</span>
     ),
+    meta: {
+      headerClassName: "hidden xl:table-cell",
+      cellClassName: "hidden xl:table-cell",
+    },
   }),
   columnHelper.accessor("UnitMeasure.Name", {
     id: "unit",
@@ -70,6 +82,10 @@ export const ProductColumns = (
     cell: ({ getValue }) => (
       <span className="text-sm text-muted-foreground">{getValue() || "—"}</span>
     ),
+    meta: {
+      headerClassName: "hidden lg:table-cell",
+      cellClassName: "hidden lg:table-cell",
+    },
   }),
   columnHelper.accessor((row) => getProductSupplierNames(row).join(", "), {
     id: "suppliers",
@@ -91,6 +107,10 @@ export const ProductColumns = (
       );
     },
     enableSorting: false,
+    meta: {
+      headerClassName: "hidden xl:table-cell",
+      cellClassName: "hidden xl:table-cell",
+    },
   }),
   columnHelper.accessor("IsActive", {
     id: "status",
@@ -100,6 +120,10 @@ export const ProductColumns = (
         {getValue() ? "Activo" : "Inactivo"}
       </Badge>
     ),
+    meta: {
+      headerClassName: "min-w-[110px]",
+      cellClassName: "min-w-[110px]",
+    },
   }),
   columnHelper.display({
     id: "actions",
@@ -113,5 +137,9 @@ export const ProductColumns = (
         onDelete={onDelete}
       />
     ),
+    meta: {
+      headerClassName: "w-[72px]",
+      cellClassName: "w-[72px]",
+    },
   }),
 ];
