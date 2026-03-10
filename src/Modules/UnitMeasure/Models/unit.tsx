@@ -1,25 +1,27 @@
 export interface Unit {
-    Id : number
-    Name : string;
-    IsActive: boolean;
+  Id: number;
+  Name: string;
+  IsActive: boolean;
 }
 
 export interface NewUnit {
-    Name: string
+  Name: string;
 }
 
 export const NewUnitInitialState = {
-    Name : ''
-}
+  Name: "",
+};
+
+export type UnitStateFilter = "all" | "active" | "inactive";
 
 export interface UnitPaginationParams {
-    page: number;
-    limit: number;
-    name?: string;
-    state?: string;
+  page?: number;
+  limit?: number;
+  q?: string;
+  state?: boolean;
 }
 
 export interface UpdateUnitDto {
-    Name?: string,
-    IsActive?: boolean
+  Name?: string;
+  IsActive?: boolean;
 }

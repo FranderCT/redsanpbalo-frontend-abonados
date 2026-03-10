@@ -77,17 +77,26 @@ export function DataPagination({
 }: DataPaginationProps) {
   const safePageCount = Math.max(1, pageCount);
   const L = { ...defaultLabels, ...labels };
-
   const pageNumbers = getPageRange(page, safePageCount);
+  const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to = total === 0 ? 0 : Math.min(page * pageSize, total);
 
   return (
     <div
-      className={cn("flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center", className)}
+      className={cn(
+        "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
+        className
+      )}
       role="navigation"
       aria-label="Paginación"
     >
+      <p className="order-2 text-center text-sm text-muted-foreground sm:order-1 sm:text-left">
+        {total > 0
+          ? `${from}-${to} de ${total} ${L.totalItems}`
+          : `0 ${L.totalItems}`}
+      </p>
 
-      <Pagination className="order-1 sm:order-2">
+      <Pagination className="order-1 mx-0 w-full justify-center sm:order-2 sm:w-auto sm:justify-end ">
         <PaginationContent className="flex flex-wrap justify-center gap-1">
           <PaginationItem>
             <Button
@@ -102,7 +111,7 @@ export function DataPagination({
               aria-label={L.previous}
             >
               <ChevronLeft className="h-4 w-4" />
-              {!compact && <span className="hidden sm:inline">{L.previous}</span>}
+              {!compact ? <span className="hidden sm:inline">{L.previous}</span> : null}
             </Button>
           </PaginationItem>
 
@@ -139,7 +148,7 @@ export function DataPagination({
               disabled={page >= safePageCount}
               aria-label={L.next}
             >
-              {!compact && <span className="hidden sm:inline">{L.next}</span>}
+              {!compact ? <span className="hidden sm:inline">{L.next}</span> : null}
               <ChevronRight className="h-4 w-4" />
             </Button>
           </PaginationItem>

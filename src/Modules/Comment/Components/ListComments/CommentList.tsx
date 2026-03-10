@@ -3,7 +3,7 @@ import { useSearchComments, useUpdateComment } from "../../Hooks/commentHooks";
 import { CommentReadCard } from "../Cards/CommentReadCard";
 import CommentHeaderBar from "../PaginationComment/CommentHeaderBar";
 import type { Comment } from "../../Models/Comment";
-import CategoryPager from "../../../Category/Components/PaginationCategory/CategoryPager";
+import { DataPagination } from "@/Components/ui/data-pagination";
 
 export default function CommentsList() {
     //const {comments, } = useGetAllComments();
@@ -66,11 +66,14 @@ export default function CommentsList() {
                     ))}
                 </div>
             )}
-            <CategoryPager
+            <DataPagination
                 page={page}
                 pageCount={meta.pageCount}
+                total={meta.total}
+                pageSize={meta.limit}
                 onPageChange={setPage}
-                variant="inline"  // <- sin caja/borde
+                labels={{ totalItems: "comentarios" }}
+                compact
             />
         </div>
     );
