@@ -35,7 +35,7 @@ export default function UnitCards({
         </div>
       )}
 
-      <Card>
+      <Card className="border-none shadow-none">
         <CardContent className="pt-6">
           <DataPagination
             page={page}
