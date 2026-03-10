@@ -91,7 +91,7 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
     <ModalBase
       open={open}
       onClose={handleClose}
-      panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]"
+      panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[70vh]"
     >
       {/* Header */}
       <div className="flex-shrink-0 flex flex-col">

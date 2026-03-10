@@ -1,189 +1,188 @@
 import { useEffect } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
-import { ModalBase } from "../../../../Components/Modals/ModalBase";
+
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/Components/ui/field";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { useEditAgentSupplier } from "../../Hooks/SupplierAgentHooks";
 import type { AgentSupppliers } from "../../Models/SupplierAgent";
 import { UpdateAgentSupplierSchema } from "../../Schemas/UpdateSupplierAgentSchema";
 
-
-
 type Props = {
-  agent: AgentSupppliers;   // trae Id y campos del agente
+  agent: AgentSupppliers;
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
 };
 
-const EditAgentSupplierModal = ({ agent, open, onClose, onSuccess }: Props) => {
-  const updateAgentMutation = useEditAgentSupplier();
-
-  const SPANSTYLES = "text text-[#222]";
-  const LABELSTYLES = "grid gap-1";
-  const INPUTSTYLES = "w-full px-4 py-2 bg-gray-50 border";
+export default function EditAgentSupplierModal({
+  agent,
+  open,
+  onClose,
+  onSuccess,
+}: Props) {
+  const updateMutation = useEditAgentSupplier();
 
   const form = useForm({
     defaultValues: {
       Email: agent?.Email ?? "",
       PhoneNumber: agent?.PhoneNumber ?? "",
-      IsActive : agent?.IsActive ?? true,
+      IsActive: agent?.IsActive ?? true,
     },
-    validators:{
-      onChange:UpdateAgentSupplierSchema,
-    },
+    validators: { onChange: UpdateAgentSupplierSchema },
     onSubmit: async ({ value }) => {
       try {
-        await updateAgentMutation.mutateAsync({
-          id: agent.Id,
-          data: value, 
-        });
+        await updateMutation.mutateAsync({ id: agent.Id, data: value });
         form.reset();
         onSuccess?.();
-        onClose?.();
+        onClose();
       } catch (err) {
         console.error("Error al actualizar el agente", err);
       }
     },
   });
 
-
   useEffect(() => {
-    if (!agent) return;
-      form.setFieldValue("Email", agent.Email ?? "");
+    if (!agent || !open) return;
+    form.setFieldValue("Email", agent.Email ?? "");
     form.setFieldValue("PhoneNumber", agent.PhoneNumber ?? "");
-    
+    form.setFieldValue("IsActive", agent.IsActive ?? true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [agent, open]);
 
-  const handleClose = () => {
-    toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
-    form.reset();
-    onClose();
-  };
 
   return (
-    <ModalBase
-      open={open}
-      onClose={handleClose}
-      panelClassName="w-[min(90vw,700px)] p-4 flex flex-col max-h-[90vh]"
-    >
-      <header className="flex flex-col">
-        <h2 className="text-2xl text-[#091540] font-bold">Editar agente</h2>
-        <p className="text-md">Actualice la información del agente del proveedor</p>
-      </header>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <DialogContent className="flex max-h-[70vh] max-w-xl flex-col gap-0 overflow-hidden p-0">
+        <DialogHeader className="shrink-0 space-y-1.5 border-b px-6 py-5">
+          <DialogTitle>Editar agente</DialogTitle>
+          <DialogDescription>
+            Actualice la información del agente del proveedor.
+          </DialogDescription>
+        </DialogHeader>
 
-      <div className="border-b border-[#222]/10 my-2" />
+        <form
+          id="edit-agent-supplier-form"
+          className="flex min-h-0 flex-1 flex-col"
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+        >
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-6 py-4">
+            <div className="flex flex-col gap-4">
+              <form.Field name="Email">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && field.state.meta.errors.length > 0;
+                  return (
+                    <FieldGroup className="gap-2">
+                      <Field>
+                        <FieldLabel>Correo electrónico</FieldLabel>
+                        <Input
+                          type="email"
+                          placeholder="ejm. maria.rodriguez@empresa.com"
+                          value={field.state.value ?? ""}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          className={isInvalid ? "border-destructive" : ""}
+                        />
+                        <FieldError errors={field.state.meta.errors} />
+                      </Field>
+                    </FieldGroup>
+                  );
+                }}
+              </form.Field>
 
-      <form
-        id="create-agent-supplier-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          form.handleSubmit();
-        }}
-        className="flex-1 min-h-0 px-2 py-2 flex flex-col gap-2 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {/* Email */}
-        <form.Field name="Email">
-          {(field) => (
-            <label className={LABELSTYLES}>
-              <span className={SPANSTYLES}>Correo electrónico</span>
-              <input
-                type="email"
-                className={INPUTSTYLES}
-                placeholder="ejm. maria.rodriguez@empresa.com"
-                value={field.state.value ?? ""}
-                onChange={(e) => field.handleChange(e.target.value)}
-          
-              />
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                  {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                  </p>
-              )}
-            </label>
-          )}
-        </form.Field>
+              <form.Field name="PhoneNumber">
+                {(field) => (
+                  <FieldGroup className="gap-2">
+                    <Field>
+                      <FieldLabel>Número de teléfono</FieldLabel>
+                      <PhoneField
+                        value={field.state.value ?? ""}
+                        onChange={(val) => field.handleChange(val ?? "")}
+                        defaultCountry="CR"
+                        error={
+                          field.state.meta.isTouched && field.state.meta.errors[0]
+                            ? String(field.state.meta.errors[0])
+                            : undefined
+                        }
+                      />
+                      <FieldError errors={field.state.meta.errors} />
+                    </Field>
+                  </FieldGroup>
+                )}
+              </form.Field>
 
-        {/* Teléfono */}
-        <form.Field name="PhoneNumber">
-          {(field) => (
-            <div className={LABELSTYLES}>
-              <span className={SPANSTYLES}>Número de teléfono</span>
-              <PhoneField
-                value={field.state.value ?? ""}
-                onChange={(val) => field.handleChange(val ?? "")}
-                defaultCountry="CR"
-                error={
-                  field.state.meta.isTouched && field.state.meta.errors[0]
-                    ? String(field.state.meta.errors[0])
-                    : undefined
-                }
-              />
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                  {(field.state.meta.errors[0] as any)?.message ??
-                    String(field.state.meta.errors[0])}
-                </p>
-              )}
+              <form.Field name="IsActive">
+                {(field) => (
+                  <FieldGroup className="gap-2">
+                    <Field>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          id="edit-agent-is-active"
+                          checked={!!field.state.value}
+                          onChange={(e) => field.handleChange(e.target.checked)}
+                          className="h-4 w-4 rounded border-input"
+                        />
+                        <FieldLabel
+                          htmlFor="edit-agent-is-active"
+                          className="cursor-pointer font-normal"
+                        >
+                          Agente activo
+                        </FieldLabel>
+                      </div>
+                      <FieldError errors={field.state.meta.errors} />
+                    </Field>
+                  </FieldGroup>
+                )}
+              </form.Field>
             </div>
-          )}
-        </form.Field>
-
-        <form.Field name="IsActive">
-          {(field) => (
-            <label className="flex items-center gap-3 cursor-pointer select-none">
-              {/* Texto dinámico */}
-              <span className="text-sm text-gray-700">
-                {field.state.value ? "Activo" : "Inactivo"}
-              </span>
-
-              {/* Toggle */}
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={!!field.state.value}
-                  onChange={(e) => field.handleChange(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors"></div>
-                <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-5"></div>
-              </div>
-
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                  {(field.state.meta.errors[0] as any)?.message ??
-                    String(field.state.meta.errors[0])}
-                </p>
-              )}
-            </label>
-          )}
-        </form.Field>
-      </form>
-      {/* Botones */}
-      <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
-        {([canSubmit, isSubmitting]) => (
-          <div className="mt-4 flex justify-end gap-2">
-            <button
-              form="create-agent-supplier-form"
-              type="submit"
-              className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
-              disabled={!canSubmit}
-            >
-              {isSubmitting ? "Guardando…" : "Guardar cambios"}
-            </button>
-            <button
-             form="create-agent-supplier-form"
-              type="button"
-              onClick={handleClose}
-              className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
-            >
-              Cancelar
-            </button>
           </div>
-        )}
-      </form.Subscribe>
-    </ModalBase>
-  );
-};
 
-export default EditAgentSupplierModal;
+          <DialogFooter className="shrink-0 flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
+            <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
+              {([canSubmit, isSubmitting]) => (
+                <div className="flex w-full flex-col-reverse items-center justify-between gap-2 sm:flex-row-reverse">
+                  <DialogClose asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                    >
+                      Cancelar
+                    </Button>
+                  </DialogClose>
+                  <Button
+                    type="submit"
+                    form="edit-agent-supplier-form"
+                    disabled={!canSubmit || isSubmitting}
+                    className="w-full sm:w-auto"
+                  >
+                    {isSubmitting ? "Guardando…" : "Guardar cambios"}
+                  </Button>
+                </div>
+              )}
+            </form.Subscribe>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

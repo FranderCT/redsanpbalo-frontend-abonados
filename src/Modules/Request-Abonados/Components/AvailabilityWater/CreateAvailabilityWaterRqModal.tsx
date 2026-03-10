@@ -284,7 +284,7 @@ const CreateAvailabilityWaterRqModal = () => {
             <ModalBase
                 open={open}
                 onClose={handleClose}
-                panelClassName="w-full max-w-4xl !p-0 overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto"
+                panelClassName="w-full max-w-4xl !p-0 overflow-hidden shadow-2xl max-h-[70vh] overflow-y-auto"
             >
                 {/* Header */}
                 <div className="px-6 py-4 text-[#091540] border-b border-gray-200 sticky top-0 bg-white z-10">
