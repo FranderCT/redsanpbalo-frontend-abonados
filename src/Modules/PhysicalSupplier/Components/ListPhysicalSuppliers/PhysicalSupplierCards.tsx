@@ -99,7 +99,7 @@ export default function PhysicalSupplierCards({
             return (
               <Card
                 key={item.Id}
-                className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md"
+                className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md "
               >
                 <CardHeader className="flex flex-row items-start gap-3 space-y-0 pb-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted ring-2 ring-border">
