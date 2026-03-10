@@ -1,8 +1,5 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { Trash } from "lucide-react";
-import type { Material } from "../../Models/Material";
-import { useDeleteMaterial } from "../../Hooks/MaterialHooks";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,15 +10,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../../../../Components/ui/alert-dialog";
-import { Button, buttonVariants } from "../../../../Components/ui/button";
+} from "@/Components/ui/alert-dialog";
+import type { Material } from "../Models/Material";
+import { useDeleteMaterial } from "../Hooks/MaterialHooks";
 
 type Props = {
   materialSelected: Material;
   onSuccess?: () => void;
 };
 
-export default function DeleteMaterialButton({ materialSelected, onSuccess }: Props) {
+export default function DeleteMaterialModal({ materialSelected, onSuccess }: Props) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const deleteMaterialMutation = useDeleteMaterial();
@@ -44,37 +42,30 @@ export default function DeleteMaterialButton({ materialSelected, onSuccess }: Pr
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button
-          type="button"
-          disabled={busy}
-          variant="destructive"
-          // className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
-          //   ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
-          title="Inhabilitar material"
-
-        >
-          <Trash />
-          {busy ? "..." : "Inhabilitar"}
-        </Button>
+        <button type="button" className="w-full text-left text-red-600">
+          Inhabilitar material
+        </button>
       </AlertDialogTrigger>
-
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>¿Inhabilitar material?</AlertDialogTitle>
           <AlertDialogDescription>
-            Se inhabilitará el material "{materialSelected.Name ?? ""}". Esta acción no se puede deshacer.
+            Se inhabilitará el material "{materialSelected.Name ?? ""}".
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
+        <AlertDialogFooter className="justify-between sm:justify-between sm:space-x-0">
           <AlertDialogAction
-            onClick={handleConfirm}
+            onClick={(event) => {
+              event.preventDefault();
+              void handleConfirm();
+            }}
+            className="bg-red-600 hover:bg-red-700"
             disabled={busy}
-            className={buttonVariants({ variant: "destructive" })}
           >
-            {busy ? "..." : "Inhabilitar"}
+            {busy ? "Inhabilitando..." : "Inhabilitar"}
           </AlertDialogAction>
+          <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

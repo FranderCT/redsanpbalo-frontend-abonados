@@ -5,28 +5,30 @@ export interface Material {
   IsActive: boolean;
 }
 
-export interface newMaterial{
+export interface NewMaterial {
   Name : string;
 }
 
 // Estado inicial del formulario
-export const newMaterialInitialState: newMaterial = {
+export const newMaterialInitialState: NewMaterial = {
   Name: "",
 };
 
-export interface updateMaterialDto{
+export type MaterialStateFilter = "all" | "active" | "inactive";
+
+export interface UpdateMaterialDto{
   Name?: string;
   IsActive?: boolean;
 }
 
-export const updateMaterialInitialState: updateMaterialDto = {
+export const updateMaterialInitialState: UpdateMaterialDto = {
   Name: undefined,
   IsActive: true,
 };
 
 export interface MaterialPaginationParams {
-  page: number;
-  limit: number;
-  name?: string;
-  state?: string;
+  page?: number;
+  limit?: number;
+  q?: string;
+  state?: boolean;
 }

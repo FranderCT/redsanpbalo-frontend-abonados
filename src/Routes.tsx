@@ -1,7 +1,7 @@
 import { createRootRoute, createRoute } from "@tanstack/react-router";
 import { registerRoute, loginRoute, resetPasswordRoute, forgotPasswordRoute } from "./Modules/Auth/Routes/authRoutes";
 import { dashboardRoute, dashboardIndexRoute, dashboardAdminPrincipalRoute, dashboardUserPrincipalRoute } from "./Modules/Dashboard/Routes/DashboardRoutes";
-import { materialRoute, createMaterialRoute } from "./Modules/Materials/Routes/MaterialsRoutes";
+import { materialRoute } from "./Modules/Materials/Routes/MaterialsRoutes";
 import { settingsRoute, changeEmailRoute, changePasswordRoute } from "./Modules/SettingsUser/Routes/SettingsRoute";
 import { usersRoute, userProfilewRoute, userProfileEditRoute, listUsersRoute } from "./Modules/Users/Routes/UsersRoutes";
 import { categoryRoute } from "./Modules/Category/Routes/RoutesCategories";
@@ -49,9 +49,7 @@ export const routeTree = rootRoute.addChildren([
       listUsersRoute
     ]),
     dashboardIndexRoute,
-    materialRoute.addChildren([
-      createMaterialRoute,
-    ]),
+    materialRoute,
     settingsRoute.addChildren([
       changePasswordRoute,
       changeEmailRoute
