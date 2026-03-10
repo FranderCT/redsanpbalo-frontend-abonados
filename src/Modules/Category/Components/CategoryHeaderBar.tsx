@@ -26,7 +26,7 @@ type Props = {
 
 export default function CategoryHeaderBar({
   limit,
-  total,
+  // total,
   search,
   state,
   onLimitChange,
