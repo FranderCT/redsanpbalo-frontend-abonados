@@ -1,0 +1,182 @@
+import { useForm } from "@tanstack/react-form";
+import { toast } from "react-toastify";
+import { Badge } from "@/Components/ui/badge";
+import { Button } from "@/Components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/Components/ui/field";
+import { Input } from "@/Components/ui/input";
+import type { Unit } from "../Models/unit";
+import { useUpdateUnitMeasure } from "../Hooks/UnitMeasureHooks";
+import { UpdateUnitMeasureSchemas } from "../Schemas/UnitMeasureSchemas";
+
+type Props = {
+  unit: Unit;
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+};
+
+const UpdateUnitMeasureModal = ({ unit, open, onClose, onSuccess }: Props) => {
+  const updateUnitModalMutation = useUpdateUnitMeasure();
+
+  const form = useForm({
+    validators: {
+      onChange: UpdateUnitMeasureSchemas,
+    },
+    defaultValues: {
+      Name: unit.Name ?? "",
+      IsActive: unit.IsActive ?? true,
+    },
+    onSubmit: async ({ value, formApi }) => {
+      try {
+        await updateUnitModalMutation.mutateAsync({
+          id: unit.Id,
+          data: {
+            Name: value.Name.trim(),
+            IsActive: value.IsActive,
+          },
+        });
+
+        toast.success("¡Unidad de medida actualizada!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+
+        formApi.reset(value);
+        onClose();
+        onSuccess?.();
+      } catch (err) {
+        console.error("Error al actualizar la unidad de medida", err);
+        toast.error("Error al actualizar la unidad de medida", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    },
+  });
+
+  const handleDialogChange = (isOpen: boolean) => {
+    if (isOpen) {
+      form.reset({
+        Name: unit.Name ?? "",
+        IsActive: unit.IsActive ?? true,
+      });
+      return;
+    }
+
+    form.reset();
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleDialogChange}>
+      <DialogContent>
+        <DialogHeader className="px-6 pt-6">
+          <DialogTitle className="text-[#091540]">Editar unidad de medida</DialogTitle>
+          <DialogDescription>
+            Actualiza la información y el estado de la unidad de medida seleccionada.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-wrap gap-2 px-6">
+          <Badge variant="outline">ID #{unit.Id}</Badge>
+          <Badge variant={unit.IsActive ? "default" : "destructive"}>
+            {unit.IsActive ? "Activa" : "Inactiva"}
+          </Badge>
+        </div>
+
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            form.handleSubmit();
+          }}
+          className="flex flex-col gap-4 px-6 pb-6"
+        >
+          <div className="flex max-h-[55vh] flex-col gap-2 overflow-y-auto">
+            <FieldGroup>
+              <form.Field
+                name="Name"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Nombre</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => field.handleChange(event.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="Ej. Kilogramo"
+                      />
+                      {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
+                    </Field>
+                  );
+                }}
+              />
+            </FieldGroup>
+
+            <FieldGroup>
+              <form.Field
+                name="IsActive"
+                children={(field) => (
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Estado</FieldLabel>
+                    <label className="flex items-center gap-3 rounded-md border border-input px-3 py-2">
+                      <input
+                        id={field.name}
+                        name={field.name}
+                        type="checkbox"
+                        checked={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(event) => field.handleChange(event.target.checked)}
+                        className="h-4 w-4"
+                      />
+                      <span className="text-sm text-foreground">
+                        {field.state.value ? "Unidad activa" : "Unidad inactiva"}
+                      </span>
+                    </label>
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+          </div>
+
+          <DialogFooter className="w-full justify-between sm:justify-between sm:space-x-0">
+            <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+              {([canSubmit, isSubmitting]) => (
+                <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <Button
+                    type="submit"
+                    className="w-full sm:w-auto"
+                    disabled={!canSubmit || isSubmitting}
+                  >
+                    {isSubmitting ? "Guardando..." : "Guardar cambios"}
+                  </Button>
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline" className="w-full sm:w-auto">
+                      Cancelar
+                    </Button>
+                  </DialogClose>
+                </div>
+              )}
+            </form.Subscribe>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default UpdateUnitMeasureModal;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { PhysicalSupplier } from "../../Models/PhysicalSupplier";
 import EditPhysicalSupplierModal from "../Modals/EditPhysicalSupplierModal";
 import GetInfoPhysicalSupplierModal from "../Modals/GetInfoPhysicalSupplierModal";
-import CategoryPager from "../../../Category/Components/PaginationCategory/CategoryPager";
+import { DataPagination } from "@/Components/ui/data-pagination";
 import { useDeletePhysicalSupplier } from "../../Hooks/PhysicalSupplierHooks";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { toast } from "react-toastify";
@@ -99,7 +99,7 @@ export default function PhysicalSupplierCards({
             return (
               <Card
                 key={item.Id}
-                className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md"
+                className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md "
               >
                 <CardHeader className="flex flex-row items-start gap-3 space-y-0 pb-3">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted ring-2 ring-border">
@@ -184,15 +184,14 @@ export default function PhysicalSupplierCards({
       )}
 
       <div className="border-t border-border pt-4">
-        <CategoryPager
+        <DataPagination
           page={page}
           pageCount={pageCount}
+          total={total ?? data.length}
           onPageChange={onPageChange}
-          variant="inline"
+          labels={{ totalItems: "proveedores" }}
+          compact
         />
-        <p className="mt-2 text-right text-xs text-muted-foreground">
-          Total registros: <span className="font-semibold">{total ?? data.length}</span>
-        </p>
       </div>
 
       {disableSupplier && (

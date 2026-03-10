@@ -82,7 +82,7 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
         if (!v) onClose();
       }}
     >
-      <DialogContent className="max-h-[70vh] max-w-xl gap-0 overflow-hidden p-0">
+      <DialogContent className="flex max-h-[85vh] max-w-xl flex-col gap-0 overflow-hidden p-0">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Editar usuario</DialogTitle>
           <DialogDescription>
@@ -92,13 +92,14 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
 
         <form
           id="edit-user-form"
-          className="flex flex-col gap-4"
+          className="flex min-h-0 flex-1 flex-col"
           onSubmit={(e) => {
             e.preventDefault();
             form.handleSubmit();
           }}
         >
-          <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-6 py-4">
+            <div className="flex flex-col gap-2">
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-base">Información del usuario</CardTitle>
@@ -373,6 +374,7 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
               )}
             </EditField>
             </FieldGroup>
+            </div>
           </div>
 
           <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">

@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Supplier } from "../Models/Supplier";
 import { SupplierColumns } from "./SupplierColumns";
 import UpdateSupplierModal from "./UpdateSupplierModal";
-import CategoryPager from "../../Category/Components/PaginationCategory/CategoryPager";
+import { DataPagination } from "@/Components/ui/data-pagination";
 
 
 
@@ -79,11 +79,13 @@ export default function SupplierTable({ data, total, page, pageCount, onPageChan
               <div className="w-full flex items-center justify-between gap-3">
                 <span className="flex-none text-sm">Total registros: <b>{total ?? data.length}</b></span>
                 <div className="flex-1 flex justify-center">
-                  <CategoryPager
+                  <DataPagination
                     page={page}
                     pageCount={pageCount}
+                    total={total ?? data.length}
                     onPageChange={onPageChange}
-                    variant="inline"  // <- sin caja/borde
+                    labels={{ totalItems: "proveedores" }}
+                    compact
                   />
                 </div>
               </div>
