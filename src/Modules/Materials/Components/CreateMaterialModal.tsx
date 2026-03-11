@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Button } from "@/Components/ui/button";
 import {
   Dialog,
@@ -14,13 +14,16 @@ import {
 } from "@/Components/ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/Components/ui/field";
 import { Input } from "@/Components/ui/input";
+import { getApiErrorMessages } from "@/core/api-error";
 import { Plus } from "lucide-react";
 import { useCreateMaterial } from "../Hooks/MaterialHooks";
 import { newMaterialInitialState } from "../Models/Material";
 import { MaterialSchema } from "../schemas/Materials/MaterialSchema";
+import MaterialModalError from "./MaterialModalError";
 
 const CreateMaterialModal = () => {
   const [open, setOpen] = useState(false);
+  const [backendErrors, setBackendErrors] = useState<string[]>([]);
   const createMaterialMutation = useCreateMaterial();
 
   const form = useForm({
@@ -30,21 +33,26 @@ const CreateMaterialModal = () => {
     },
     onSubmit: async ({ value, formApi }) => {
       try {
+        setBackendErrors([]);
         await createMaterialMutation.mutateAsync({
           Name: value.Name.trim(),
         });
-        toast.success("¡Registro exitoso!", { position: "top-right", autoClose: 3000 });
+        toast.success("Material creado");
         formApi.reset();
         setOpen(false);
       } catch (err) {
-        console.error("Error creando material:", err);
-        toast.error("¡Registro sin éxito!", { position: "top-right", autoClose: 3000 });
+        const messages = getApiErrorMessages(err);
+        setBackendErrors(messages);
+        toast.error("No se pudo crear el material", {
+          description: messages[0],
+        });
       }
     },
   });
 
   const handleDialogChange = (isOpen: boolean) => {
     setOpen(isOpen);
+    setBackendErrors([]);
     if (!isOpen) {
       form.reset();
     }
@@ -74,6 +82,7 @@ const CreateMaterialModal = () => {
           className="flex flex-col gap-4 px-6 pb-6"
         >
           <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
+            <MaterialModalError messages={backendErrors} />
             <FieldGroup>
               <form.Field
                 name="Name"
@@ -87,11 +96,15 @@ const CreateMaterialModal = () => {
                       <Input
                         id={field.name}
                         name={field.name}
+                        autoComplete="off"
                         value={field.state.value}
                         onBlur={field.handleBlur}
-                        onChange={(event) => field.handleChange(event.target.value)}
+                        onChange={(event) => {
+                          setBackendErrors([]);
+                          field.handleChange(event.target.value);
+                        }}
                         aria-invalid={isInvalid}
-                        placeholder="Ej. Acero"
+                        placeholder="Ej. acero…"
                       />
                       {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
                     </Field>
@@ -110,7 +123,7 @@ const CreateMaterialModal = () => {
                     className="w-full sm:w-auto"
                     disabled={!canSubmit || isSubmitting}
                   >
-                    {isSubmitting ? "Creando..." : "Crear material"}
+                    {isSubmitting ? "Creando…" : "Crear material"}
                   </Button>
                   <DialogClose asChild>
                     <Button type="button" variant="outline" className="w-full sm:w-auto">
