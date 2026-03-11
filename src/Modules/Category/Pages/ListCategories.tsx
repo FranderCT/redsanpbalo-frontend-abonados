@@ -5,8 +5,26 @@ import CategoryHeaderBar from "../Components/CategoryHeaderBar";
 import CategoryCards from "../Components/CategoryCards";
 import CreateCategoryModal from "../Components/CreateCategoryModal";
 import type { Category, CategoryStateFilter } from "../Models/Category";
+import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 
 const DEFAULT_LIMIT = 10;
+const DEFAULT_PAGE = 1;
+const EMPTY_META: PaginatedResponse<Category>["meta"] = {
+  totalItems: 0,
+  itemCount: 0,
+  itemsPerPage: DEFAULT_LIMIT,
+  totalPages: 1,
+  currentPage: 1,
+  hasNextPage: false,
+  hasPrevPage: false,
+};
+
+type CategoryFiltersState = {
+  page: number;
+  limit: number;
+  search: string;
+  state: CategoryStateFilter;
+};
 
 function getStateFilter(value: string | null): CategoryStateFilter {
   return value === "active" || value === "inactive" ? value : "all";
@@ -17,11 +35,11 @@ function getPositiveNumber(value: string | null, fallback: number) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-function parseSearchState(searchStr: string) {
+function parseSearchState(searchStr: string): CategoryFiltersState {
   const searchParams = new URLSearchParams(searchStr);
 
   return {
-    page: getPositiveNumber(searchParams.get("page"), 1),
+    page: getPositiveNumber(searchParams.get("page"), DEFAULT_PAGE),
     limit: getPositiveNumber(searchParams.get("limit"), DEFAULT_LIMIT),
     search: searchParams.get("q") ?? "",
     state: getStateFilter(searchParams.get("state")),
@@ -30,19 +48,16 @@ function parseSearchState(searchStr: string) {
 
 export default function ListCategories() {
   const location = useLocation();
-  const [page, setPage] = useState(() => parseSearchState(location.searchStr).page);
-  const [limit, setLimit] = useState(() => parseSearchState(location.searchStr).limit);
-  const [search, setSearch] = useState(() => parseSearchState(location.searchStr).search);
-  const [state, setState] = useState<CategoryStateFilter>(() => parseSearchState(location.searchStr).state);
-  const deferredSearch = useDeferredValue(search);
+  const [filters, setFilters] = useState<CategoryFiltersState>(() => parseSearchState(location.searchStr));
+  const deferredSearch = useDeferredValue(filters.search);
 
   useEffect(() => {
     const searchParams = new URLSearchParams();
 
-    if (page > 1) searchParams.set("page", String(page));
-    if (limit !== DEFAULT_LIMIT) searchParams.set("limit", String(limit));
-    if (search.trim()) searchParams.set("q", search.trim());
-    if (state !== "all") searchParams.set("state", state);
+    if (filters.page > DEFAULT_PAGE) searchParams.set("page", String(filters.page));
+    if (filters.limit !== DEFAULT_LIMIT) searchParams.set("limit", String(filters.limit));
+    if (filters.search.trim()) searchParams.set("q", filters.search.trim());
+    if (filters.state !== "all") searchParams.set("state", filters.state);
 
     const nextSearch = searchParams.toString();
     const nextUrl = `${location.pathname}${nextSearch ? `?${nextSearch}` : ""}${location.hash}`;
@@ -51,55 +66,56 @@ export default function ListCategories() {
     if (nextUrl !== currentUrl) {
       window.history.replaceState(window.history.state, "", nextUrl);
     }
-  }, [limit, location.hash, location.pathname, location.searchStr, page, search, state]);
+  }, [filters, location.hash, location.pathname, location.searchStr]);
 
   const handleSearchChange = (txt: string) => {
     startTransition(() => {
-      setSearch(txt);
-      setPage(1);
+      setFilters((current) => ({
+        ...current,
+        search: txt,
+        page: DEFAULT_PAGE,
+      }));
     });
   };
 
   const handleStateChange = (newState: CategoryStateFilter) => {
     startTransition(() => {
-      setState(newState);
-      setPage(1);
+      setFilters((current) => ({
+        ...current,
+        state: newState,
+        page: DEFAULT_PAGE,
+      }));
     });
   };
 
   const handleCleanFilters = () => {
     startTransition(() => {
-      setSearch("");
-      setState("all");
-      setPage(1);
+      setFilters((current) => ({
+        ...current,
+        search: "",
+        state: "all",
+        page: DEFAULT_PAGE,
+      }));
     });
   };
 
   const params = useMemo(
     () => ({
-      page,
-      limit,
+      page: filters.page,
+      limit: filters.limit,
       q: deferredSearch.trim() || undefined,
       state:
-        state === "all" ? undefined :
-        state === "active" ? true :
+        filters.state === "all" ? undefined :
+        filters.state === "active" ? true :
         false,
     }),
-    [deferredSearch, limit, page, state],
+    [deferredSearch, filters.limit, filters.page, filters.state],
   );
 
   const { data, isLoading, error } = useSearchCategories(params);
 
   const rows: Category[] = data?.data ?? [];
-  const meta = data?.meta ?? {
-    totalItems: 0,
-    itemCount: 0,
-    itemsPerPage: limit,
-    totalPages: 1,
-    currentPage: 1,
-    hasNextPage: false,
-    hasPrevPage: false,
-  };
+  const meta = data?.meta ?? { ...EMPTY_META, itemsPerPage: filters.limit };
 
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -114,12 +130,15 @@ export default function ListCategories() {
       <CategoryHeaderBar
         limit={meta.itemsPerPage}
         total={meta.totalItems}
-        search={search}
-        state={state}
+        search={filters.search}
+        state={filters.state}
         onLimitChange={(newLimit) => {
           startTransition(() => {
-            setLimit(newLimit);
-            setPage(1);
+            setFilters((current) => ({
+              ...current,
+              limit: newLimit,
+              page: DEFAULT_PAGE,
+            }));
           });
         }}
         onFilterChange={handleStateChange}
@@ -143,7 +162,12 @@ export default function ListCategories() {
             total={meta.totalItems}
             page={meta.currentPage}
             pageCount={meta.totalPages}
-            onPageChange={setPage}
+            onPageChange={(page) => {
+              setFilters((current) => ({
+                ...current,
+                page,
+              }));
+            }}
           />
         )}
       </div>

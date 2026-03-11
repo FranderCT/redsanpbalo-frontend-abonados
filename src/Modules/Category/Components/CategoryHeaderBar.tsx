@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from "@/Components/ui/select";
 
+const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100] as const;
+
 type Props = {
   limit: number;
   total: number;
@@ -60,7 +62,7 @@ export default function CategoryHeaderBar({
                 <SelectValue placeholder="Selecciona un límite" />
               </SelectTrigger>
               <SelectContent>
-                {[5, 10, 20, 50, 100].map((n) => (
+                {PAGE_SIZE_OPTIONS.map((n) => (
                   <SelectItem key={n} value={String(n)}>
                     {n}
                   </SelectItem>

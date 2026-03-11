@@ -19,7 +19,7 @@ import { Textarea } from "@/Components/ui/textarea";
 import { Badge } from "@/Components/ui/badge";
 
 type Props = {
-  category: Category;
+  category: Category | null;
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
@@ -38,6 +38,8 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
       IsActive: category?.IsActive ?? true,
     },
     onSubmit: async ({ value, formApi }) => {
+      if (!category) return;
+
       try {
         await updateCategoryModalMutation.mutateAsync({
           id: category.Id,
@@ -61,6 +63,13 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
   });
 
   const handleDialogChange = (isOpen: boolean) => {
+    if (!category) {
+      if (!isOpen) {
+        onClose();
+      }
+      return;
+    }
+
     if (isOpen) {
       form.reset({
         Name: category.Name ?? "",
@@ -85,8 +94,8 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
         </DialogHeader>
 
         <div className="flex flex-wrap gap-2 px-6">
-          <Badge variant={category.IsActive ? "default" : "destructive"}>
-            {category.IsActive ? "Activa" : "Inactiva"}
+          <Badge variant={category?.IsActive ? "default" : "destructive"}>
+            {category?.IsActive ? "Activa" : "Inactiva"}
           </Badge>
         </div>
 

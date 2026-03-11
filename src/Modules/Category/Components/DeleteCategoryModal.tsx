@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { toast } from "sonner";
 import { useDeleteCategory } from "../Hooks/CategoryHooks";
 import type { Category } from "../Models/Category";
@@ -14,7 +13,7 @@ import {
 } from "@/Components/ui/alert-dialog";
 
 type Props = {
-  categorySelected: Category;
+  categorySelected: Category | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
@@ -26,12 +25,13 @@ export default function DeleteCategoryButton({
   onOpenChange,
   onSuccess,
 }: Props) {
-  const [busy, setBusy] = useState(false);
   const deleteCategoryMutation = useDeleteCategory();
+  const busy = deleteCategoryMutation.isPending;
 
   const handleConfirm = async () => {
+    if (!categorySelected) return;
+
     try {
-      setBusy(true);
       await deleteCategoryMutation.mutateAsync(categorySelected.Id);
       toast.success("Categoria inhabilitada");
       onOpenChange(false);
@@ -39,8 +39,6 @@ export default function DeleteCategoryButton({
     } catch (err) {
       console.error("Error al inhabilitar categoría:", err);
       toast.error("No se pudo inhabilitar la categoria");
-    } finally {
-      setBusy(false);
     }
   };
 
@@ -50,7 +48,7 @@ export default function DeleteCategoryButton({
         <AlertDialogHeader>
           <AlertDialogTitle>¿Inhabilitar categoría?</AlertDialogTitle>
           <AlertDialogDescription>
-            Se inhabilitará la categoría "{categorySelected.Name ?? ""}".
+            Se inhabilitará la categoría "{categorySelected?.Name ?? ""}".
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="justify-between sm:justify-between sm:space-x-0">
