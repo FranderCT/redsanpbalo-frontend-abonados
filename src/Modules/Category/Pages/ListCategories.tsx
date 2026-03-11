@@ -1,31 +1,86 @@
-import { useDeferredValue, useMemo, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useLocation } from "@tanstack/react-router";
 import { useSearchCategories } from "../Hooks/CategoryHooks";
 import CategoryHeaderBar from "../Components/CategoryHeaderBar";
 import CategoryCards from "../Components/CategoryCards";
 import CreateCategoryModal from "../Components/CreateCategoryModal";
 import type { Category, CategoryStateFilter } from "../Models/Category";
 
+const DEFAULT_LIMIT = 10;
+
+function getStateFilter(value: string | null): CategoryStateFilter {
+  return value === "active" || value === "inactive" ? value : "all";
+}
+
+function getPositiveNumber(value: string | null, fallback: number) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function parseSearchState(searchStr: string) {
+  const searchParams = new URLSearchParams(searchStr);
+
+  return {
+    page: getPositiveNumber(searchParams.get("page"), 1),
+    limit: getPositiveNumber(searchParams.get("limit"), DEFAULT_LIMIT),
+    search: searchParams.get("q") ?? "",
+    state: getStateFilter(searchParams.get("state")),
+  };
+}
+
 export default function ListCategories() {
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [search, setSearch] = useState("");
-  const [state, setState] = useState<CategoryStateFilter>("all");
+  const location = useLocation();
+  const parsedSearchState = useMemo(() => parseSearchState(location.searchStr), [location.searchStr]);
+  const [page, setPage] = useState(parsedSearchState.page);
+  const [limit, setLimit] = useState(parsedSearchState.limit);
+  const [search, setSearch] = useState(parsedSearchState.search);
+  const [state, setState] = useState<CategoryStateFilter>(parsedSearchState.state);
   const deferredSearch = useDeferredValue(search);
 
+  useEffect(() => {
+    setPage((current) => current === parsedSearchState.page ? current : parsedSearchState.page);
+    setLimit((current) => current === parsedSearchState.limit ? current : parsedSearchState.limit);
+    setSearch((current) => current === parsedSearchState.search ? current : parsedSearchState.search);
+    setState((current) => current === parsedSearchState.state ? current : parsedSearchState.state);
+  }, [parsedSearchState]);
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams();
+
+    if (page > 1) searchParams.set("page", String(page));
+    if (limit !== DEFAULT_LIMIT) searchParams.set("limit", String(limit));
+    if (search.trim()) searchParams.set("q", search.trim());
+    if (state !== "all") searchParams.set("state", state);
+
+    const nextSearch = searchParams.toString();
+    const nextUrl = `${location.pathname}${nextSearch ? `?${nextSearch}` : ""}${location.hash}`;
+    const currentUrl = `${location.pathname}${location.searchStr}${location.hash}`;
+
+    if (nextUrl !== currentUrl) {
+      window.history.replaceState(window.history.state, "", nextUrl);
+    }
+  }, [limit, location.hash, location.pathname, location.searchStr, page, search, state]);
+
   const handleSearchChange = (txt: string) => {
-    setSearch(txt);
-    setPage(1);
+    startTransition(() => {
+      setSearch(txt);
+      setPage(1);
+    });
   };
 
   const handleStateChange = (newState: CategoryStateFilter) => {
-    setState(newState);
-    setPage(1);
+    startTransition(() => {
+      setState(newState);
+      setPage(1);
+    });
   };
 
   const handleCleanFilters = () => {
-    setSearch("");
-    setState("all");
-    setPage(1);
+    startTransition(() => {
+      setSearch("");
+      setState("all");
+      setPage(1);
+    });
   };
 
   const params = useMemo(
@@ -69,7 +124,12 @@ export default function ListCategories() {
         total={meta.totalItems}
         search={search}
         state={state}
-        onLimitChange={(l) => { setLimit(l); setPage(1); }}
+        onLimitChange={(newLimit) => {
+          startTransition(() => {
+            setLimit(newLimit);
+            setPage(1);
+          });
+        }}
         onFilterChange={handleStateChange}
         onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
@@ -79,7 +139,7 @@ export default function ListCategories() {
       <div className="flex flex-col">
         {isLoading ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
-            Cargando categorías...
+            Cargando categorías…
           </div>
         ) : error ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-600">

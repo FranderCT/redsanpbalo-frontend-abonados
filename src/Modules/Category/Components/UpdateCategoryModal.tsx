@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import { useUpdateCategory } from "../Hooks/CategoryHooks";
 import type { Category } from "../Models/Category";
 import { UpdateCategorySchema } from "../schemas/CategorySchema";
-import { useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -12,7 +11,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/Components/ui/dialog";
 import { Button } from "@/Components/ui/button";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/Components/ui/field";
@@ -22,11 +20,13 @@ import { Badge } from "@/Components/ui/badge";
 
 type Props = {
   category: Category;
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
 };
 
-const UpdateCategoryModal = ({ category }: Props) => {
+const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
   const updateCategoryModalMutation = useUpdateCategory();
-  const [open, setOpen] = useState(false);
 
   const form = useForm({
     validators: {
@@ -54,7 +54,8 @@ const UpdateCategoryModal = ({ category }: Props) => {
         });
 
         formApi.reset(value);
-        setOpen(false);
+        onClose();
+        onSuccess?.();
       } catch (err) {
         console.error("error desconocido", err);
         toast.error("Error al actualizar la Categoría", {
@@ -66,7 +67,6 @@ const UpdateCategoryModal = ({ category }: Props) => {
   });
 
   const handleDialogChange = (isOpen: boolean) => {
-    setOpen(isOpen);
     if (isOpen) {
       form.reset({
         Name: category.Name ?? "",
@@ -77,15 +77,11 @@ const UpdateCategoryModal = ({ category }: Props) => {
     }
 
     form.reset();
+    onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogTrigger asChild>
-        <button type="button" className="w-full text-left">
-          Editar categoría
-        </button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader className="px-6 pt-6">
           <DialogTitle className="text-[#091540]">Editar categoría</DialogTitle>
@@ -121,11 +117,12 @@ const UpdateCategoryModal = ({ category }: Props) => {
                       <Input
                         id={field.name}
                         name={field.name}
+                        autoComplete="off"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(event) => field.handleChange(event.target.value)}
                         aria-invalid={isInvalid}
-                        placeholder="Ej. Fontanería"
+                        placeholder="Ej. fontaneria…"
                       />
                       {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
                     </Field>
@@ -147,6 +144,7 @@ const UpdateCategoryModal = ({ category }: Props) => {
                       <Textarea
                         id={field.name}
                         name={field.name}
+                        autoComplete="off"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(event) => field.handleChange(event.target.value)}
@@ -156,7 +154,7 @@ const UpdateCategoryModal = ({ category }: Props) => {
                           }
                         }}
                         aria-invalid={isInvalid}
-                        placeholder="Descripción de la categoría"
+                        placeholder="Descripcion de la categoria…"
                         rows={3}
                       />
                       {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
@@ -201,7 +199,7 @@ const UpdateCategoryModal = ({ category }: Props) => {
                     className="w-full sm:w-auto"
                     disabled={!canSubmit || isSubmitting}
                   >
-                    {isSubmitting ? "Guardando..." : "Guardar cambios"}
+                    {isSubmitting ? "Guardando…" : "Guardar cambios"}
                   </Button>
                   <DialogClose asChild>
                     <Button type="button" variant="outline" className="w-full sm:w-auto">
