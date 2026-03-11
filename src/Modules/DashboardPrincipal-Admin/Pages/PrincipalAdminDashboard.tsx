@@ -146,27 +146,6 @@ const { chartData: solicitudesMensuales, isLoading: loadingReqMonthly } = useMon
             </div>
           </div>
 
-<<<<<<< HEAD
-=======
-          {/* Reportes - Rojo */}
-          <div className="group relative">
-            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
-                onClick={() => navigate({ to: "/dashboard/reports" })}>
-              <div className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <OctagonAlert className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:transition-colors">Reportes</h3>
-                    <p className="text-[#091540]/70 text-sm leading-relaxed">Revisar todos los reportes</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
->>>>>>> develop
           {/* Productos - Verde */}
           <div className="group relative">
             <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
