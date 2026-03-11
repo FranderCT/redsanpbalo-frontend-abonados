@@ -4,6 +4,7 @@ import type { UnitStateFilter } from "../Models/unit";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
 import {
   Select,
   SelectContent,
@@ -52,9 +53,9 @@ export default function UnitHeaderBar({
       <CardContent className="flex flex-col gap-4 pt-0">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex min-w-[140px] flex-col gap-2">
-            <span className="text-sm font-medium text-foreground">Filas por página</span>
+            <Label htmlFor="unit-limit-select">Filas por página</Label>
             <Select value={String(limit)} onValueChange={(value) => onLimitChange(Number(value))}>
-              <SelectTrigger>
+              <SelectTrigger id="unit-limit-select" aria-label="Filas por página">
                 <SelectValue placeholder="Selecciona un límite" />
               </SelectTrigger>
               <SelectContent>
@@ -68,9 +69,9 @@ export default function UnitHeaderBar({
           </div>
 
           <div className="flex min-w-[160px] flex-col gap-2">
-            <span className="text-sm font-medium text-foreground">Estado</span>
+            <Label htmlFor="unit-state-filter">Estado</Label>
             <Select value={state} onValueChange={(value) => onFilterChange(value as UnitStateFilter)}>
-              <SelectTrigger>
+              <SelectTrigger id="unit-state-filter" aria-label="Filtrar por estado">
                 <SelectValue placeholder="Selecciona un estado" />
               </SelectTrigger>
               <SelectContent>
@@ -82,19 +83,30 @@ export default function UnitHeaderBar({
           </div>
 
           <div className="flex min-w-[240px] flex-1 flex-col gap-2">
-            <span className="text-sm font-medium text-foreground">Buscar</span>
+            <Label htmlFor="unit-search">Buscar</Label>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
+                id="unit-search"
+                name="unit-search"
+                type="search"
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
+                autoComplete="off"
                 placeholder="Buscar por nombre"
                 className="pl-9"
               />
             </div>
           </div>
 
-          <Button type="button" variant="outline" size="icon" onClick={onCleanFilters} title="Limpiar filtros">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={onCleanFilters}
+            title="Limpiar filtros"
+            aria-label="Limpiar filtros"
+          >
             <BrushCleaning className="size-4" />
           </Button>
         </div>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,43 +9,58 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog";
+import { getApiErrorMessages } from "@/core/api-error";
 import type { Unit } from "../Models/unit";
 import { useDeleteUnitMeasure } from "../Hooks/UnitMeasureHooks";
+import UnitMeasureModalError from "./UnitMeasureModalError";
 
 type Props = {
   unitSelected: Unit;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 };
 
-export default function DeleteUnitMeasureModal({ unitSelected, onSuccess }: Props) {
-  const [open, setOpen] = useState(false);
+export default function DeleteUnitMeasureModal({
+  unitSelected,
+  open,
+  onOpenChange,
+  onSuccess,
+}: Props) {
   const [busy, setBusy] = useState(false);
+  const [backendErrors, setBackendErrors] = useState<string[]>([]);
   const deleteUnitMutation = useDeleteUnitMeasure();
 
   const handleConfirm = async () => {
     try {
       setBusy(true);
+      setBackendErrors([]);
       await deleteUnitMutation.mutateAsync(unitSelected.Id);
       toast.success("Unidad de medida inhabilitada");
-      setOpen(false);
+      onOpenChange(false);
       onSuccess?.();
     } catch (err) {
-      console.error("Error al inhabilitar la unidad de medida:", err);
-      toast.error("No se pudo inhabilitar la unidad de medida");
+      const messages = getApiErrorMessages(err);
+      setBackendErrors(messages);
+      toast.error("No se pudo inhabilitar la unidad de medida", {
+        description: messages[0],
+      });
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <button type="button" className="w-full text-left text-red-600">
-          Inhabilitar unidad
-        </button>
-      </AlertDialogTrigger>
+    <AlertDialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) {
+          setBackendErrors([]);
+        }
+        onOpenChange(nextOpen);
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>¿Inhabilitar unidad de medida?</AlertDialogTitle>
@@ -53,6 +68,7 @@ export default function DeleteUnitMeasureModal({ unitSelected, onSuccess }: Prop
             Se inhabilitará la unidad de medida "{unitSelected.Name ?? ""}".
           </AlertDialogDescription>
         </AlertDialogHeader>
+        <UnitMeasureModalError messages={backendErrors} />
         <AlertDialogFooter className="justify-between sm:justify-between sm:space-x-0">
           <AlertDialogAction
             onClick={(event) => {
@@ -62,7 +78,7 @@ export default function DeleteUnitMeasureModal({ unitSelected, onSuccess }: Prop
             className="bg-red-600 hover:bg-red-700"
             disabled={busy}
           >
-            {busy ? "Inhabilitando..." : "Inhabilitar"}
+            {busy ? "Inhabilitando…" : "Inhabilitar"}
           </AlertDialogAction>
           <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
         </AlertDialogFooter>

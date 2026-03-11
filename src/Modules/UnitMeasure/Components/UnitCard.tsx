@@ -1,3 +1,4 @@
+import { memo, useState } from "react";
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -8,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
 import { MoreVertical, Ruler } from "lucide-react";
-import { useState } from "react";
 import type { Unit } from "../Models/unit";
 import DeleteUnitMeasureModal from "./DeleteUnitMeasureModal";
 import UpdateUnitMeasureModal from "./UpdateUnitMeasureModal";
@@ -17,19 +17,24 @@ type Props = {
   unit: Unit;
 };
 
-export default function UnitCard({ unit }: Props) {
-  const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
+function UnitCard({ unit }: Props) {
+  const [editingOpen, setEditingOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
     <>
-      {editingUnit ? (
-        <UpdateUnitMeasureModal
-          unit={editingUnit}
-          open={true}
-          onClose={() => setEditingUnit(null)}
-          onSuccess={() => setEditingUnit(null)}
-        />
-      ) : null}
+      <UpdateUnitMeasureModal
+        unit={unit}
+        open={editingOpen}
+        onClose={() => setEditingOpen(false)}
+        onSuccess={() => setEditingOpen(false)}
+      />
+      <DeleteUnitMeasureModal
+        unitSelected={unit}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onSuccess={() => setDeleteOpen(false)}
+      />
 
       <Card className="w-full transition-shadow hover:shadow-md sm:w-72">
         <CardHeader className="flex flex-row items-start gap-3 space-y-0">
@@ -46,11 +51,14 @@ export default function UnitCard({ unit }: Props) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setEditingUnit(unit)}>
+              <DropdownMenuItem onSelect={() => setEditingOpen(true)}>
                 Editar unidad
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
-                <DeleteUnitMeasureModal unitSelected={unit} />
+              <DropdownMenuItem
+                onSelect={() => setDeleteOpen(true)}
+                className="text-red-600 focus:text-red-600"
+              >
+                Inhabilitar unidad
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -68,3 +76,5 @@ export default function UnitCard({ unit }: Props) {
     </>
   );
 }
+
+export default memo(UnitCard);
