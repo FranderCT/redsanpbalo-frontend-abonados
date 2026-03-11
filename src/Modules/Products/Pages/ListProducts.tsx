@@ -1,4 +1,4 @@
-import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import ProductHeaderBar from "../Components/ProductHeaderBar";
 import CreateProductModal from "../Components/Modals/CreateProductModal";
@@ -30,6 +30,7 @@ function parseSearchState(searchStr: string) {
 
 export default function ListProducts() {
   const location = useLocation();
+  const isSyncingUrlRef = useRef(false);
   const parsedSearchState = useMemo(() => parseSearchState(location.searchStr), [location.searchStr]);
   const [page, setPage] = useState(parsedSearchState.page);
   const [limit, setLimit] = useState(parsedSearchState.limit);
@@ -38,6 +39,11 @@ export default function ListProducts() {
   const deferredSearch = useDeferredValue(search);
 
   useEffect(() => {
+    if (isSyncingUrlRef.current) {
+      isSyncingUrlRef.current = false;
+      return;
+    }
+
     setPage((current) => current === parsedSearchState.page ? current : parsedSearchState.page);
     setLimit((current) => current === parsedSearchState.limit ? current : parsedSearchState.limit);
     setSearch((current) => current === parsedSearchState.search ? current : parsedSearchState.search);
@@ -57,6 +63,7 @@ export default function ListProducts() {
     const currentUrl = `${location.pathname}${location.searchStr}${location.hash}`;
 
     if (nextUrl !== currentUrl) {
+      isSyncingUrlRef.current = true;
       window.history.replaceState(window.history.state, "", nextUrl);
     }
   }, [limit, location.hash, location.pathname, location.searchStr, page, search, state]);
