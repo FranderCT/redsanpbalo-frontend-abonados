@@ -9,46 +9,50 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog";
-import type { Product } from "../../Models/CreateProduct";
-import { useDeleteProduct } from "../../Hooks/ProductsHooks";
+import type { Unit } from "../Models/unit";
+import { useDeleteUnitMeasure } from "../Hooks/UnitMeasureHooks";
 
 type Props = {
-  product: Product;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  unitSelected: Unit;
   onSuccess?: () => void;
 };
 
-export default function DeleteProductModal({ product, open, onOpenChange, onSuccess }: Props) {
+export default function DeleteUnitMeasureModal({ unitSelected, onSuccess }: Props) {
+  const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const deleteProductMutation = useDeleteProduct();
+  const deleteUnitMutation = useDeleteUnitMeasure();
 
   const handleConfirm = async () => {
     try {
       setBusy(true);
-      await deleteProductMutation.mutateAsync(product.Id);
-      toast.success("Producto inhabilitado");
-      onOpenChange(false);
+      await deleteUnitMutation.mutateAsync(unitSelected.Id);
+      toast.success("Unidad de medida inhabilitada");
+      setOpen(false);
       onSuccess?.();
     } catch (err) {
-      console.error("Error al inhabilitar producto:", err);
-      toast.error("No se pudo inhabilitar el producto");
+      console.error("Error al inhabilitar la unidad de medida:", err);
+      toast.error("No se pudo inhabilitar la unidad de medida");
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <button type="button" className="w-full text-left text-red-600">
+          Inhabilitar unidad
+        </button>
+      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>¿Inhabilitar producto?</AlertDialogTitle>
+          <AlertDialogTitle>¿Inhabilitar unidad de medida?</AlertDialogTitle>
           <AlertDialogDescription>
-            Se inhabilitará el producto "{product.Name}" y dejará de estar disponible para nuevos registros.
+            Se inhabilitará la unidad de medida "{unitSelected.Name ?? ""}".
           </AlertDialogDescription>
         </AlertDialogHeader>
-
         <AlertDialogFooter className="justify-between sm:justify-between sm:space-x-0">
           <AlertDialogAction
             onClick={(event) => {

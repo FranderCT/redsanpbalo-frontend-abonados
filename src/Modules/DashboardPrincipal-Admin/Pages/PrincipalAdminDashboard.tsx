@@ -112,16 +112,16 @@ const { chartData: solicitudesMensuales, isLoading: loadingReqMonthly } = useMon
         <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
           {/* Usuarios - Indigo */}
           <div className="group relative">
-            <div className="rounded-lg bg-white hover:bg-gradient-to-br hover:from-white hover:to-indigo-50/30 transition-all duration-300 cursor-pointer border border-indigo-100 hover:shadow-[0_8px_30px_rgba(99,102,241,0.25)] hover:-translate-y-1"
-                 onClick={() => navigate({ to: "/dashboard/users" })}>
+            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+                onClick={() => navigate({ to: "/dashboard/users" })}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <UserRoundCog className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:text-indigo-600 transition-colors">Usuarios</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">Revisar todos los usuarios</p>
+                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:transition-colors">Usuarios</h3>
+                    <p className="text-[#091540]/70 text-sm leading-relaxed">Revisar todos los usuarios</p>
                   </div>
                 </div>
               </div>
@@ -130,34 +130,55 @@ const { chartData: solicitudesMensuales, isLoading: loadingReqMonthly } = useMon
 
           {/* Notificaciones - Amarillo/Naranja */}
           <div className="group relative">
-            <div className="rounded-lg bg-white hover:bg-gradient-to-br hover:from-white hover:to-amber-50/30 transition-all duration-300 cursor-pointer border border-amber-100 hover:shadow-[0_8px_30px_rgba(251,191,36,0.25)] hover:-translate-y-1"
-                 onClick={() => console.log("Crear notificación") }>
+            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+                onClick={() => console.log("Crear notificación") }>
               <div className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <Bell className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:text-amber-600 transition-colors">Notificaciones</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">Crear notificación</p>
+                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:transition-colors">Notificaciones</h3>
+                    <p className="text-[#091540]/70 text-sm leading-relaxed">Crear notificación</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Productos - Verde */}
+<<<<<<< HEAD
+=======
+          {/* Reportes - Rojo */}
           <div className="group relative">
-            <div className="rounded-lg bg-white hover:bg-gradient-to-br hover:from-white hover:to-emerald-50/30 transition-all duration-300 cursor-pointer border border-emerald-100 hover:shadow-[0_8px_30px_rgba(16,185,129,0.25)] hover:-translate-y-1"
-                 onClick={() => navigate({ to: "/dashboard/products" })}>
+            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+                onClick={() => navigate({ to: "/dashboard/reports" })}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <OctagonAlert className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:transition-colors">Reportes</h3>
+                    <p className="text-[#091540]/70 text-sm leading-relaxed">Revisar todos los reportes</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+>>>>>>> develop
+          {/* Productos - Verde */}
+          <div className="group relative">
+            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+                onClick={() => navigate({ to: "/dashboard/products" })}>
+              <div className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <Forklift className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:text-emerald-600 transition-colors">Productos</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">Revisar todos los productos</p>
+                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:transition-colors">Productos</h3>
+                    <p className="text-[#091540]/70 text-sm leading-relaxed">Revisar todos los productos</p>
                   </div>
                 </div>
               </div>
@@ -166,16 +187,16 @@ const { chartData: solicitudesMensuales, isLoading: loadingReqMonthly } = useMon
 
           {/* Proyectos - Azul */}
           <div className="group relative">
-            <div className="rounded-lg bg-white hover:bg-gradient-to-br hover:from-white hover:to-sky-50/30 transition-all duration-300 cursor-pointer border border-sky-100 hover:shadow-[0_8px_30px_rgba(14,165,233,0.25)] hover:-translate-y-1"
-                 onClick={() => navigate({ to: "/dashboard/projects" })}>
+            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+                onClick={() => navigate({ to: "/dashboard/projects" })}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-sky-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <Hammer className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:text-sky-600 transition-colors">Proyectos</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">Revisar todos los proyectos</p>
+                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:transition-colors">Proyectos</h3>
+                    <p className="text-[#091540]/70 text-sm leading-relaxed">Revisar todos los proyectos</p>
                   </div>
                 </div>
               </div>
@@ -184,16 +205,16 @@ const { chartData: solicitudesMensuales, isLoading: loadingReqMonthly } = useMon
 
           {/* Comentarios - Morado */}
           <div className="group relative">
-            <div className="rounded-lg bg-white hover:bg-gradient-to-br hover:from-white hover:to-violet-50/30 transition-all duration-300 cursor-pointer border border-violet-100 hover:shadow-[0_8px_30px_rgba(139,92,246,0.25)] hover:-translate-y-1"
-                 onClick={() => navigate({ to: "/dashboard/comments" })}>
+            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+                onClick={() => navigate({ to: "/dashboard/comments" })}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
                     <MessageSquare className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:text-violet-600 transition-colors">Comentarios</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">Revisar todos los comentarios</p>
+                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:transition-colors">Comentarios</h3>
+                    <p className="text-[#091540]/70 text-sm leading-relaxed">Revisar todos los comentarios</p>
                   </div>
                 </div>
               </div>

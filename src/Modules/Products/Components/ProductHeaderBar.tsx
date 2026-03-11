@@ -10,88 +10,100 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/Components/ui/select";
+import type { ProductStateFilter } from "../Models/CreateProduct";
 
 type Props = {
   limit: number;
   total: number;
   search: string;
-  state?: string;
-  onLimitChange: (n: number) => void;
-  onFilterClick: (text: string) => void;
-  onSearchChange: (text: string) => void;
+  state: ProductStateFilter;
+  onLimitChange: (value: number) => void;
+  onFilterChange: (value: ProductStateFilter) => void;
+  onSearchChange: (value: string) => void;
   onCleanFilters: () => void;
   rightAction?: ReactNode;
 };
 
-export default function ServiceHeaderBar({
+export default function ProductHeaderBar({
   limit,
+  total,
   search,
   state,
   onLimitChange,
-  onFilterClick,
+  onFilterChange,
   onSearchChange,
   onCleanFilters,
   rightAction,
 }: Props) {
   return (
-    <Card className="border shadow-none">
+    <Card>
       <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col gap-1">
-          <CardTitle className="text-base text-[#091540]">Filtros de servicios</CardTitle>
+          <CardTitle className="text-base text-[#091540]">Filtros de productos</CardTitle>
+          <p className="text-sm text-slate-500">
+            {total} {total === 1 ? "registro encontrado" : "registros encontrados"}
+          </p>
         </div>
 
-        <div className="flex w-full flex-wrap items-center gap-3 lg:w-auto lg:justify-end">
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto lg:justify-end">
           {rightAction}
         </div>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-4 pt-0">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="flex min-w-[140px] flex-col gap-2">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[160px_180px_minmax(0,1fr)_120px] xl:items-end">
+          <div className="flex w-full flex-col gap-2">
             <span className="text-sm font-medium text-foreground">Filas por página</span>
             <Select value={String(limit)} onValueChange={(value) => onLimitChange(Number(value))}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona un límite" />
               </SelectTrigger>
               <SelectContent>
-                {[5, 10, 20, 50, 100].map((n) => (
-                  <SelectItem key={n} value={String(n)}>
-                    {n}
+                {[5, 10, 20, 50, 100].map((value) => (
+                  <SelectItem key={value} value={String(value)}>
+                    {value}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex min-w-[160px] flex-col gap-2">
+          <div className="flex w-full flex-col gap-2">
             <span className="text-sm font-medium text-foreground">Estado</span>
-            <Select value={state ?? "all"} onValueChange={(value) => onFilterClick(value === "all" ? "" : value)}>
+            <Select value={state} onValueChange={(value) => onFilterChange(value as ProductStateFilter)}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona un estado" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="true">Activos</SelectItem>
-                <SelectItem value="false">Inactivos</SelectItem>
+                <SelectItem value="active">Activos</SelectItem>
+                <SelectItem value="inactive">Inactivos</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex min-w-[240px] flex-1 flex-col gap-2">
+          <div className="flex min-w-0 flex-col gap-2">
             <span className="text-sm font-medium text-foreground">Buscar</span>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
-                placeholder="Buscar por título"
+                placeholder="Buscar por nombre, tipo u observación"
                 className="pl-9"
               />
             </div>
           </div>
 
-          <Button type="button" variant="outline" size="icon" onClick={onCleanFilters} title="Limpiar filtros">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCleanFilters}
+            title="Limpiar filtros"
+            className="w-full xl:w-auto"
+          >
             <BrushCleaning className="size-4" />
+            Limpiar filtros
           </Button>
         </div>
       </CardContent>

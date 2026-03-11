@@ -66,7 +66,7 @@ export default function ListPhysicalSuppliers() {
         rightAction={<CreatePhysicalSupplierModal />}
       />
 
-      <div className="overflow-x-auto rounded-md border border-border shadow-sm">
+      <div className="overflow-x-auto">
         {isLoading ? (
           <div className="p-6 text-center text-muted-foreground">Cargando…</div>
         ) : error ? (

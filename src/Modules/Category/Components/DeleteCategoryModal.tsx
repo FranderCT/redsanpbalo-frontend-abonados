@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useDeleteCategory } from "../Hooks/CategoryHooks";
+import type { Category } from "../Models/Category";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,46 +11,48 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog";
-import type { Product } from "../../Models/CreateProduct";
-import { useDeleteProduct } from "../../Hooks/ProductsHooks";
 
 type Props = {
-  product: Product;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  categorySelected: Category;
   onSuccess?: () => void;
 };
 
-export default function DeleteProductModal({ product, open, onOpenChange, onSuccess }: Props) {
+export default function DeleteCategoryButton({ categorySelected, onSuccess }: Props) {
+  const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const deleteProductMutation = useDeleteProduct();
+  const deleteCategoryMutation = useDeleteCategory();
 
   const handleConfirm = async () => {
     try {
       setBusy(true);
-      await deleteProductMutation.mutateAsync(product.Id);
-      toast.success("Producto inhabilitado");
-      onOpenChange(false);
+      await deleteCategoryMutation.mutateAsync(categorySelected.Id);
+      toast.success("Categoría inhabilitada");
+      setOpen(false);
       onSuccess?.();
     } catch (err) {
-      console.error("Error al inhabilitar producto:", err);
-      toast.error("No se pudo inhabilitar el producto");
+      console.error("Error al inhabilitar categoría:", err);
+      toast.error("No se pudo inhabilitar la categoría");
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <button type="button" className="w-full text-left text-red-600">
+          Inhabilitar categoría
+        </button>
+      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>¿Inhabilitar producto?</AlertDialogTitle>
+          <AlertDialogTitle>¿Inhabilitar categoría?</AlertDialogTitle>
           <AlertDialogDescription>
-            Se inhabilitará el producto "{product.Name}" y dejará de estar disponible para nuevos registros.
+            Se inhabilitará la categoría "{categorySelected.Name ?? ""}".
           </AlertDialogDescription>
         </AlertDialogHeader>
-
         <AlertDialogFooter className="justify-between sm:justify-between sm:space-x-0">
           <AlertDialogAction
             onClick={(event) => {

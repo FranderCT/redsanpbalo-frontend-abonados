@@ -1,5 +1,6 @@
 import { BrushCleaning, Search } from "lucide-react";
 import type { ReactNode } from "react";
+import type { UnitStateFilter } from "../Models/unit";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";
@@ -15,31 +16,34 @@ type Props = {
   limit: number;
   total: number;
   search: string;
-  state?: string;
+  state: UnitStateFilter;
   onLimitChange: (n: number) => void;
-  onFilterClick: (text: string) => void;
+  onFilterChange: (state: UnitStateFilter) => void;
   onSearchChange: (text: string) => void;
   onCleanFilters: () => void;
   rightAction?: ReactNode;
 };
 
-export default function ServiceHeaderBar({
+export default function UnitHeaderBar({
   limit,
+  total,
   search,
   state,
   onLimitChange,
-  onFilterClick,
+  onFilterChange,
   onSearchChange,
   onCleanFilters,
   rightAction,
 }: Props) {
   return (
-    <Card className="border shadow-none">
+    <Card>
       <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col gap-1">
-          <CardTitle className="text-base text-[#091540]">Filtros de servicios</CardTitle>
+          <CardTitle className="text-base text-[#091540]">Filtros de unidades</CardTitle>
+          <p className="text-sm text-slate-500">
+            {total} {total === 1 ? "registro encontrado" : "registros encontrados"}
+          </p>
         </div>
-
         <div className="flex w-full flex-wrap items-center gap-3 lg:w-auto lg:justify-end">
           {rightAction}
         </div>
@@ -65,14 +69,14 @@ export default function ServiceHeaderBar({
 
           <div className="flex min-w-[160px] flex-col gap-2">
             <span className="text-sm font-medium text-foreground">Estado</span>
-            <Select value={state ?? "all"} onValueChange={(value) => onFilterClick(value === "all" ? "" : value)}>
+            <Select value={state} onValueChange={(value) => onFilterChange(value as UnitStateFilter)}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona un estado" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="true">Activos</SelectItem>
-                <SelectItem value="false">Inactivos</SelectItem>
+                <SelectItem value="active">Activas</SelectItem>
+                <SelectItem value="inactive">Inactivas</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -84,7 +88,7 @@ export default function ServiceHeaderBar({
               <Input
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
-                placeholder="Buscar por título"
+                placeholder="Buscar por nombre"
                 className="pl-9"
               />
             </div>

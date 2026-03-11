@@ -5,6 +5,20 @@ import type { new_Service, Service, ServicePaginationParams, update_Service } fr
 
 const BASE = "/service"; 
 
+type LegacyServiceMeta = {
+    total: number;
+    page: number;
+    limit: number;
+    pageCount: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+};
+
+type LegacyServiceResponse = {
+    data: Service[];
+    meta: LegacyServiceMeta;
+};
+
 export async function getAllServices(): Promise<Service[]> {
     try{
         const {data} = await apiAxios.get<Service[]>(BASE)
@@ -20,10 +34,21 @@ export async function searchServices(
 ): Promise<PaginatedResponse<Service>> {
     try {
         const { page = 1, limit = 10, title, state } = params ?? {};
-        const { data } = await apiAxios.get<PaginatedResponse<Service>>(`${BASE}/search`, {
+        const { data } = await apiAxios.get<LegacyServiceResponse>(`${BASE}/search`, {
         params: { page, limit, title, state },
         });
-        return data;
+        return {
+            data: data.data,
+            meta: {
+                totalItems: data.meta.total,
+                itemCount: data.data.length,
+                itemsPerPage: data.meta.limit,
+                totalPages: data.meta.pageCount,
+                currentPage: data.meta.page,
+                hasNextPage: data.meta.hasNextPage,
+                hasPrevPage: data.meta.hasPrevPage,
+            },
+        };
     } catch (err) {
         console.error("Error buscando Servicios", err);
         return Promise.reject(err);

@@ -1,7 +1,7 @@
 import { createRootRoute, createRoute } from "@tanstack/react-router";
 import { registerRoute, loginRoute, resetPasswordRoute, forgotPasswordRoute } from "./Modules/Auth/Routes/authRoutes";
 import { dashboardRoute, dashboardIndexRoute, dashboardAdminPrincipalRoute, dashboardUserPrincipalRoute } from "./Modules/Dashboard/Routes/DashboardRoutes";
-import { materialRoute, createMaterialRoute } from "./Modules/Materials/Routes/MaterialsRoutes";
+import { materialRoute } from "./Modules/Materials/Routes/MaterialsRoutes";
 import { settingsRoute, changeEmailRoute, changePasswordRoute } from "./Modules/SettingsUser/Routes/SettingsRoute";
 import { usersRoute, userProfilewRoute, userProfileEditRoute, listUsersRoute } from "./Modules/Users/Routes/UsersRoutes";
 import { categoryRoute } from "./Modules/Category/Routes/RoutesCategories";
@@ -22,7 +22,7 @@ import { requestListChangeMeterRoute, requestUserChangeMeterRoute } from "./Modu
 import { commentRoute } from "./Modules/Comment/Routes/CommentRoutes";
 import { requestListChangeNameMeter, requestUserChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
 import HeroPage from "./Modules/Lading/HeroPage";
-import { editLandingRoute } from "./Modules/Lading/Routes/RoutesEditLanding";
+import { editLandingFaqRoute, editLandingIndexRoute, editLandingRoute, editLandingServicesRoute } from "./Modules/Lading/Routes/RoutesEditLanding";
 
 
 export const rootRoute = createRootRoute();
@@ -48,9 +48,7 @@ export const routeTree = rootRoute.addChildren([
       listUsersRoute
     ]),
     dashboardIndexRoute,
-    materialRoute.addChildren([
-      createMaterialRoute,
-    ]),
+    materialRoute,
     settingsRoute.addChildren([
       changePasswordRoute,
       changeEmailRoute
@@ -82,7 +80,11 @@ export const routeTree = rootRoute.addChildren([
       requestListAssociatedRoute
     ]),
     commentRoute,
-    editLandingRoute,
+    editLandingRoute.addChildren([
+      editLandingIndexRoute,
+      editLandingFaqRoute,
+      editLandingServicesRoute
+    ]),
     suppliersRoute.addChildren([
       physicalSuppliersRoute,
       legalSuppliersRoute,
