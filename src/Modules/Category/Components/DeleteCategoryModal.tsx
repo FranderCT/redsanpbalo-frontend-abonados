@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useDeleteCategory } from "../Hooks/CategoryHooks";
 import type { Category } from "../Models/Category";
 import {
@@ -33,12 +33,12 @@ export default function DeleteCategoryButton({
     try {
       setBusy(true);
       await deleteCategoryMutation.mutateAsync(categorySelected.Id);
-      toast.success("Categoría inhabilitada");
+      toast.success("Categoria inhabilitada");
       onOpenChange(false);
       onSuccess?.();
     } catch (err) {
       console.error("Error al inhabilitar categoría:", err);
-      toast.error("No se pudo inhabilitar la categoría");
+      toast.error("No se pudo inhabilitar la categoria");
     } finally {
       setBusy(false);
     }

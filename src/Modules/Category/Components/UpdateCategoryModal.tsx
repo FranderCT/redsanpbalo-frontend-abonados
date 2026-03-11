@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useUpdateCategory } from "../Hooks/CategoryHooks";
 import type { Category } from "../Models/Category";
 import { UpdateCategorySchema } from "../schemas/CategorySchema";
@@ -48,20 +48,14 @@ const UpdateCategoryModal = ({ category, open, onClose, onSuccess }: Props) => {
           },
         });
 
-        toast.success("¡Categoría actualizada!", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        toast.success("Categoria actualizada");
 
         formApi.reset(value);
         onClose();
         onSuccess?.();
       } catch (err) {
         console.error("error desconocido", err);
-        toast.error("Error al actualizar la Categoría", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        toast.error("No se pudo actualizar la categoria");
       }
     },
   });

@@ -12,51 +12,43 @@ export async function getAllProducts(): Promise<Product[]> {
 export async function searchProducts(
   params: ProductPaginationParams
 ): Promise<PaginatedResponse<Product>> {
-  try {
-    const {
-      page = 1,
-      limit = 10,
-      q,
-      name,
+  const {
+    page = 1,
+    limit = 10,
+    q,
+    name,
+    categoryId,
+    materialId,
+    unitId,
+    supplierId,
+    state,
+  } = params ?? {};
+
+  const normalizedState =
+    state === "1" || state === "true" ? true :
+    state === "0" || state === "false" ? false :
+    state;
+
+  const { data } = await apiAxios.get<PaginatedResponse<Product>>(`${BASE}/search`, {
+    params: {
+      page,
+      limit,
+      q: q?.trim() || undefined,
+      name: name?.trim() || undefined,
       categoryId,
       materialId,
       unitId,
       supplierId,
-      state,
-    } = params ?? {};
+      state: normalizedState,
+    },
+  });
 
-    const normalizedState =
-      state === "1" || state === "true" ? true :
-      state === "0" || state === "false" ? false :
-      state;
-
-    const { data } = await apiAxios.get<PaginatedResponse<Product>>(`${BASE}/search`, {
-      params: {
-        page,
-        limit,
-        q: q?.trim() || undefined,
-        name: name?.trim() || undefined,
-        categoryId,
-        materialId,
-        unitId,
-        supplierId,
-        state: normalizedState,
-      },
-    });
-
-    return data;
-  } catch (err) {
-    return Promise.reject(err);
-  }
+  return data;
 }
 
 export async function createProduct(payload: NewProduct): Promise<Product> {
-  try {
-    const { data } = await apiAxios.post<Product>(BASE, payload);
-    return data;
-  } catch (err) {
-    return Promise.reject(err);
-  }
+  const { data } = await apiAxios.post<Product>(BASE, payload);
+  return data;
 }
 
 export async function getProductById(id: number): Promise<Product> {
@@ -70,9 +62,5 @@ export async function updateProduct(id: number, payload: UpdateProduct): Promise
 }
 
 export async function deleteProduct(id: number): Promise<void> {
-  try {
-    await apiAxios.delete(`${BASE}/${id}`);
-  } catch (err) {
-    return Promise.reject(err);
-  }
+  await apiAxios.delete(`${BASE}/${id}`);
 }

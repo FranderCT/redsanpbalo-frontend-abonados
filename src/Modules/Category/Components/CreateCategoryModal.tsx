@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useCreateCategory } from "../Hooks/CategoryHooks";
 import { NewCategoryInitialState } from "../Models/Category";
 import { CategorySchema } from "../schemas/CategorySchema";
@@ -35,12 +35,12 @@ const CreateCategoryModal = () => {
           Name: value.Name.trim(),
           Description: value.Description.trim(),
         });
-        toast.success("¡Registro exitoso!", { position: "top-right", autoClose: 3000 });
+        toast.success("Categoria creada");
         formApi.reset();
         setOpen(false);
       } catch (err) {
         console.error("Error creando categoría:", err);
-        toast.error("¡Registro sin éxito!", { position: "top-right", autoClose: 3000 });
+        toast.error("No se pudo crear la categoria");
       }
     },
   });

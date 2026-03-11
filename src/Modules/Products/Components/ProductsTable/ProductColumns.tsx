@@ -89,7 +89,7 @@ export const ProductColumns = (
   }),
   columnHelper.accessor((row) => getProductSupplierNames(row).join(", "), {
     id: "suppliers",
-    header: "Proveedores",
+    header: () => <span className="text-xs font-medium text-muted-foreground">Proveedores</span>,
     cell: ({ row }) => {
       const names = getProductSupplierNames(row.original);
 

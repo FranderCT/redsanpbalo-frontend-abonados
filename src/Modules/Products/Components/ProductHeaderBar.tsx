@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
 import {
   Select,
   SelectContent,
@@ -53,9 +54,9 @@ export default function ProductHeaderBar({
       <CardContent className="flex flex-col gap-4 pt-0">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[160px_180px_minmax(0,1fr)_120px] xl:items-end">
           <div className="flex w-full flex-col gap-2">
-            <span className="text-sm font-medium text-foreground">Filas por página</span>
+            <Label htmlFor="product-limit-select">Filas por página</Label>
             <Select value={String(limit)} onValueChange={(value) => onLimitChange(Number(value))}>
-              <SelectTrigger>
+              <SelectTrigger id="product-limit-select" aria-label="Filas por página">
                 <SelectValue placeholder="Selecciona un límite" />
               </SelectTrigger>
               <SelectContent>
@@ -69,9 +70,9 @@ export default function ProductHeaderBar({
           </div>
 
           <div className="flex w-full flex-col gap-2">
-            <span className="text-sm font-medium text-foreground">Estado</span>
+            <Label htmlFor="product-state-filter">Estado</Label>
             <Select value={state} onValueChange={(value) => onFilterChange(value as ProductStateFilter)}>
-              <SelectTrigger>
+              <SelectTrigger id="product-state-filter" aria-label="Filtrar por estado">
                 <SelectValue placeholder="Selecciona un estado" />
               </SelectTrigger>
               <SelectContent>
@@ -83,12 +84,16 @@ export default function ProductHeaderBar({
           </div>
 
           <div className="flex min-w-0 flex-col gap-2">
-            <span className="text-sm font-medium text-foreground">Buscar</span>
+            <Label htmlFor="product-search">Buscar</Label>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
+                id="product-search"
+                name="product-search"
+                type="search"
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
+                autoComplete="off"
                 placeholder="Buscar por nombre, tipo u observación"
                 className="pl-9"
               />
@@ -100,10 +105,10 @@ export default function ProductHeaderBar({
             variant="outline"
             onClick={onCleanFilters}
             title="Limpiar filtros"
-            className="w-full xl:w-auto"
+            aria-label="Limpiar filtros"
+            className="w-auto"
           >
             <BrushCleaning className="size-4" />
-            Limpiar filtros
           </Button>
         </div>
       </CardContent>
