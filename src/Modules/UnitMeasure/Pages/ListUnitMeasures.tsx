@@ -1,4 +1,4 @@
-import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useLocation } from "@tanstack/react-router";
 import { Card, CardContent } from "@/Components/ui/card";
 import { DataPagination } from "@/Components/ui/data-pagination";
@@ -32,25 +32,11 @@ function parseSearchState(searchStr: string) {
 
 export default function ListUnitMeasures() {
   const location = useLocation();
-  const isSyncingUrlRef = useRef(false);
-  const parsedSearchState = useMemo(() => parseSearchState(location.searchStr), [location.searchStr]);
-  const [page, setPage] = useState(parsedSearchState.page);
-  const [limit, setLimit] = useState(parsedSearchState.limit);
-  const [search, setSearch] = useState(parsedSearchState.search);
-  const [state, setState] = useState<UnitStateFilter>(parsedSearchState.state);
+  const [page, setPage] = useState(() => parseSearchState(location.searchStr).page);
+  const [limit, setLimit] = useState(() => parseSearchState(location.searchStr).limit);
+  const [search, setSearch] = useState(() => parseSearchState(location.searchStr).search);
+  const [state, setState] = useState<UnitStateFilter>(() => parseSearchState(location.searchStr).state);
   const deferredSearch = useDeferredValue(search);
-
-  useEffect(() => {
-    if (isSyncingUrlRef.current) {
-      isSyncingUrlRef.current = false;
-      return;
-    }
-
-    setPage((current) => current === parsedSearchState.page ? current : parsedSearchState.page);
-    setLimit((current) => current === parsedSearchState.limit ? current : parsedSearchState.limit);
-    setSearch((current) => current === parsedSearchState.search ? current : parsedSearchState.search);
-    setState((current) => current === parsedSearchState.state ? current : parsedSearchState.state);
-  }, [parsedSearchState]);
 
   useEffect(() => {
     const searchParams = new URLSearchParams();
@@ -65,7 +51,6 @@ export default function ListUnitMeasures() {
     const currentUrl = `${location.pathname}${location.searchStr}${location.hash}`;
 
     if (nextUrl !== currentUrl) {
-      isSyncingUrlRef.current = true;
       window.history.replaceState(window.history.state, "", nextUrl);
     }
   }, [limit, location.hash, location.pathname, location.searchStr, page, search, state]);
