@@ -234,7 +234,6 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
                   }
                   className="gap-2"
                 >
-                  <FieldLabel>Teléfono</FieldLabel>
                   <PhoneField
                     value={field.state.value}
                     onChange={(val) => field.handleChange(val ?? "")}

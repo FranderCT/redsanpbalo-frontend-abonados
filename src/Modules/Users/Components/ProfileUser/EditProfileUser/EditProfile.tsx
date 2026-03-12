@@ -253,7 +253,6 @@ const EditProfile = () => {
                       field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel>Teléfono</FieldLabel>
                         <PhoneField
                           value={field.state.value ?? ""}
                           onChange={(val) => field.handleChange(val ?? "")}
