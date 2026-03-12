@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Button } from "@/Components/ui/button";
 import {
   Dialog,
@@ -15,12 +15,15 @@ import {
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/Components/ui/field";
 import { Input } from "@/Components/ui/input";
 import { Plus } from "lucide-react";
+import { getApiErrorMessages } from "@/core/api-error";
 import { useCreateUnitMeasure } from "../Hooks/UnitMeasureHooks";
 import { NewUnitInitialState } from "../Models/unit";
 import { UnitMeasureSchemas } from "../Schemas/UnitMeasureSchemas";
+import UnitMeasureModalError from "./UnitMeasureModalError";
 
 const CreateUnitMeasureModal = () => {
   const [open, setOpen] = useState(false);
+  const [backendErrors, setBackendErrors] = useState<string[]>([]);
   const createUnitMutation = useCreateUnitMeasure();
 
   const form = useForm({
@@ -30,21 +33,26 @@ const CreateUnitMeasureModal = () => {
     },
     onSubmit: async ({ value, formApi }) => {
       try {
+        setBackendErrors([]);
         await createUnitMutation.mutateAsync({
           Name: value.Name.trim(),
         });
-        toast.success("¡Registro exitoso!", { position: "top-right", autoClose: 3000 });
+        toast.success("Unidad de medida creada");
         formApi.reset();
         setOpen(false);
       } catch (err) {
-        console.error("Error creando unidad de medida:", err);
-        toast.error("¡Registro sin éxito!", { position: "top-right", autoClose: 3000 });
+        const messages = getApiErrorMessages(err);
+        setBackendErrors(messages);
+        toast.error("No se pudo crear la unidad de medida", {
+          description: messages[0],
+        });
       }
     },
   });
 
   const handleDialogChange = (isOpen: boolean) => {
     setOpen(isOpen);
+    setBackendErrors([]);
     if (!isOpen) {
       form.reset();
     }
@@ -74,6 +82,7 @@ const CreateUnitMeasureModal = () => {
           className="flex flex-col gap-4 px-6 pb-6"
         >
           <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
+            <UnitMeasureModalError messages={backendErrors} />
             <FieldGroup>
               <form.Field
                 name="Name"
@@ -87,11 +96,15 @@ const CreateUnitMeasureModal = () => {
                       <Input
                         id={field.name}
                         name={field.name}
+                        autoComplete="off"
                         value={field.state.value}
                         onBlur={field.handleBlur}
-                        onChange={(event) => field.handleChange(event.target.value)}
+                        onChange={(event) => {
+                          setBackendErrors([]);
+                          field.handleChange(event.target.value);
+                        }}
                         aria-invalid={isInvalid}
-                        placeholder="Ej. Kilogramo"
+                        placeholder="Ej. kilogramo…"
                       />
                       {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
                     </Field>
@@ -110,7 +123,7 @@ const CreateUnitMeasureModal = () => {
                     className="w-full sm:w-auto"
                     disabled={!canSubmit || isSubmitting}
                   >
-                    {isSubmitting ? "Creando..." : "Crear unidad"}
+                    {isSubmitting ? "Creando…" : "Crear unidad"}
                   </Button>
                   <DialogClose asChild>
                     <Button type="button" variant="outline" className="w-full sm:w-auto">

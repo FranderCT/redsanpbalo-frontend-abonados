@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import {
@@ -158,11 +158,12 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                           <Input
                             id={field.name}
                             name={field.name}
+                            autoComplete="off"
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(event) => field.handleChange(event.target.value)}
                             aria-invalid={isInvalid}
-                            placeholder="Ej. Tubería PVC"
+                            placeholder="Ej. tuberia PVC…"
                           />
                           {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
                         </Field>
@@ -181,11 +182,12 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                           <Input
                             id={field.name}
                             name={field.name}
+                            autoComplete="off"
                             value={field.state.value}
                             onBlur={field.handleBlur}
                             onChange={(event) => field.handleChange(event.target.value)}
                             aria-invalid={isInvalid}
-                            placeholder="Ej. Accesorio"
+                            placeholder="Ej. accesorio…"
                           />
                           {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
                         </Field>
@@ -205,11 +207,12 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                         <Textarea
                           id={field.name}
                           name={field.name}
+                          autoComplete="off"
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(event) => field.handleChange(event.target.value)}
                           aria-invalid={isInvalid}
-                          placeholder="Notas internas del producto"
+                          placeholder="Notas internas del producto…"
                         />
                         {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
                       </Field>
@@ -233,7 +236,7 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                             onValueChange={(value) => field.handleChange(Number(value))}
                           >
                             <SelectTrigger id={field.name} aria-invalid={isInvalid}>
-                              <SelectValue placeholder={categoriesLoading ? "Cargando..." : "Selecciona"} />
+                              <SelectValue placeholder={categoriesLoading ? "Cargando…" : "Selecciona"} />
                             </SelectTrigger>
                             <SelectContent>
                               {categories.map((item) => (
@@ -262,7 +265,7 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                             onValueChange={(value) => field.handleChange(Number(value))}
                           >
                             <SelectTrigger id={field.name} aria-invalid={isInvalid}>
-                              <SelectValue placeholder={materialsLoading ? "Cargando..." : "Selecciona"} />
+                              <SelectValue placeholder={materialsLoading ? "Cargando…" : "Selecciona"} />
                             </SelectTrigger>
                             <SelectContent>
                               {materials.map((item) => (
@@ -291,7 +294,7 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                             onValueChange={(value) => field.handleChange(Number(value))}
                           >
                             <SelectTrigger id={field.name} aria-invalid={isInvalid}>
-                              <SelectValue placeholder={unitsLoading ? "Cargando..." : "Selecciona"} />
+                              <SelectValue placeholder={unitsLoading ? "Cargando…" : "Selecciona"} />
                             </SelectTrigger>
                             <SelectContent>
                               {units.map((item) => (
@@ -375,7 +378,7 @@ export default function UpdateProductModal({ product, open, onClose, onSuccess }
                       className="w-full sm:w-auto"
                       disabled={!canSubmit || isSubmitting || selectedSuppliers.length === 0}
                     >
-                      {isSubmitting ? "Guardando..." : "Guardar cambios"}
+                      {isSubmitting ? "Guardando…" : "Guardar cambios"}
                     </Button>
                     <DialogClose asChild>
                       <Button type="button" variant="outline" className="w-full sm:w-auto">

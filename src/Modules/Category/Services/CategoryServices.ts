@@ -2,56 +2,40 @@ import apiAxios from "../../../api/apiConfig";
 import type { CategoriesPaginationParams, Category, NewCategory, UpdateCategoryDto } from "../Models/Category";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 
-export async function createCategory(payloads: NewCategory): Promise<NewCategory> {
-  try {
-    const { data } = await apiAxios.post<NewCategory>("categories", payloads);
-    return data;
-  } catch (err) {
-    return Promise.reject(err);
-  }
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+
+export async function createCategory(payload: NewCategory): Promise<NewCategory> {
+  const { data } = await apiAxios.post<NewCategory>("categories", payload);
+  return data;
 }
 
-export async function updateCategory(id: number, payloads: UpdateCategoryDto): Promise<Category> {
-  try {
-    const { data } = await apiAxios.put<Category>(`categories/${id}`, payloads);
-    return data;
-  } catch (err) {
-    return Promise.reject(err);
-  }
+export async function updateCategory(id: number, payload: UpdateCategoryDto): Promise<Category> {
+  const { data } = await apiAxios.put<Category>(`categories/${id}`, payload);
+  return data;
 }
 
 export async function getAllCategory(): Promise<Category[]> {
-  try {
-    const { data } = await apiAxios.get<Category[]>("categories");
-    return data;
-  } catch (err) {
-    return Promise.reject(err);
-  }
+  const { data } = await apiAxios.get<Category[]>("categories");
+  return data;
 }
 
 export async function searchCategories(
   params: CategoriesPaginationParams
 ): Promise<PaginatedResponse<Category>> {
-  try {
-    const { page = 1, limit = 10, q, state } = params ?? {};
-    const { data } = await apiAxios.get<PaginatedResponse<Category>>("categories/search", {
-      params: {
-        page,
-        limit,
-        q: q?.trim() || undefined,
-        state,
-      },
-    });
-    return data;
-  } catch (err) {
-    return Promise.reject(err);
-  }
+  const { page = DEFAULT_PAGE, limit = DEFAULT_LIMIT, q, state } = params;
+  const { data } = await apiAxios.get<PaginatedResponse<Category>>("categories/search", {
+    params: {
+      page,
+      limit,
+      q: q?.trim() || undefined,
+      state,
+    },
+  });
+
+  return data;
 }
 
 export async function deleteCategory(id: number): Promise<void> {
-  try {
-    await apiAxios.delete(`/categories/${id}`);
-  } catch (error) {
-    return Promise.reject(error);
-  }
+  await apiAxios.delete(`/categories/${id}`);
 }

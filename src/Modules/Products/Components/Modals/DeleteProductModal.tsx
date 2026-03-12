@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,7 +58,7 @@ export default function DeleteProductModal({ product, open, onOpenChange, onSucc
             className="bg-red-600 hover:bg-red-700"
             disabled={busy}
           >
-            {busy ? "Inhabilitando..." : "Inhabilitar"}
+            {busy ? "Inhabilitando…" : "Inhabilitar"}
           </AlertDialogAction>
           <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
         </AlertDialogFooter>

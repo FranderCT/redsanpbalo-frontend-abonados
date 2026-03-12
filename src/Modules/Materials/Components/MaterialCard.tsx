@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
 import { Box, MoreVertical } from "lucide-react";
+import { memo } from "react";
 import type { Material } from "../Models/Material";
 import DeleteMaterialModal from "./DeleteMaterialModal";
 import UpdateMaterialModal from "./UpdateMaterialModal";
@@ -17,19 +18,24 @@ type Props = {
   material: Material;
 };
 
-export default function MaterialCard({ material }: Props) {
-  const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
+function MaterialCard({ material }: Props) {
+  const [editingOpen, setEditingOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
     <>
-      {editingMaterial ? (
-        <UpdateMaterialModal
-          material={editingMaterial}
-          open={true}
-          onClose={() => setEditingMaterial(null)}
-          onSuccess={() => setEditingMaterial(null)}
-        />
-      ) : null}
+      <UpdateMaterialModal
+        material={material}
+        open={editingOpen}
+        onClose={() => setEditingOpen(false)}
+        onSuccess={() => setEditingOpen(false)}
+      />
+      <DeleteMaterialModal
+        materialSelected={material}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onSuccess={() => setDeleteOpen(false)}
+      />
 
       <Card className="w-full transition-shadow hover:shadow-md sm:w-72">
         <CardHeader className="flex flex-row items-start gap-3 space-y-0">
@@ -46,11 +52,14 @@ export default function MaterialCard({ material }: Props) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setEditingMaterial(material)}>
+              <DropdownMenuItem onSelect={() => setEditingOpen(true)}>
                 Editar material
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
-                <DeleteMaterialModal materialSelected={material} />
+              <DropdownMenuItem
+                onSelect={() => setDeleteOpen(true)}
+                className="text-red-600 focus:text-red-600"
+              >
+                Inhabilitar material
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -68,3 +77,5 @@ export default function MaterialCard({ material }: Props) {
     </>
   );
 }
+
+export default memo(MaterialCard);

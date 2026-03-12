@@ -6,31 +6,23 @@ import type { Material, MaterialPaginationParams, NewMaterial, UpdateMaterialDto
 const BASE = "/material"; 
 
 export async function getAllMaterials(): Promise<Material[]> {
-  try {
-    const { data } = await apiAxios.get<Material[]>(BASE);
-    return data;
-  } catch (err) {
-    return Promise.reject(err);
-  }
+  const { data } = await apiAxios.get<Material[]>(BASE);
+  return data;
 }
 
 export async function searchMaterials(
   params: MaterialPaginationParams
 ): Promise<PaginatedResponse<Material>> {
-  try {
-    const { page = 1, limit = 10, q, state } = params ?? {};
-    const { data } = await apiAxios.get<PaginatedResponse<Material>>(`${BASE}/search`, {
-      params: {
-        page,
-        limit,
-        q: q?.trim() || undefined,
-        state,
-      },
-    });
-    return data;
-  } catch (err) {
-    return Promise.reject(err);
-  }
+  const { page = 1, limit = 10, q, state } = params ?? {};
+  const { data } = await apiAxios.get<PaginatedResponse<Material>>(`${BASE}/search`, {
+    params: {
+      page,
+      limit,
+      q: q?.trim() || undefined,
+      state,
+    },
+  });
+  return data;
 }
 
 export async function getMaterialById(id: number): Promise<Material> {
@@ -39,27 +31,15 @@ export async function getMaterialById(id: number): Promise<Material> {
 }
 
 export async function createMaterial(payload: NewMaterial): Promise<NewMaterial> {
-  try {
-    const { data } = await apiAxios.post<Material>(BASE, payload);
-    return data;
-  } catch (err) {
-    return Promise.reject(err);
-  }
+  const { data } = await apiAxios.post<Material>(BASE, payload);
+  return data;
 }
 
 export async function updateMaterial(id: number, payload: UpdateMaterialDto): Promise<Material> {
-  try {
-    const { data } = await apiAxios.put<Material>(`${BASE}/${id}`, payload);
-    return data;
-  } catch (err) {
-    return Promise.reject(err);
-  }
+  const { data } = await apiAxios.put<Material>(`${BASE}/${id}`, payload);
+  return data;
 }
 
 export async function deleteMaterial(id: number): Promise<void> {
-  try {
-    await apiAxios.delete(`${BASE}/${id}`);
-  } catch (error) {
-    return Promise.reject(error);
-  }
+  await apiAxios.delete(`${BASE}/${id}`);
 }

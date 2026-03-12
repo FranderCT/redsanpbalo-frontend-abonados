@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useCreateCategory } from "../Hooks/CategoryHooks";
 import { NewCategoryInitialState } from "../Models/Category";
 import { CategorySchema } from "../schemas/CategorySchema";
@@ -35,12 +35,12 @@ const CreateCategoryModal = () => {
           Name: value.Name.trim(),
           Description: value.Description.trim(),
         });
-        toast.success("¡Registro exitoso!", { position: "top-right", autoClose: 3000 });
+        toast.success("Categoria creada");
         formApi.reset();
         setOpen(false);
       } catch (err) {
         console.error("Error creando categoría:", err);
-        toast.error("¡Registro sin éxito!", { position: "top-right", autoClose: 3000 });
+        toast.error("No se pudo crear la categoria");
       }
     },
   });
@@ -88,11 +88,12 @@ const CreateCategoryModal = () => {
                       <Input
                         id={field.name}
                         name={field.name}
+                        autoComplete="off"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(event) => field.handleChange(event.target.value)}
                         aria-invalid={isInvalid}
-                        placeholder="Ej. Fontanería"
+                        placeholder="Ej. fontaneria…"
                       />
                       {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
                     </Field>
@@ -114,6 +115,7 @@ const CreateCategoryModal = () => {
                       <Textarea
                         id={field.name}
                         name={field.name}
+                        autoComplete="off"
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(event) => field.handleChange(event.target.value)}
@@ -123,7 +125,7 @@ const CreateCategoryModal = () => {
                           }
                         }}
                         aria-invalid={isInvalid}
-                        placeholder="Descripción de la categoría"
+                        placeholder="Descripcion de la categoria…"
                         rows={3}
                       />
                       {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
@@ -143,7 +145,7 @@ const CreateCategoryModal = () => {
                     className="w-full sm:w-auto"
                     disabled={!canSubmit || isSubmitting}
                   >
-                    {isSubmitting ? "Creando..." : "Crear categoría"}
+                    {isSubmitting ? "Creando…" : "Crear categoría"}
                   </Button>
                   <DialogClose asChild>
                     <Button type="button" variant="outline" className="w-full sm:w-auto">

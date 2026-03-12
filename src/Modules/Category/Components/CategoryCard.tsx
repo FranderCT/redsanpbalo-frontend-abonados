@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Badge } from "@/Components/ui/badge";
 import {
   Card,
@@ -13,15 +14,15 @@ import {
 } from "@/Components/ui/dropdown-menu";
 import type { Category } from "../Models/Category";
 import { Layers3, MoreVertical } from "lucide-react";
-import DeleteCategoryButton from "./DeleteCategoryModal";
-import UpdateCategoryModal from "./UpdateCategoryModal";
 import { Button } from "@/Components/ui/button";
 
 type Props = {
   category: Category;
+  onEdit: (category: Category) => void;
+  onDelete: (category: Category) => void;
 };
 
-export default function CategoryCard({ category }: Props) {
+function CategoryCard({ category, onEdit, onDelete }: Props) {
   return (
     <Card className="w-full transition-shadow hover:shadow-md sm:w-72">
       <CardHeader className="flex flex-row items-start gap-3 space-y-0">
@@ -41,11 +42,14 @@ export default function CategoryCard({ category }: Props) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
-              <UpdateCategoryModal category={category} />
+            <DropdownMenuItem onSelect={() => onEdit(category)}>
+              Editar categoría
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={(event) => event.preventDefault()}>
-              <DeleteCategoryButton categorySelected={category} />
+            <DropdownMenuItem
+              onSelect={() => onDelete(category)}
+              className="text-red-600 focus:text-red-600"
+            >
+              Inhabilitar categoría
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -62,3 +66,5 @@ export default function CategoryCard({ category }: Props) {
     </Card>
   );
 }
+
+export default memo(CategoryCard);

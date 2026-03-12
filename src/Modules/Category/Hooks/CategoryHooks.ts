@@ -3,13 +3,15 @@ import { createCategory, deleteCategory, getAllCategory, searchCategories, updat
 import type { CategoriesPaginationParams, Category, UpdateCategoryDto } from "../Models/Category";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 
+const CATEGORY_QUERY_KEY = ["categories"] as const;
+
 export const useCreateCategory = () => {
   const qc = useQueryClient();
 
   return useMutation({
     mutationFn: createCategory,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
+      qc.invalidateQueries({ queryKey: CATEGORY_QUERY_KEY });
     },
   });
 };
@@ -20,14 +22,14 @@ export const useUpdateCategory = () => {
   return useMutation<Category, Error, { id: number; data: UpdateCategoryDto }>({
     mutationFn: ({ id, data }) => updateCategory(id, data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
+      qc.invalidateQueries({ queryKey: CATEGORY_QUERY_KEY });
     },
   });
 };
 
 export const useGetAllCategory = () => {
   const { data: category = [], isLoading, error } = useQuery({
-    queryKey: ["categories"],
+    queryKey: CATEGORY_QUERY_KEY,
     queryFn: getAllCategory,
   });
 
@@ -36,7 +38,7 @@ export const useGetAllCategory = () => {
 
 export const useSearchCategories = (params: CategoriesPaginationParams) => {
   return useQuery<PaginatedResponse<Category>, Error>({
-    queryKey: ["categories", "search", params],
+    queryKey: [...CATEGORY_QUERY_KEY, "search", params],
     queryFn: () => searchCategories(params),
     placeholderData: keepPreviousData,
     staleTime: 30_000,
@@ -47,9 +49,9 @@ export const useDeleteCategory = () => {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => deleteCategory(id),
+    mutationFn: deleteCategory,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["categories"] });
+      qc.invalidateQueries({ queryKey: CATEGORY_QUERY_KEY });
     },
   });
 };

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useDeleteCategory } from "../Hooks/CategoryHooks";
 import type { Category } from "../Models/Category";
 import {
@@ -11,46 +10,45 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog";
 
 type Props = {
-  categorySelected: Category;
+  categorySelected: Category | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 };
 
-export default function DeleteCategoryButton({ categorySelected, onSuccess }: Props) {
-  const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
+export default function DeleteCategoryButton({
+  categorySelected,
+  open,
+  onOpenChange,
+  onSuccess,
+}: Props) {
   const deleteCategoryMutation = useDeleteCategory();
+  const busy = deleteCategoryMutation.isPending;
 
   const handleConfirm = async () => {
+    if (!categorySelected) return;
+
     try {
-      setBusy(true);
       await deleteCategoryMutation.mutateAsync(categorySelected.Id);
-      toast.success("Categoría inhabilitada");
-      setOpen(false);
+      toast.success("Categoria inhabilitada");
+      onOpenChange(false);
       onSuccess?.();
     } catch (err) {
       console.error("Error al inhabilitar categoría:", err);
-      toast.error("No se pudo inhabilitar la categoría");
-    } finally {
-      setBusy(false);
+      toast.error("No se pudo inhabilitar la categoria");
     }
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <button type="button" className="w-full text-left text-red-600">
-          Inhabilitar categoría
-        </button>
-      </AlertDialogTrigger>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>¿Inhabilitar categoría?</AlertDialogTitle>
           <AlertDialogDescription>
-            Se inhabilitará la categoría "{categorySelected.Name ?? ""}".
+            Se inhabilitará la categoría "{categorySelected?.Name ?? ""}".
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="justify-between sm:justify-between sm:space-x-0">
@@ -62,7 +60,7 @@ export default function DeleteCategoryButton({ categorySelected, onSuccess }: Pr
             className="bg-red-600 hover:bg-red-700"
             disabled={busy}
           >
-            {busy ? "Inhabilitando..." : "Inhabilitar"}
+            {busy ? "Inhabilitando…" : "Inhabilitar"}
           </AlertDialogAction>
           <AlertDialogCancel disabled={busy}>Cancelar</AlertDialogCancel>
         </AlertDialogFooter>

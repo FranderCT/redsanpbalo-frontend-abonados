@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { flexRender, getCoreRowModel, getSortedRowModel, useReactTable, type SortingState } from "@tanstack/react-table";
 import { DataPagination } from "@/Components/ui/data-pagination";
 import {
@@ -24,7 +24,7 @@ type Props = {
   onPageChange: (page: number) => void;
 };
 
-export default function ProductTable({
+function ProductTable({
   data,
   total,
   page,
@@ -37,13 +37,18 @@ export default function ProductTable({
   const [infoProduct, setInfoProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
 
-  const table = useReactTable({
-    data,
-    columns: ProductColumns(
+  const columns = useMemo(
+    () => ProductColumns(
       (product) => setEditingProduct(product),
       (product) => setInfoProduct(product),
       (product) => setDeletingProduct(product),
     ),
+    [],
+  );
+
+  const table = useReactTable({
+    data,
+    columns,
     state: { sorting },
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
@@ -147,3 +152,5 @@ export default function ProductTable({
     </>
   );
 }
+
+export default memo(ProductTable);
