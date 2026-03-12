@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import InhabilityActionModal from "../../../../../Components/Modals/InhabilyActionModal";
-import { Trash } from "lucide-react";
 import type { FAQ } from "../../Models/FAQ";
 import { useDeleteFAQ } from "../../Hooks/FAQHooks";
 
@@ -15,21 +14,21 @@ export default function DeleteFAQButton({ faqSelected, onSuccess }: Props) {
   const [busy, setBusy] = useState(false);
   const deleteFAQMutation = useDeleteFAQ();
 
-  const handleClose = () => {
-    toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
-    setOpen(false);
-  };
+  const question = faqSelected.Question?.trim() || "esta FAQ";
 
   const handleConfirm = async () => {
     try {
       setBusy(true);
       await deleteFAQMutation.mutateAsync(faqSelected.Id);
-      toast.success("FAQ inhabilitada");
+      toast.success("¡FAQ inhabilitada!", { position: "top-right", autoClose: 3000 });
       setOpen(false);
       onSuccess?.();
     } catch (err) {
       console.error("Error al inhabilitar la FAQ:", err);
-      toast.error("No se pudo inhabilitar la FAQ");
+      toast.error("No se pudo inhabilitar la FAQ", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     } finally {
       setBusy(false);
     }
@@ -41,24 +40,26 @@ export default function DeleteFAQButton({ faqSelected, onSuccess }: Props) {
         type="button"
         onClick={() => setOpen(true)}
         disabled={busy}
-        className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
-          ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-white"}`}
+        className="flex w-full items-center text-left"
         title="Inhabilitar FAQ"
       >
-        <Trash className="h-4 w-4" />
-        {busy ? "..." : "Inhabilitar"}
+        Inhabilitar FAQ
       </button>
 
       {open && (
         <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
           <InhabilityActionModal
             title="¿Inhabilitar FAQ?"
-            description={`Se inhabilitará la pregunta "${faqSelected.Question ?? ""}".`}
+            description={`Se inhabilitará la pregunta "${question}".`}
             cancelLabel="Cancelar"
-            confirmLabel="Inhabilitar"
+            confirmLabel={busy ? "Inhabilitando..." : "Inhabilitar"}
             onConfirm={handleConfirm}
-            onClose={handleClose}
-            onCancel={handleClose}
+            onClose={() => {
+              if (!busy) setOpen(false);
+            }}
+            onCancel={() => {
+              if (!busy) setOpen(false);
+            }}
           />
         </div>
       )}

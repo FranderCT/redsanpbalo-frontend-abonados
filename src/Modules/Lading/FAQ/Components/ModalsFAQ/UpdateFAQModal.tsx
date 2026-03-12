@@ -1,8 +1,24 @@
 import { useForm } from "@tanstack/react-form";
 import { toast } from "react-toastify";
-import { ModalBase } from "../../../../../Components/Modals/ModalBase";
-import ConfirmActionModal from "../../../../../Components/Modals/ConfirmActionModal";
-import { useState } from "react";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
+import { Button } from "@/Components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Input } from "@/Components/ui/input";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/Components/ui/field";
+import { Textarea } from "@/Components/ui/textarea";
 import { useUpdateFAQ } from "../../Hooks/FAQHooks";
 import type { FAQ } from "../../Models/FAQ";
 import { UpdateFAQSchema } from "../../schemas/FAQSchema";
@@ -14,23 +30,17 @@ type Props = {
   onSuccess?: () => void;
 };
 
-const UpdateFAQModal = ({ faq, open, onClose, onSuccess }: Props) => {
+export default function UpdateFAQModal({ faq, open, onClose, onSuccess }: Props) {
   const updateFAQMutation = useUpdateFAQ();
-  const [openConfirm, setOpenConfirm] = useState(false);
-
-  const handleClose = () => {
-    toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
-    onClose();
-  };
 
   const form = useForm({
     defaultValues: {
-      Question: faq?.Question ?? "",
-      Answer: faq?.Answer ?? "",
-      IsActive: faq?.IsActive ?? true,
+      Question: faq.Question ?? "",
+      Answer: faq.Answer ?? "",
+      IsActive: faq.IsActive ?? true,
     },
     validators: {
-      onChange: UpdateFAQSchema
+      onChange: UpdateFAQSchema,
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -38,201 +48,145 @@ const UpdateFAQModal = ({ faq, open, onClose, onSuccess }: Props) => {
           id: faq.Id,
           data: value,
         });
-
-        toast.success("¡FAQ actualizada!", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-
+        toast.success("¡FAQ actualizada!", { position: "top-right", autoClose: 3000 });
         formApi.reset();
-        setOpenConfirm(false);
-        onClose?.();
+        onClose();
         onSuccess?.();
       } catch (err) {
         console.error("Error al actualizar FAQ", err);
-        toast.error("Error al actualizar la FAQ", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        toast.error("Error al actualizar la FAQ", { position: "top-right", autoClose: 3000 });
       }
     },
   });
 
   return (
-    <>
-      {/* Modal principal de edición */}
-      <ModalBase
-        open={open}
-        onClose={handleClose}
-        panelClassName="w-full max-w-2xl !p-0 overflow-hidden shadow-2xl"
-      >
-        {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-200 bg-white">
-          <h3 className="text-xl font-bold text-[#091540]">Editar FAQ</h3>
-        </div>
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="flex max-h-[85vh] max-w-xl flex-col gap-0 overflow-hidden p-0">
+        <DialogHeader className="space-y-1.5 border-b px-6 py-5">
+          <DialogTitle>Editar FAQ</DialogTitle>
+          <DialogDescription>
+            Modifique el contenido y el estado de la pregunta frecuente.
+          </DialogDescription>
+        </DialogHeader>
 
-        {/* Body */}
-        <div className="p-6 bg-white">
-          {/* Vista previa */}
-          <div className="mb-5">
-            <h4 className="text-sm font-semibold text-gray-700 mb-2">
-              Información actual
-            </h4>
+        <form
+          id="edit-faq-form"
+          className="flex min-h-0 flex-1 flex-col"
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+        >
+          <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-6 py-4">
+            <div className="flex flex-col gap-4">
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base">Información actual</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-3 pt-0">
+                  <div>
+                    <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Pregunta</dt>
+                    <dd className="mt-1 text-sm text-foreground break-words">{faq.Question || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Respuesta</dt>
+                    <dd className="mt-1 text-sm text-foreground break-words">{faq.Answer || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">Estado</dt>
+                    <dd className="mt-1 text-sm text-foreground">{faq.IsActive ? "Activo" : "Inactivo"}</dd>
+                  </div>
+                </CardContent>
+              </Card>
 
-            <dl className="grid grid-cols-1 gap-3">
-              <div className="bg-gray-50 p-3">
-                <dt className="text-[11px] uppercase tracking-wide text-gray-500">
-                  Pregunta
-                </dt>
-                <dd className="mt-1 text-sm text-[#091540] break-words">
-                  {faq.Question ?? "-"}
-                </dd>
-              </div>
-              <div className="bg-gray-50 p-3">
-                <dt className="text-[11px] uppercase tracking-wide text-gray-500">
-                  Respuesta
-                </dt>
-                <dd className="mt-1 text-sm text-[#091540] break-words">
-                  {faq.Answer ?? "-"}
-                </dd>
-              </div>
-              <div className="bg-gray-50 p-3">
-                <dt className="text-[11px] uppercase tracking-wide text-gray-500">
-                  Estado
-                </dt>
-                <dd className="mt-1 text-sm text-[#091540] break-words">
-                  {faq.IsActive ? "Activo" : "Inactivo"}
-                </dd>
-              </div>
-            </dl>
+              <FieldGroup className="gap-4">
+                <form.Field name="Question">
+                  {(field) => {
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Pregunta</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+
+                <form.Field name="Answer">
+                  {(field) => {
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Respuesta</FieldLabel>
+                        <Textarea
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          className="min-h-[140px] resize-none"
+                          aria-invalid={isInvalid}
+                        />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+
+                <form.Field name="IsActive">
+                  {(field) => (
+                    <Field className="gap-2">
+                      <FieldLabel>Estado</FieldLabel>
+                      <label className="flex cursor-pointer select-none items-center gap-3 text-sm text-foreground">
+                        <span>{field.state.value ? "Activo" : "Inactivo"}</span>
+                        <input
+                          type="checkbox"
+                          checked={!!field.state.value}
+                          onChange={(e) => field.handleChange(e.target.checked)}
+                          className="h-4 w-4 rounded border-input"
+                        />
+                      </label>
+                      {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  )}
+                </form.Field>
+              </FieldGroup>
+            </div>
           </div>
 
-          {/* Formulario de edición */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              form.handleSubmit();
-            }}
-            className="grid gap-4"
-          >
-            <form.Field name="Question">
-              {(field) => (
-                <label className="grid gap-1">
-                  <span className="text-sm text-gray-700">Nueva Pregunta</span>
-                  <input
-                    className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC]"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder="Escriba la nueva pregunta"
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors?.[0]?.message ? (
-                    <span className="text-xs text-red-600">
-                      {field.state.meta.errors[0].message}
-                    </span>
-                  ) : null}
-                </label>
-              )}
-            </form.Field>
-
-            <form.Field name="Answer">
-              {(field) => (
-                <label className="grid gap-1">
-                  <span className="text-sm text-gray-700">Nueva Respuesta</span>
-                  <textarea
-                    className="w-full px-4 py-2 bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-[#1789FC] min-h-[120px]"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder="Escriba la nueva respuesta"
-                  />
-                  {field.state.meta.isTouched && field.state.meta.errors?.[0]?.message ? (
-                    <span className="text-xs text-red-600">
-                      {field.state.meta.errors[0].message}
-                    </span>
-                  ) : null}
-                </label>
-              )}
-            </form.Field>
-
-            <form.Field name="IsActive">
-              {(field) => (
-                <label className="flex items-center gap-3 cursor-pointer select-none">
-                  <span className="text-sm text-gray-700">
-                    {field.state.value ? "Activo" : "Inactivo"}
-                  </span>
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={!!field.state.value}
-                      onChange={(e) => field.handleChange(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors"></div>
-                    <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform peer-checked:translate-x-5"></div>
-                  </div>
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ??
-                        String(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </label>
-              )}
-            </form.Field>
-
+          <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
             <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
-                <div className="mt-2 flex justify-end items-center gap-2">
-                  <button
-                    type="button"
+                <div className="flex w-full flex-col-reverse items-center justify-between sm:flex-row-reverse">
+                  <DialogClose asChild>
+                    <Button type="button" variant="outline" className="w-full sm:w-auto">
+                      Cancelar
+                    </Button>
+                  </DialogClose>
+                  <Button
+                    type="submit"
+                    form="edit-faq-form"
                     disabled={!canSubmit || isSubmitting}
-                    onClick={() => {
-                      if (canSubmit && !isSubmitting) setOpenConfirm(true);
-                    }}
-                    className="h-10 px-5 bg-[#091540] text-white hover:bg-[#1789FC] disabled:opacity-60"
+                    className="w-full sm:w-auto"
                   >
                     {isSubmitting ? "Guardando…" : "Guardar cambios"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="h-10 px-4 bg-gray-200 hover:bg-gray-300"
-                  >
-                    Cancelar
-                  </button>
+                  </Button>
                 </div>
               )}
             </form.Subscribe>
-          </form>
-        </div>
-      </ModalBase>
-
-      {/* Modal de confirmación */}
-      {openConfirm && (
-        <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none"
-          aria-hidden={false}
-        >
-          <div
-            className="absolute inset-0 bg-black/40 pointer-events-auto"
-            onClick={() => setOpenConfirm(false)}
-          />
-          <div className="relative pointer-events-auto">
-            <ConfirmActionModal
-              description="Se actualizará la información de la FAQ."
-              confirmLabel="Confirmar"
-              cancelLabel="Cancelar"
-              onConfirm={() => {
-                setOpenConfirm(false);
-                form.handleSubmit();
-              }}
-              onCancel={handleClose}
-              onClose={handleClose}
-            />
-          </div>
-        </div>
-      )}
-    </>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
-};
-
-export default UpdateFAQModal;
+}

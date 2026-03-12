@@ -4,6 +4,20 @@ import type { FAQ, FAQPaginationParams, new_FAQ, update_FAQ } from "../Models/FA
 
 const BASE = "/faq"; 
 
+type LegacyFaqMeta = {
+    total: number;
+    page: number;
+    limit: number;
+    pageCount: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+};
+
+type LegacyFaqResponse = {
+    data: FAQ[];
+    meta: LegacyFaqMeta;
+};
+
 export async function getAllFAQs(): Promise<FAQ[]> {
     try{
         const {data} = await apiAxios.get<FAQ[]>(BASE)
@@ -19,10 +33,21 @@ export async function searchFAQs(
 ): Promise<PaginatedResponse<FAQ>> {
     try {
         const { page = 1, limit = 10, question, state } = params ?? {};
-        const { data } = await apiAxios.get<PaginatedResponse<FAQ>>(`${BASE}/search`, {
+        const { data } = await apiAxios.get<LegacyFaqResponse>(`${BASE}/search`, {
         params: { page, limit, question, state },
         });
-        return data;
+        return {
+            data: data.data,
+            meta: {
+                totalItems: data.meta.total,
+                itemCount: data.data.length,
+                itemsPerPage: data.meta.limit,
+                totalPages: data.meta.pageCount,
+                currentPage: data.meta.page,
+                hasNextPage: data.meta.hasNextPage,
+                hasPrevPage: data.meta.hasPrevPage,
+            },
+        };
     } catch (err) {
         console.error("Error buscando FAQs", err);
         return Promise.reject(err);
