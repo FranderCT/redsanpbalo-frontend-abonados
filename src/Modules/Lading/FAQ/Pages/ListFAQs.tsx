@@ -1,21 +1,19 @@
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { useSearchFAQs } from "../Hooks/FAQHooks";
 import type { FAQ } from "../Models/FAQ";
 import FAQHeaderBar from "../Components/PaginationFAQ/FAQHeaderBar";
 import CreateFAQModal from "../Components/ModalsFAQ/CreateFAQModal";
-import FAQTable from "../Components/TableFAQ/FAQTable";
+import FAQCards from "../Components/FAQCards";
 
 export default function ListFAQs() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
-  const [question, setQuestion] = useState<string | undefined>(undefined);
   const [state, setState] = useState<string | undefined>(undefined);
+  const deferredSearch = useDeferredValue(search);
 
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
-    const trimmed = txt.trim();
-    setQuestion(trimmed ? trimmed : undefined);
     setPage(1);
   };
 
@@ -26,36 +24,44 @@ export default function ListFAQs() {
 
   const handleCleanFilters = () => {
     setSearch("");
-    setQuestion(undefined);
     setState(undefined);
     setPage(1);
   };
 
-  // Construir parámetros para la búsqueda
-  const params = useMemo(() => ({ page, limit, question, state }), [page, limit, question, state]);
+  const params = useMemo(
+    () => ({
+      page,
+      limit,
+      question: deferredSearch.trim() || undefined,
+      state,
+    }),
+    [deferredSearch, limit, page, state],
+  );
   const { data, isLoading, error } = useSearchFAQs(params);
 
   const rows: FAQ[] = data?.data ?? [];
   const meta = data?.meta ?? {
-    total: 0,
-    page: 1,
-    limit,
-    pageCount: 1,
+    totalItems: 0,
+    itemCount: 0,
+    itemsPerPage: limit,
+    totalPages: 1,
+    currentPage: 1,
     hasNextPage: false,
     hasPrevPage: false,
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-[#091540]">Lista de Preguntas Frecuentes (FAQ)</h1>
-      <p className="text-[#091540]/70 text-md">
-        Gestione todas las preguntas frecuentes
-      </p>
-      <div className="border-b border-dashed border-gray-300 mb-8"></div>
+    <div className="flex flex-col gap-6 p-4">
+      <section className="flex flex-col gap-2">
+        <h1 className="text-2xl font-bold text-[#091540]">Lista de Preguntas Frecuentes (FAQ)</h1>
+        <p className="text-md text-[#091540]/70">
+          Gestione todas las preguntas frecuentes desde una vista simple y enfocada en acciones.
+        </p>
+      </section>
 
       <FAQHeaderBar
-        limit={meta.limit}
-        total={meta.total}
+        limit={meta.itemsPerPage}
+        total={meta.totalItems}
         search={search}
         state={state}
         onLimitChange={(l) => {
@@ -68,19 +74,21 @@ export default function ListFAQs() {
         rightAction={<CreateFAQModal />}
       />
 
-      <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
+      <div className="flex flex-col">
         {isLoading ? (
-          <div className="p-6 text-center text-gray-500">Cargando…</div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
+            Cargando FAQs...
+          </div>
         ) : error ? (
-          <div className="p-6 text-center text-red-600">
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center text-red-600">
             Ocurrió un error al cargar las FAQs.
           </div>
         ) : (
-          <FAQTable
+          <FAQCards
             data={rows}
-            total={meta.total}
-            page={meta.page}
-            pageCount={meta.pageCount}
+            total={meta.totalItems}
+            page={meta.currentPage}
+            pageCount={meta.totalPages}
             onPageChange={setPage}
           />
         )}

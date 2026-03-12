@@ -8,6 +8,7 @@ export interface FAQ {
 export interface new_FAQ{
     Question: string;
     Answer: string;
+    IsActive?: boolean;
 }
 
 export type update_FAQ = Partial<new_FAQ>;

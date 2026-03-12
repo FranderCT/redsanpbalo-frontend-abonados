@@ -27,10 +27,10 @@ export const useSearchFAQs = (params: FAQPaginationParams) => {
         console.log(
             "[FAQs fetched]",
             {
-            page: res.meta.page,
-            limit: res.meta.limit,
-            total: res.meta.total,
-            pageCount: res.meta.pageCount,
+            page: res.meta.currentPage,
+            limit: res.meta.itemsPerPage,
+            total: res.meta.totalItems,
+            pageCount: res.meta.totalPages,
             params,
             },
             res.data 
@@ -77,6 +77,22 @@ export const useUpdateFAQ = () => {
         mutationFn: ({id, data}) => updateFAQ(id, data),
         onSuccess: (res) => {
             console.log('FAQ actualizado correctamente', res);
+            qc.setQueryData<FAQ[] | undefined>(["faqs"], (prev) =>
+                prev?.map((faq) => (faq.Id === res.Id ? res : faq))
+            );
+
+            qc.setQueriesData<PaginatedResponse<FAQ>>(
+                { queryKey: ["faqs", "search"] },
+                (prev) =>
+                    prev
+                        ? {
+                            ...prev,
+                            data: prev.data.map((faq) => (faq.Id === res.Id ? res : faq)),
+                          }
+                        : prev
+            );
+
+            qc.setQueryData<FAQ | undefined>(["faqs", res.Id], res);
             qc.invalidateQueries({queryKey: ['faqs']});
         },
         onError: (err) => {
