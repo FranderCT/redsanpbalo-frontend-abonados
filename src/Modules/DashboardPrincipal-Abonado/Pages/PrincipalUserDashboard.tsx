@@ -166,18 +166,20 @@ export default function UserDashboard() {
 
           {/* Reportar Problema - Rojo */}
           <div className="group relative">
-            <div className="rounded-lg bg-white hover:bg-gradient-to-br hover:from-white hover:to-red-50/30 transition-all duration-300 cursor-pointer border border-red-100 hover:shadow-[0_8px_30px_rgba(246,19,45,0.25)] hover:-translate-y-1"
-                  onClick={() => setOpenReport(true)}>
+            <div
+              className="cursor-pointer border border-primary/10 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-md"
+              onClick={() => setOpenReport(true)}
+            >
               <div className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <OctagonAlert className="w-6 h-6 text-white" />
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary shadow-lg transition-transform duration-300 group-hover:scale-110">
+                    <OctagonAlert className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:text-red-600 transition-colors">
+                    <h3 className="mb-1 text-lg font-semibold text-[#091540]">
                       Reportar Problema
                     </h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">
+                    <p className="text-sm leading-relaxed text-[#091540]/70">
                       Informar una incidencia
                     </p>
                   </div>
@@ -188,18 +190,20 @@ export default function UserDashboard() {
 
           {/* Ver Notificaciones - Amarillo/Naranja */}
           <div className="group relative">
-            <div className="rounded-lg bg-white hover:bg-gradient-to-br hover:from-white hover:to-amber-50/30 transition-all duration-300 cursor-pointer border border-amber-100 hover:shadow-[0_8px_30px_rgba(251,191,36,0.25)] hover:-translate-y-1"
-                  onClick={() => console.log("Ver Notificaciones")}>
+            <div
+              className="cursor-pointer border border-primary/10 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-md"
+              onClick={() => console.log("Ver Notificaciones")}
+            >
               <div className="p-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <Bell className="w-6 h-6 text-white" />
+                  <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg bg-primary shadow-lg transition-transform duration-300 group-hover:scale-110">
+                    <Bell className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-[#091540] text-lg mb-1 group-hover:text-amber-600 transition-colors">
+                    <h3 className="mb-1 text-lg font-semibold text-[#091540]">
                       Ver Notificaciones
                     </h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">
+                    <p className="text-sm leading-relaxed text-[#091540]/70">
                       Revisar mensajes
                     </p>
                   </div>
