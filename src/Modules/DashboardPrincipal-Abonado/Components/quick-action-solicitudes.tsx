@@ -2,6 +2,7 @@ import * as React from "react"
 import { FileText, Droplets, UserStar, ClipboardPen, FileSearch, CircleGauge, ArrowRight } from "lucide-react"
 import { useNavigate } from "@tanstack/react-router"
 import { Can } from "../../Auth/Components/Can";
+import { Role } from "../../Users/Models/Roles";
 
 interface SolicitudOption {
   id: string;
@@ -87,7 +88,7 @@ export function QuickActionSolicitudes({
         {/* Grid de solicitudes mejorado */}
         <div className="p-6">
           {/* Para usuarios GUEST: Card centrado */}
-          <Can rule={{ any: ["GUEST"] }}>
+          <Can rule={{ any: [Role.GUEST] }}>
             <div className="flex justify-center items-center">
               {solicitudes
                 .filter(s => s.id === "disponibilidad")
@@ -122,7 +123,7 @@ export function QuickActionSolicitudes({
           </Can>
 
           {/* Para otros roles: Grid con todas las solicitudes */}
-          <Can rule={{ none: ["GUEST"] }}>
+          <Can rule={{ none: [Role.GUEST] }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {solicitudes.map((solicitud) => {
                 const IconComponent = solicitud.icon;

@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'ABONADO' | 'GUEST' | 'FONTANERO' | 'JUNTA';
+import type { Role } from "../../Users/Models/Roles";
 
 export type AccessRule = {
   any?: Role[];   // al menos uno
@@ -6,10 +6,11 @@ export type AccessRule = {
   none?: Role[];  // ninguno de estos
 };
 
-export function hasAccess(userRoles: string[] = [], rule: AccessRule = {}): boolean {
-  const roles = userRoles.map(r => r.toUpperCase());
-  const anyOK  = !rule.any  || rule.any.some(r => roles.includes(r.toUpperCase()));
-  const allOK  = !rule.all  || rule.all.every(r => roles.includes(r.toUpperCase()));
-  const noneOK = !rule.none || !roles.some(r => rule.none!.map(n => n.toUpperCase()).includes(r));
+export function hasAccess(userRoles: Array<Role | string> = [], rule: AccessRule = {}): boolean {
+  const roles = new Set(userRoles);
+  const anyOK = !rule.any || rule.any.some((role) => roles.has(role));
+  const allOK = !rule.all || rule.all.every((role) => roles.has(role));
+  const noneOK = !rule.none || rule.none.every((role) => !roles.has(role));
+
   return anyOK && allOK && noneOK;
 }
