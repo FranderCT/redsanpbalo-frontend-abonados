@@ -3,15 +3,18 @@ import { useMemo, useState } from "react";
 import { useGetAllRequestStates } from "../../StateRequest/Hooks/RequestStateHook";
 import { useSearchRequestAssociated } from "../Hooks/ReqAssociatedHooks";
 import type { ReqAssociated } from "../Models/RequestAssociated";
+import type { PaginationMeta } from "../../../../assets/Dtos/PaginationCategory";
 import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
 import ReqAssociatedHeaderBar from "../Components/PaginationReqAssociated/ReqAssociatedHeaderBar";
 import ReqAssociatedTable from "../Components/ReqAssociatedTable/ReqAssociatedTable";
 import CreateAssociatedRqModalAdmin from "../Components/Modals/AddCreateAssociatedRqModal";
 
-
-
-
-
+type LegacyMeta = {
+  page?: number;
+  limit?: number;
+  total?: number;
+  pageCount?: number;
+};
 export default function ListReqAssociated() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -20,15 +23,15 @@ export default function ListReqAssociated() {
   const [search, setSearch] = useState("");
 
   // Filtros que van al backend
-  const [UserName, setUserName] = useState<string | undefined>(undefined);
+  const [q, setQ] = useState<string | undefined>(undefined);
   const [State, setState] = useState<string | undefined>(undefined); // "true" | "false" | undefined
   const [StateRequestId, setStateRequestId] = useState<number | undefined>(undefined);
 
-  // Buscador → UserName
+  // Buscador -> q
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
     const trimmed = txt.trim();
-    setUserName(trimmed ? trimmed : undefined);
+    setQ(trimmed ? trimmed : undefined);
     setPage(1);
   };
 
@@ -44,7 +47,7 @@ export default function ListReqAssociated() {
 
   const handleCleanFilters = () => {
     setSearch("");
-    setUserName(undefined);
+    setQ(undefined);
     setState(undefined);
     setStateRequestId(undefined);
     setPage(1);
@@ -58,17 +61,24 @@ export default function ListReqAssociated() {
     () => ({
       page,
       limit,
-      UserName,
+      q,
       State: State ?? "", 
       StateRequestId,
     }),
-    [page, limit, UserName, State, StateRequestId]
+    [page, limit, q, State, StateRequestId]
   );
 
   const { data, isLoading, error } = useSearchRequestAssociated (params);
   const rows: ReqAssociated[] = data?.data ?? [];
-  const meta =
-    data?.meta ?? { total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false };
+  const rawMeta = data?.meta as (PaginationMeta & LegacyMeta) | undefined;
+  const meta = {
+    total: rawMeta?.totalItems ?? rawMeta?.total ?? 0,
+    page: rawMeta?.currentPage ?? rawMeta?.page ?? 1,
+    limit: rawMeta?.itemsPerPage ?? rawMeta?.limit ?? limit,
+    pageCount: rawMeta?.totalPages ?? rawMeta?.pageCount ?? 1,
+    hasNextPage: rawMeta?.hasNextPage ?? false,
+    hasPrevPage: rawMeta?.hasPrevPage ?? false,
+  };
 
   // Totales de la página actual (opcional)
   const pageTotals = useMemo(() => {

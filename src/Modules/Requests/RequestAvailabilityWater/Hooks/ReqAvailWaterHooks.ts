@@ -4,6 +4,13 @@ import type { ReqAvailWater, ReqAvailWaterPaginationParams, ReqWaterLinkResponse
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
 
+type LegacyMeta = {
+  page?: number;
+  limit?: number;
+  total?: number;
+  pageCount?: number;
+};
+
 
 // Obtener todos
 export const useGetAllReqAvailWater = () => {
@@ -28,7 +35,7 @@ export const useSearchReqAvailWater = (params: ReqAvailWaterPaginationParams) =>
   const {
     page = 1,
     limit = 10,
-    UserName,
+    q,
     State,
     StateRequestId,
   } = params ?? {};
@@ -40,11 +47,11 @@ export const useSearchReqAvailWater = (params: ReqAvailWaterPaginationParams) =>
       "search",
       page,
       limit,
-      UserName ?? "",
+      q ?? "",
       State ?? "",
       StateRequestId ?? null,
     ],
-    queryFn: () => searchReqAvailWater({ page, limit, UserName, State, StateRequestId }),
+    queryFn: () => searchReqAvailWater({ page, limit, q, State, StateRequestId }),
     placeholderData: keepPreviousData,
     staleTime: 30_000,
     refetchOnWindowFocus: false,   // opcional
@@ -53,19 +60,20 @@ export const useSearchReqAvailWater = (params: ReqAvailWaterPaginationParams) =>
   useEffect(() => {
     if (query.data) {
       const res = query.data;
+      const rawMeta = res.meta as typeof res.meta & LegacyMeta;
       console.log(
         "[Requests fetched]",
         {
-          page: res.meta.page,
-          limit: res.meta.limit,
-          total: res.meta.total,
-          pageCount: res.meta.pageCount,
-          params: { page, limit, UserName, State, StateRequestId },
+          page: rawMeta.currentPage ?? rawMeta.page ?? page,
+          limit: rawMeta.itemsPerPage ?? rawMeta.limit ?? limit,
+          total: rawMeta.totalItems ?? rawMeta.total ?? res.data.length,
+          pageCount: rawMeta.totalPages ?? rawMeta.pageCount ?? 1,
+          params: { page, limit, q, State, StateRequestId },
         },
         res.data
       );
     }
-  }, [query.data, page, limit, UserName, State, StateRequestId]);
+  }, [query.data, page, limit, q, State, StateRequestId]);
 
   return query;
 };

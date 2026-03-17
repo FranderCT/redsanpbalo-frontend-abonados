@@ -38,15 +38,15 @@ export async function searchReqAvailWater(
   params: ReqAvailWaterPaginationParams
 ): Promise<PaginatedResponse<ReqAvailWater>> {
   try {
-    const { page = 1, limit = 10, State, StateRequestId, UserName } = params ?? {};
+    const { page = 1, limit = 10, State, StateRequestId, q } = params ?? {};
 
-    const q: Record<string, any> = { page, limit };
-    if (UserName) q.UserName = UserName;
-    if (State !== undefined && State !== null && State !== "") q.State = State;          // "true"/"false"
-    if (typeof StateRequestId === "number") q.StateRequestId = StateRequestId;
+    const queryParams: Record<string, any> = { page, limit };
+    if (q && q.trim() !== "") queryParams.q = q.trim();
+    if (State !== undefined && State !== null && State !== "") queryParams.State = State;
+    if (typeof StateRequestId === "number") queryParams.StateRequestId = StateRequestId;
 
     const { data } = await apiAxios.get<PaginatedResponse<ReqAvailWater>>(`${BASE}/search`, {
-      params: q,
+      params: queryParams,
     });
     return data;
   } catch (err) {

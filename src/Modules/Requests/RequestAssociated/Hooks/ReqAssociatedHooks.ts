@@ -17,11 +17,11 @@ export const useGetAllRequestAssociated = () => {
 
 // Búsqueda paginada
 export const useSearchRequestAssociated = (params: ReqAssociatedPaginationParams) => {
-  const { page = 1, limit = 10, UserName, StateRequestId, State } = params ?? {};
+  const { page = 1, limit = 10, q, StateRequestId, State } = params ?? {};
 
   const query = useQuery<PaginatedResponse<ReqAssociated>, Error>({
-    queryKey: ["request-associated",],
-    queryFn: () => searchRequestAssociated({ page, limit, UserName, StateRequestId, State }),
+    queryKey: ["request-associated", "search", page, limit, q ?? "", StateRequestId ?? null, State ?? ""],
+    queryFn: () => searchRequestAssociated({ page, limit, q, StateRequestId, State }),
     placeholderData: keepPreviousData,
     staleTime: 30_000,
     refetchOnWindowFocus: false,

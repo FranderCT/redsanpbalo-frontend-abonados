@@ -2,15 +2,18 @@ import { useMemo, useState } from "react";
 import { useGetAllRequestStates } from "../../StateRequest/Hooks/RequestStateHook";
 import { useSearchReqAvailWater } from "../Hooks/ReqAvailWaterHooks";
 import type { ReqAvailWater } from "../Models/ReqAvailWater";
+import type { PaginationMeta } from "../../../../assets/Dtos/PaginationCategory";
 import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
 import ReqAvailWaterHeaderBar from "../Components/PaginationReqAvailabilityWater/ReqAvailWaterHeaderBar";
 import ReqAvailWaterTable from "../Components/ReqAvailabilityWaterTable/ReAvailWaterTable";
 import CreateAvailabilityWaterRqModalAmin from "../../GeneralGetUser/AddnewRequestModal";
 
-
-
-
-
+type LegacyMeta = {
+  page?: number;
+  limit?: number;
+  total?: number;
+  pageCount?: number;
+};
 export default function ListReqAvailWater() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -18,23 +21,21 @@ export default function ListReqAvailWater() {
   // 🔎 Texto visible en el input
   const [search, setSearch] = useState("");
 
-  // 🧾 Filtros reales que se envían al backend
-  const [UserName, setUserName] = useState<string | undefined>(undefined);       // ★ se llena desde `search`
-  const [Justification, setJustification] = useState<string | undefined>(undefined);
-  const [State, setState] = useState<string | undefined>(undefined);             // "true" | "false" | undefined
+  // Filtros reales que se envían al backend
+  const [q, setQ] = useState<string | undefined>(undefined);
+  const [State, setState] = useState<string | undefined>(undefined);
   const [StateRequestId, setStateRequestId] = useState<number | undefined>(undefined);
 
-  // ★ Cuando cambia el texto del buscador, mapeamos a UserName y reiniciamos la paginación
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
     const trimmed = txt.trim();
-    setUserName(trimmed ? trimmed : undefined);
+    setQ(trimmed ? trimmed : undefined);
     setPage(1);
   };
 
   const handleStateChange = (newState: string) => {
-     setState(newState === "" ? undefined : newState); // guardamos tal cual el valor del select
-     setPage(1);
+    setState(newState === "" ? undefined : newState);
+    setPage(1);
   };
 
   const handleStateRequestChange = (id?: number) => {
@@ -44,8 +45,7 @@ export default function ListReqAvailWater() {
 
   const handleCleanFilters = () => {
     setSearch("");
-    setUserName(undefined);          
-    setJustification(undefined);
+    setQ(undefined);
     setState(undefined);
     setStateRequestId(undefined);
     setPage(1);
@@ -55,20 +55,27 @@ export default function ListReqAvailWater() {
   const { requestStates = [], isPending: requestStatesLoading } = useGetAllRequestStates();
 
   const params = useMemo(
-    () => ({ page, limit, Justification, State:
-      State === undefined
-        ? undefined
-        : State === "true"
-        ? "1"
-        : "0", // ← conversión aquí antes de enviar
-     UserName, StateRequestId }),
-    [page, limit, Justification, State, UserName, StateRequestId]
+    () => ({
+      page,
+      limit,
+      q,
+      State,
+      StateRequestId,
+    }),
+    [page, limit, q, State, StateRequestId]
   );
 
   const { data, isLoading, error } = useSearchReqAvailWater(params);
   const rows: ReqAvailWater[] = data?.data ?? [];
-  const meta =
-    data?.meta ?? { total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false };
+  const rawMeta = data?.meta as (PaginationMeta & LegacyMeta) | undefined;
+  const meta = {
+    total: rawMeta?.totalItems ?? rawMeta?.total ?? 0,
+    page: rawMeta?.currentPage ?? rawMeta?.page ?? 1,
+    limit: rawMeta?.itemsPerPage ?? rawMeta?.limit ?? limit,
+    pageCount: rawMeta?.totalPages ?? rawMeta?.pageCount ?? 1,
+    hasNextPage: rawMeta?.hasNextPage ?? false,
+    hasPrevPage: rawMeta?.hasPrevPage ?? false,
+  };
 
   const pageTotals = useMemo(() => {
     const acc = { total: 0, approved: 0, rejected: 0, pending: 0 };
@@ -102,7 +109,7 @@ export default function ListReqAvailWater() {
       <ReqAvailWaterHeaderBar
         limit={meta.limit}
         total={meta.total}
-        search={search}                       // ★ valor visible del input
+        search={search}
         state={State}
         requestStateId={StateRequestId}
         states={requestStates}
@@ -113,7 +120,7 @@ export default function ListReqAvailWater() {
           setPage(1);
         }}
         onFilterClick={handleStateChange}
-        onSearchChange={handleSearchChange}   // ★ propaga cambios de input
+        onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
         rightAction={<CreateAvailabilityWaterRqModalAmin />}
       />
