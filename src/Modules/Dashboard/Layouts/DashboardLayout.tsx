@@ -1,42 +1,69 @@
-import { useEffect, useState } from "react";
-import AsideDashboard from "../../Dashboard/Components/Sidebar/AsideDashboard";
-import HeaderDashboard from "../../Dashboard/Components/Header/HeaderDashboard";
 import { Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import LiveReports from "../../../Sockets/LiveReports";
 import { Can } from "../../Auth/Components/Can";
 import { useRole } from "../../Auth/Components/RolesContext";
+import HeaderDashboard from "../../Dashboard/Components/Header/HeaderDashboard";
+import AsideDashboard from "../../Dashboard/Components/Sidebar/AsideDashboard";
+import { useGetUserProfile } from "../../Users/Hooks/UsersHooks";
+import type { Role } from "../../Users/Models/Roles";
+import {
+  canAccessDashboardPath,
+  getDashboardHomeByRole,
+  getDefaultActiveRole,
+  isDashboardIndexPath,
+  LIVE_REPORTS_ROLES,
+} from "../utils/role-dashboard.utils";
 
 const DashboardLayout = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { activeRole } = useRole();
+  const { activeRole, setActiveRole, setAvailableRoles } = useRole();
+  const { UserProfile } = useGetUserProfile();
+
+  const profileRoles = useMemo(
+    () => (UserProfile?.Roles?.map((role) => role.Rolname) ?? []) as Role[],
+    [UserProfile],
+  );
 
   useEffect(() => {
-    if (!activeRole) return;
-
-    const isAdmin = activeRole === "ADMIN" || activeRole === "JUNTA";
-
-    // define cuál es el "home" por rol
-    const home = isAdmin ? "/dashboard/principal-admin" : "/dashboard/principal-user";
-
-    // si estás en una ruta que no corresponde a tu rol activo -> redirect
-    // (esto es básico, luego lo puedes refinar por secciones)
-    const isInAdminArea = pathname.includes("/dashboard/principal-admin") || pathname.includes("/dashboard/users");
-    const isInUserArea = pathname.includes("/dashboard/principal-user");
-
-    if (isAdmin && isInUserArea) {
-      navigate({ to: home, replace: true });
-    } else if (!isAdmin && isInAdminArea) {
-      navigate({ to: home, replace: true });
+    if (profileRoles.length === 0) {
+      return;
     }
 
-    // Si estás en /dashboard (index) también te manda al home correcto
-    if (pathname === "/dashboard" || pathname === "/dashboard/") {
-      navigate({ to: home, replace: true });
+    setAvailableRoles((currentRoles) => {
+      const sameLength = currentRoles.length === profileRoles.length;
+      const sameValues = sameLength && currentRoles.every((role, index) => role === profileRoles[index]);
+      return sameValues ? currentRoles : profileRoles;
+    });
+
+    const nextActiveRole =
+      activeRole && profileRoles.includes(activeRole)
+        ? activeRole
+        : getDefaultActiveRole(profileRoles);
+
+    if (nextActiveRole && nextActiveRole !== activeRole) {
+      setActiveRole(nextActiveRole);
     }
-  }, [activeRole, pathname, navigate]);
+  }, [activeRole, profileRoles, setActiveRole, setAvailableRoles]);
+
+  useEffect(() => {
+    if (!activeRole) {
+      return;
+    }
+
+    const homePath = getDashboardHomeByRole(activeRole);
+
+    if (isDashboardIndexPath(pathname)) {
+      navigate({ to: homePath, replace: true });
+      return;
+    }
+
+    if (!canAccessDashboardPath(activeRole, pathname)) {
+      navigate({ to: homePath, replace: true });
+    }
+  }, [activeRole, navigate, pathname]);
 
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
@@ -45,8 +72,9 @@ const DashboardLayout = () => {
       </aside>
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-sidebar border-r border-sidebar-border text-sidebar-foreground transform transition-transform duration-300 
-        ${menuOpen ? "translate-x-0" : "-translate-x-full"} md:hidden`}
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-sidebar border-r border-sidebar-border text-sidebar-foreground transform transition-transform duration-300 ${
+          menuOpen ? "translate-x-0" : "-translate-x-full"
+        } md:hidden`}
       >
         <AsideDashboard />
       </aside>
@@ -60,13 +88,11 @@ const DashboardLayout = () => {
       )}
 
       <div className="flex flex-col flex-1">
-        <HeaderDashboard
-          menuOpen={menuOpen}
-          setMenuOpen={setMenuOpen}
-        />
+        <HeaderDashboard menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+
         <main className="flex-1 overflow-y-auto bg-background">
           <Outlet />
-          <Can rule={{ any: ["ADMIN", "FONTANERO"] }}>
+          <Can rule={{ any: [...LIVE_REPORTS_ROLES] }}>
             <LiveReports />
           </Can>
         </main>
