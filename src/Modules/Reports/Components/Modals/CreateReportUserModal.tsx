@@ -9,14 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/Components/ui/dialog";
-
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/Components/ui/field";
-
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/Components/ui/field";
 import { Textarea } from "@/Components/ui/textarea";
 import {
   Select,
@@ -31,8 +24,7 @@ import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 import { createReportUserValidators } from "../../schemas/ReportSchema";
 import { Input } from "@/Components/ui/input";
-import { Button } from "@/Components/ui/button";    
-
+import { Button } from "@/Components/ui/button";
 
 type Props = {
   open: boolean;
@@ -40,18 +32,16 @@ type Props = {
 };
 
 const defaultValues = {
-  Location: "",
+  ExactLocation: "",
   Description: "",
-  LocationId: 0,
+  ReportLocationId: 0,
   ReportTypeId: 0,
 };
 
 export default function CreateReportUserModal({ open, setOpen }: Props) {
   const createReportMutation = useCreateReportByUser();
-
   const { reportTypes = [], isLoading: typesLoading } = useGetAllReportTypes();
-  const { reportLocations = [], isLoading: locationsLoading } =
-    useGetAllReportLocations();
+  const { reportLocations = [], isLoading: locationsLoading } = useGetAllReportLocations();
   const { UserProfile, isLoading: profileLoading } = useGetUserProfile();
 
   const form = useForm({
@@ -66,19 +56,15 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
         return;
       }
 
-      const payload = {
-        Location: value.Location,
-        Description: value.Description,
-        UserId: UserProfile.Id,
-        LocationId: Number(value.LocationId),
-        ReportTypeId: Number(value.ReportTypeId),
-        ReportStateId: 1,
-        UserInChargeId: undefined,
-      };
-
       try {
-        await createReportMutation.mutateAsync(payload);
-        toast.success("¡Reporte creado exitosamente! Será revisado por nuestro equipo.");
+        await createReportMutation.mutateAsync({
+          ExactLocation: value.ExactLocation,
+          Description: value.Description,
+          UserId: UserProfile.Id,
+          ReportLocationId: Number(value.ReportLocationId),
+          ReportTypeId: Number(value.ReportTypeId),
+        });
+        toast.success("Reporte creado exitosamente. Sera revisado por nuestro equipo.");
         form.reset();
         setOpen(false);
       } catch (error) {
@@ -89,35 +75,33 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
   });
 
   const isLoading = typesLoading || locationsLoading || profileLoading;
-
   const formatErrors = (errors: unknown[]) =>
-    errors?.map((e) =>
-      typeof e === "object" && e !== null && "message" in e
-        ? { message: (e as { message: string }).message }
-        : { message: String(e) }
+    errors?.map((error) =>
+      typeof error === "object" && error !== null && "message" in error
+        ? { message: (error as { message: string }).message }
+        : { message: String(error) }
     );
-
   const ReportField = form.Field;
 
   return (
     <Dialog
       open={open}
-      onOpenChange={(v) => {
-        setOpen(v);
-        if (!v) form.reset();
+      onOpenChange={(value) => {
+        setOpen(value);
+        if (!value) form.reset();
       }}
     >
       <DialogContent className="max-h-[70vh] gap-0 overflow-hidden">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Crear nuevo reporte</DialogTitle>
           <DialogDescription>
-            Reporta un problema en tu zona. Completa la información para que nuestro equipo pueda atenderte.
+            Reporta un problema en tu zona. Completa la informacion para que nuestro equipo pueda atenderte.
           </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (
           <div className="flex min-h-[200px] items-center justify-center px-6 py-10">
-            <p className="text-sm text-muted-foreground">Cargando información...</p>
+            <p className="text-sm text-muted-foreground">Cargando informacion...</p>
           </div>
         ) : !UserProfile?.Id ? (
           <div className="flex min-h-[200px] flex-col items-center justify-center gap-4 px-6 py-10">
@@ -137,15 +121,12 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
             <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
               <FieldGroup className="gap-4">
                 <ReportField
-                  name="Location"
+                  name="ExactLocation"
                   children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>
-                          Ubicación específica
-                        </FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Ubicacion especifica</FieldLabel>
                         <Input
                           id={field.name}
                           name={field.name}
@@ -156,11 +137,9 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
                           placeholder="Ej: Calle principal, casa #123, frente al parque"
                         />
                         <p className="text-xs text-muted-foreground">
-                          Proporciona la dirección exacta donde está el problema
+                          Proporciona la direccion exacta donde esta el problema
                         </p>
-                        {isInvalid && (
-                          <FieldError errors={formatErrors(field.state.meta.errors)} />
-                        )}
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
                       </Field>
                     );
                   }}
@@ -169,13 +148,10 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
                 <ReportField
                   name="Description"
                   children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>
-                          Descripción del problema
-                        </FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Descripcion del problema</FieldLabel>
                         <Textarea
                           id={field.name}
                           name={field.name}
@@ -183,47 +159,42 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
-                          placeholder="Describe detalladamente el problema que encontraste..."
+                          placeholder="Describe detalladamente el problema presentado..."
                           rows={4}
                           className="resize-none"
                         />
                         <p className="text-xs text-muted-foreground">
                           Incluye todos los detalles posibles para ayudarnos a resolver el problema
                         </p>
-                        {isInvalid && (
-                          <FieldError errors={formatErrors(field.state.meta.errors)} />
-                        )}
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
                       </Field>
                     );
                   }}
                 />
 
                 <ReportField
-                  name="LocationId"
+                  name="ReportLocationId"
                   children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
                         <FieldLabel htmlFor={field.name}>Barrio</FieldLabel>
                         <Select
                           value={field.state.value === 0 ? "" : String(field.state.value)}
-                          onValueChange={(v) => field.handleChange(Number(v))}
+                          onValueChange={(value) => field.handleChange(Number(value))}
                         >
                           <SelectTrigger id={field.name} aria-invalid={isInvalid}>
                             <SelectValue placeholder="Selecciona tu barrio" />
                           </SelectTrigger>
                           <SelectContent>
-                            {reportLocations.map((loc) => (
-                              <SelectItem key={loc.Id} value={String(loc.Id)}>
-                                {loc.Neighborhood}
+                            {reportLocations.map((location) => (
+                              <SelectItem key={location.Id} value={String(location.Id)}>
+                                {location.Neighborhood}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        {isInvalid && (
-                          <FieldError errors={formatErrors(field.state.meta.errors)} />
-                        )}
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
                       </Field>
                     );
                   }}
@@ -232,16 +203,13 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
                 <ReportField
                   name="ReportTypeId"
                   children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>
-                          Tipo de reporte
-                        </FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Tipo de reporte</FieldLabel>
                         <Select
                           value={field.state.value === 0 ? "" : String(field.state.value)}
-                          onValueChange={(v) => field.handleChange(Number(v))}
+                          onValueChange={(value) => field.handleChange(Number(value))}
                         >
                           <SelectTrigger id={field.name} aria-invalid={isInvalid}>
                             <SelectValue placeholder="Seleccione tipo de reporte" />
@@ -254,9 +222,7 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
                             ))}
                           </SelectContent>
                         </Select>
-                        {isInvalid && (
-                          <FieldError errors={formatErrors(field.state.meta.errors)} />
-                        )}
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
                       </Field>
                     );
                   }}
@@ -266,27 +232,19 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
               {UserProfile ? (
                 <div className="rounded-lg border bg-muted/40 px-4 py-3">
                   <p className="text-sm font-medium text-foreground">
-                    Tu reporte será enviado como: {UserProfile.Name} {UserProfile.Surname1}
+                    Tu reporte sera enviado como: {UserProfile.Name} {UserProfile.Surname1}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {UserProfile.Email}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{UserProfile.Email}</p>
                 </div>
               ) : null}
             </div>
 
             <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
-              <form.Subscribe
-                selector={(state) => [state.canSubmit, state.isSubmitting]}
-              >
+              <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                 {([canSubmit, isSubmitting]) => (
                   <div className="flex w-full flex-col-reverse items-center justify-between sm:flex-row-reverse">
                     <DialogClose asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full sm:w-auto"
-                      >
+                      <Button type="button" variant="outline" className="w-full sm:w-auto">
                         Cancelar
                       </Button>
                     </DialogClose>

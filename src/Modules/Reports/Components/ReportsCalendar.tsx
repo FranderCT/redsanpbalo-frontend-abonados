@@ -5,33 +5,30 @@ import listPlugin from "@fullcalendar/list";
 import esLocale from "@fullcalendar/core/locales/es";
 import type { DatesSetArg, EventClickArg } from "@fullcalendar/core";
 import { useSearchReports } from "../Hooks/ReportsHooks";
-import type { Report } from "../Models/Report";
+import type { ReportListItem } from "../Models/Report";
 
 function formatDateForApi(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-function getMonthRange(date: Date): { start: string; end: string } {
-  const start = new Date(date.getFullYear(), date.getMonth(), 1);
-  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  return { start: formatDateForApi(start), end: formatDateForApi(end) };
-}
-
 type Props = {
-  onViewDetails?: (report: Report) => void;
+  onViewDetails?: (report: ReportListItem) => void;
 };
 
 export default function ReportsCalendar({ onViewDetails }: Props) {
-  const [range, setRange] = useState(() => getMonthRange(new Date()));
+  const [range, setRange] = useState(() => ({
+    startDate: formatDateForApi(new Date(new Date().getFullYear(), new Date().getMonth(), 1)),
+    endDate: formatDateForApi(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)),
+  }));
 
   const query = useMemo(
     () => ({
       limit: 100,
-      startDate: range.start,
-      endDate: range.end,
+      startDate: range.startDate,
+      endDate: range.endDate,
       sortDir: "DESC" as const,
     }),
-    [range.start, range.end]
+    [range.endDate, range.startDate]
   );
 
   const { data, isLoading, isError, error } = useSearchReports(query);
@@ -39,25 +36,25 @@ export default function ReportsCalendar({ onViewDetails }: Props) {
 
   const handleDatesSet = useCallback((arg: DatesSetArg) => {
     setRange({
-      start: formatDateForApi(arg.start),
-      end: formatDateForApi(arg.end),
+      startDate: formatDateForApi(arg.start),
+      endDate: formatDateForApi(arg.end),
     });
   }, []);
 
   const events = useMemo(
     () =>
-      reports.map((r) => ({
-        id: String(r.Id),
-        title: r.Code + " - " + r.Description + " - " + r.User.Name + " " + r.User.Surname1,
-        start: new Date(r.CreatedAt),
-        extendedProps: { report: r } as { report: Report },
+      reports.map((report) => ({
+        id: String(report.Id),
+        title: `${report.Code} - ${report.Description} - ${report.ReportedByDisplayName}`,
+        start: new Date(report.CreatedAt),
+        extendedProps: { report } as { report: ReportListItem },
       })),
     [reports]
   );
 
   const handleEventClick = useCallback(
     (info: EventClickArg) => {
-      const report = (info.event.extendedProps as { report: Report }).report;
+      const report = (info.event.extendedProps as { report: ReportListItem }).report;
       if (report) onViewDetails?.(report);
     },
     [onViewDetails]
@@ -85,7 +82,6 @@ export default function ReportsCalendar({ onViewDetails }: Props) {
           background: hsl(var(--muted)) !important;
           border-color: hsl(var(--border)) !important;
         }
-        /* Mobile: evita truncado en vista lista */
         .reports-calendar .fc-list-event-title,
         .reports-calendar .fc-list-event-dot {
           flex-shrink: 0;
@@ -120,7 +116,7 @@ export default function ReportsCalendar({ onViewDetails }: Props) {
       `}</style>
       {isLoading && (
         <div className="mb-2 text-center text-sm text-muted-foreground">
-          Cargando reportes…
+          Cargando reportes...
         </div>
       )}
       <FullCalendar

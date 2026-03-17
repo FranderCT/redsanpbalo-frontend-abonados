@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import type { Report } from "../../Models/Report";
+import type { ReportListItem } from "../../Models/Report";
 
 type Props = {
-  data: Report[];
+  data: ReportListItem[];
   page: number;  
   total?: number;      // 1-based
   pageCount: number;   // >= 1
