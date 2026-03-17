@@ -53,8 +53,8 @@ export interface UpdateReqAvailabilityWater {
 export interface ReqAvailWaterPaginationParams {
   page: number;
   limit: number;
-  UserName?: string;          // filtrar por solicitante
-  StateRequestId?: number;  // o por ID concreto del estado
+  q?: string;
+  StateRequestId?: number;
   State?: string; 
 }
 

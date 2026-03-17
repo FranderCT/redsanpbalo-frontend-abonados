@@ -51,7 +51,7 @@ export interface UpdateReqAssociated {
 export interface ReqAssociatedPaginationParams {
   page: number;
   limit: number;
-  UserName?: string;          
+  q?: string;
   StateRequestId?: number;  
   State?: string; 
 }
