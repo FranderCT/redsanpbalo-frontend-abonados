@@ -1,25 +1,36 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { PaginatedResponse } from "@/core/pagination/pagination";
 import { showApiErrorToast } from "@/core/api-error";
-import type { Report, ReportPaginationParams } from "../Models/Report";
+import { mapReportApiToListItem } from "../adapters/reportAdapters";
+import type {
+  PaginatedReportsResponse,
+  ReportPaginationParams,
+  UpdateReportPayload,
+} from "../Models/Report";
 import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport, getMonthlyCountsByLocation, exportReportsPdf } from "../Services/ReportSV";
 
 export const useGetAllReports = () => {
-    const {data: reports, error, isLoading} = useQuery({
+    const {data, error, isLoading} = useQuery({
         queryKey: ['reports'],
         queryFn: getAllReports
     })
+    const reports = data?.map(mapReportApiToListItem);
     return {reports, error, isLoading}
 }
 
 export const useSearchReports = (query: ReportPaginationParams) => {
-    const { data, isLoading, isError, error } = useQuery<PaginatedResponse<Report>, Error>({
+    const { data, isLoading, isError, error } = useQuery<PaginatedReportsResponse, Error>({
         queryKey: ["reports", "search", query],
         queryFn: () => searchReports(query),
         placeholderData: keepPreviousData,
         staleTime: 30_000,
     });
-    return { data, isLoading, isError, error };
+    const normalizedData = data
+      ? {
+          ...data,
+          data: data.data.map(mapReportApiToListItem),
+        }
+      : undefined;
+    return { data: normalizedData, isLoading, isError, error };
 };
 
 export const useCreateReportByAdmin = () => {
@@ -73,7 +84,7 @@ export const useUpdateReport = () => {
     const queryClient = useQueryClient();
     
     return useMutation({
-        mutationFn: ({ reportId, payload }: { reportId: string; payload: any }) =>
+        mutationFn: ({ reportId, payload }: { reportId: string; payload: UpdateReportPayload }) =>
             updateReport(reportId, payload),
         onSuccess: () => {
             console.log("Reporte actualizado exitosamente");

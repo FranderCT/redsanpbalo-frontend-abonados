@@ -24,8 +24,9 @@ import {
 } from "@/Components/ui/sheet";
 
 import type { ReportState } from "../../Models/ReportState";
-import type { ReportType } from "../../Models/ReportType";
 import type { ReportLocation } from "../../Models/ReportLocation";
+import type { ReportStateValue } from "../../Models/Report";
+import type { ReportType } from "../../Models/ReportType";
 
 const PAGE_SIZES = [3, 6, 9, 12, 15] as const;
 
@@ -36,8 +37,8 @@ type Props = {
   sortDir?: "ASC" | "DESC";
   startDate?: string;
   endDate?: string;
-  stateId?: number;
-  locationId?: number;
+  state?: ReportStateValue;
+  reportLocationId?: number;
   reportTypeId?: number;
   reportStates: ReportState[];
   reportTypes: ReportType[];
@@ -49,7 +50,7 @@ type Props = {
   onSortDirChange?: (dir: "ASC" | "DESC") => void;
   onStartDateChange?: (value: string) => void;
   onEndDateChange?: (value: string) => void;
-  onStateChange: (id?: number) => void;
+  onStateChange: (state?: ReportStateValue) => void;
   onLocationChange: (id?: number) => void;
   onReportTypeChange: (id?: number) => void;
   onLimitChange: (n: number) => void;
@@ -64,8 +65,8 @@ function FilterSelects({
   endDate = "",
   onStartDateChange,
   onEndDateChange,
-  stateId,
-  locationId,
+  state,
+  reportLocationId,
   reportTypeId,
   reportStates,
   reportTypes,
@@ -76,7 +77,7 @@ function FilterSelects({
   onStateChange,
   onLocationChange,
   onReportTypeChange,
-}: Props & { onClose?: () => void }) {
+}: Props) {
   return (
     <div className="flex flex-col gap-4">
       {onSortDirChange && (
@@ -96,6 +97,7 @@ function FilterSelects({
           </Select>
         </div>
       )}
+
       {(onStartDateChange || onEndDateChange) && (
         <>
           <div className="space-y-2">
@@ -105,7 +107,7 @@ function FilterSelects({
               type="date"
               value={startDate}
               onChange={(e) => onStartDateChange?.(e.target.value)}
-              className="h-11 w-full  text-base"
+              className="h-11 w-full text-base"
             />
           </div>
           <div className="space-y-2">
@@ -115,28 +117,27 @@ function FilterSelects({
               type="date"
               value={endDate}
               onChange={(e) => onEndDateChange?.(e.target.value)}
-              className="h-11 w-full  text-base"
+              className="h-11 w-full text-base"
             />
           </div>
         </>
       )}
+
       <div className="space-y-2">
         <Label>Estados de reporte</Label>
         <Select
-          value={stateId != null ? String(stateId) : "all"}
-          onValueChange={(v) =>
-            onStateChange(v === "all" ? undefined : Number(v))
-          }
+          value={state ?? "all"}
+          onValueChange={(v) => onStateChange(v === "all" ? undefined : (v as ReportStateValue))}
           disabled={!!statesLoading}
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder={statesLoading ? "Cargando…" : "Todos"} />
+            <SelectValue placeholder={statesLoading ? "Cargando..." : "Todos"} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
-            {reportStates.map((s) => (
-              <SelectItem key={s.IdReportState} value={String(s.IdReportState)}>
-                {s.Name}
+            {reportStates.map((item) => (
+              <SelectItem key={item.IdReportState} value={item.Name}>
+                {item.Name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -147,19 +148,17 @@ function FilterSelects({
         <Label>Tipo de reporte</Label>
         <Select
           value={reportTypeId != null ? String(reportTypeId) : "all"}
-          onValueChange={(v) =>
-            onReportTypeChange(v === "all" ? undefined : Number(v))
-          }
+          onValueChange={(v) => onReportTypeChange(v === "all" ? undefined : Number(v))}
           disabled={!!typesLoading}
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder={typesLoading ? "Cargando…" : "Todos"} />
+            <SelectValue placeholder={typesLoading ? "Cargando..." : "Todos"} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos</SelectItem>
-            {reportTypes.map((t) => (
-              <SelectItem key={t.Id} value={String(t.Id)}>
-                {t.Name}
+            {reportTypes.map((item) => (
+              <SelectItem key={item.Id} value={String(item.Id)}>
+                {item.Name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -167,22 +166,20 @@ function FilterSelects({
       </div>
 
       <div className="space-y-2">
-        <Label>Ubicación del reporte</Label>
+        <Label>Ubicacion del reporte</Label>
         <Select
-          value={locationId != null ? String(locationId) : "all"}
-          onValueChange={(v) =>
-            onLocationChange(v === "all" ? undefined : Number(v))
-          }
+          value={reportLocationId != null ? String(reportLocationId) : "all"}
+          onValueChange={(v) => onLocationChange(v === "all" ? undefined : Number(v))}
           disabled={!!locationsLoading}
         >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder={locationsLoading ? "Cargando…" : "Todas"} />
+            <SelectValue placeholder={locationsLoading ? "Cargando..." : "Todas"} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todas</SelectItem>
-            {reportLocations.map((l) => (
-              <SelectItem key={l.Id} value={String(l.Id)}>
-                {l.Neighborhood}
+            {reportLocations.map((item) => (
+              <SelectItem key={item.Id} value={String(item.Id)}>
+                {item.Neighborhood}
               </SelectItem>
             ))}
           </SelectContent>
@@ -203,7 +200,7 @@ export default function ReportHeaderBar(props: Props) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             type="search"
-            placeholder="Buscar reportes…"
+            placeholder="Buscar reportes..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-9 w-full"
@@ -228,6 +225,7 @@ export default function ReportHeaderBar(props: Props) {
               </SelectContent>
             </Select>
           </div>
+
           <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="default">
@@ -243,24 +241,19 @@ export default function ReportHeaderBar(props: Props) {
                 <FilterSelects {...props} />
               </div>
               <SheetFooter className="flex flex-col gap-2 p-4">
-                <div className="w-full flex flex-col-reverse gap-2 ">
+                <div className="w-full flex flex-col-reverse gap-2">
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full "
+                    className="w-full"
                     onClick={() => {
                       onCleanFilters();
                       setFiltersOpen(false);
                     }}
                   >
-
                     Limpiar filtros
                   </Button>
-                  <Button
-                    type="button"
-                    className="w-full "
-                    onClick={() => setFiltersOpen(false)}
-                  >
+                  <Button type="button" className="w-full" onClick={() => setFiltersOpen(false)}>
                     Aplicar
                   </Button>
                 </div>

@@ -10,12 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/Components/ui/dialog";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/Components/ui/field";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/Components/ui/field";
 import { Textarea } from "@/Components/ui/textarea";
 import {
   Select,
@@ -25,18 +20,18 @@ import {
   SelectValue,
 } from "@/Components/ui/select";
 
-import { useUpdateReport } from "../../Hooks/ReportsHooks";
+import { useAssignUserInCharge, useUpdateReport } from "../../Hooks/ReportsHooks";
 import { useGetAllReportStates } from "../../Hooks/ReportStatesHooks";
 import { useGetAllReportTypes } from "../../Hooks/ReportTypesHooks";
 import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
 import { useGetUsersByRoleFontanero } from "../../../Users/Hooks/UsersHooks";
-import type { Report } from "../../Models/Report";
+import type { ReportListItem, ReportStateValue } from "../../Models/Report";
 import { updateReportValidators } from "../../schemas/ReportSchema";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Button } from "@/Components/ui/button";
 
 interface EditReportModalProps {
-  report: Report;
+  report: ReportListItem;
   open: boolean;
   onClose: () => void;
 }
@@ -47,45 +42,50 @@ export default function EditReportModal({
   onClose,
 }: EditReportModalProps) {
   const updateReportMutation = useUpdateReport();
+  const assignUserMutation = useAssignUserInCharge();
 
   const { reportStates = [], isLoading: statesLoading } = useGetAllReportStates();
   const { reportTypes = [], isLoading: typesLoading } = useGetAllReportTypes();
-  const { reportLocations = [], isLoading: locationsLoading } =
-    useGetAllReportLocations();
-  const { fontaneros = [], isPending: fontanerosLoading } =
-    useGetUsersByRoleFontanero();
+  const { reportLocations = [], isLoading: locationsLoading } = useGetAllReportLocations();
+  const { fontaneros = [], isPending: fontanerosLoading } = useGetUsersByRoleFontanero();
 
   const form = useForm({
     defaultValues: {
-      Location: report.Location || "",
+      ExactLocation: report.ExactLocation || "",
       Description: report.Description || "",
-      LocationId: report.ReportLocation?.Id || 0,
+      ReportLocationId: report.ReportLocation?.Id || 0,
       ReportTypeId: report.ReportType?.Id || 0,
-      ReportStateId: report.ReportState?.IdReportState || 0,
-      UserInChargeId: report.UserInCharge?.Id || 0,
-      AdditionalInfo: report.AdditionalInfo || "",
+      ReportState: report.ReportState,
+      PlumberUserId: report.AssignedPlumber?.Id || 0,
     },
     validators: {
       onChange: updateReportValidators,
       onSubmit: updateReportValidators,
     },
     onSubmit: async ({ value }) => {
-      const payload = {
-        Location: value.Location,
-        Description: value.Description,
-        LocationId: Number(value.LocationId) || undefined,
-        ReportTypeId: Number(value.ReportTypeId) || undefined,
-        ReportStateId: Number(value.ReportStateId) || undefined,
-        UserInChargeId: Number(value.UserInChargeId) || undefined,
-        AdditionalInfo: value.AdditionalInfo || undefined,
-      };
-
       try {
         await updateReportMutation.mutateAsync({
           reportId: report.Id.toString(),
-          payload,
+          payload: {
+            ExactLocation: value.ExactLocation,
+            Description: value.Description,
+            ReportLocationId: Number(value.ReportLocationId) || undefined,
+            ReportTypeId: Number(value.ReportTypeId) || undefined,
+            ReportState: value.ReportState as ReportStateValue,
+          },
         });
-        toast.success("¡Reporte actualizado exitosamente!");
+
+        if (
+          Number(value.PlumberUserId) > 0 &&
+          Number(value.PlumberUserId) !== (report.AssignedPlumber?.Id ?? 0)
+        ) {
+          await assignUserMutation.mutateAsync({
+            reportId: report.Id.toString(),
+            userInChargeId: Number(value.PlumberUserId),
+          });
+        }
+
+        toast.success("Reporte actualizado exitosamente");
         form.reset();
         onClose();
       } catch (error) {
@@ -97,24 +97,22 @@ export default function EditReportModal({
 
   useEffect(() => {
     if (open && report) {
-      form.setFieldValue("Location", report.Location || "");
+      form.setFieldValue("ExactLocation", report.ExactLocation || "");
       form.setFieldValue("Description", report.Description || "");
-      form.setFieldValue("LocationId", report.ReportLocation?.Id || 0);
+      form.setFieldValue("ReportLocationId", report.ReportLocation?.Id || 0);
       form.setFieldValue("ReportTypeId", report.ReportType?.Id || 0);
-      form.setFieldValue("ReportStateId", report.ReportState?.IdReportState || 0);
-      form.setFieldValue("UserInChargeId", report.UserInCharge?.Id || 0);
-      form.setFieldValue("AdditionalInfo", report.AdditionalInfo || "");
+      form.setFieldValue("ReportState", report.ReportState);
+      form.setFieldValue("PlumberUserId", report.AssignedPlumber?.Id || 0);
     }
-  }, [open, report]);
+  }, [form, open, report]);
 
-  const isLoading =
-    statesLoading || typesLoading || locationsLoading || fontanerosLoading;
+  const isLoading = statesLoading || typesLoading || locationsLoading || fontanerosLoading;
 
   const formatErrors = (errors: unknown[]) =>
-    errors?.map((e) =>
-      typeof e === "object" && e !== null && "message" in e
-        ? { message: (e as { message: string }).message }
-        : { message: String(e) }
+    errors?.map((error) =>
+      typeof error === "object" && error !== null && "message" in error
+        ? { message: (error as { message: string }).message }
+        : { message: String(error) }
     );
 
   const ReportField = form.Field;
@@ -122,8 +120,8 @@ export default function EditReportModal({
   return (
     <Dialog
       open={open}
-      onOpenChange={(v) => {
-        if (!v) {
+      onOpenChange={(value) => {
+        if (!value) {
           form.reset();
           onClose();
         }
@@ -133,15 +131,13 @@ export default function EditReportModal({
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Editar reporte #{report.Id}</DialogTitle>
           <DialogDescription>
-            Modifica la información del reporte según sea necesario.
+            Modifica la informacion del reporte segun sea necesario.
           </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (
           <div className="flex min-h-[200px] items-center justify-center px-6 py-10">
-            <p className="text-sm text-muted-foreground">
-              Cargando información...
-            </p>
+            <p className="text-sm text-muted-foreground">Cargando informacion...</p>
           </div>
         ) : (
           <form
@@ -155,13 +151,12 @@ export default function EditReportModal({
             <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
               <FieldGroup className="gap-4">
                 <ReportField
-                  name="Location"
+                  name="ExactLocation"
                   children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>Ubicación</FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Ubicacion</FieldLabel>
                         <Input
                           id={field.name}
                           name={field.name}
@@ -171,11 +166,7 @@ export default function EditReportModal({
                           aria-invalid={isInvalid}
                           placeholder="Ej: Calle principal, casa #123"
                         />
-                        {isInvalid && (
-                          <FieldError
-                            errors={formatErrors(field.state.meta.errors)}
-                          />
-                        )}
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
                       </Field>
                     );
                   }}
@@ -184,11 +175,10 @@ export default function EditReportModal({
                 <ReportField
                   name="Description"
                   children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>Descripción</FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Descripcion</FieldLabel>
                         <Textarea
                           id={field.name}
                           name={field.name}
@@ -200,54 +190,35 @@ export default function EditReportModal({
                           rows={3}
                           className="resize-none"
                         />
-                        {isInvalid && (
-                          <FieldError
-                            errors={formatErrors(field.state.meta.errors)}
-                          />
-                        )}
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
                       </Field>
                     );
                   }}
                 />
 
                 <ReportField
-                  name="LocationId"
+                  name="ReportLocationId"
                   children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
                         <FieldLabel htmlFor={field.name}>Barrio</FieldLabel>
                         <Select
-                          value={
-                            field.state.value === 0
-                              ? ""
-                              : String(field.state.value)
-                          }
-                          onValueChange={(v) => field.handleChange(Number(v))}
+                          value={field.state.value === 0 ? "" : String(field.state.value)}
+                          onValueChange={(value) => field.handleChange(Number(value))}
                         >
-                          <SelectTrigger
-                            id={field.name}
-                            aria-invalid={isInvalid}
-                          >
+                          <SelectTrigger id={field.name} aria-invalid={isInvalid}>
                             <SelectValue placeholder="Seleccionar barrio" />
                           </SelectTrigger>
                           <SelectContent>
-                            {reportLocations.map((loc) => (
-                              <SelectItem
-                                key={loc.Id}
-                                value={String(loc.Id)}
-                              >
-                                {loc.Neighborhood}
+                            {reportLocations.map((location) => (
+                              <SelectItem key={location.Id} value={String(location.Id)}>
+                                {location.Neighborhood}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        {isInvalid && (
-                          <FieldError
-                            errors={formatErrors(field.state.meta.errors)}
-                          />
-                        )}
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
                       </Field>
                     );
                   }}
@@ -256,165 +227,84 @@ export default function EditReportModal({
                 <ReportField
                   name="ReportTypeId"
                   children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>
-                          Tipo de reporte
-                        </FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Tipo de reporte</FieldLabel>
                         <Select
-                          value={
-                            field.state.value === 0
-                              ? ""
-                              : String(field.state.value)
-                          }
-                          onValueChange={(v) => field.handleChange(Number(v))}
+                          value={field.state.value === 0 ? "" : String(field.state.value)}
+                          onValueChange={(value) => field.handleChange(Number(value))}
                         >
-                          <SelectTrigger
-                            id={field.name}
-                            aria-invalid={isInvalid}
-                          >
+                          <SelectTrigger id={field.name} aria-invalid={isInvalid}>
                             <SelectValue placeholder="Seleccionar tipo" />
                           </SelectTrigger>
                           <SelectContent>
                             {reportTypes.map((type) => (
-                              <SelectItem
-                                key={type.Id}
-                                value={String(type.Id)}
-                              >
+                              <SelectItem key={type.Id} value={String(type.Id)}>
                                 {type.Name}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        {isInvalid && (
-                          <FieldError
-                            errors={formatErrors(field.state.meta.errors)}
-                          />
-                        )}
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
                       </Field>
                     );
                   }}
                 />
 
                 <ReportField
-                  name="ReportStateId"
+                  name="ReportState"
                   children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
                         <FieldLabel htmlFor={field.name}>Estado</FieldLabel>
                         <Select
-                          value={
-                            field.state.value === 0
-                              ? ""
-                              : String(field.state.value)
-                          }
-                          onValueChange={(v) => field.handleChange(Number(v))}
+                          value={field.state.value}
+                          onValueChange={(value) => field.handleChange(value as ReportStateValue)}
                         >
-                          <SelectTrigger
-                            id={field.name}
-                            aria-invalid={isInvalid}
-                          >
+                          <SelectTrigger id={field.name} aria-invalid={isInvalid}>
                             <SelectValue placeholder="Seleccionar estado" />
                           </SelectTrigger>
                           <SelectContent>
                             {reportStates.map((state) => (
-                              <SelectItem
-                                key={state.IdReportState}
-                                value={String(state.IdReportState)}
-                              >
+                              <SelectItem key={state.IdReportState} value={state.Name}>
                                 {state.Name}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        {isInvalid && (
-                          <FieldError
-                            errors={formatErrors(field.state.meta.errors)}
-                          />
-                        )}
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
                       </Field>
                     );
                   }}
                 />
 
                 <ReportField
-                  name="UserInChargeId"
+                  name="PlumberUserId"
                   children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>
-                          Fontanero encargado (opcional)
-                        </FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Fontanero encargado</FieldLabel>
                         <Select
                           value={String(field.state.value)}
-                          onValueChange={(v) => field.handleChange(Number(v))}
+                          onValueChange={(value) => field.handleChange(Number(value))}
                           disabled={fontanerosLoading}
                         >
-                          <SelectTrigger
-                            id={field.name}
-                            aria-invalid={isInvalid}
-                          >
-                            <SelectValue
-                              placeholder={
-                                fontanerosLoading
-                                  ? "Cargando..."
-                                  : "Sin asignar"
-                              }
-                            />
+                          <SelectTrigger id={field.name} aria-invalid={isInvalid}>
+                            <SelectValue placeholder={fontanerosLoading ? "Cargando..." : "Sin asignar"} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="0">Sin asignar</SelectItem>
-                            {fontaneros.map((f) => (
-                              <SelectItem key={f.Id} value={String(f.Id)}>
-                                {f.Name} {f.Surname1}
+                            {fontaneros.map((fontanero) => (
+                              <SelectItem key={fontanero.Id} value={String(fontanero.Id)}>
+                                {fontanero.Name} {fontanero.Surname1}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        {isInvalid && (
-                          <FieldError
-                            errors={formatErrors(field.state.meta.errors)}
-                          />
-                        )}
-                      </Field>
-                    );
-                  }}
-                />
-
-                <ReportField
-                  name="AdditionalInfo"
-                  children={(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>
-                          Información adicional
-                        </FieldLabel>
-                        <Textarea
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(e.target.value)
-                          }
-                          aria-invalid={isInvalid}
-                          placeholder="Información adicional sobre el reporte..."
-                          rows={2}
-                          className="resize-none"
-                        />
-                        {isInvalid && (
-                          <FieldError
-                            errors={formatErrors(field.state.meta.errors)}
-                          />
-                        )}
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
                       </Field>
                     );
                   }}
@@ -423,30 +313,23 @@ export default function EditReportModal({
 
               <div className="rounded-lg border bg-muted/40 px-4 py-3">
                 <p className="text-sm font-medium text-foreground">
-                  Reportado por: {report.User.Name} {report.User.Surname1}
+                  Reportado por: {report.ReportedByDisplayName}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {report.User.Email}
-                </p>
+                {report.ReportedBy?.Email ? (
+                  <p className="text-xs text-muted-foreground">{report.ReportedBy.Email}</p>
+                ) : null}
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Fecha de creación:{" "}
-                  {new Date(report.CreatedAt).toLocaleString()}
+                  Fecha de creacion: {new Date(report.CreatedAt).toLocaleString()}
                 </p>
               </div>
             </div>
 
             <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
-              <form.Subscribe
-                selector={(state) => [state.canSubmit, state.isSubmitting]}
-              >
+              <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
                 {([canSubmit, isSubmitting]) => (
                   <div className="flex w-full flex-col-reverse items-center justify-between sm:flex-row-reverse">
                     <DialogClose asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full sm:w-auto"
-                      >
+                      <Button type="button" variant="outline" className="w-full sm:w-auto">
                         Cancelar
                       </Button>
                     </DialogClose>
@@ -456,9 +339,7 @@ export default function EditReportModal({
                       disabled={!canSubmit || isSubmitting}
                       className="w-full sm:w-auto"
                     >
-                      {isSubmitting
-                        ? "Actualizando..."
-                        : "Actualizar reporte"}
+                      {isSubmitting ? "Actualizando..." : "Actualizar reporte"}
                     </Button>
                   </div>
                 )}

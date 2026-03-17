@@ -1,6 +1,11 @@
 import apiAxios from "../../../api/apiConfig";
-import type { PaginatedResponse } from "@/core/pagination/pagination";
-import type { CreateReportPayload, UpdateReportPayload, Report, ReportPaginationParams } from "../Models/Report";
+import type {
+  CreateReportPayload,
+  PaginatedReportsResponse,
+  ReportApi,
+  ReportPaginationParams,
+  UpdateReportPayload,
+} from "../Models/Report";
 
 const BASE_URL = '/reports';
 
@@ -12,9 +17,9 @@ function getErrorMessage(error: unknown): string {
   return "Error de conexión al servidor";
 }
 
-export async function getAllReports() : Promise<Report[]>{
+export async function getAllReports() : Promise<ReportApi[]>{
     try{
-        const {data} = await apiAxios.get<Report[]>(`${BASE_URL}`);
+        const {data} = await apiAxios.get<ReportApi[]>(`${BASE_URL}`);
         return data;
     }catch(error){
         console.error("Error fetching reports:", error);
@@ -24,19 +29,20 @@ export async function getAllReports() : Promise<Report[]>{
 
 export async function searchReports(
     query: ReportPaginationParams
-): Promise<PaginatedResponse<Report>> {
+): Promise<PaginatedReportsResponse> {
     try {
-        const { page = 1, limit = 10, q, stateId, locationId, reportTypeId, sortDir, startDate, endDate } = query ?? {};
+        const { page = 1, limit = 10, q, state, reportLocationId, reportTypeId, plumberUserId, sortDir, startDate, endDate } = query ?? {};
         const cleanParams: Record<string, number | string | undefined> = { page, limit };
         if (q?.trim()) cleanParams.q = q.trim();
-        if (stateId !== undefined && !isNaN(stateId)) cleanParams.stateId = stateId;
-        if (locationId !== undefined && !isNaN(locationId)) cleanParams.locationId = locationId;
+        if (state) cleanParams.state = state;
+        if (reportLocationId !== undefined && !isNaN(reportLocationId)) cleanParams.reportLocationId = reportLocationId;
         if (reportTypeId !== undefined && !isNaN(reportTypeId)) cleanParams.reportTypeId = reportTypeId;
+        if (plumberUserId !== undefined && !isNaN(plumberUserId)) cleanParams.plumberUserId = plumberUserId;
         if (sortDir === "ASC" || sortDir === "DESC") cleanParams.sortDir = sortDir;
         if (startDate?.trim()) cleanParams.startDate = startDate.trim();
         if (endDate?.trim()) cleanParams.endDate = endDate.trim();
 
-        const { data } = await apiAxios.get<PaginatedResponse<Report>>(`${BASE_URL}/search`, {
+        const { data } = await apiAxios.get<PaginatedReportsResponse>(`${BASE_URL}/search`, {
             params: cleanParams,
         });
         return data;
@@ -47,9 +53,9 @@ export async function searchReports(
 
 
 
-export async function createReportByAdmin(payload: CreateReportPayload): Promise<Report> {
+export async function createReportByAdmin(payload: CreateReportPayload): Promise<ReportApi> {
     try {
-        const { data } = await apiAxios.post<Report>(`${BASE_URL}/admin`, payload);
+        const { data } = await apiAxios.post<ReportApi>(`${BASE_URL}/admin`, payload);
         return data;
     } catch (error) {
         console.error("Error creating report:", error);
@@ -58,9 +64,9 @@ export async function createReportByAdmin(payload: CreateReportPayload): Promise
 }
 
 
-export async function createReportByUser(payload: CreateReportPayload): Promise<Report> {
+export async function createReportByUser(payload: CreateReportPayload): Promise<ReportApi> {
     try {
-        const { data } = await apiAxios.post<Report>(`${BASE_URL}`, payload);
+        const { data } = await apiAxios.post<ReportApi>(`${BASE_URL}`, payload);
         return data;
     } catch (error) {
         console.error("Error creating report:", error);
@@ -68,9 +74,9 @@ export async function createReportByUser(payload: CreateReportPayload): Promise<
     }       
 }
 
-export async function assignUserInCharge(reportId: string, userInChargeId: number): Promise<Report> {
+export async function assignUserInCharge(reportId: string, userInChargeId: number): Promise<ReportApi> {
     try {
-        const { data } = await apiAxios.patch<Report>(`${BASE_URL}/${reportId}/assign-user-in-charge`, {
+        const { data } = await apiAxios.patch<ReportApi>(`${BASE_URL}/${reportId}/assign-user-in-charge`, {
             userInChargeId
         });
         return data;
@@ -80,9 +86,9 @@ export async function assignUserInCharge(reportId: string, userInChargeId: numbe
     }
 }
 
-export async function updateReport(reportId: string, payload: UpdateReportPayload): Promise<Report> {
+export async function updateReport(reportId: string, payload: UpdateReportPayload): Promise<ReportApi> {
     try {
-        const { data } = await apiAxios.patch<Report>(`${BASE_URL}/${reportId}`, payload);
+        const { data } = await apiAxios.patch<ReportApi>(`${BASE_URL}/${reportId}`, payload);
         return data;
     } catch (error) {
         console.error("Error updating report:", error);

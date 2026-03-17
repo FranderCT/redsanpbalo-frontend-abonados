@@ -10,11 +10,11 @@ import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Separator } from "@/Components/ui/separator";
-import type { Report } from "../../Models/Report";
+import type { ReportListItem } from "../../Models/Report";
 import { Calendar, FileText, MapPin, MessageSquare, User, Wrench } from "lucide-react";
 
 type Props = {
-  report: Report;
+  report: ReportListItem;
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
@@ -31,12 +31,12 @@ function formatDate(d: Date | string) {
 }
 
 function getStatusVariant(
-  name?: string
+  state?: string
 ): "default" | "secondary" | "destructive" | "outline" {
-  const n = (name ?? "").toLowerCase();
-  if (n.includes("resuelto") || n.includes("completado")) return "default";
-  if (n.includes("curso") || n.includes("proceso")) return "secondary";
-  if (n.includes("pendiente") || n.includes("espera")) return "outline";
+  const value = (state ?? "").toLowerCase();
+  if (value.includes("resuelto")) return "default";
+  if (value.includes("proceso")) return "secondary";
+  if (value.includes("pendiente")) return "outline";
   return "secondary";
 }
 
@@ -52,13 +52,13 @@ export default function GetInfoReportModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && close()}>
+    <Dialog open={open} onOpenChange={(value) => !value && close()}>
       <DialogContent className="max-h-[70vh] w-full max-w-md gap-0 overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="space-y-2 px-6 pt-6">
           <div className="flex items-center justify-between gap-2">
             <DialogTitle className="text-xl">Reporte {report.Code}</DialogTitle>
-            <Badge variant={getStatusVariant(report.ReportState?.Name)}>
-              {report.ReportState?.Name ?? "—"}
+            <Badge variant={getStatusVariant(report.ReportState)}>
+              {report.ReportState ?? "—"}
             </Badge>
           </div>
           <DialogDescription className="flex items-center gap-2 text-sm">
@@ -88,10 +88,10 @@ export default function GetInfoReportModal({
               <div>
                 <CardDescription className="mb-1.5 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider">
                   <MapPin className="size-3.5" />
-                  Dirección exacta
+                  Direccion exacta
                 </CardDescription>
                 <p className="text-base font-medium leading-snug text-foreground">
-                  {report.Location}
+                  {report.ExactLocation}
                 </p>
                 {report.ReportLocation?.Neighborhood && (
                   <p className="mt-1.5 text-sm text-muted-foreground">
@@ -104,7 +104,7 @@ export default function GetInfoReportModal({
               <div>
                 <CardDescription className="mb-1 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider">
                   <MessageSquare className="size-3.5" />
-                  Descripción
+                  Descripcion
                 </CardDescription>
                 <p className="text-sm leading-relaxed text-foreground">
                   {report.Description}
@@ -113,7 +113,7 @@ export default function GetInfoReportModal({
             </CardContent>
           </Card>
 
-          {report.User && (
+          {report.ReportedBy && (
             <Card className="border">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
@@ -123,24 +123,23 @@ export default function GetInfoReportModal({
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="font-medium text-foreground">
-                  {report.User.Name} {report.User.Surname1}
-                  {report.User.Surname2 ? ` ${report.User.Surname2}` : ""}
+                  {report.ReportedByDisplayName}
                 </p>
-                {report.User.Email && (
+                {report.ReportedBy.Email && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {report.User.Email}
+                    {report.ReportedBy.Email}
                   </p>
                 )}
-                {report.User.PhoneNumber && (
+                {report.ReportedBy.PhoneNumber && (
                   <p className="text-sm text-muted-foreground">
-                    {report.User.PhoneNumber}
+                    {report.ReportedBy.PhoneNumber}
                   </p>
                 )}
               </CardContent>
             </Card>
           )}
 
-          {report.UserInCharge && (
+          {report.AssignedPlumber && (
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2 text-base">
@@ -150,28 +149,13 @@ export default function GetInfoReportModal({
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="font-medium text-foreground">
-                  {report.UserInCharge.Name} {report.UserInCharge.Surname1}
+                  {report.AssignedPlumber.FullName ?? report.AssignedPlumber.Name}
                 </p>
-                {report.UserInCharge.Email && (
+                {report.AssignedPlumber.Email && (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {report.UserInCharge.Email}
+                    {report.AssignedPlumber.Email}
                   </p>
                 )}
-              </CardContent>
-            </Card>
-          )}
-
-          {report.AdditionalInfo && (
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">
-                  Información adicional
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">
-                  {report.AdditionalInfo}
-                </p>
               </CardContent>
             </Card>
           )}

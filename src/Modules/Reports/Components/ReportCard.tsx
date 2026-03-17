@@ -1,15 +1,14 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
-
 import { MapPin, Calendar, Wrench, UserCircle } from "lucide-react";
-import type { Report } from "../Models/Report";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import type { ReportListItem } from "../Models/Report";
+import { Separator } from "@/Components/ui/separator";
+import { Button } from "@/Components/ui/button";
 
 type Props = {
-  report: Report;
-  onViewDetails?: (report: Report) => void;
-  onEditReport?: (report: Report) => void;
+  report: ReportListItem;
+  onViewDetails?: (report: ReportListItem) => void;
+  onEditReport?: (report: ReportListItem) => void;
 };
 
 function formatDate(d: Date | string) {
@@ -21,12 +20,12 @@ function formatDate(d: Date | string) {
 }
 
 function getStatusVariant(
-  name?: string
+  state?: string
 ): "default" | "secondary" | "destructive" | "outline" {
-  const n = (name ?? "").toLowerCase();
-  if (n.includes("resuelto") || n.includes("completado")) return "default";
-  if (n.includes("curso") || n.includes("proceso")) return "secondary";
-  if (n.includes("pendiente") || n.includes("espera")) return "outline";
+  const value = (state ?? "").toLowerCase();
+  if (value.includes("resuelto")) return "default";
+  if (value.includes("proceso")) return "secondary";
+  if (value.includes("pendiente")) return "outline";
   return "secondary";
 }
 
@@ -35,22 +34,26 @@ export default function ReportCard({ report, onViewDetails, onEditReport }: Prop
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
       <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-3">
         <div>
-          <CardTitle className="text-xl">Código de reporte <br /> <span className="text-primary text-lg font-normal">{report.Code}</span></CardTitle>
+          <CardTitle className="text-xl">
+            Codigo de reporte
+            <br />
+            <span className="text-primary text-lg font-normal">{report.Code}</span>
+          </CardTitle>
           <CardDescription className="flex items-center gap-1.5">
             <Calendar className="size-3.5" />
             {formatDate(report.CreatedAt)}
           </CardDescription>
         </div>
-        <Badge variant={getStatusVariant(report.ReportState?.Name)}>
-          {report.ReportState?.Name ?? "—"}
+        <Badge variant={getStatusVariant(report.ReportState)}>
+          {report.ReportState ?? "—"}
         </Badge>
       </CardHeader>
       <CardContent className="space-y-4 pt-0">
         <Separator />
-        
+
         <div>
           <CardDescription className="mb-1 text-xs font-medium uppercase tracking-wider">
-            Descripción
+            Descripcion
           </CardDescription>
           <p className="line-clamp-2 text-sm leading-relaxed text-foreground">
             {report.Description}
@@ -62,9 +65,9 @@ export default function ReportCard({ report, onViewDetails, onEditReport }: Prop
         <div>
           <CardDescription className="mb-1 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider">
             <MapPin className="size-3.5" />
-            Dirección exacta
+            Direccion exacta
           </CardDescription>
-          <p className="text-sm font-medium text-foreground">{report.Location}</p>
+          <p className="text-sm font-medium text-foreground">{report.ExactLocation}</p>
           {report.ReportLocation?.Neighborhood && (
             <p className="mt-0.5 text-xs text-muted-foreground">
               Barrio: {report.ReportLocation.Neighborhood}
@@ -80,74 +83,64 @@ export default function ReportCard({ report, onViewDetails, onEditReport }: Prop
           )}
         </div>
 
-        <>
-          <Separator />
-          <div className="flex items-center gap-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-              <UserCircle className="size-4 text-muted-foreground" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <CardDescription className="text-xs font-medium uppercase tracking-wider">
-                Reportado por
-              </CardDescription>
-              {report.User ? (
-                <>
-                  <p className="truncate text-sm font-medium text-foreground">
-                    {report.User.Name} {report.User.Surname1}
-                  </p>
-                  {report.User.Email && (
-                    <p className="truncate text-xs text-muted-foreground">
-                      {report.User.Email}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="text-sm font-medium italic text-muted-foreground">
-                  —
-                </p>
-              )}
-            </div>
+        <Separator />
+        <div className="flex items-center gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+            <UserCircle className="size-4 text-muted-foreground" />
           </div>
-        </>
+          <div className="min-w-0 flex-1">
+            <CardDescription className="text-xs font-medium uppercase tracking-wider">
+              Reportado por
+            </CardDescription>
+            {report.ReportedBy ? (
+              <>
+                <p className="truncate text-sm font-medium text-foreground">
+                  {report.ReportedByDisplayName}
+                </p>
+                {report.ReportedBy.Email && (
+                  <p className="truncate text-xs text-muted-foreground">
+                    {report.ReportedBy.Email}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-sm font-medium italic text-muted-foreground">—</p>
+            )}
+          </div>
+        </div>
 
-        <>
-          <Separator />
-          <div className="flex items-center gap-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-              <Wrench className="size-4 text-primary" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <CardDescription className="text-xs font-medium uppercase tracking-wider">
-                Encargado
-              </CardDescription>
-              {report.UserInCharge ? (
-                <>
-                  <p className="truncate text-sm font-medium text-foreground">
-                    {report.UserInCharge.Name} {report.UserInCharge.Surname1}
-                  </p>
-                  {report.UserInCharge.Email && (
-                    <p className="truncate text-xs text-muted-foreground">
-                      {report.UserInCharge.Email}
-                    </p>
-                  )}
-                </>
-              ) : (
-                <p className="text-sm font-medium italic text-amber-600 dark:text-amber-500">
-                  Asigne un encargado
-                </p>
-              )}
-            </div>
+        <Separator />
+        <div className="flex items-center gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+            <Wrench className="size-4 text-primary" />
           </div>
-        </>
+          <div className="min-w-0 flex-1">
+            <CardDescription className="text-xs font-medium uppercase tracking-wider">
+              Encargado
+            </CardDescription>
+            {report.AssignedPlumber ? (
+              <>
+                <p className="truncate text-sm font-medium text-foreground">
+                  {report.AssignedPlumber.FullName ?? report.AssignedPlumber.Name}
+                </p>
+                {report.AssignedPlumber.Email && (
+                  <p className="truncate text-xs text-muted-foreground">
+                    {report.AssignedPlumber.Email}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-sm font-medium italic text-amber-600 dark:text-amber-500">
+                Asigne un encargado
+              </p>
+            )}
+          </div>
+        </div>
       </CardContent>
 
       <CardFooter className="flex gap-2 border-t pt-4">
         {onEditReport && (
-          <Button 
-            size="sm"
-            className="flex-1"
-            onClick={() => onEditReport(report)}
-          >
+          <Button size="sm" className="flex-1" onClick={() => onEditReport(report)}>
             Gestionar
           </Button>
         )}

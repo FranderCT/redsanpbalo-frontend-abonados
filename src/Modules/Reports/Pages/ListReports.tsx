@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
-import type { ReportPaginationParams } from "../Models/Report";
-import type { Report } from "../Models/Report";
+import type {
+  ReportListItem,
+  ReportPaginationParams,
+  ReportStateValue,
+} from "../Models/Report";
 import { useSearchReports } from "../Hooks/ReportsHooks";
 import { useGetAllReportStates } from "../Hooks/ReportStatesHooks";
 import { useGetAllReportTypes } from "../Hooks/ReportTypesHooks";
@@ -21,17 +24,17 @@ const ListReports = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(3);
   const [search, setSearch] = useState("");
-  const [stateId, setStateId] = useState<number | undefined>(undefined);
-  const [locationId, setLocationId] = useState<number | undefined>(undefined);
+  const [state, setState] = useState<ReportStateValue | undefined>(undefined);
+  const [reportLocationId, setReportLocationId] = useState<number | undefined>(undefined);
   const [reportTypeId, setReportTypeId] = useState<number | undefined>(undefined);
   const [sortDir, setSortDir] = useState<"ASC" | "DESC">("DESC");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
   const [viewMode, setViewMode] = useState<"list" | "calendar" | "locations">("list");
-  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  const [selectedReport, setSelectedReport] = useState<ReportListItem | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [selectedEditReport, setSelectedEditReport] = useState<Report | null>(null);
+  const [selectedEditReport, setSelectedEditReport] = useState<ReportListItem | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleSearch = (txt: string) => {
@@ -39,8 +42,8 @@ const ListReports = () => {
     setPage(1);
   };
 
-  const handleStateChange = (id: number | undefined) => {
-    setStateId(id);
+  const handleStateChange = (value: ReportStateValue | undefined) => {
+    setState(value);
     setPage(1);
   };
 
@@ -50,7 +53,7 @@ const ListReports = () => {
   };
 
   const handleLocationChange = (id: number | undefined) => {
-    setLocationId(id);
+    setReportLocationId(id);
     setPage(1);
   };
 
@@ -71,8 +74,8 @@ const ListReports = () => {
 
   const handleResetFilters = () => {
     setSearch("");
-    setStateId(undefined);
-    setLocationId(undefined);
+    setState(undefined);
+    setReportLocationId(undefined);
     setReportTypeId(undefined);
     setSortDir("DESC");
     setStartDate("");
@@ -80,7 +83,7 @@ const ListReports = () => {
     setPage(1);
   };
 
-  const handleViewDetails = (report: Report) => {
+  const handleViewDetails = (report: ReportListItem) => {
     setSelectedReport(report);
     setIsDetailModalOpen(true);
   };
@@ -90,7 +93,7 @@ const ListReports = () => {
     setSelectedReport(null);
   };
 
-  const handleEditReport = (report: Report) => {
+  const handleEditReport = (report: ReportListItem) => {
     setSelectedEditReport(report);
     setIsEditModalOpen(true);
   };
@@ -105,14 +108,14 @@ const ListReports = () => {
       page,
       limit,
       q: search.trim() || undefined,
-      stateId,
-      locationId,
+      state,
+      reportLocationId,
       reportTypeId,
       sortDir,
       startDate: startDate.trim() || undefined,
       endDate: endDate.trim() || undefined,
     }),
-    [page, limit, search, stateId, locationId, reportTypeId, sortDir, startDate, endDate]
+    [page, limit, search, state, reportLocationId, reportTypeId, sortDir, startDate, endDate]
   );
 
   const { reportStates, isLoading: statesLoading } = useGetAllReportStates();
@@ -184,45 +187,45 @@ const ListReports = () => {
       </header>
 
       {viewMode === "list" && (
-      <div className="space-y-4 flex-shrink-0">
-        <ReportHeaderBar
-          limit={limit}
-          totalItems={meta.totalItems}
-          search={search}
-          sortDir={sortDir}
-          startDate={startDate}
-          endDate={endDate}
-          stateId={stateId}
-          locationId={locationId}
-          reportTypeId={reportTypeId}
-          reportStates={reportStates ?? []}
-          reportTypes={reportTypes ?? []}
-          reportLocations={reportLocations ?? []}
-          statesLoading={statesLoading}
-          typesLoading={typesLoading}
-          locationsLoading={locationsLoading}
-          onSearchChange={handleSearch}
-          onSortDirChange={handleSortDirChange}
-          onStartDateChange={handleStartDateChange}
-          onEndDateChange={handleEndDateChange}
-          onStateChange={handleStateChange}
-          onLocationChange={handleLocationChange}
-          onReportTypeChange={handleTypeChange}
-          onLimitChange={setLimit}
-          onCleanFilters={handleResetFilters}
-          rightAction={null}
-        />
-      </div>
+        <div className="space-y-4 flex-shrink-0">
+          <ReportHeaderBar
+            limit={limit}
+            totalItems={meta.totalItems}
+            search={search}
+            sortDir={sortDir}
+            startDate={startDate}
+            endDate={endDate}
+            state={state}
+            reportLocationId={reportLocationId}
+            reportTypeId={reportTypeId}
+            reportStates={reportStates ?? []}
+            reportTypes={reportTypes ?? []}
+            reportLocations={reportLocations ?? []}
+            statesLoading={statesLoading}
+            typesLoading={typesLoading}
+            locationsLoading={locationsLoading}
+            onSearchChange={handleSearch}
+            onSortDirChange={handleSortDirChange}
+            onStartDateChange={handleStartDateChange}
+            onEndDateChange={handleEndDateChange}
+            onStateChange={handleStateChange}
+            onLocationChange={handleLocationChange}
+            onReportTypeChange={handleTypeChange}
+            onLimitChange={setLimit}
+            onCleanFilters={handleResetFilters}
+            rightAction={null}
+          />
+        </div>
       )}
 
-      <div className="">
+      <div>
         {viewMode === "locations" ? (
           <ListReportLocationsView />
         ) : viewMode === "calendar" ? (
           <ReportsCalendar onViewDetails={handleViewDetails} />
         ) : isLoading ? (
           <div className="p-6 sm:p-8 text-center text-muted-foreground">
-            Cargando reportes…
+            Cargando reportes...
           </div>
         ) : isError ? (
           <div className="p-6 sm:p-8 text-center text-destructive">
@@ -252,8 +255,6 @@ const ListReports = () => {
         </div>
       )}
 
-
-      {/* Modal de detalles */}
       {selectedReport && (
         <GetInfoReportModal
           report={selectedReport}
@@ -262,7 +263,6 @@ const ListReports = () => {
         />
       )}
 
-      {/* Modal de edición */}
       {selectedEditReport && (
         <EditReportModal
           report={selectedEditReport}
@@ -270,8 +270,6 @@ const ListReports = () => {
           onClose={handleCloseEditModal}
         />
       )}
-
-
     </section>
   );
 };
