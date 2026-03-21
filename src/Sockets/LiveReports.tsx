@@ -8,7 +8,10 @@ import {
   withAssignedPlumber,
 } from "../Modules/Reports/adapters/reportAdapters";
 import { useGetUsersByRoleFontanero } from "../Modules/Users/Hooks/UsersHooks";
-import type { ReportListItem, ReportLiveEvent } from "../Modules/Reports/Models/Report";
+import type {
+  ReportListItem,
+  ReportLiveEvent,
+} from "../Modules/Reports/Models/Report";
 
 export default function LiveReports() {
   const [, setReports] = useState<ReportListItem[]>(() => {
@@ -22,7 +25,8 @@ export default function LiveReports() {
   const [isAssigning, setIsAssigning] = useState(false);
 
   const assignUserMutation = useAssignUserInCharge();
-  const { fontaneros = [], isPending: fontanerosLoading } = useGetUsersByRoleFontanero();
+  const { fontaneros = [], isPending: fontanerosLoading } =
+    useGetUsersByRoleFontanero();
 
   const handleAssignFontanero = async () => {
     if (!newReport || !selectedFontanero) {
@@ -34,9 +38,11 @@ export default function LiveReports() {
     try {
       await assignUserMutation.mutateAsync({
         reportId: newReport.Id.toString(),
-        userInChargeId: selectedFontanero,
+        plumberUserId: selectedFontanero,
+        instructions: "Asignado desde la alerta de reportes en tiempo real",
       });
-      const assignedFontanero = fontaneros.find((item) => item.Id === selectedFontanero) ?? null;
+      const assignedFontanero =
+        fontaneros.find((item) => item.Id === selectedFontanero) ?? null;
       setNewReport(withAssignedPlumber(newReport, assignedFontanero));
       toast.success("Fontanero asignado exitosamente");
       setSelectedFontanero(0);
@@ -103,7 +109,8 @@ export default function LiveReports() {
                 {newReport.ReportLocation?.Neighborhood && (
                   <div className="mb-3">
                     <span className="inline-flex items-center text-xs font-medium px-2 py-1 border border-red-300 bg-white text-red-700">
-                      BARRIO DEL REPORTE: {newReport.ReportLocation.Neighborhood}
+                      BARRIO DEL REPORTE:{" "}
+                      {newReport.ReportLocation.Neighborhood}
                     </span>
                   </div>
                 )}
@@ -126,36 +133,52 @@ export default function LiveReports() {
 
                 <div className="space-y-3">
                   <div>
-                    <span className="text-xs text-red-600 font-medium">UBICACION</span>
+                    <span className="text-xs text-red-600 font-medium">
+                      UBICACION
+                    </span>
                     <p className="text-sm text-red-800 font-medium">
                       {newReport.DisplayLocation}
                     </p>
                   </div>
 
                   <div>
-                    <span className="text-xs text-red-600 font-medium">DESCRIPCION</span>
-                    <p className="text-sm text-red-800">{newReport.Description}</p>
+                    <span className="text-xs text-red-600 font-medium">
+                      DESCRIPCION
+                    </span>
+                    <p className="text-sm text-red-800">
+                      {newReport.Description}
+                    </p>
                   </div>
                 </div>
               </div>
 
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">Reportado por</h4>
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                  Reportado por
+                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <span className="text-xs text-gray-500">Nombre completo</span>
-                    <p className="text-sm font-medium text-gray-800">{newReport.ReportedByDisplayName}</p>
+                    <span className="text-xs text-gray-500">
+                      Nombre completo
+                    </span>
+                    <p className="text-sm font-medium text-gray-800">
+                      {newReport.ReportedByDisplayName}
+                    </p>
                   </div>
                   <div>
                     <span className="text-xs text-gray-500">Email</span>
-                    <p className="text-sm font-medium text-gray-800">{newReport.ReportedBy?.Email}</p>
+                    <p className="text-sm font-medium text-gray-800">
+                      {newReport.ReportedBy?.Email}
+                    </p>
                   </div>
                 </div>
               </div>
 
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <h4 className="text-sm font-semibold text-blue-700 mb-3">
-                  {newReport.AssignedPlumber ? "Reasignar Fontanero" : "Asignar Fontanero"}
+                  {newReport.AssignedPlumber
+                    ? "Reasignar Fontanero"
+                    : "Asignar Fontanero"}
                 </h4>
                 <div className="flex gap-3 items-end">
                   <div className="flex-1">
@@ -164,24 +187,33 @@ export default function LiveReports() {
                     </label>
                     <select
                       value={selectedFontanero}
-                      onChange={(e) => setSelectedFontanero(Number(e.target.value))}
+                      onChange={(e) =>
+                        setSelectedFontanero(Number(e.target.value))
+                      }
                       className="w-full px-3 py-2 border border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       disabled={fontanerosLoading || isAssigning}
                     >
                       <option value={0}>
-                        {fontanerosLoading ? "Cargando fontaneros..." : "Seleccionar fontanero"}
+                        {fontanerosLoading
+                          ? "Cargando fontaneros..."
+                          : "Seleccionar fontanero"}
                       </option>
                       {fontaneros.map((fontanero) => (
                         <option key={fontanero.Id} value={fontanero.Id}>
                           {fontanero.Name} {fontanero.Surname1}
-                          {newReport.AssignedPlumber?.Id === fontanero.Id && " (Actual)"}
+                          {newReport.AssignedPlumber?.Id === fontanero.Id &&
+                            " (Actual)"}
                         </option>
                       ))}
                     </select>
                   </div>
                   <button
                     onClick={handleAssignFontanero}
-                    disabled={selectedFontanero === 0 || isAssigning || fontanerosLoading}
+                    disabled={
+                      selectedFontanero === 0 ||
+                      isAssigning ||
+                      fontanerosLoading
+                    }
                     className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                   >
                     {isAssigning ? "Asignando..." : "Asignar"}

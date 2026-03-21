@@ -1,107 +1,163 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { showApiErrorToast } from "@/core/api-error";
 import { mapReportApiToListItem } from "../adapters/reportAdapters";
 import type {
   PaginatedReportsResponse,
   ReportPaginationParams,
+  ReportStateValue,
   UpdateReportPayload,
 } from "../Models/Report";
-import { getAllReports, searchReports, createReportByAdmin, createReportByUser, assignUserInCharge, updateReport, getMonthlyCountsByLocation, exportReportsPdf } from "../Services/ReportSV";
+import {
+  getAllReports,
+  searchReports,
+  createReportByAdmin,
+  createReportByUser,
+  assignUserInCharge,
+  updateReport,
+  getMonthlyCountsByLocation,
+  exportReportsPdf,
+  changeReportState,
+} from "../Services/ReportSV";
 
 export const useGetAllReports = () => {
-    const {data, error, isLoading} = useQuery({
-        queryKey: ['reports'],
-        queryFn: getAllReports
-    })
-    const reports = data?.map(mapReportApiToListItem);
-    return {reports, error, isLoading}
-}
+  const { data, error, isLoading } = useQuery({
+    queryKey: ["reports"],
+    queryFn: getAllReports,
+  });
+  const reports = data?.map(mapReportApiToListItem);
+  return { reports, error, isLoading };
+};
 
 export const useSearchReports = (query: ReportPaginationParams) => {
-    const { data, isLoading, isError, error } = useQuery<PaginatedReportsResponse, Error>({
-        queryKey: ["reports", "search", query],
-        queryFn: () => searchReports(query),
-        placeholderData: keepPreviousData,
-        staleTime: 30_000,
-    });
-    const normalizedData = data
-      ? {
-          ...data,
-          data: data.data.map(mapReportApiToListItem),
-        }
-      : undefined;
-    return { data: normalizedData, isLoading, isError, error };
+  const { data, isLoading, isError, error } = useQuery<
+    PaginatedReportsResponse,
+    Error
+  >({
+    queryKey: ["reports", "search", query],
+    queryFn: () => searchReports(query),
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
+  });
+  const normalizedData = data
+    ? {
+        ...data,
+        data: data.data.map(mapReportApiToListItem),
+      }
+    : undefined;
+  return { data: normalizedData, isLoading, isError, error };
 };
 
 export const useCreateReportByAdmin = () => {
-    const queryClient = useQueryClient();
-    
-    return useMutation({
-        mutationFn: createReportByAdmin,
-        onSuccess: () => {
-            console.log("Reporte creado exitosamente");
-            // Invalidar las queries para refrescar la lista
-            queryClient.invalidateQueries({ queryKey: ["reports"] });
-        },
-        onError: (error) => {
-            showApiErrorToast(error);
-        }
-    });
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createReportByAdmin,
+    onSuccess: () => {
+      console.log("Reporte creado exitosamente");
+      // Invalidar las queries para refrescar la lista
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+    },
+    onError: (error) => {
+      showApiErrorToast(error);
+    },
+  });
 };
 
 export const useCreateReportByUser = () => {
-    const queryClient = useQueryClient();
-    
-    return useMutation({
-        mutationFn: createReportByUser,
-        onSuccess: () => {
-            console.log("Reporte creado exitosamente por usuario");
-            queryClient.invalidateQueries({ queryKey: ["reports"] });
-        },
-        onError: (error) => {
-            console.error("Error al crear el reporte:", error);
-        }
-    });
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createReportByUser,
+    onSuccess: () => {
+      console.log("Reporte creado exitosamente por usuario");
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+    },
+    onError: (error) => {
+      console.error("Error al crear el reporte:", error);
+    },
+  });
 };
 
 export const useAssignUserInCharge = () => {
-    const queryClient = useQueryClient();
-    
-    return useMutation({
-        mutationFn: ({ reportId, userInChargeId }: { reportId: string; userInChargeId: number }) =>
-            assignUserInCharge(reportId, userInChargeId),
-        onSuccess: () => {
-            console.log("Usuario asignado exitosamente");
-            queryClient.invalidateQueries({ queryKey: ["reports"] });
-        },
-        onError: (error) => {
-            console.error("Error al asignar usuario:", error);
-        }
-    });
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      reportId,
+      plumberUserId,
+      instructions,
+    }: {
+      reportId: string;
+      plumberUserId: number;
+      instructions?: string;
+    }) => assignUserInCharge(reportId, plumberUserId, instructions),
+    onSuccess: () => {
+      console.log("Usuario asignado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+    },
+    onError: (error) => {
+      console.error("Error al asignar usuario:", error);
+    },
+  });
+};
+
+export const useChangeReportState = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      reportId,
+      newState,
+      reasonChange,
+    }: {
+      reportId: string;
+      newState: ReportStateValue;
+      reasonChange?: string;
+    }) => changeReportState(reportId, newState, reasonChange),
+    onSuccess: () => {
+      console.log("Estado del reporte actualizado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+    },
+    onError: (error) => {
+      console.error("Error al cambiar el estado del reporte:", error);
+    },
+  });
 };
 
 export const useUpdateReport = () => {
-    const queryClient = useQueryClient();
-    
-    return useMutation({
-        mutationFn: ({ reportId, payload }: { reportId: string; payload: UpdateReportPayload }) =>
-            updateReport(reportId, payload),
-        onSuccess: () => {
-            console.log("Reporte actualizado exitosamente");
-            queryClient.invalidateQueries({ queryKey: ["reports"] });
-        },
-        onError: (error) => {
-            console.error("Error al actualizar el reporte:", error);
-        }
-    });
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      reportId,
+      payload,
+    }: {
+      reportId: string;
+      payload: UpdateReportPayload;
+    }) => updateReport(reportId, payload),
+    onSuccess: () => {
+      console.log("Reporte actualizado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+    },
+    onError: (error) => {
+      console.error("Error al actualizar el reporte:", error);
+    },
+  });
 };
 
 /** Reportes por mes y ubicación para gráficos por barrio */
-export const useGetMonthlyCountsByLocation = (opts: {
-  months?: number;
-  year?: number;
-  month?: number;
-} = {}) => {
+export const useGetMonthlyCountsByLocation = (
+  opts: {
+    months?: number;
+    year?: number;
+    month?: number;
+  } = {},
+) => {
   const { months = 12, year, month } = opts;
 
   const { data, isLoading, isError, error } = useQuery({

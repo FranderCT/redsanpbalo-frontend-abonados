@@ -1,38 +1,47 @@
-import { useForm } from '@tanstack/react-form'
-import { AuthInitialState } from '../Models/Auth';
-import { useLogin } from '../Hooks/AuthHooks';
-import { AuthSchema } from '../schemas/AuthSchemas';
-import { toast } from 'react-toastify';
-import { Link, useNavigate } from '@tanstack/react-router';
-import { Button } from '@/Components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/Components/ui/card';
-import { Input } from '@/Components/ui/input';
-import { ChevronLeft } from 'lucide-react';
+import { useForm } from "@tanstack/react-form";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/Components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/Components/ui/card";
 import {
   Field,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from '@/Components/ui/field';
+} from "@/Components/ui/field";
+import { Input } from "@/Components/ui/input";
+import { useLogin } from "../Hooks/AuthHooks";
+import { AuthInitialState } from "../Models/Auth";
+import { AuthSchema } from "../schemas/AuthSchemas";
 
 const LoginUser = () => {
   const loginMutation = useLogin();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm({
     defaultValues: AuthInitialState,
-    validators: { onChange: AuthSchema },
+    validators: {
+      onSubmit: AuthSchema,
+    },
     onSubmit: async ({ value }) => {
-        try {
-            await loginMutation.mutateAsync(value);
-            toast.success('¡Acceso exitoso!', { position: 'top-right', autoClose: 3000 });
-            navigate({ to: '/dashboard' });
-            form.reset();
-        }   catch {
-            toast.error('¡Acceso Denegado!', { position: 'top-right', autoClose: 3000 });
-            form.reset();
-        }
-    }
+      try {
+        await loginMutation.mutateAsync(value);
+        toast.success("¡Acceso exitoso!");
+        navigate({ to: "/dashboard" });
+        form.reset();
+      } catch {
+        toast.error("¡Acceso Denegado!");
+      }
+    },
   });
 
   return (
@@ -67,13 +76,17 @@ const LoginUser = () => {
         <CardContent className="pt-2">
           <form
             id="login-form"
-            onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              form.handleSubmit();
+            }}
             className="space-y-5"
           >
             <FieldGroup className="gap-4">
               <form.Field name="Email">
                 {(field) => {
-                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid} className="gap-2">
                       <FieldLabel htmlFor="email">
@@ -99,22 +112,40 @@ const LoginUser = () => {
 
               <form.Field name="Password">
                 {(field) => {
-                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid} className="gap-2">
-                      <FieldLabel htmlFor="password">
-                        Contraseña
-                      </FieldLabel>
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        className="h-10"
-                      />
+                      <FieldLabel htmlFor="password">Contraseña</FieldLabel>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          className="h-10 pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 transition-colors hover:text-slate-700"
+                          aria-label={
+                            showPassword
+                              ? "Ocultar contraseña"
+                              : "Mostrar contraseña"
+                          }
+                          aria-pressed={showPassword}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
                       )}
@@ -127,7 +158,9 @@ const LoginUser = () => {
         </CardContent>
 
         <CardFooter className="flex-col gap-3 pt-2 pb-6">
-          <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+          >
             {([canSubmit, isSubmitting]) => (
               <Button
                 type="submit"
@@ -149,10 +182,7 @@ const LoginUser = () => {
               ¿Olvidó su contraseña?
             </Link>
 
-            <Link
-              to="/register"
-              className="hover:underline underline-offset-4"
-            >
+            <Link to="/register" className="hover:underline underline-offset-4">
               Registrarse
             </Link>
           </div>
