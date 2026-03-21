@@ -39,8 +39,15 @@ export async function searchRequestAssociated(
     if (typeof StateRequestId === "number") queryParams.StateRequestId = StateRequestId;
     if (State !== undefined && State !== null && State !== "") queryParams.State = State; // "" | "true" | "false"
 
+    console.log("[ASADA API] GET /request-associated/search", queryParams);
+
     const { data } = await apiAxios.get<PaginatedResponse<ReqAssociated>>(`${BASE}/search`, {
       params: queryParams,
+    });
+
+    console.log("[ASADA API] Respuesta /request-associated/search", {
+      meta: data?.meta,
+      totalRows: data?.data?.length ?? 0,
     });
     return data;
   } catch (err) {

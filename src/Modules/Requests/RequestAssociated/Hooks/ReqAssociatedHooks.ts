@@ -3,6 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { createRequestAssociated, deleteRequestAssociated, getAllRequestAssociated, getAllRequestStates, getReqAssociatedFolderLink, getRequestAssociatedById, searchRequestAssociated, UpdateAssociatedReq, updateCanComment} from "../Services/ReqAssociatedServices";
 import type { newReqAssociated, ReqAssociated, ReqAssociatedPaginationParams, ReqAssociatedResponse, UpdateReqAssociated } from "../Models/RequestAssociated";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import { useEffect } from "react";
 
 
 // Listado simple
@@ -26,6 +27,29 @@ export const useSearchRequestAssociated = (params: ReqAssociatedPaginationParams
     staleTime: 30_000,
     refetchOnWindowFocus: false,
   });
+
+  useEffect(() => {
+    if (query.data) {
+      console.log("[ASADA API] Solicitudes asociadas admin recibidas", {
+        page,
+        limit,
+        q: q ?? null,
+        StateRequestId: StateRequestId ?? null,
+        State: State ?? null,
+        meta: query.data.meta,
+      }, query.data.data);
+    } else if (query.isFetching) {
+      console.log("[ASADA API] Consultando solicitudes asociadas admin...", {
+        page,
+        limit,
+        q: q ?? null,
+        StateRequestId: StateRequestId ?? null,
+        State: State ?? null,
+      });
+    } else if (query.isError) {
+      console.error("[ASADA API] Error consultando solicitudes asociadas admin:", query.error);
+    }
+  }, [query.data, query.isFetching, query.isError, query.error, page, limit, q, StateRequestId, State]);
 
   return query;
 };
