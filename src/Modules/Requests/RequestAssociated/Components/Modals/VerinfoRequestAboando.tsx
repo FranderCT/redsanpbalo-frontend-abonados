@@ -1,4 +1,13 @@
-import { ModalBase } from "../../../../../Components/Modals/ModalBase";
+    import { Button } from "@/Components/ui/button";
+    import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    } from "@/Components/ui/dialog";
+    import { Separator } from "@/Components/ui/separator";
     import { useReqAssociatedFolderLink } from "../../Hooks/ReqAssociatedHooks";
 
     interface ReqSubscriberDetailModalProps {
@@ -129,7 +138,7 @@ import { ModalBase } from "../../../../../Components/Modals/ModalBase";
         getFolderLink(data.Id);
     };
 
-    const renderValue = (key: string, value: any): React.ReactElement | string => {
+    const renderValue = (key: string, value: any) => {
         if (value === null || value === undefined) return "-";
 
         // Estado de la solicitud
@@ -140,7 +149,7 @@ import { ModalBase } from "../../../../../Components/Modals/ModalBase";
             const normalized = normalizeState(stateName);
             const colorClass = guessStateColor(normalized);
             return (
-            <span className={`inline-block px-3 py-1.5 text-sm tracking-wide uppercase rounded ${colorClass}`}>
+            <span className={`inline-block px-3 py-1.5 text-sm tracking-wide uppercase rounded-none ${colorClass}`}>
                 {stateName}
             </span>
             );
@@ -231,21 +240,14 @@ import { ModalBase } from "../../../../../Components/Modals/ModalBase";
     );
 
     return (
-        <ModalBase open={open} onClose={onClose} panelClassName="w-full max-w-2xl !p-0 overflow-hidden shadow-2xl">
-        {/* Header */}
-        <div className="px-6 py-4 text-[#091540] border-b border-gray-200">
-            <h3 className="text-xl font-semibold">{title}</h3>
-            <p className="text-sm opacity-80">Información detallada de la solicitud de abonado</p>
-        </div>
+        <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
+        <DialogContent className="max-w-2xl rounded-none border-slate-200 p-0">
+        <DialogHeader className="border-b border-slate-200 px-6 py-4">
+            <DialogTitle className="text-[#091540]">{title}</DialogTitle>
+            <DialogDescription>Información detallada de la solicitud de abonado</DialogDescription>
+        </DialogHeader>
 
-        {/* Body */}
-        <div
-            className="px-6 py-4 max-h-[60vh] overflow-y-auto"
-            style={{
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-            }}
-        >
+        <div className="max-h-[60vh] overflow-y-auto px-6 py-4">
             <style>{`
             .overflow-y-auto::-webkit-scrollbar {
                 display: none;
@@ -253,25 +255,23 @@ import { ModalBase } from "../../../../../Components/Modals/ModalBase";
             `}</style>
             <div className="space-y-4">
             {filteredEntries.map(([key, value]) => (
-                <div key={key} className="border-b border-gray-200 pb-3 last:border-b-0">
+                <div key={key} className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-1">
                     {fieldLabels[key] || key}
                 </label>
                 <div className="text-sm text-gray-900">{renderValue(key, value)}</div>
+                <Separator />
                 </div>
             ))}
             </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
-            <button
-            onClick={onClose}
-            className="h-10 px-6 bg-gray-200 text-gray-700 hover:bg-gray-300 transition font-medium rounded-md"
-            >
+        <DialogFooter className="border-t border-slate-200 bg-slate-50 px-6 py-4">
+            <Button onClick={onClose} variant="secondary" className="rounded-none">
             Cerrar
-            </button>
-        </div>
-        </ModalBase>
+            </Button>
+        </DialogFooter>
+        </DialogContent>
+        </Dialog>
     );
     }

@@ -1,9 +1,20 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { Trash } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/Components/ui/alert-dialog";
+import { Button } from "@/Components/ui/button";
 import type { ReqAssociated } from "../../Models/RequestAssociated";
 import { useDeleteRequestAssociated } from "../../Hooks/ReqAssociatedHooks";
-import InhabilityActionModal from "../../../../../Components/Modals/InhabilyActionModal";
 
 
 
@@ -37,32 +48,36 @@ export default function DeleteRequestAssociatedModal({ reqAssociated, onSuccess 
     };
 
     return (
-        <>
-        <button
-            type="button"
-            onClick={() => setOpen(true)}
-            disabled={busy}
-            className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
-            ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
-            title="Inhabilitar solicitud"
-        >
-            <Trash  className="h-4 w-4"/>
-            {busy ? "..." : "Inhabilitar"}
-        </button>
+        <AlertDialog open={open} onOpenChange={setOpen}>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full justify-start rounded-none px-2 py-1.5 text-[#F6132D] hover:bg-[#F6132D]/10 hover:text-[#F6132D]"
+              disabled={busy}
+            >
+              <Trash className="h-4 w-4" />
+              {busy ? "Inhabilitando..." : "Inhabilitar"}
+            </Button>
+          </AlertDialogTrigger>
 
-        {open && (
-            <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
-            <InhabilityActionModal
-                title="¿Inhabilitar solicitud?"
-                description={`¿Está seguro de inhabilitar esta solicitud?`}
-                cancelLabel="Cancelar"
-                confirmLabel="Inhabilitar"
-                onConfirm={handleConfirm}
-                onClose={handleClose}
-                onCancel={handleClose}
-            />
-            </div>
-        )}
-        </>
+          <AlertDialogContent className="rounded-none">
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Inhabilitar solicitud?</AlertDialogTitle>
+              <AlertDialogDescription>
+                ¿Está seguro de inhabilitar esta solicitud?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="rounded-none" onClick={handleClose}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                className="rounded-none bg-[#F6132D] text-white hover:bg-[#d90f27]"
+                onClick={handleConfirm}
+              >
+                Inhabilitar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
     );
 }

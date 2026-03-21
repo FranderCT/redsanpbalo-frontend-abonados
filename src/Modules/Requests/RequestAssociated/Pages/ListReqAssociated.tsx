@@ -1,12 +1,11 @@
 // Modules/Requests/RequestChangeMeterr/Pages/ListRequestChangeMeter.tsx
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGetAllRequestStates } from "../../StateRequest/Hooks/RequestStateHook";
 import { useSearchRequestAssociated } from "../Hooks/ReqAssociatedHooks";
 import type { ReqAssociated } from "../Models/RequestAssociated";
 import type { PaginationMeta } from "../../../../assets/Dtos/PaginationCategory";
-import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
 import ReqAssociatedHeaderBar from "../Components/PaginationReqAssociated/ReqAssociatedHeaderBar";
-import ReqAssociatedTable from "../Components/ReqAssociatedTable/ReqAssociatedTable";
+import ReqAssociatedCards from "../Components/ReqAssociatedCards/ReqAssociatedCards";
 import CreateAssociatedRqModalAdmin from "../Components/Modals/AddCreateAssociatedRqModal";
 
 type LegacyMeta = {
@@ -24,7 +23,6 @@ export default function ListReqAssociated() {
 
   // Filtros que van al backend
   const [q, setQ] = useState<string | undefined>(undefined);
-  const [State, setState] = useState<string | undefined>(undefined); // "true" | "false" | undefined
   const [StateRequestId, setStateRequestId] = useState<number | undefined>(undefined);
 
   // Buscador -> q
@@ -32,11 +30,6 @@ export default function ListReqAssociated() {
     setSearch(txt);
     const trimmed = txt.trim();
     setQ(trimmed ? trimmed : undefined);
-    setPage(1);
-  };
-
-  const handleStateChange = (newState: string) => {
-    setState(newState === "" ? undefined : newState); // "" -> undefined
     setPage(1);
   };
 
@@ -48,7 +41,6 @@ export default function ListReqAssociated() {
   const handleCleanFilters = () => {
     setSearch("");
     setQ(undefined);
-    setState(undefined);
     setStateRequestId(undefined);
     setPage(1);
   };
@@ -62,11 +54,14 @@ export default function ListReqAssociated() {
       page,
       limit,
       q,
-      State: State ?? "", 
       StateRequestId,
     }),
-    [page, limit, q, State, StateRequestId]
+    [page, limit, q, StateRequestId]
   );
+
+  useEffect(() => {
+    console.log("[Filtros UI] Solicitudes asociadas admin", params);
+  }, [params]);
 
   const { data, isLoading, error } = useSearchRequestAssociated (params);
   const rows: ReqAssociated[] = data?.data ?? [];
@@ -80,40 +75,19 @@ export default function ListReqAssociated() {
     hasPrevPage: rawMeta?.hasPrevPage ?? false,
   };
 
-  // Totales de la página actual (opcional)
-  const pageTotals = useMemo(() => {
-    const acc = { total: 0, approved: 0, rejected: 0, pending: 0 };
-    for (const r of rows) {
-      acc.total++;
-      const name = r.StateRequest?.Name?.toLowerCase() ?? "";
-      if (name.includes("apro")) acc.approved++;
-      else if (name.includes("rech")) acc.rejected++;
-      else if (name.includes("pend") || name.includes("proce")) acc.pending++;
-    }
-    return acc;
-  }, [rows]);
-
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-[#091540]">Lista de Solicitudes para Ser Asociado</h1>
-      <p className="text-[#091540]/70 text-md">Gestione todas las solicitudes</p>
-      <div className="border-b border-dashed border-gray-300 mb-2"></div>
-
-      <ResumeReqAvailWater
-        total={pageTotals.total}
-        pending={pageTotals.pending}
-        approved={pageTotals.approved}
-        rejected={pageTotals.rejected}
-        loading={isLoading || requestStatesLoading}
-      />
-
-      <div className="border-b border-dashed border-gray-300 mt-4 mb-6"></div>
+    <div className="flex flex-col gap-6 p-4">
+      <section className="flex flex-col gap-2">
+        <h1 className="text-2xl font-bold text-[#091540]">Lista de Solicitudes para Ser Asociado</h1>
+        <p className="text-md text-[#091540]/70">
+          Gestione las solicitudes desde una vista simple, enfocada en filtros y acciones.
+        </p>
+      </section>
 
       <ReqAssociatedHeaderBar
         limit={meta.limit}
         total={meta.total}
         search={search}
-        state={State}
         requestStateId={StateRequestId}
         states={requestStates}
         statesLoading={requestStatesLoading}
@@ -122,19 +96,22 @@ export default function ListReqAssociated() {
           setLimit(l);
           setPage(1);
         }}
-        onFilterClick={handleStateChange}
         onSearchChange={handleSearchChange}
         onCleanFilters={handleCleanFilters}
         rightAction={<CreateAssociatedRqModalAdmin />}
       />
 
-      <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
+      <div className="flex flex-col">
         {isLoading ? (
-          <div className="p-6 text-center text-gray-500">Cargando…</div>
+          <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
+            Cargando solicitudes…
+          </div>
         ) : error ? (
-          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
+          <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">
+            Ocurrió un error al cargar las solicitudes.
+          </div>
         ) : (
-          <ReqAssociatedTable
+          <ReqAssociatedCards
             data={rows}
             total={meta.total}
             page={meta.page}

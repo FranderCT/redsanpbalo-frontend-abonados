@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ModalBase } from "../../../../../Components/Modals/ModalBase";
+import { Dialog, DialogContent } from "@/Components/ui/dialog";
 import { useGetCommentsByRequestId, useCreateAdminComment, useReplyWithFiles } from "../../../../CommentRequest/comment-associated/Hooks/commentAssociatedHooks";
 import { toast } from "react-toastify";
 import type { ReqAssociated } from "../../Models/RequestAssociated";
@@ -19,6 +19,15 @@ export default function CommentsAssociatedModal({
   request,
   isAdmin = false,
 }: CommentsAssociatedModalProps) {
+  const requesterFullName = [
+    request.User?.Name,
+    request.User?.Surname1,
+    request.User?.Surname2,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
   const { comments = [], isPending: commentsLoading, refetch } = useGetCommentsByRequestId(request.Id);
   const createAdminCommentMutation = useCreateAdminComment();
   const replyWithFilesMutation = useReplyWithFiles();
@@ -146,13 +155,14 @@ export default function CommentsAssociatedModal({
   };
 
   return (
-    <ModalBase open={open} onClose={onClose} panelClassName="w-full max-w-5xl !p-0 shadow-2xl h-[95vh] max-h-[95vh] flex flex-col overflow-hidden">
+    <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
+      <DialogContent className="flex h-[95vh] max-h-[95vh] max-w-5xl flex-col overflow-hidden rounded-none p-0">
       {/* Header */}
       <div className="px-6 py-4 bg-white text-[#091540] flex-shrink-0">
         <div>
           <h3 className="text-2xl font-bold">Comunicación con {isAdmin ? "el Abonado" : "ASADA"}</h3>
           <p className="text-[#091540] mt-1 text-sm">
-            Solicitud #{request.Id} - {request.Name} {request.Surname1}
+            Solicitud #{request.Id} - {requesterFullName || "Solicitante"}
           </p>
         </div>
       </div>
@@ -170,11 +180,15 @@ export default function CommentsAssociatedModal({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
               <span className="text-xs text-gray-500 uppercase tracking-wide font-semibold block mb-1">Nombre Completo</span>
-              <p className="text-gray-900 font-medium truncate" title={`${request.Name} ${request.Surname1} ${request.Surname2}`}>{request.Name} {request.Surname1} {request.Surname2}</p>
+              <p className="text-gray-900 font-medium truncate" title={requesterFullName || "Sin nombre"}>
+                {requesterFullName || "Sin nombre"}
+              </p>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
               <span className="text-xs text-gray-500 uppercase tracking-wide font-semibold block mb-1">Cédula</span>
-              <p className="text-gray-900 font-medium truncate" title={request.IDcard}>{request.IDcard}</p>
+              <p className="text-gray-900 font-medium truncate" title={request.User?.IDcard || "Sin cédula"}>
+                {request.User?.IDcard || "Sin cédula"}
+              </p>
             </div>
             <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
               <span className="text-xs text-gray-500 uppercase tracking-wide font-semibold block mb-1">NIS</span>
@@ -503,6 +517,7 @@ export default function CommentsAssociatedModal({
           </form>
         </div>
       </div>
-    </ModalBase>
+      </DialogContent>
+    </Dialog>
   );
 }
