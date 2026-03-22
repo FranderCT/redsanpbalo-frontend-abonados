@@ -218,7 +218,7 @@ export default function CreateReportModal() {
               {UserProfile ? (
                 <div className="rounded-lg border bg-muted/40 px-4 py-3">
                   <p className="text-sm font-medium text-foreground">
-                    Reporte creado por: {UserProfile.Name} {UserProfile.Surname1}
+                    Reporte creado por {UserProfile.Name} {UserProfile.Surname1}
                   </p>
                   <p className="text-xs text-muted-foreground">{UserProfile.Email}</p>
                 </div>
