@@ -38,6 +38,7 @@ import type { ReportListItem, ReportStateValue } from "../../Models/Report";
 import { updateReportValidators } from "../../schemas/ReportSchema";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
 
 interface EditReportModalProps {
   report: ReportListItem;
@@ -413,7 +414,13 @@ export default function EditReportModal({
                                 key={fontanero.Id}
                                 value={String(fontanero.Id)}
                               >
-                                {fontanero.Name} {fontanero.Surname1}
+                                <div className="flex items-center gap-2">
+                                  <Avatar>
+                                    <AvatarImage src={fontanero.ProfilePhoto ?? ""} alt={fontanero.Name} />
+                                    <AvatarFallback>{fontanero.Name.charAt(0)} {fontanero.Surname1.charAt(0)}</AvatarFallback>
+                                  </Avatar>
+                                  <span>{fontanero.IDcard}</span>
+                                </div>
                               </SelectItem>
                             ))}
                           </SelectContent>
