@@ -71,10 +71,10 @@ export function useGetMyReqAssociatedPaginated(params: MyReqAssociatedParams = {
         "%c[ASADA API] 🔵 Mis solicitudes recibidas",
         "color: #3DA9FC; font-weight: bold;",
         {
-          page: res.meta.page,
-          limit: res.meta.limit,
-          total: res.meta.total,
-          pageCount: res.meta.pageCount,
+          page: res.meta.currentPage,
+          limit: res.meta.itemsPerPage,
+          total: res.meta.totalItems,
+          pageCount: res.meta.totalPages,
           params: { page, limit, StateRequestId, q },
         },
         res.data
@@ -91,7 +91,7 @@ export function useGetMyReqAssociatedPaginated(params: MyReqAssociatedParams = {
         query.error
       );
     }
-  }, [query.data, query.isFetching, query.isError, page, limit, StateRequestId, q]);
+  }, [query.data, query.isFetching, query.isError, query.error, page, limit, StateRequestId, q]);
 
   return query;
 }
@@ -115,7 +115,11 @@ export const useCreateAssociatedRequest = () => {
         mutationFn:  createAssociatedRequest,
         mutationKey: ['associated', 'create'],
         onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['associated'] });
+            qc.invalidateQueries({ queryKey: QK.my });
+            qc.invalidateQueries({ queryKey: [baseKey, "me", "search"] });
+            qc.invalidateQueries({ queryKey: QK.all });
+            qc.invalidateQueries({ queryKey: [baseKey, "list"] });
+            qc.invalidateQueries({ queryKey: ["request-associated"], exact: false });
             toast.success("Solicitud de asociado creada con éxito", {position: "top-right", autoClose: 3000});
         },
         onError: (error) => {

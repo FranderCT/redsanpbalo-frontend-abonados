@@ -9,12 +9,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
-import { Eye, FileText, MoreVertical, UserRound } from "lucide-react";
+import { Eye, FileText, MoreVertical } from "lucide-react";
 import type { ReqAssociated } from "../../Models/RequestAssociated";
 import UpdateReqAssociatedStateModal from "../Modals/UpdateAssociatedModal";
 import ReqAssociatedAdminModal from "../Modals/VerinfoRequestAboando";
 import CommentsAssociatedModal from "../Comments/CommentsAssociatedModal";
-import DeleteReqAssociatedModal from "../Modals/DeleteReqAssociatedModal";
+import { formatAssociatedRequestDate } from "../../utils/associatedRequestDate";
 
 type Props = {
   data: ReqAssociated[];
@@ -47,17 +47,6 @@ function formatApplicant(req: ReqAssociated) {
   return `${req.User?.Name ?? ""} ${req.User?.Surname1 ?? ""} ${req.User?.Surname2 ?? ""}`.trim() || "Sin nombre";
 }
 
-function formatDate(value?: Date) {
-  if (!value) return "Sin fecha";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Sin fecha";
-  return new Intl.DateTimeFormat("es-CR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
-}
-
 function ReqAssociatedCard({
   req,
   onEdit,
@@ -73,19 +62,24 @@ function ReqAssociatedCard({
   const justification = req.Justification?.trim() || "Sin justificacion registrada.";
   const isLongText = justification.length > 150;
   const [expanded, setExpanded] = useState(false);
+  const profilePhoto = req.User?.ProfilePhoto?.trim();
 
   return (
     <Card className="flex h-full flex-col rounded-none border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
       <CardHeader className="flex flex-row items-start gap-3 space-y-0 border-b border-slate-100 pb-4">
-        <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-none bg-[#091540]/10 text-[#091540]">
-          <UserRound className="h-5 w-5" />
-        </div>
+        {profilePhoto ? (
+          <img
+            src={profilePhoto}
+            alt={`Foto de perfil de ${applicant}`}
+            className="mt-0.5 h-10 w-10 shrink-0 rounded-none border border-slate-200 object-cover"
+          />
+        ) : null}
 
         <div className="min-w-0 flex-1">
           <CardTitle className="line-clamp-2 text-base font-medium leading-6">
             {applicant}
           </CardTitle>
-          <p className="mt-1 text-xs text-slate-500">Solicitud para ser asociado</p>
+          <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">Solicitud de asociación</p>
         </div>
 
         <DropdownMenu>
@@ -110,11 +104,6 @@ function ReqAssociatedCard({
                 Comentarios
               </button>
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={(event) => event.preventDefault()} className="rounded-none p-0">
-              <div className="w-full">
-                <DeleteReqAssociatedModal reqAssociated={req} />
-              </div>
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
@@ -132,7 +121,7 @@ function ReqAssociatedCard({
         <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
           <div className="border-l-2 border-slate-200 pl-3">
             <p className="text-xs uppercase tracking-wide text-slate-400">Fecha</p>
-            <p className="mt-1 font-medium text-slate-900">{formatDate(req.Date)}</p>
+            <p className="mt-1 font-medium text-slate-900">{formatAssociatedRequestDate(req.Date)}</p>
           </div>
           <div className="border-l-2 border-slate-200 pl-3">
             <p className="text-xs uppercase tracking-wide text-slate-400">Comentarios</p>

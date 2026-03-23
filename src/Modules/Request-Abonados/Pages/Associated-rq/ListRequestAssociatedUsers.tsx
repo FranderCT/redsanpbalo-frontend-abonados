@@ -33,15 +33,16 @@ export default function ListReqAssociateUser() {
   const { data, isLoading, error } = useGetMyReqAssociatedPaginated({
     page,
     limit,
-    StateRequestId: stateRequestId
+    StateRequestId: stateRequestId,
+    q: search,
   });
 
-  const rows: ReqAssociated[] = data?.data ?? [];
+  const rows = useMemo<ReqAssociated[]>(() => data?.data ?? [], [data?.data]);
   const meta = {
-    total: data?.meta?.total ?? 0,
-    page: data?.meta?.page ?? page,
-    limit: data?.meta?.limit ?? limit,
-    pageCount: data?.meta?.pageCount ?? Math.ceil((data?.meta?.total ?? 0) / limit),
+    total: data?.meta?.totalItems ?? 0,
+    page: data?.meta?.currentPage ?? page,
+    limit: data?.meta?.itemsPerPage ?? limit,
+    pageCount: data?.meta?.totalPages ?? Math.ceil((data?.meta?.totalItems ?? 0) / limit),
     hasNextPage: data?.meta?.hasNextPage ?? false,
     hasPrevPage: data?.meta?.hasPrevPage ?? false
   };
@@ -54,7 +55,9 @@ export default function ListReqAssociateUser() {
       const inJust = String(r.Justification ?? "").toLowerCase().includes(txt);
       const inDate = String(r.Date ?? "").toLowerCase().includes(txt);
       const inState = String(r.StateRequest?.Name ?? "").toLowerCase().includes(txt);
-      return inJust || inDate || inState;
+      const fullName = `${r.User?.Name ?? ""} ${r.User?.Surname1 ?? ""} ${r.User?.Surname2 ?? ""}`.toLowerCase();
+      const inUser = fullName.includes(txt);
+      return inJust || inDate || inState || inUser;
     });
   }, [rows, search]);
 

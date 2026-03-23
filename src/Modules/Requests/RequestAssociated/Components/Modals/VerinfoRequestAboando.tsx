@@ -9,51 +9,19 @@
     } from "@/Components/ui/dialog";
     import { Separator } from "@/Components/ui/separator";
     import { useReqAssociatedFolderLink } from "../../Hooks/ReqAssociatedHooks";
+    import { formatAssociatedRequestDate } from "../../utils/associatedRequestDate";
+
+    type DetailData = Record<string, unknown>;
 
     interface ReqSubscriberDetailModalProps {
     open: boolean;
     onClose: () => void;
     title: string;
-    data: Record<string, any>;
+    data: DetailData;
     excludeFields?: string[];
     }
 
     // ---- helpers ----
-    const formatDateOnly = (value?: string | Date) => {
-    if (!value) return "-";
-    try {
-        if (typeof value === "string") {
-        const onlyDate = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (onlyDate) return value;
-
-        const hasTZ = /[Tt].*(Z|[+\-]\d{2}:?\d{2})$/.test(value);
-        const d = new Date(value);
-        if (isNaN(d.getTime())) return "-";
-
-        if (hasTZ) {
-            const y = d.getUTCFullYear();
-            const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-            const day = String(d.getUTCDate()).padStart(2, "0");
-            return `${y}-${m}-${day}`;
-        } else {
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, "0");
-            const day = String(d.getDate()).padStart(2, "0");
-            return `${y}-${m}-${day}`;
-        }
-        }
-
-        const d = value as Date;
-        if (!isNaN(d.getTime())) {
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, "0");
-        const day = String(d.getDate()).padStart(2, "0");
-        return `${y}-${m}-${day}`;
-        }
-    } catch {}
-    return "-";
-    };
-
     const normalizeState = (s: string) =>
     s
         ?.toLowerCase()
@@ -115,6 +83,7 @@
         "CreatedAt", 
         "UpdatedAt", 
         "IsActive",
+        "CanComment",
         "RequestAssociatedFile",
         "NIS",
         // Excluir campos individuales del usuario que se muestran en la tarjeta
@@ -138,7 +107,7 @@
         getFolderLink(data.Id);
     };
 
-    const renderValue = (key: string, value: any) => {
+    const renderValue = (key: string, value: unknown) => {
         if (value === null || value === undefined) return "-";
 
         // Estado de la solicitud
@@ -187,7 +156,7 @@
 
         // Fechas
         if (key === "Date" || key === "CreatedAt" || key === "UpdatedAt") {
-        return formatDateOnly(value);
+        return formatAssociatedRequestDate(value as string | Date);
         }
 
         // SpaceOfDocument - Integración con Dropbox

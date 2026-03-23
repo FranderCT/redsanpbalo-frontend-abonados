@@ -5,6 +5,16 @@ import type { newReqAssociated, ReqAssociated, ReqAssociatedPaginationParams, Re
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
 
+type RequestAssociatedListCache =
+  | PaginatedResponse<ReqAssociated>
+  | ReqAssociated[]
+  | undefined;
+
+const isPaginatedReqAssociated = (
+  value: RequestAssociatedListCache
+): value is PaginatedResponse<ReqAssociated> =>
+  !!value && !Array.isArray(value) && Array.isArray(value.data);
+
 
 // Listado simple
 export const useGetAllRequestAssociated = () => {
@@ -156,20 +166,20 @@ export const useUpdateCanComment = () => {
 
     onSuccess: (updated) => {
       // 1) Actualizar caches de listas (paginadas o no)
-      qc.setQueriesData({ queryKey: ["request-associated"] }, (old: any) => {
+      qc.setQueriesData<RequestAssociatedListCache>({ queryKey: ["request-associated"] }, (old) => {
         if (!old) return old;
 
-        if (old.data && Array.isArray(old.data)) {
+        if (isPaginatedReqAssociated(old)) {
           return {
             ...old,
-            data: old.data.map((x: any) =>
+            data: old.data.map((x) =>
               x.Id === updated.Id ? { ...x, ...updated } : x
             ),
           };
         }
 
         if (Array.isArray(old)) {
-          return old.map((x: any) =>
+          return old.map((x) =>
             x.Id === updated.Id ? { ...x, ...updated } : x
           );
         }

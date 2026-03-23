@@ -21,20 +21,35 @@ import { useSearchAbonados } from "../../../GeneralGetUser/GenralHook";
 import { useCreateAssociatedRequest } from "../../../../Request-Abonados/Hooks/Associated/AssociatedRqHooks";
 import { useGetUserProfile } from "../../../../Users/Hooks/UsersHooks";
 import { UploadAssociatedFiles } from "../../../../Upload-files/Services/ProjectFileServices";
+import { CreateAssociatedRequestSchema } from "../../schemas/CreateAssociatedRequestSchema";
+import { getAssociatedRequestPrimaryNis } from "../../utils/associatedRequestForm";
+
+type RetryableError = {
+  response?: {
+    status?: number;
+    headers?: Record<string, string | undefined>;
+  };
+};
+
+const getFieldErrorMessage = (error: unknown) =>
+  typeof error === "object" && error !== null && "message" in error
+    ? String((error as { message?: string }).message ?? "Valor inválido")
+    : String(error);
 
 const uploadWithRetry = async (
-  uploadFn: () => Promise<any>,
+  uploadFn: () => Promise<unknown>,
   maxRetries = 3,
   baseDelay = 1000,
-): Promise<any> => {
+): Promise<unknown> => {
   let attempt = 0;
   while (attempt < maxRetries) {
     try {
       return await uploadFn();
-    } catch (error: any) {
+    } catch (error) {
+      const requestError = error as RetryableError;
       attempt++;
-      if (error?.response?.status === 429) {
-        const retryAfter = error.response.headers["retry-after"];
+      if (requestError.response?.status === 429) {
+        const retryAfter = requestError.response.headers?.["retry-after"];
         const delayMs = retryAfter
           ? parseInt(retryAfter) * 1000
           : Math.min(baseDelay * Math.pow(2, attempt), 10000);
@@ -148,14 +163,15 @@ export default function CreateAssociatedRqModalAdmin() {
       UserId: 0,
       _selectedUser: null as AbonadoSearch | null,
     },
+    validators: {
+      onChange: CreateAssociatedRequestSchema,
+      onSubmit: CreateAssociatedRequestSchema,
+    },
     onSubmit: async ({ value, formApi }) => {
       try {
-        if (!value._selectedUser) return toast.error("Seleccione un abonado válido.");
-        if (!value.Justification.trim()) return toast.error("La justificación es requerida.");
-        if (!value.NIS || Number(value.NIS) <= 0) return toast.error("El abonado no tiene NIS válido.");
-
+        const derivedNis = getAssociatedRequestPrimaryNis(value._selectedUser);
         const requestPayload = {
-          NIS: Number(value.NIS) || 0,
+          NIS: derivedNis,
           Justification: value.Justification.trim(),
           UserId: Number(value.UserId) || 0,
         };
@@ -218,7 +234,7 @@ export default function CreateAssociatedRqModalAdmin() {
           <DialogHeader className="border-b border-slate-200 px-8 py-6">
             <DialogTitle className="text-2xl text-[#091540]">Solicitud de Asociación</DialogTitle>
             <DialogDescription>
-              Busque el abonado, verifique el NIS y complete la información requerida para crear la solicitud.
+              Busque el abonado y complete la información requerida. El NIS se toma automáticamente.
             </DialogDescription>
           </DialogHeader>
 
@@ -240,17 +256,21 @@ export default function CreateAssociatedRqModalAdmin() {
                       <UserTypeahead
                         value={field.state.value}
                         onChange={(userId, picked) => {
-                          field.handleChange(userId);
                           form.setFieldValue("_selectedUser", picked ?? null);
-                          if (picked && Array.isArray(picked.Nis)) {
-                            form.setFieldValue("NIS", picked.Nis.length === 1 ? Number(picked.Nis[0]) || 0 : 0);
-                          } else {
-                            const nisNum = (picked as any)?.Nis ? Number((picked as any).Nis) : 0;
-                            form.setFieldValue("NIS", Number.isNaN(nisNum) ? 0 : nisNum);
-                          }
+                          form.setFieldValue("NIS", getAssociatedRequestPrimaryNis(picked));
+                          field.handleChange(userId);
                         }}
                       />
                     )}
+                  </form.Field>
+                  <form.Field name="UserId">
+                    {(field) =>
+                      field.state.meta.isTouched && field.state.meta.errors.length > 0 ? (
+                        <p className="text-sm text-red-500">
+                          {getFieldErrorMessage(field.state.meta.errors[0])}
+                        </p>
+                      ) : null
+                    }
                   </form.Field>
 
                   <form.Subscribe selector={(s) => s.values._selectedUser}>
@@ -274,29 +294,6 @@ export default function CreateAssociatedRqModalAdmin() {
                     }
                   </form.Subscribe>
 
-                  <form.Subscribe selector={(s) => ({ sel: s.values._selectedUser, nis: s.values.NIS })}>
-                    {({ sel, nis }) => {
-                      const nisArray = sel && Array.isArray((sel as any).Nis) ? ((sel as any).Nis as number[]) : [];
-                      if (!sel) return <div className="grid gap-2"><Label>NIS</Label><Input value="Seleccione un abonado primero" readOnly disabled className="rounded-none" /></div>;
-                      if (!nisArray.length) return <div className="grid gap-2"><Label>NIS</Label><Input value="Este abonado no tiene NIS registrado" readOnly disabled className="rounded-none" /></div>;
-                      if (nisArray.length === 1) return <div className="grid gap-2"><Label>NIS (solo lectura)</Label><Input value={String(nisArray[0])} readOnly disabled className="rounded-none" /></div>;
-                      return (
-                        <div className="grid gap-2">
-                          <Label htmlFor="nis-select">Seleccione NIS</Label>
-                          <select
-                            id="nis-select"
-                            className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                            value={nis || 0}
-                            onChange={(e) => form.setFieldValue("NIS", Number(e.target.value) || 0)}
-                            required
-                          >
-                            <option value={0} disabled>Seleccione una opción</option>
-                            {nisArray.map((n) => <option key={n} value={n}>{n}</option>)}
-                          </select>
-                        </div>
-                      );
-                    }}
-                  </form.Subscribe>
                 </CardContent>
               </Card>
 
@@ -321,7 +318,7 @@ export default function CreateAssociatedRqModalAdmin() {
                           required
                         />
                         {field.state.meta.isTouched && field.state.meta.errors.length > 0 ? (
-                          <p className="text-sm text-red-500">{(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}</p>
+                          <p className="text-sm text-red-500">{getFieldErrorMessage(field.state.meta.errors[0])}</p>
                         ) : null}
                         <p className="text-xs text-slate-500">Proporcione una justificación clara y detallada para su solicitud.</p>
                       </div>

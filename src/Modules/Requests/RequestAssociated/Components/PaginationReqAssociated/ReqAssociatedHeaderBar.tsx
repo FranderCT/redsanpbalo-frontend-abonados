@@ -43,12 +43,12 @@ export default function ReqAssociatedHeaderBar({
   rightAction,
 }: Props) {
   return (
-    <Card className="border shadow-none rounded-none">
-      <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <Card className="rounded-none border border-slate-200 shadow-none">
+      <CardHeader className="flex flex-col gap-3 border-b border-slate-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex flex-col gap-1">
-          <CardTitle className="text-base text-[#091540]">Filtros de solicitudes</CardTitle>
+          <CardTitle className="text-lg font-semibold text-[#091540]">Solicitudes registradas</CardTitle>
           <p className="text-sm text-slate-500">
-            {total} {total === 1 ? "registro encontrado" : "registros encontrados"}
+            {total} {total === 1 ? "solicitud encontrada" : "solicitudes encontradas"}
           </p>
         </div>
 
@@ -57,10 +57,10 @@ export default function ReqAssociatedHeaderBar({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-4 pt-0">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="flex min-w-[140px] flex-col gap-2">
-            <Label htmlFor="req-associated-limit">Filas por pagina</Label>
+      <CardContent className="flex flex-col gap-4 pt-5">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[160px_240px_minmax(0,1fr)_auto]">
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="req-associated-limit" className="text-xs font-medium uppercase tracking-wide text-slate-500">Filas por página</Label>
             <Select value={String(limit)} onValueChange={(value) => onLimitChange(Number(value))}>
               <SelectTrigger id="req-associated-limit" className="rounded-none">
                 <SelectValue placeholder="Selecciona un limite" />
@@ -75,8 +75,8 @@ export default function ReqAssociatedHeaderBar({
             </Select>
           </div>
 
-          <div className="flex min-w-[220px] flex-col gap-2">
-            <Label htmlFor="req-associated-request-state">Estado de la solicitud</Label>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="req-associated-request-state" className="text-xs font-medium uppercase tracking-wide text-slate-500">Estado</Label>
             <Select
               value={requestStateId ? String(requestStateId) : "all"}
               onValueChange={(value) => onStateRequestChange(value === "all" ? undefined : Number(value))}
@@ -96,8 +96,8 @@ export default function ReqAssociatedHeaderBar({
             </Select>
           </div>
 
-          <div className="flex min-w-[260px] flex-1 flex-col gap-2">
-            <Label htmlFor="req-associated-search">Buscar</Label>
+          <div className="flex min-w-0 flex-col gap-2">
+            <Label htmlFor="req-associated-search" className="text-xs font-medium uppercase tracking-wide text-slate-500">Buscar</Label>
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -107,7 +107,7 @@ export default function ReqAssociatedHeaderBar({
                 value={search}
                 onChange={(event) => onSearchChange(event.target.value)}
                 autoComplete="off"
-                placeholder="Buscar por solicitante o justificacion"
+                placeholder="Buscar por solicitante o justificación"
                 className="rounded-none pl-9"
               />
             </div>
@@ -117,7 +117,7 @@ export default function ReqAssociatedHeaderBar({
             type="button"
             variant="outline"
             size="icon"
-            className="rounded-none"
+            className="mt-auto rounded-none"
             onClick={onCleanFilters}
             title="Limpiar filtros"
             aria-label="Limpiar filtros"
