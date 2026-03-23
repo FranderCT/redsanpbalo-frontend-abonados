@@ -1,6 +1,6 @@
 import React from "react";
 import Cropper, { type Area } from "react-easy-crop";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import {
@@ -134,19 +134,13 @@ export default function ProfilePhotoPicker({
     }
 
     if (file.size > MAX_PHOTO_MB * 1024 * 1024) {
-      toast.error(`La foto no puede superar ${MAX_PHOTO_MB} MB`, {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.error(`La foto no puede superar ${MAX_PHOTO_MB} MB`);
       e.target.value = "";
       return;
     }
 
     if (file.type === "image/gif") {
-      toast.info("Los GIF se guardarán como PNG al aplicar el recorte.", {
-        position: "top-right",
-        autoClose: 3500,
-      });
+      toast.info("Los GIF se guardarán como PNG al aplicar el recorte.");
     }
 
     closeCropDialog();
@@ -166,10 +160,7 @@ export default function ProfilePhotoPicker({
 
   const applyCroppedPhoto = async () => {
     if (!cropSource || !croppedAreaPixelsRef.current) {
-      toast.error("Primero ajuste el encuadre de la foto.", {
-        position: "top-right",
-        autoClose: 2500,
-      });
+      toast.error("Primero ajuste el encuadre de la foto.");
       return;
     }
 
@@ -185,10 +176,7 @@ export default function ProfilePhotoPicker({
       onApply(croppedFile, nextPreview);
       closeCropDialog();
     } catch {
-      toast.error("No se pudo recortar la imagen seleccionada.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.error("No se pudo recortar la imagen seleccionada.");
     } finally {
       setIsApplyingCrop(false);
     }

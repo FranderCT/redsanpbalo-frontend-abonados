@@ -1,12 +1,22 @@
 import React from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { useLocation } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { useGetUserProfile, useUpdateUserProfile } from "../../../Hooks/UsersHooks";
 import { EditProfileSchema, type EditProfileInput } from "../../../schemas/EditProfileSchema";
-import ConfirmActionModal from "../../../../../Components/Modals/ConfirmActionModal";
 import { updateUserMeInitialState } from "../../../Models/User";
 import PhoneField from "../../../../../Components/PhoneNumber/PhoneField";
 import ProfilePhotoPicker from "./ProfilePhotoPicker";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/Components/ui/alert-dialog";
 import {
   Card,
   CardContent,
@@ -26,6 +36,7 @@ import { Button } from "@/Components/ui/button";
 import { Separator } from "@/Components/ui/separator";
 
 const EditProfile = () => {
+  const { pathname } = useLocation();
   const { UserProfile } = useGetUserProfile();
   const updateProfile = useUpdateUserProfile();
 
@@ -33,7 +44,6 @@ const EditProfile = () => {
   const [photoFile, setPhotoFile] = React.useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = React.useState<string | null>(null);
   const pendingValuesRef = React.useRef<EditProfileInput | null>(null);
-  const hydratedUserIdRef = React.useRef<number | null>(null);
 
   const form = useForm({
     defaultValues: updateUserMeInitialState,
@@ -86,18 +96,18 @@ const EditProfile = () => {
 
   React.useEffect(() => {
     if (!UserProfile) return;
-    if (hydratedUserIdRef.current === UserProfile.Id) return;
+    if (pathname !== "/dashboard/users/edit") return;
 
     form.reset({
       Birthdate: UserProfile.Birthdate ? new Date(UserProfile.Birthdate) : undefined,
       PhoneNumber: UserProfile.PhoneNumber ?? "",
       Address: UserProfile.Address ?? "",
     });
-    hydratedUserIdRef.current = UserProfile.Id;
 
-    // `form` cambia durante interacciones locales; solo rehidratamos al cargar/cambiar de usuario.
+    // Rehidratamos al entrar a la ruta de edición o cuando cambia el perfil remoto.
+    // No depende de cambios locales del form, así no se limpia al escoger foto.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [UserProfile]);
+  }, [pathname, UserProfile?.Id, UserProfile?.Birthdate, UserProfile?.PhoneNumber, UserProfile?.Address]);
 
   React.useEffect(() => {
     return () => {
@@ -127,37 +137,34 @@ const EditProfile = () => {
       const patch = buildPatch(pendingValuesRef.current);
       const hasFormChanges = Object.keys(patch).length > 0;
       const hasPhoto = !!photoFile;
+      const payloadToSend = hasPhoto
+        ? pendingValuesRef.current
+        : (patch as EditProfileInput);
 
       if (!hasFormChanges && !hasPhoto) {
-        toast.info("No hay cambios para guardar.", { position: "top-right", autoClose: 2500 });
+        toast.info("No hay cambios para guardar.");
         setOpenConfirm(false);
         pendingValuesRef.current = null;
         return;
       }
 
       await updateProfile.mutateAsync({
-        payload: patch as EditProfileInput,
+        payload: payloadToSend,
         photo: photoFile ?? undefined,
       });
 
       form.reset(form.state.values);
       clearPhoto();
-      toast.success("¡Actualización exitosa!", { position: "top-right", autoClose: 3000 });
+      toast.success("¡Actualización exitosa!");
     } catch {
-      toast.error("¡Error al actualizar el perfil!", { position: "top-right", autoClose: 3000 });
+      toast.error("¡Error al actualizar el perfil!");
     } finally {
       setOpenConfirm(false);
       pendingValuesRef.current = null;
     }
   };
 
-  const handleCancelUpdate = () => {
-    setOpenConfirm(false);
-    toast.info("¡Actualización cancelada!", { position: "top-right", autoClose: 2500 });
-    pendingValuesRef.current = null;
-  };
 
-  const hasChanges = form.state.isDirty || photoFile !== null;
   const fullName = [UserProfile?.Name, UserProfile?.Surname1, UserProfile?.Surname2]
     .filter(Boolean)
     .join(" ");
@@ -283,11 +290,11 @@ const EditProfile = () => {
               </FieldGroup>
 
               <div className="flex justify-end pt-2">
-                <form.Subscribe selector={(s) => [s.isSubmitting]}>
-                  {([isSubmitting]) => (
+                <form.Subscribe selector={(s) => [s.isDirty, s.isSubmitting]}>
+                  {([isDirty, isSubmitting]) => (
                     <Button
                       type="submit"
-                      disabled={!hasChanges || isSubmitting || updateProfile.isPending}
+                      disabled={(!isDirty && photoFile === null) || isSubmitting || updateProfile.isPending}
                     >
                       {isSubmitting || updateProfile.isPending
                         ? "Guardando…"
@@ -301,21 +308,22 @@ const EditProfile = () => {
         </Card>
       </div>
 
-      {openConfirm && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          role="presentation"
-          onClick={handleCancelUpdate}
-        >
-          <div onClick={(e) => e.stopPropagation()}>
-            <ConfirmActionModal
-              onConfirm={handleConfirmUpdate}
-              onCancel={handleCancelUpdate}
-              onClose={handleCancelUpdate}
-            />
-          </div>
-        </div>
-      )}
+      <AlertDialog open={openConfirm} onOpenChange={(open) => !open}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Confirmar cambios?</AlertDialogTitle>
+            <AlertDialogDescription>
+              ¿Está seguro de querer actualizar su información?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <div className="flex w-full sm:flex-row-reverse flex-col-reverse justify-between gap-2">
+              <AlertDialogCancel onClick={() => setOpenConfirm(false)}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmUpdate}>Confirmar</AlertDialogAction>
+            </div>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 };
