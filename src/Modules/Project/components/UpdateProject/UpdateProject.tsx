@@ -62,8 +62,8 @@ export default function EditProject() {
           Description: value.Description?.trim() ?? "",
           Observation: value.Observation?.trim() ?? "",
           SpaceOfDocument: value.SpaceOfDocument?.trim() ?? "",
-          ProjectStateId: String(value.ProjectStateId ?? ""),
-          UserId: Number(value.UserId), // ⬅️ como string
+          ProjectStateId: Number(value.ProjectStateId),
+          UserId: Number(value.UserId),
         };
 
         await updateMutation.mutateAsync({ id, data: fullPayload as any });

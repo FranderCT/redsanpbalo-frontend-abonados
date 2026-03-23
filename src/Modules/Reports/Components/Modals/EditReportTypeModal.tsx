@@ -18,6 +18,13 @@ import {
 } from "@/Components/ui/field";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/ui/select";
 import { useUpdateReportType } from "../../Hooks/ReportTypesHooks";
 import type { ReportType } from "../../Models/ReportType";
 import { updateReportTypeValidators } from "../../schemas/ReportTypeSchema";
@@ -137,22 +144,21 @@ export default function EditReportTypeModal({
                 name="IsActive"
                 children={(field) => (
                   <Field className="gap-2">
-                    <div className="flex items-center gap-2">
-                      <input
-                        id={field.name}
-                        type="checkbox"
-                        checked={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.checked)}
-                        onBlur={field.handleBlur}
-                        className="h-4 w-4 rounded border-input"
-                      />
-                      <FieldLabel
-                        htmlFor={field.name}
-                        className="font-normal cursor-pointer"
-                      >
-                        Tipo activo
-                      </FieldLabel>
-                    </div>
+                    <FieldLabel htmlFor={field.name}>Estado</FieldLabel>
+                    <Select
+                      value={field.state.value ? "active" : "inactive"}
+                      onValueChange={(value) =>
+                        field.handleChange(value === "active")
+                      }
+                    >
+                      <SelectTrigger id={field.name}>
+                        <SelectValue placeholder="Seleccione un estado" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Activo</SelectItem>
+                        <SelectItem value="inactive">Inactivo</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </Field>
                 )}
               />

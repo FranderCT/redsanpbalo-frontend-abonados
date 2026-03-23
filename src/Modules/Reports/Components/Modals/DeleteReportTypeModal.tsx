@@ -1,5 +1,14 @@
 import { toast } from "sonner";
-import InhabilityActionModal from "@/Components/Modals/InhabilyActionModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/Components/ui/alert-dialog";
 import { useDeleteReportType } from "../../Hooks/ReportTypesHooks";
 import type { ReportType } from "../../Models/ReportType";
 
@@ -18,14 +27,6 @@ export default function DeleteReportTypeModal({
 }: Props) {
   const deleteMutation = useDeleteReportType();
 
-  const handleClose = () => {
-    toast.warning("Edicion cancelada", {
-      position: "top-right",
-      duration: 3000,
-    });
-    onClose();
-  };
-
   const handleConfirm = async () => {
     try {
       await deleteMutation.mutateAsync(reportType.Id);
@@ -41,16 +42,25 @@ export default function DeleteReportTypeModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
-      <InhabilityActionModal
-        title="Eliminar tipo de reporte?"
-        description={`Se eliminara el tipo "${reportType.Name ?? ""}".`}
-        cancelLabel="Cancelar"
-        confirmLabel="Eliminar"
-        onConfirm={handleConfirm}
-        onClose={handleClose}
-        onCancel={handleClose}
-      />
-    </div>
+    <AlertDialog open={open} onOpenChange={(value) => !value && onClose()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Eliminar tipo de reporte</AlertDialogTitle>
+          <AlertDialogDescription>
+            Se eliminará el tipo "{reportType.Name ?? ""}".
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onClose}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleConfirm}
+            disabled={deleteMutation.isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {deleteMutation.isPending ? "Eliminando..." : "Eliminar"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
