@@ -17,12 +17,11 @@ const HeaderUserProfile = () => {
       </div>
       <Button
         type="button"
-        variant="outline"
-        className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground shrink-0"
+        variant="ghost"
         onClick={() => navigate({ to: "/dashboard/users/edit" })}
       >
         <Pencil className="size-4" />
-        Editar
+        Editar perfil
       </Button>
     </div>
   );

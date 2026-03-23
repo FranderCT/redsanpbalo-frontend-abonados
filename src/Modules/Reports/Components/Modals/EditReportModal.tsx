@@ -419,7 +419,7 @@ export default function EditReportModal({
                                     <AvatarImage src={fontanero.ProfilePhoto ?? ""} alt={fontanero.Name} />
                                     <AvatarFallback>{fontanero.Name.charAt(0)} {fontanero.Surname1.charAt(0)}</AvatarFallback>
                                   </Avatar>
-                                  <span>{fontanero.IDcard}</span>
+                                  <span>{fontanero.Name} {fontanero.Surname1} {fontanero.Surname2}</span>
                                 </div>
                               </SelectItem>
                             ))}

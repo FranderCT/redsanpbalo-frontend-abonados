@@ -47,6 +47,7 @@
     "react": "^19.1.0",
     "react-day-picker": "^9.14.0",
     "react-dom": "^19.1.0",
+    "react-easy-crop": "^5.5.6",
     "react-phone-number-input": "^3.4.12",
     "react-to-print": "^3.1.1",
     "react-toastify": "^11.0.5",
