@@ -69,5 +69,6 @@ export async function deleteProject(id: number): Promise<void> {
     await apiAxios.delete(`${BASE}/${id}`);
   } catch (error) {
     console.error("Error al eliminar el proyecto", error);
+    return Promise.reject(error);
   }
 }

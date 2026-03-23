@@ -2,6 +2,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
+import { showApiErrorToast } from "@/core/api-error";
 import { createProject, deleteProject, getAllProjects, getProjectById, searchProjects, updateProject } from "../Services/ProjectServices";
 import type { Project, ProjectPaginationParams, UpdateProject } from "../Models/Project";
 
@@ -74,6 +75,7 @@ export const useCreateProject = () => {
       },
       onError: (err) =>{
           console.error('Error al crear', err)
+          showApiErrorToast(err);
       }
   })
 
@@ -92,6 +94,7 @@ export const useCreateProject = () => {
        },
        onError: (err) =>{
            console.error(err);
+           showApiErrorToast(err);
        }
    })
 
@@ -109,6 +112,7 @@ export const useDeleteProject = () => {
     },
     onError: (err)=>{
       console.error("Error al inhabilitar", err);
+      showApiErrorToast(err);
     }
   });
 };
