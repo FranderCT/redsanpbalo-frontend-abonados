@@ -96,6 +96,24 @@ export async function createReportByUser(
   }
 }
 
+export async function uploadReportPhoto(
+  reportId: number,
+  photo: File,
+): Promise<ReportApi> {
+  try {
+    const formData = new FormData();
+    formData.append("photo", photo);
+    const { data } = await apiAxios.post<ReportApi>(
+      `${BASE_URL}/${reportId}/photo`,
+      formData,
+    );
+    return data;
+  } catch (error) {
+    console.error("Error uploading report photo:", error);
+    throw error;
+  }
+}
+
 export async function assignUserInCharge(
   reportId: string,
   plumberUserId: number,
@@ -209,11 +227,11 @@ const MONTH_NAMES = [
 ];
 
 /**
- * Exporta PDF de reportes del mes/año con listado y gráfico por ubicación.
- * GET /reports/export/pdf?year=YYYY&month=M
- * Descarga el archivo con nombre reportes-{Mes}-{year}.pdf
+ * Exporta Excel de reportes del mes/año con formato legible.
+ * GET /reports/export/excel?year=YYYY&month=M
+ * Descarga el archivo con nombre reportes-{Mes}-{year}.xlsx
  */
-export async function exportReportsPdf(
+export async function exportReportsExcel(
   year: number,
   month: number,
 ): Promise<{ blob: Blob; filename: string }> {
@@ -226,7 +244,7 @@ export async function exportReportsPdf(
 
   try {
     const { data, headers } = await apiAxios.get<Blob>(
-      `${BASE_URL}/export/pdf`,
+      `${BASE_URL}/export/excel`,
       {
         params: { year, month },
         responseType: "blob",
@@ -234,7 +252,7 @@ export async function exportReportsPdf(
     );
 
     const disposition = headers["content-disposition"];
-    let filename = `reportes-${MONTH_NAMES[month - 1]}-${year}.pdf`;
+    let filename = `reportes-${MONTH_NAMES[month - 1]}-${year}.xlsx`;
     if (typeof disposition === "string" && disposition.includes("filename=")) {
       const match = disposition.match(/filename="?([^";\n]+)"?/);
       if (match?.[1]) filename = match[1].trim();
@@ -247,7 +265,7 @@ export async function exportReportsPdf(
         .response;
       if (res?.data instanceof Blob) {
         const text = await (res.data as Blob).text();
-        let msg = "Error al exportar el PDF";
+        let msg = "Error al exportar el Excel";
         try {
           const json = JSON.parse(text);
           if (json?.message) msg = json.message;

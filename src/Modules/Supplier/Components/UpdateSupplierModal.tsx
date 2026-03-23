@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import ConfirmActionModal from "../../../Components/Modals/ConfirmActionModal";
 import { ModalBase } from "../../../Components/Modals/ModalBase";
 import { useUpdateSupplier } from "../Hooks/SupplierHooks";
@@ -18,7 +18,7 @@ const UpdateSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
   const [openConfirm, setOpenConfirm] = useState(false);
 
   const handleClose = () => {
-      toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
+      toast.warning("Edición cancelada", { position: "top-right", duration: 3000 });
       onClose();
   };
 
@@ -41,7 +41,7 @@ const UpdateSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
         });
         toast.success("¡Proveedor actualizado!", {
           position: "top-right",
-          autoClose: 3000,
+          duration: 3000,
         });
         formApi.reset();
         setOpenConfirm(false); // por si estaba abierto
@@ -51,7 +51,7 @@ const UpdateSupplierModal = ({ supplier, open, onClose, onSuccess }: Props) => {
         console.error("Error desconocido", err);
         toast.error("Error al actualizar el Proveedor", {
           position: "top-right",
-          autoClose: 3000,
+          duration: 3000,
         });
       }
     },

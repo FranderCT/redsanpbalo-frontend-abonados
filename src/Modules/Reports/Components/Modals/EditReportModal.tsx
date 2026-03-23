@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/Components/ui/select";
 
+import { showApiErrorToast } from "@/core/api-error";
 import {
   useAssignUserInCharge,
   useChangeReportState,
@@ -39,6 +40,7 @@ import { updateReportValidators } from "../../schemas/ReportSchema";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar";
+import ReportPhotoLightbox from "../ReportPhotoLightbox";
 
 interface EditReportModalProps {
   report: ReportListItem;
@@ -106,19 +108,28 @@ export default function EditReportModal({
           },
         });
 
+        // El estado real del reporte puede cambiar automáticamente al asignar un fontanero
+        // (el backend auto-transiciona de Pendiente → En Proceso al asignar).
+        // Por eso usamos el estado retornado por la asignación como referencia.
+        let stateAfterAssignment = currentState;
+
         if (needsAssignment) {
-          await assignUserMutation.mutateAsync({
+          const assignedReport = await assignUserMutation.mutateAsync({
             reportId: report.Id.toString(),
             plumberUserId: selectedPlumberId,
             instructions: "Asignado desde la edicion del reporte",
           });
+          stateAfterAssignment = assignedReport.ReportState;
         }
 
-        if (selectedState !== currentState) {
+        // Solo llamar al cambio de estado si el estado aún difiere del deseado
+        // (evita el error "El reporte ya se encuentra en ese estado" cuando
+        // la asignación del fontanero ya lo cambió automáticamente)
+        if (selectedState !== stateAfterAssignment) {
           await changeStateMutation.mutateAsync({
             reportId: report.Id.toString(),
             newState: selectedState,
-            reasonChange: `Cambio de estado realizado desde la edicion del reporte: ${currentState} -> ${selectedState}`,
+            reasonChange: `Cambio de estado realizado desde la edicion del reporte: ${stateAfterAssignment} -> ${selectedState}`,
           });
         }
 
@@ -126,7 +137,7 @@ export default function EditReportModal({
         form.reset();
         onClose();
       } catch (error) {
-        toast.error("Error al actualizar el reporte");
+        showApiErrorToast(error);
         console.error(error);
       }
     },
@@ -189,6 +200,11 @@ export default function EditReportModal({
             }}
           >
             <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
+              {/* Preview foto existente */}
+              {report.PhotoUrl && (
+                <ReportPhotoLightbox src={report.PhotoUrl} thumbnailClass="h-40" />
+              )}
+
               <FieldGroup className="gap-4">
                 <ReportField
                   name="ExactLocation"

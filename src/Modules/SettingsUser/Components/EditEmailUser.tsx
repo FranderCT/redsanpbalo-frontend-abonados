@@ -5,7 +5,7 @@ import { useUpdateUserEmail } from "../../Users/Hooks/UsersHooks";
 import { EmailUserInitialState } from "../Models/EmailUser";
 import { EditEmailUserSchema } from "../schemas/EditEmailUserSchema";
 import ConfirmActionModal from "../../../Components/Modals/ConfirmActionModal";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Field,
   FieldError,
@@ -54,13 +54,13 @@ const EditEmailUser = () => {
       await updateProfile.mutateAsync(pendingValuesRef.current);
       toast.success("¡Actualización exitosa!", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
       navigate({ to: "/dashboard/users/profile" });
     } catch {
       toast.error("¡Error al actualizar el correo!", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
     } finally {
       setOpenConfirm(false);
@@ -71,7 +71,7 @@ const EditEmailUser = () => {
   const handleCancelUpdate = () => {
     toast.info("¡Actualización cancelada!", {
       position: "top-right",
-      autoClose: 3000,
+      duration: 3000,
     });
     setOpenConfirm(false);
     pendingValuesRef.current = null;

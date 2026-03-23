@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ModalBase } from "../../../../../Components/Modals/ModalBase";
 import { useGetCommentsByRequestIdAvailabilityWater, useCreateAdminCommentAvailabilityWater, useReplyWithFilesAvailabilityWater } from "../../../../CommentRequest/comment-availability-water/Hooks/commentAvailWaterHooks";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import type { ReqAvailWater } from "../../Models/ReqAvailWater";
 import { useGetUserProfile } from "../../../../Users/Hooks/UsersHooks";
 import { useReqAvailWaterFolderLink } from "../../Hooks/ReqAvailWaterHooks";
@@ -39,7 +39,7 @@ export function CommentsAvailWaterModal({
       if (file.size > 10 * 1024 * 1024) {
         toast.error(`El archivo ${file.name} excede el tamaño máximo de 10MB`, {
           position: "top-right",
-          autoClose: 3000,
+          duration: 3000,
         });
         return;
       }
@@ -59,7 +59,7 @@ export function CommentsAvailWaterModal({
     if (!subject.trim() || !comment.trim()) {
       toast.error("El asunto y comentario son requeridos", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
       return;
     }
@@ -67,7 +67,7 @@ export function CommentsAvailWaterModal({
     if (!isAdmin && files.length === 0) {
       toast.error("Debe adjuntar al menos un archivo como usuario", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
       return;
     }
@@ -75,7 +75,7 @@ export function CommentsAvailWaterModal({
     if (!UserProfile?.Id) {
       toast.error("Error: No se pudo identificar el usuario", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
       return;
     }
@@ -104,7 +104,7 @@ export function CommentsAvailWaterModal({
 
       toast.success("Comentario enviado exitosamente", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
 
       setSubject("");
@@ -115,7 +115,7 @@ export function CommentsAvailWaterModal({
       console.error("Error al enviar comentario:", error);
       toast.error("Error al enviar comentario. Intente nuevamente.", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
     } finally {
       setIsSubmitting(false);

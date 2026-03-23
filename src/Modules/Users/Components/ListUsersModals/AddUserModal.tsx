@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -49,12 +49,12 @@ export default function RegisterAbonadosModal() {
       try {
         const { IsAbonado, ...userData } = value;
         await createUserMutation.mutateAsync(userData);
-        toast.success("¡Registro exitoso!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡Registro exitoso!", { position: "top-right", duration: 3000 });
         setOpen(false);
         form.reset();
       } catch (error: any) {
         console.log("error", error);
-        toast.error("¡Registro denegado!", { position: "top-right", autoClose: 3000 });
+        toast.error("¡Registro denegado!", { position: "top-right", duration: 3000 });
         form.reset();
       }
     },

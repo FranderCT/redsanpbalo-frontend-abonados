@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useParams, useNavigate } from "@tanstack/react-router";
 import { useGetProjectById, useUpdateProject } from "../../Hooks/ProjectHooks";
 import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";

@@ -1,4 +1,3 @@
-import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
@@ -6,7 +5,7 @@ type ToasterProps = React.ComponentProps<typeof Sonner>
 const defaultToastOptions: NonNullable<ToasterProps["toastOptions"]> = {
   classNames: {
     toast:
-      "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
+      "group toast group-[.toaster]:bg-white group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
     description: "group-[.toast]:text-muted-foreground",
     actionButton:
       "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
@@ -16,12 +15,11 @@ const defaultToastOptions: NonNullable<ToasterProps["toastOptions"]> = {
 }
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
   const toastOptions = props.toastOptions ?? defaultToastOptions
 
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme="light"
       className="toaster group"
       toastOptions={toastOptions}
       {...props}

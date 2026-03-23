@@ -17,10 +17,11 @@ import {
   searchReports,
   createReportByAdmin,
   createReportByUser,
+  uploadReportPhoto,
   assignUserInCharge,
   updateReport,
   getMonthlyCountsByLocation,
-  exportReportsPdf,
+  exportReportsExcel,
   changeReportState,
 } from "../Services/ReportSV";
 
@@ -56,10 +57,9 @@ export const useCreateReportByAdmin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: createReportByAdmin,
+    mutationFn: (payload: Parameters<typeof createReportByAdmin>[0]) =>
+      createReportByAdmin(payload),
     onSuccess: () => {
-      console.log("Reporte creado exitosamente");
-      // Invalidar las queries para refrescar la lista
       queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
     onError: (error) => {
@@ -72,13 +72,28 @@ export const useCreateReportByUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: createReportByUser,
+    mutationFn: (payload: Parameters<typeof createReportByUser>[0]) =>
+      createReportByUser(payload),
     onSuccess: () => {
-      console.log("Reporte creado exitosamente por usuario");
       queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
     onError: (error) => {
-      console.error("Error al crear el reporte:", error);
+      showApiErrorToast(error);
+    },
+  });
+};
+
+export const useUploadReportPhoto = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ reportId, photo }: { reportId: number; photo: File }) =>
+      uploadReportPhoto(reportId, photo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+    },
+    onError: (error) => {
+      console.error("Error uploading photo:", error);
     },
   });
 };
@@ -97,11 +112,10 @@ export const useAssignUserInCharge = () => {
       instructions?: string;
     }) => assignUserInCharge(reportId, plumberUserId, instructions),
     onSuccess: () => {
-      console.log("Usuario asignado exitosamente");
       queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
     onError: (error) => {
-      console.error("Error al asignar usuario:", error);
+      console.error("Error al asignar fontanero:", error);
     },
   });
 };
@@ -120,11 +134,10 @@ export const useChangeReportState = () => {
       reasonChange?: string;
     }) => changeReportState(reportId, newState, reasonChange),
     onSuccess: () => {
-      console.log("Estado del reporte actualizado exitosamente");
       queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
     onError: (error) => {
-      console.error("Error al cambiar el estado del reporte:", error);
+      console.error("Error al cambiar estado del reporte:", error);
     },
   });
 };
@@ -141,11 +154,10 @@ export const useUpdateReport = () => {
       payload: UpdateReportPayload;
     }) => updateReport(reportId, payload),
     onSuccess: () => {
-      console.log("Reporte actualizado exitosamente");
       queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
     onError: (error) => {
-      console.error("Error al actualizar el reporte:", error);
+      console.error("Error al actualizar reporte:", error);
     },
   });
 };
@@ -173,7 +185,7 @@ export const useGetMonthlyCountsByLocation = (
   return { data, isLoading, isError, error };
 };
 
-/** Descarga el PDF de reportes del mes/año (listado + gráfico por ubicación) */
+/** Descarga el Excel de reportes del mes/año */
 function triggerDownload(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -185,10 +197,10 @@ function triggerDownload(blob: Blob, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export const useExportReportsPdf = () => {
+export const useExportReportsExcel = () => {
   return useMutation({
     mutationFn: ({ year, month }: { year: number; month: number }) =>
-      exportReportsPdf(year, month),
+      exportReportsExcel(year, month),
     onSuccess: ({ blob, filename }) => {
       triggerDownload(blob, filename);
     },

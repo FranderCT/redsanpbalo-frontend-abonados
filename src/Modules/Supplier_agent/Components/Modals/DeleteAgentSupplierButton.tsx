@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import {
   AlertDialog,

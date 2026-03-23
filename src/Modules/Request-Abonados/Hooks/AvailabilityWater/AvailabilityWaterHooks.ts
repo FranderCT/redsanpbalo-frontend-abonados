@@ -7,7 +7,7 @@ import {
   getReqAvailWaterById,
   type MyReqAvailWaterParams
 } from "../../Services/AvailabilityWater/AvailabilityWaterSV";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import type { ReqAvailWater, ReqAvailWaterPaginationParams } from "../../../Requests/RequestAvailabilityWater/Models/ReqAvailWater";
 import { getAllReqAvailWater, searchReqAvailWater } from "../../../Requests/RequestAvailabilityWater/Services/ReqAvilWaterServices";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
@@ -129,10 +129,10 @@ export function useCreateAvailabilityWaterRq() {
       qc.invalidateQueries({ queryKey: QK.all });
       qc.invalidateQueries({ queryKey: [baseKey, "list"] });
 
-      toast.success("Solicitud de disponibilidad de agua creada con éxito", { position: "top-right", autoClose: 2000 });
+      toast.success("Solicitud de disponibilidad de agua creada con éxito", { position: "top-right", duration: 2000 });
     },
     onError: () => {
-      toast.error("Error al crear la solicitud de disponibilidad de agua", { position: "top-right", autoClose: 2000 });
+      toast.error("Error al crear la solicitud de disponibilidad de agua", { position: "top-right", duration: 2000 });
     }
   });
 }

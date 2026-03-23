@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ModalBase } from "../../../../../Components/Modals/ModalBase";
 import { useGetCommentsByRequestIdSupervisionMeter, useCreateAdminCommentSupervisionMeter } from "../../../../CommentRequest/comment-supervision-meter/Hooks/commentSupervisionMeterHooks";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import type { ReqSupervisionMeter } from "../../Models/ReqSupervisionMeter";
 import { useGetUserProfile } from "../../../../Users/Hooks/UsersHooks";
 
@@ -32,7 +32,7 @@ export function CommentsSupervisionMeterModal({
     if (!subject.trim() || !comment.trim()) {
       toast.error("El asunto y comentario son requeridos", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
       return;
     }
@@ -40,7 +40,7 @@ export function CommentsSupervisionMeterModal({
     if (!UserProfile?.Id) {
       toast.error("Error: No se pudo identificar el usuario", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
       return;
     }
@@ -68,7 +68,7 @@ export function CommentsSupervisionMeterModal({
 
       toast.success("Comentario enviado exitosamente", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
 
       setSubject("");
@@ -84,7 +84,7 @@ export function CommentsSupervisionMeterModal({
       console.error("❌ Error al enviar comentario:", error);
       toast.error("Error al enviar comentario. Intente nuevamente.", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
     } finally {
       setIsSubmitting(false);

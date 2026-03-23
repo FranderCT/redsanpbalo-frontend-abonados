@@ -1,6 +1,6 @@
 import { useQueryClient, useMutation, useQuery, keepPreviousData } from "@tanstack/react-query";
 import { createSupervisionMeterRequest, getMyReqSupervisionMeter, getMyReqSupervisionMeterPaginated, getReqSupervisionMeterById, type MyReqSupervisionMeterParams } from "../../Services/Supervision-Meter/SupervisionMeterSV";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import type { ReqSupervisionMeter, ReqSupervisionMeterPaginationParams } from "../../../Requests/RequestSupervisionMeter/Models/ReqSupervisionMeter";
 import { getAllReqSupervisionMeter, searchReqSupervisionMeter } from "../../../Requests/RequestSupervisionMeter/Services/ReqSupervisionMeterServices";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
@@ -118,9 +118,9 @@ export const useCreateSupervisionMeterRequest = () => {
         mutationKey: ['requestsupervision-meter'],
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ['requestsupervision-meter'] });
-            toast.success('Solicitud de supervisión de medidor creada con éxito', {position: "top-right", autoClose: 2000});
+            toast.success('Solicitud de supervisión de medidor creada con éxito', {position: "top-right", duration: 2000});
         }, onError: (error: any) => {
-            toast.error(`Error al crear la solicitud: ${error.message}`, {position: "top-right", autoClose: 2000});
+            toast.error(`Error al crear la solicitud: ${error.message}`, {position: "top-right", duration: 2000});
         }
     });
 }

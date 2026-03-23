@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import ConfirmActionModal from "../../../Components/Modals/ConfirmActionModal";
 import { ChangePasswordSchema } from "../../Auth/schemas/ChangePasswordSchema";
 import { changePasswordInitialState } from "../../Auth/Models/changePassword";
@@ -46,7 +46,7 @@ const ChangePassword = () => {
       if (value.NewPassword !== value.ConfirmPassword) {
         toast.error("Las contraseñas no coinciden", {
           position: "top-right",
-          autoClose: 3000,
+          duration: 3000,
         });
         return;
       }
@@ -69,7 +69,7 @@ const ChangePassword = () => {
 
       toast.success("¡Contraseña actualizada con éxito!", {
         position: "top-right",
-        autoClose: 2500,
+        duration: 2500,
       });
 
       localStorage.removeItem("token");
@@ -79,7 +79,7 @@ const ChangePassword = () => {
         "Tu sesión ha finalizado. Inicia sesión con tu nueva contraseña.",
         {
           position: "top-right",
-          autoClose: 3500,
+          duration: 3500,
         }
       );
 
@@ -87,7 +87,7 @@ const ChangePassword = () => {
     } catch {
       toast.error("¡Error al actualizar la contraseña!", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
     } finally {
       setOpenConfirm(false);
@@ -100,7 +100,7 @@ const ChangePassword = () => {
     pendingValuesRef.current = null;
     toast.info("Actualización cancelada", {
       position: "top-right",
-      autoClose: 3000,
+      duration: 3000,
     });
   };
 

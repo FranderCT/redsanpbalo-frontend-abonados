@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { createAgentSupplier, deleteAgentSupplier, editAgentSupplier } from "../Services/SupplierAgentServices";
 import type { AgentSupppliers, newAgentSupppliers } from "../Models/SupplierAgent";
 
@@ -15,11 +15,11 @@ export const useCreateAgentSupplier = () =>{
             qc.invalidateQueries({ queryKey: [BASE_KEY] });
             qc.invalidateQueries({ queryKey: ['legal-supplier', 'agent-supplier'] });
             qc.invalidateQueries({ queryKey: ['legal-supplier'] });
-            toast.success('Agente creado con éxito', {autoClose: 3000, position: 'top-right'});
+            toast.success('Agente creado con éxito', {duration: 3000, position: 'top-right'});
         },
         onError: (err) =>{
             console.error(err);
-            toast.error('Error al crear el Agente', {autoClose: 3000, position: 'top-right'});
+            toast.error('Error al crear el Agente', {duration: 3000, position: 'top-right'});
         }
     })
     return mutation;
@@ -35,11 +35,11 @@ export const useEditAgentSupplier= () =>{
             qc.invalidateQueries({ queryKey: [BASE_KEY] });
             qc.invalidateQueries({ queryKey: ['legal-supplier', 'agent-supplier'] });
             qc.invalidateQueries({ queryKey: ['legal-supplier'] });
-            toast.success('Agente actualizado con éxito ', {position: 'top-right', autoClose: 3000})
+            toast.success('Agente actualizado con éxito ', {position: 'top-right', duration: 3000})
         },
         onError: (err) =>{
             console.error(err);
-            toast.error('Error al actualizar agente', {position: 'top-right', autoClose: 3000})
+            toast.error('Error al actualizar agente', {position: 'top-right', duration: 3000})
         }
     })
 

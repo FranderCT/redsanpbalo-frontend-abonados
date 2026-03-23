@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -70,12 +70,12 @@ export default function CreateServiceModal() {
     onSubmit: async ({ value }) => {
       try {
         await createServiceMutation.mutateAsync(value);
-        toast.success("¡Servicio creado exitosamente!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡Servicio creado exitosamente!", { position: "top-right", duration: 3000 });
         setOpen(false);
         form.reset();
       } catch (err) {
         console.error("Error creando servicio:", err);
-        toast.error("Error al crear el servicio", { position: "top-right", autoClose: 3000 });
+        toast.error("Error al crear el servicio", { position: "top-right", duration: 3000 });
       }
     },
   });

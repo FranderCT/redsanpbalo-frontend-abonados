@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -54,14 +54,14 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
     onSubmit: async ({ value, formApi }) => {
       try {
         await updateUserMutation.mutateAsync({ id: user.Id, data: value });
-        toast.success("¡Usuario actualizado!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡Usuario actualizado!", { position: "top-right", duration: 3000 });
         formApi.reset();
         onClose();
         onSuccess?.();
       } catch (err: any) {
         const msg =
           err?.response?.data?.message ?? err?.message ?? "No se pudo actualizar el usuario.";
-        toast.error(msg, { position: "top-right", autoClose: 3000 });
+        toast.error(msg, { position: "top-right", duration: 3000 });
       }
     },
   });
@@ -153,14 +153,14 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
                   if (isNaN(nisNum) || nisNum <= 0) {
                     toast.error("El NIS debe ser un número positivo", {
                       position: "top-right",
-                      autoClose: 2000,
+                      duration: 2000,
                     });
                     return;
                   }
                   if (nisList.includes(nisNum)) {
                     toast.error("Este NIS ya está agregado", {
                       position: "top-right",
-                      autoClose: 2000,
+                      duration: 2000,
                     });
                     return;
                   }

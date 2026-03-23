@@ -1,6 +1,6 @@
 // import { useEffect, useMemo, useState } from "react";
 // import { useForm } from "@tanstack/react-form";
-// import { toast } from "react-toastify";
+// import { toast } from "sonner";
 // import { ModalBase } from "../../../../../Components/Modals/ModalBase";
 // import { useCreateReqAvailWater } from "../../Hooks/ReqAvailWaterHooks";
 // import { useGetAllRequestStates } from "../../../StateRequest/Hooks/RequestStateHook";
@@ -80,7 +80,7 @@
 //   }, [open, UserProfile?.Id]);
 
 //   const handleClose = () => {
-//     toast.warning("Registro cancelado", { position: "top-right", autoClose: 3000 });
+//     toast.warning("Registro cancelado", { position: "top-right", duration: 3000 });
 //     setOpen(false);
 //   };
 

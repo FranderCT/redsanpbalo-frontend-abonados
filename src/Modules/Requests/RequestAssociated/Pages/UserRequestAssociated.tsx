@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useCreateAssociatedRequest } from '../../../Request-Abonados/Hooks/Associated/AssociatedRqHooks';
 import { useGetUserProfile } from '../../../Users/Hooks/UsersHooks';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { useForm } from '@tanstack/react-form';
 import { uploadWithRetry } from '../../../Request-Abonados/Components/AvailabilityWater/CreateAvailabilityWaterRqModal';
 import { UploadAssociatedFiles } from '../../../Upload-files/Services/ProjectFileServices';
@@ -15,7 +15,7 @@ export function UserRequestAssociated () {
     const [uploadProgress, setUploadProgress] = useState('');
 
     const handleClose = () => {
-        toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+        toast.warning("Solicitud cancelada", { position: "top-right", duration: 3000 });
         form.reset();
         setIsUploading(false);
         setUploadProgress('');
@@ -62,19 +62,19 @@ export function UserRequestAssociated () {
 
                         toast.success("Solicitud creada y evidencia de boleta firmada subida exitosamente", { 
                             position: "top-right", 
-                            autoClose: 3000 
+                            duration: 3000 
                         });
                     } catch (uploadError) {
                         console.error("Error subiendo evidencia:", uploadError);
                         toast.error("Solicitud creada, pero hubo un error al subir la evidencia. Intente subirla más tarde.", {
                             position: "top-right",
-                            autoClose: 5000
+                            duration: 5000
                         });
                     }
                 } else {
                     toast.success("Solicitud de asociado creada exitosamente", { 
                         position: "top-right", 
-                        autoClose: 3000 
+                        duration: 3000 
                     });
                 }
 
@@ -84,7 +84,7 @@ export function UserRequestAssociated () {
                 console.error("Error al crear la solicitud de asociado", error);
                 toast.error("Error al crear la solicitud. Intente nuevamente.", {
                     position: "top-right",
-                    autoClose: 4000
+                    duration: 4000
                 });
             } finally {
                 setIsUploading(false);

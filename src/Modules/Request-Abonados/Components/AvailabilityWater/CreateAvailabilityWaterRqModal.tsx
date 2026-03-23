@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 import { useCreateAvailabilityWaterRq } from "../../Hooks/AvailabilityWater/AvailabilityWaterHooks";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { uploadRequestAvailabilityWaterFile } from "../../../Upload-files/Services/ProjectFileServices";
 
@@ -55,7 +55,7 @@ const CreateAvailabilityWaterRqModal = () => {
     const [uploadProgress, setUploadProgress] = useState('');
 
     const handleClose = () => {
-        toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+        toast.warning("Solicitud cancelada", { position: "top-right", duration: 3000 });
         form.reset();
         setIsUploading(false);
         setUploadProgress('');
@@ -140,7 +140,7 @@ const CreateAvailabilityWaterRqModal = () => {
                             // Mostrar progreso
                             toast.info(`${task.name} subido exitosamente (${completedUploads}/${uploadTasks.length})`, {
                                 position: "top-right",
-                                autoClose: 2000
+                                duration: 2000
                             });
                             
                             // Pequeña pausa entre uploads para ser amable con Dropbox
@@ -152,19 +152,19 @@ const CreateAvailabilityWaterRqModal = () => {
                             console.error(`Error subiendo ${task.name}:`, error);
                             toast.error(`Error al subir ${task.name}. El documento no se guardó.`, {
                                 position: "top-right",
-                                autoClose: 5000
+                                duration: 5000
                             });
                         }
                     }
                     
                     toast.success(`Solicitud creada y ${completedUploads}/${uploadTasks.length} tipo(s) de documentos subidos exitosamente`, { 
                         position: "top-right", 
-                        autoClose: 4000 
+                        duration: 4000 
                     });
                 } else {
                     toast.success("Solicitud de disponibilidad de agua creada exitosamente", { 
                         position: "top-right", 
-                        autoClose: 3000 
+                        duration: 3000 
                     });
                 }
 
@@ -175,7 +175,7 @@ const CreateAvailabilityWaterRqModal = () => {
                 console.error("Error al crear la solicitud:", error);
                 toast.error("Error al crear la solicitud. Intente nuevamente.", {
                     position: "top-right",
-                    autoClose: 4000
+                    duration: 4000
                 });
             } finally {
                 setIsUploading(false);

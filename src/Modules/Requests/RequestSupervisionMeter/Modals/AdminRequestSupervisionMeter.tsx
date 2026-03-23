@@ -1,7 +1,7 @@
     // CreateRequestSupervisionMeter2.tsx
     import { useEffect, useState } from "react";
     import { useForm } from "@tanstack/react-form";
-    import { toast } from "react-toastify";
+    import { toast } from "sonner";
     import type { AbonadoSearch } from "../../GeneralGetUser/Model";
     import { useSearchAbonados } from "../../GeneralGetUser/GenralHook";
     import { useCreateSupervisionMeterRequest } from "../../../Request-Abonados/Hooks/Supervision-Meter/SupervionMeterHooks";
@@ -149,7 +149,7 @@
     });
 
     const handleClose = () => {
-        toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+        toast.warning("Solicitud cancelada", { position: "top-right", duration: 3000 });
         form.reset();
         setOpen(false);
     };

@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/Com
 import { Separator } from "@/Components/ui/separator";
 import type { ReportListItem } from "../../Models/Report";
 import { Calendar, FileText, MapPin, MessageSquare, User, Wrench } from "lucide-react";
+import ReportPhotoLightbox from "../ReportPhotoLightbox";
 
 type Props = {
   report: ReportListItem;
@@ -53,7 +54,7 @@ export default function GetInfoReportModal({
 
   return (
     <Dialog open={open} onOpenChange={(value) => !value && close()}>
-      <DialogContent className="max-h-[70vh] w-full max-w-md gap-0 overflow-hidden p-0 sm:max-w-lg">
+      <DialogContent className="max-h-[80vh] w-full max-w-md gap-0 overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="space-y-2 px-6 pt-6">
           <div className="flex items-center justify-between gap-2">
             <DialogTitle className="text-xl">Reporte {report.Code}</DialogTitle>
@@ -67,7 +68,13 @@ export default function GetInfoReportModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="max-h-[60vh] space-y-4 overflow-y-auto px-6 py-4">
+        <div className="max-h-[calc(80vh-10rem)] space-y-4 overflow-y-auto px-6 py-4">
+
+          {/* Foto del reporte */}
+          {report.PhotoUrl && (
+            <ReportPhotoLightbox src={report.PhotoUrl} thumbnailClass="h-52" />
+          )}
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">

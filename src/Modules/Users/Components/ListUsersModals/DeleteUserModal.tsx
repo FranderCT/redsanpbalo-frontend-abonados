@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -32,7 +32,7 @@ export default function DeleteUserModal({ user, open, onClose, onSuccess }: Prop
   const handleDelete = async () => {
     try {
       await deleteMutation.mutateAsync(user.Id);
-      toast.success("¡Usuario desactivado!", { position: "top-right", autoClose: 3000 });
+      toast.success("¡Usuario desactivado!", { position: "top-right", duration: 3000 });
       onClose();
       onSuccess();
       setConfirmText("");
@@ -40,7 +40,7 @@ export default function DeleteUserModal({ user, open, onClose, onSuccess }: Prop
       console.error("Error desactivando usuario:", err);
       toast.error("No se pudo desactivar el usuario", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
     }
   };

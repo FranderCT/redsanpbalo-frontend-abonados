@@ -3,7 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { newProjectInitialState } from "../../Models/Project";
 import { useCreateProject } from "../../Hooks/ProjectHooks";
 import { useGetAllProjectStates } from "../../../Project_State/Hooks/ProjectStateHooks";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import type { NewProjectProjection } from "../../Project-projection/Models/ProjectProjection";
 import { useCreateProjectProjection } from "../../Project-projection/Hooks/Project-ProjectionHooks";
 import {  type NewProductDetail } from "../../../Product-Detail/Models/ProductDetail";
@@ -175,12 +175,12 @@ const CreateProject = () => {
         // 4) Subir archivos si existen
         if (value.files && value.files.length > 0) {
           await uploadProjectFiles(projectId, value.files, value.subfolder || 'Complementarios');
-          toast.success(`${value.files.length} archivo(s) subido(s) exitosamente`, { position: "top-right", autoClose: 2000 });
+          toast.success(`${value.files.length} archivo(s) subido(s) exitosamente`, { position: "top-right", duration: 2000 });
         }
 
         // 5) Éxito
         formApi.reset();
-        toast.success("¡Proyecto, proyección y detalles creados!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡Proyecto, proyección y detalles creados!", { position: "top-right", duration: 3000 });
         navigate({ to: "/dashboard/projects" });
         setStep(0);
         setTempProductId(0);
@@ -189,7 +189,7 @@ const CreateProject = () => {
         
       } catch (err) {
         console.error("Error al crear proyecto/proyección/detalles", err);
-        toast.error("¡Error al crear el proyecto, su proyección o los detalles!", { position: "top-right", autoClose: 3000 });
+        toast.error("¡Error al crear el proyecto, su proyección o los detalles!", { position: "top-right", duration: 3000 });
         console.log(value.UserId)
         console.log(value.Name)
       }

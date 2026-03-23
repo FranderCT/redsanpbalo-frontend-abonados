@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createPhysicalSupplier, deletePhysicalSupplier, editPhysicalSupplier, getAllPhysicalSupplier, getPhysicalSuppliers } from "../Services/PhysicalSupplier";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import type { ProductPaginationParams } from "../../Products/Models/CreateProduct";
 import type { UpdatePhysicalSupplierDto, PhysicalSupplier } from "../Models/PhysicalSupplier";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
@@ -14,11 +14,11 @@ export const useCreatePhysicalSupplier = () =>{
         onSuccess: (res) => {
             console.log(res);
             qc.invalidateQueries({queryKey: ['phySupplier']});
-            toast.success('Proveedor físico creado con éxito', {autoClose: 3000, position: 'top-right'});
+            toast.success('Proveedor físico creado con éxito', {duration: 3000, position: 'top-right'});
         },
         onError: (err) =>{
             console.error(err);
-            toast.error('Error al crear el Proveedor', {autoClose: 3000, position: 'top-right'});
+            toast.error('Error al crear el Proveedor', {duration: 3000, position: 'top-right'});
         }
     })
     return mutation;
@@ -63,11 +63,11 @@ export const useEditPhysicalSupplier= () =>{
         onSuccess :(res)=>{
             console.log('proveedor actualizado', res)
             qc.invalidateQueries({queryKey: [`phySupplier`]})
-            toast.success('Proveedor actualizado con éxito ', {position: 'top-right', autoClose: 3000})
+            toast.success('Proveedor actualizado con éxito ', {position: 'top-right', duration: 3000})
         },
         onError: (err) =>{
             console.error(err);
-            toast.error('Error al actualizar proveedor', {position: 'top-right', autoClose: 3000})
+            toast.error('Error al actualizar proveedor', {position: 'top-right', duration: 3000})
         }
     })
 

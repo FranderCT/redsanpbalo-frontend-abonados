@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { createChangeNameMeterRqAbonado, getMyReqChangeNameMeter, getMyReqChangeNameMeterPaginated, getReqChangeNameMeterById, type MyReqChangeNameMeterParams } from "../../Services/ChangeNameMeter/ChangeNameMterSV";
 import type { ReqChangeNameMeter, ReqChangeNameMeterPaginationParams } from "../../../Requests/RequestChangeNameMeter/Models/RequestChangeNameMeter";
 import { getAllReqChangeNameMeter, searchReqChangeNameMeter } from "../../../Requests/RequestChangeNameMeter/Services/RequestChangeNameMeter";
@@ -115,10 +115,10 @@ export const useChangeNameMeterRq = () => {
         mutationFn: createChangeNameMeterRqAbonado,
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ['change-name-meter'] });
-            toast.success("Solicitud de disponibilidad de agua creada con éxito", { position: "top-right", autoClose: 2000 });
+            toast.success("Solicitud de disponibilidad de agua creada con éxito", { position: "top-right", duration: 2000 });
         },
         onError: () => {
-            toast.error("Error al crear la solicitud de disponibilidad de agua", { position: "top-right", autoClose: 2000 });
+            toast.error("Error al crear la solicitud de disponibilidad de agua", { position: "top-right", duration: 2000 });
         }
     });
 }

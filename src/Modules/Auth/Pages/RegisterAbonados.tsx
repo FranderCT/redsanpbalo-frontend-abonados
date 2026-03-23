@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { RegisterUserInitialState } from '../Models/RegisterUser';
 
 import { RegisterSchema } from '../schemas/RegisterSchemas';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useCreateAbonado } from '../Hooks/AuthHooks';
 import PhoneField from '../../../Components/PhoneNumber/PhoneField';
@@ -35,12 +35,12 @@ const RegisterAbonados = () => {
       try {
         const { IsAbonado, ...userData } = value;
         await createUserMutation.mutateAsync(userData);
-        toast.success('¡Registro exitoso!', { position: 'top-right', autoClose: 3000 });
+        toast.success('¡Registro exitoso!', { position: 'top-right', duration: 3000 });
         navigate({ to: '/login' });
         form.reset();
       } catch (error: any) {
         console.log('error', error);
-        toast.error('¡Registro denegado!', { position: 'top-right', autoClose: 3000 });
+        toast.error('¡Registro denegado!', { position: 'top-right', duration: 3000 });
         form.reset();
       }
     },

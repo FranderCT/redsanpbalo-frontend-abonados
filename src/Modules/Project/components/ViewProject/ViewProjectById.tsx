@@ -4,7 +4,7 @@ import { useParams } from "@tanstack/react-router";
 import { viewProjectRoute } from "../../Routes/ProjectsRoutes";
 import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";
 import { 
   Calendar, 

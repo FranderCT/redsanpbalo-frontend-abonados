@@ -1,6 +1,5 @@
 import type {
   ReportApi,
-  ReportAssignmentApi,
   ReportListItem,
   ReportLiveEvent,
   ReportUserSummary,
@@ -19,7 +18,6 @@ type PartialReportUser = {
 function buildFullName(user?: PartialReportUser | null): string {
   if (!user) return "Sin usuario";
   if (user.FullName?.trim()) return user.FullName.trim();
-
   return [user.Name, user.Surname1, user.Surname2].filter(Boolean).join(" ").trim() || user.Email;
 }
 
@@ -30,7 +28,6 @@ function buildDisplayLocation(exactLocation: string, neighborhood?: string | nul
 
 function mapUser(user?: PartialReportUser | null): ReportUserSummary | undefined {
   if (!user) return undefined;
-
   return {
     ...user,
     Name: user.Name ?? user.FullName ?? user.Email,
@@ -38,26 +35,14 @@ function mapUser(user?: PartialReportUser | null): ReportUserSummary | undefined
   };
 }
 
-function mapAssignment(assignment?: ReportAssignmentApi | null): ReportAssignmentApi | null | undefined {
-  if (assignment === undefined) return undefined;
-  if (assignment === null) return null;
-
-  return {
-    ...assignment,
-    Plumber: mapUser(assignment.Plumber),
-    AssignedBy: mapUser(assignment.AssignedBy),
-  };
-}
-
 export function mapReportApiToListItem(report: ReportApi): ReportListItem {
   const reportedBy = mapUser(report.ReportedBy);
-  const assignment = mapAssignment(report.Assignment);
+  const plumber = mapUser(report.Plumber);
 
   return {
     ...report,
     ReportedBy: reportedBy,
-    Assignment: assignment,
-    AssignedPlumber: assignment?.Plumber ?? null,
+    AssignedPlumber: plumber ?? null,
     DisplayLocation: buildDisplayLocation(
       report.ExactLocation,
       report.ReportLocation?.Neighborhood
@@ -83,8 +68,13 @@ export function mapLiveEventToListItem(event: ReportLiveEvent): ReportListItem {
     ReportLocation: event.ReportLocation ?? null,
     ReportType: event.ReportType ?? null,
     ReportedBy: reportedBy,
-    Assignment: null,
     StateHistory: [],
+    PhotoUrl: event.PhotoUrl ?? null,
+    PlumberUserId: null,
+    AssignedByUserId: null,
+    Instructions: null,
+    Plumber: null,
+    AssignedBy: null,
     AssignedPlumber: null,
     DisplayLocation: buildDisplayLocation(
       event.ExactLocation,
@@ -98,17 +88,8 @@ export function withAssignedPlumber(
   report: ReportListItem,
   plumber: ReportUserSummary | null
 ): ReportListItem {
-  if (!plumber) {
-    return {
-      ...report,
-      AssignedPlumber: null,
-    };
-  }
-
-  const normalizedPlumber = mapUser(plumber);
-
   return {
     ...report,
-    AssignedPlumber: normalizedPlumber ?? null,
+    AssignedPlumber: plumber ?? null,
   };
 }

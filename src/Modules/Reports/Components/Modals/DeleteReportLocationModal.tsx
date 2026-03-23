@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import InhabilityActionModal from "@/Components/Modals/InhabilyActionModal";
 import { useDeleteReportLocation } from "../../Hooks/ReportLocationHooks";
 import type { ReportLocation } from "../../Models/ReportLocation";
@@ -21,7 +21,7 @@ export default function DeleteReportLocationModal({
   const handleClose = () => {
     toast.warning("Edicion cancelada", {
       position: "top-right",
-      autoClose: 3000,
+      duration: 3000,
     });
     onClose();
   };

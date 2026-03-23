@@ -5,7 +5,7 @@ import GetInfoPhysicalSupplierModal from "../Modals/GetInfoPhysicalSupplierModal
 import { DataPagination } from "@/Components/ui/data-pagination";
 import { useDeletePhysicalSupplier } from "../../Hooks/PhysicalSupplierHooks";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,

@@ -2,7 +2,7 @@
 
 import { useForm } from "@tanstack/react-form"
 import { MessageSquare, Send } from "lucide-react"
-import { toast } from "react-toastify"
+import { toast } from "sonner"
 import { useCreateComment } from "../Comment/Hooks/commentHooks";
 import { Card, CardContent } from "../DashboardPrincipal-Admin/Components/card";
 
@@ -14,11 +14,11 @@ export function Feedback() {
         onSubmit: async ({ value }) => {
             try {
                 await commentMutation.mutateAsync(value);
-                toast.success("Comentario enviado!", { position: "top-right", autoClose: 3000 });
+                toast.success("Comentario enviado!", { position: "top-right", duration: 3000 });
                 form.reset();
             } catch (error: any) {
                 console.log("error", error);
-                toast.error("Fallo al enviar comentario!", { position: "top-right", autoClose: 3000 });
+                toast.error("Fallo al enviar comentario!", { position: "top-right", duration: 3000 });
                 form.reset();
             }
         },

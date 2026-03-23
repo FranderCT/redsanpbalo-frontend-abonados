@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Edit2, Upload, FolderOpen } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import axios from "axios";
 import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
 import { uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";

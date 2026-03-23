@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import type { User } from "../../Models/User";
 import { useDeleteUser } from "../../Hooks/UsersHooks";

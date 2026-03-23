@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import InhabilityActionModal from "../../../Components/Modals/InhabilyActionModal";
 import { useDeleteSupplier } from "../Hooks/SupplierHooks";
@@ -17,7 +17,7 @@ export default function DeleteSupplierButton({ supplierSelected, onSuccess }: Pr
   const deleteSupplierMutation = useDeleteSupplier();
 
   const handleClose = () => {
-    toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
+    toast.warning("Edición cancelada", { position: "top-right", duration: 3000 });
     setOpen(false);
   };
 

@@ -1,5 +1,5 @@
     import { useEffect, useState } from "react";
-    import { toast } from "react-toastify";
+    import { toast } from "sonner";
     import { useForm } from "@tanstack/react-form";
     import { useChangeNameMeterRq } from "../../../../Request-Abonados/Hooks/ChangeNameMeter/ChangeNameMeter";
     import { uploadWithRetry } from "../../../GeneralGetUser/AddnewRequestModal";
@@ -184,7 +184,7 @@
                 completedUploads++;
                 toast.info(`${task.name} subido exitosamente (${completedUploads}/${uploadTasks.length})`, {
                     position: "top-right",
-                    autoClose: 2000,
+                    duration: 2000,
                 });
                 if (completedUploads < uploadTasks.length) {
                     await new Promise((r) => setTimeout(r, 500));
@@ -193,17 +193,17 @@
                 console.error(`Error subiendo ${task.name}:`, err);
                 toast.error(`Error al subir ${task.name}. El documento no se guardó.`, {
                     position: "top-right",
-                    autoClose: 5000,
+                    duration: 5000,
                 });
                 }
             }
 
             toast.success(
                 `Solicitud creada y ${completedUploads}/${uploadTasks.length} tipo(s) de documentos subidos exitosamente`,
-                { position: "top-right", autoClose: 4000 }
+                { position: "top-right", duration: 4000 }
             );
             } else {
-            toast.success("Solicitud creada exitosamente", { position: "top-right", autoClose: 3000 });
+            toast.success("Solicitud creada exitosamente", { position: "top-right", duration: 3000 });
             }
 
             formApi.reset();
@@ -211,7 +211,7 @@
             setOpen(false);
         } catch (error) {
             console.error("Error al crear la solicitud:", error);
-            toast.error("Error al crear la solicitud. Intente nuevamente.", { position: "top-right", autoClose: 4000 });
+            toast.error("Error al crear la solicitud. Intente nuevamente.", { position: "top-right", duration: 4000 });
         } finally {
             setIsUploading(false);
             setUploadProgress("");
@@ -220,7 +220,7 @@
     });
 
     const handleClose = () => {
-        toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+        toast.warning("Solicitud cancelada", { position: "top-right", duration: 3000 });
         form.reset();
         setIsUploading(false);
         setUploadProgress("");

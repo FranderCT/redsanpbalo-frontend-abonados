@@ -14,18 +14,6 @@ export type ReportUserSummary = {
   FullName?: string;
 };
 
-export interface ReportAssignmentApi {
-  Id: number;
-  ReportId: number;
-  PlumberUserId: number;
-  AssignedByUserId: number;
-  Instructions: string;
-  CreatedAt: string | Date;
-  UpdatedAt: string | Date;
-  Plumber?: ReportUserSummary;
-  AssignedBy?: ReportUserSummary;
-}
-
 export interface ReportStateHistoryApi {
   Id: number;
   ReportId: number;
@@ -49,10 +37,17 @@ export interface ReportApi {
   ReportTypeId: number;
   ReportedByUserId: number;
   ReportState: ReportStateValue;
+  PhotoUrl?: string | null;
+  // Fontanero asignado (directamente en el reporte)
+  PlumberUserId?: number | null;
+  AssignedByUserId?: number | null;
+  Instructions?: string | null;
+  Plumber?: ReportUserSummary | null;
+  AssignedBy?: ReportUserSummary | null;
+  // Relaciones
   ReportLocation?: ReportLocation | null;
   ReportType?: ReportType | null;
   ReportedBy?: ReportUserSummary;
-  Assignment?: ReportAssignmentApi | null;
   StateHistory?: ReportStateHistoryApi[];
 }
 
@@ -63,14 +58,14 @@ export interface ReportLiveEvent {
   Description: string;
   CreatedAt: string | Date;
   ReportState: ReportStateValue;
+  PhotoUrl?: string | null;
   ReportLocation?: Pick<ReportLocation, "Id" | "Neighborhood"> | null;
   ReportType?: Pick<ReportType, "Id" | "Name"> | null;
   ReportedBy: Pick<ReportUserSummary, "Id" | "Name" | "Email" | "FullName">;
 }
 
-export interface ReportListItem extends Omit<ReportApi, "ReportedBy" | "Assignment"> {
+export interface ReportListItem extends Omit<ReportApi, "ReportedBy"> {
   ReportedBy?: ReportUserSummary;
-  Assignment?: ReportAssignmentApi | null;
   AssignedPlumber?: ReportUserSummary | null;
   DisplayLocation: string;
   ReportedByDisplayName: string;

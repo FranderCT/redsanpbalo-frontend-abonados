@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -79,13 +79,13 @@ export default function UpdateServiceModal({ service, open, onClose, onSuccess }
           id: service.Id,
           data: value,
         });
-        toast.success("¡Servicio actualizado!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡Servicio actualizado!", { position: "top-right", duration: 3000 });
         formApi.reset();
         onClose();
         onSuccess?.();
       } catch (err) {
         console.error("Error al actualizar servicio", err);
-        toast.error("Error al actualizar el servicio", { position: "top-right", autoClose: 3000 });
+        toast.error("Error al actualizar el servicio", { position: "top-right", duration: 3000 });
       }
     },
   });
