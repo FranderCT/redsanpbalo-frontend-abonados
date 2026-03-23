@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm } from "@tanstack/react-form";
-import { useLocation } from "@tanstack/react-router";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useGetUserProfile, useUpdateUserProfile } from "../../../Hooks/UsersHooks";
 import { EditProfileSchema, type EditProfileInput } from "../../../schemas/EditProfileSchema";
@@ -34,8 +34,10 @@ import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
 import { Separator } from "@/Components/ui/separator";
+import { ArrowLeft } from "lucide-react";
 
 const EditProfile = () => {
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const { UserProfile } = useGetUserProfile();
   const updateProfile = useUpdateUserProfile();
@@ -292,15 +294,21 @@ const EditProfile = () => {
               <div className="flex justify-end pt-2">
                 <form.Subscribe selector={(s) => [s.isDirty, s.isSubmitting]}>
                   {([isDirty, isSubmitting]) => (
-                    <Button
-                      type="submit"
-                      disabled={(!isDirty && photoFile === null) || isSubmitting || updateProfile.isPending}
-                    >
-                      {isSubmitting || updateProfile.isPending
-                        ? "Guardando…"
-                        : "Confirmar cambios"}
-                    </Button>
+                    <div className="flex w-full sm:flex-row flex-col justify-between gap-2">
+                      <Button
+                        type="submit"
+                        disabled={(!isDirty && photoFile === null) || isSubmitting || updateProfile.isPending}
+                      >
+                        {isSubmitting || updateProfile.isPending
+                          ? "Guardando…"
+                          : "Confirmar cambios"}
+                      </Button>
+                      <Button type="button" variant="outline" onClick={() => navigate({ to: "/dashboard/users/profile" })}>
+                        Cancelar
+                      </Button>
+                    </div>
                   )}
+                  
                 </form.Subscribe>
               </div>
             </form>
