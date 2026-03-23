@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "@tanstack/react-form";
+import Cropper, { type Area } from "react-easy-crop";
 import { toast } from "react-toastify";
 import { useGetUserProfile, useUpdateUserProfile } from "../../../Hooks/UsersHooks";
 import { EditProfileSchema, type EditProfileInput } from "../../../schemas/EditProfileSchema";
@@ -23,9 +24,90 @@ import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
 import { Separator } from "@/Components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
 
 const MAX_PHOTO_MB = 5;
 const ACCEPT_IMAGES = "image/jpeg,image/png,image/webp,image/gif";
+const CROPPED_IMAGE_SIZE = 512;
+
+const createImage = (src: string) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("No se pudo cargar la imagen"));
+    image.src = src;
+  });
+
+const getCanvasOutputType = (fileType: string) => {
+  if (fileType === "image/jpeg" || fileType === "image/png" || fileType === "image/webp") {
+    return fileType;
+  }
+  return "image/png";
+};
+
+const getFileExtension = (fileType: string) => {
+  switch (fileType) {
+    case "image/jpeg":
+      return "jpg";
+    case "image/png":
+      return "png";
+    case "image/webp":
+      return "webp";
+    default:
+      return "png";
+  }
+};
+
+const buildCroppedFile = async (
+  imageSrc: string,
+  croppedAreaPixels: Area,
+  fileName: string,
+  originalFileType: string
+) => {
+  const image = await createImage(imageSrc);
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    throw new Error("No se pudo preparar el recorte");
+  }
+
+  canvas.width = CROPPED_IMAGE_SIZE;
+  canvas.height = CROPPED_IMAGE_SIZE;
+
+  context.drawImage(
+    image,
+    croppedAreaPixels.x,
+    croppedAreaPixels.y,
+    croppedAreaPixels.width,
+    croppedAreaPixels.height,
+    0,
+    0,
+    CROPPED_IMAGE_SIZE,
+    CROPPED_IMAGE_SIZE
+  );
+
+  const outputType = getCanvasOutputType(originalFileType);
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, outputType, outputType === "image/jpeg" ? 0.92 : 1);
+  });
+
+  if (!blob) {
+    throw new Error("No se pudo generar la imagen recortada");
+  }
+
+  return new File([blob], `${fileName}.${getFileExtension(outputType)}`, {
+    type: outputType,
+    lastModified: Date.now(),
+  });
+};
 
 const EditProfile = () => {
   const { UserProfile } = useGetUserProfile();
@@ -34,7 +116,17 @@ const EditProfile = () => {
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const [photoFile, setPhotoFile] = React.useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = React.useState<string | null>(null);
+  const [cropDialogOpen, setCropDialogOpen] = React.useState(false);
+  const [cropSource, setCropSource] = React.useState<string | null>(null);
+  const [cropFileName, setCropFileName] = React.useState("foto-perfil");
+  const [cropFileType, setCropFileType] = React.useState("image/jpeg");
+  const [crop, setCrop] = React.useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = React.useState(1);
+  const [isApplyingCrop, setIsApplyingCrop] = React.useState(false);
   const pendingValuesRef = React.useRef<EditProfileInput | null>(null);
+  const croppedAreaPixelsRef = React.useRef<Area | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const hydratedUserIdRef = React.useRef<number | null>(null);
 
   const form = useForm({
     defaultValues: updateUserMeInitialState,
@@ -45,11 +137,29 @@ const EditProfile = () => {
     },
   });
 
+  const revokePhotoPreview = React.useCallback((preview: string | null) => {
+    if (preview) {
+      URL.revokeObjectURL(preview);
+    }
+  }, []);
+
+  const closeCropDialog = React.useCallback(() => {
+    setCropDialogOpen(false);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    croppedAreaPixelsRef.current = null;
+    setCropSource((current) => {
+      if (current) {
+        URL.revokeObjectURL(current);
+      }
+      return null;
+    });
+  }, []);
+
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
-      setPhotoFile(null);
-      setPhotoPreview(null);
+      e.target.value = "";
       return;
     }
     if (file.size > MAX_PHOTO_MB * 1024 * 1024) {
@@ -60,25 +170,86 @@ const EditProfile = () => {
       e.target.value = "";
       return;
     }
-    setPhotoFile(file);
-    const url = URL.createObjectURL(file);
-    setPhotoPreview(url);
+
+    if (file.type === "image/gif") {
+      toast.info("Los GIF se guardarán como PNG al aplicar el recorte.", {
+        position: "top-right",
+        autoClose: 3500,
+      });
+    }
+
+    closeCropDialog();
+    setCropFileName(file.name.replace(/\.[^/.]+$/, "") || "foto-perfil");
+    setCropFileType(file.type || "image/jpeg");
+    setCropSource(URL.createObjectURL(file));
+    setCropDialogOpen(true);
+    e.target.value = "";
   };
 
   const clearPhoto = () => {
     setPhotoFile(null);
-    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    revokePhotoPreview(photoPreview);
     setPhotoPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const applyCroppedPhoto = async () => {
+    if (!cropSource || !croppedAreaPixelsRef.current) {
+      toast.error("Primero ajuste el encuadre de la foto.", {
+        position: "top-right",
+        autoClose: 2500,
+      });
+      return;
+    }
+
+    try {
+      setIsApplyingCrop(true);
+      const croppedFile = await buildCroppedFile(
+        cropSource,
+        croppedAreaPixelsRef.current,
+        cropFileName,
+        cropFileType
+      );
+      const nextPreview = URL.createObjectURL(croppedFile);
+
+      setPhotoFile(croppedFile);
+      setPhotoPreview((currentPreview) => {
+        revokePhotoPreview(currentPreview);
+        return nextPreview;
+      });
+      closeCropDialog();
+    } catch {
+      toast.error("No se pudo recortar la imagen seleccionada.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } finally {
+      setIsApplyingCrop(false);
+    }
   };
 
   React.useEffect(() => {
     if (!UserProfile) return;
+    if (hydratedUserIdRef.current === UserProfile.Id) return;
+
     form.reset({
       Birthdate: UserProfile.Birthdate ? new Date(UserProfile.Birthdate) : undefined,
       PhoneNumber: UserProfile.PhoneNumber ?? "",
       Address: UserProfile.Address ?? "",
     });
+    hydratedUserIdRef.current = UserProfile.Id;
+
+    // `form` cambia durante interacciones locales; solo rehidratamos al cargar/cambiar de usuario.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [UserProfile]);
+
+  React.useEffect(() => {
+    return () => {
+      revokePhotoPreview(photoPreview);
+    };
+  }, [photoPreview, revokePhotoPreview]);
 
   const buildPatch = (values: EditProfileInput) => {
     const patch: Partial<EditProfileInput> = {};
@@ -204,6 +375,7 @@ const EditProfile = () => {
                     </div>
                     <div className="flex flex-col gap-1 min-w-0">
                       <Input
+                        ref={fileInputRef}
                         type="file"
                         accept={ACCEPT_IMAGES}
                         onChange={handlePhotoChange}
@@ -211,6 +383,9 @@ const EditProfile = () => {
                       />
                       <p className="text-xs text-muted-foreground">
                         JPG, PNG, WebP o GIF. Máx. {MAX_PHOTO_MB} MB.
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Al seleccionar una imagen podrá moverla y ajustar el encuadre antes de guardarla.
                       </p>
                     </div>
                   </div>
@@ -333,6 +508,72 @@ const EditProfile = () => {
           </div>
         </div>
       )}
+
+      <Dialog
+        open={cropDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            closeCropDialog();
+          }
+        }}
+      >
+        <DialogContent className="flex max-h-[90vh] max-w-3xl flex-col overflow-hidden border-border bg-card p-0">
+          <DialogHeader className="shrink-0 border-b border-border px-6 py-5">
+            <DialogTitle>Ajustar foto de perfil</DialogTitle>
+            <DialogDescription>
+              Mueva la imagen y use el zoom para elegir exactamente el encuadre que desea guardar.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto">
+            <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-6 py-5">
+              <div className="relative mx-auto h-[320px] w-full overflow-hidden rounded-xl bg-slate-950 sm:h-[420px]">
+                  {cropSource ? (
+                    <Cropper
+                      image={cropSource}
+                      crop={crop}
+                      zoom={zoom}
+                      aspect={1}
+                      showGrid
+                      cropShape="rect"
+                      objectFit="horizontal-cover"
+                      onCropChange={setCrop}
+                      onZoomChange={setZoom}
+                      onCropComplete={(_, croppedAreaPixels) => {
+                        croppedAreaPixelsRef.current = croppedAreaPixels;
+                      }}
+                    />
+                  ) : null}
+              </div>
+
+              <label className="mx-auto block w-full max-w-xl space-y-2">
+                <span className="text-sm font-medium text-foreground">Zoom</span>
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.05}
+                  value={zoom}
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className="w-full accent-primary"
+                />
+              </label>
+            </div>
+          </div>
+
+          <DialogFooter className="shrink-0 border-t border-border bg-card px-6 py-4">
+            <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-between">
+              <Button type="button" onClick={applyCroppedPhoto} disabled={isApplyingCrop}>
+                {isApplyingCrop ? "Aplicando…" : "Usar esta foto"}
+              </Button>
+              <Button type="button" variant="outline" onClick={closeCropDialog}>
+                Cancelar
+              </Button>
+            </div>
+          </DialogFooter>
+
+        </DialogContent>
+      </Dialog>
     </main>
   );
 };
