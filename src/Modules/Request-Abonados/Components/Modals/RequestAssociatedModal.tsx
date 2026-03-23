@@ -1,12 +1,33 @@
-    import { useState, useEffect } from "react";
+    import { useEffect, useState } from "react";
     import { ModalBase } from "../../../../Components/Modals/ModalBase";
     import { useTempLinkAssociated } from "../../Hooks/Associated/AssociatedRqHook";
+
+    type RequestAssociatedFile = {
+    Id?: number;
+    id?: number;
+    Name?: string;
+    name?: string;
+    FileName?: string;
+    };
+
+    type AssociatedUser = {
+    Name?: string;
+    Surname1?: string;
+    Surname2?: string;
+    IDcard?: string;
+    Email?: string;
+    PhoneNumber?: string;
+    };
+
+    type AssociatedDetailData = Record<string, unknown> & {
+    RequestAssociatedFile?: RequestAssociatedFile[];
+    };
 
     interface AssociatedDetailModalProps {
     open: boolean;
     onClose: () => void;
     title: string;
-    data: Record<string, any>;
+    data: AssociatedDetailData;
     excludeFields?: string[];
     }
 
@@ -18,7 +39,7 @@
         const onlyDate = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
         if (onlyDate) return value;
 
-        const hasTZ = /[Tt].*(Z|[+\-]\d{2}:?\d{2})$/.test(value);
+        const hasTZ = /[Tt].*(Z|[+-]\d{2}:?\d{2})$/.test(value);
         const d = new Date(value);
         if (isNaN(d.getTime())) return "-";
 
@@ -42,7 +63,9 @@
         const day = String(d.getDate()).padStart(2, "0");
         return `${y}-${m}-${day}`;
         }
-    } catch {}
+    } catch {
+        return "-";
+    }
     return "-";
     };
 
@@ -103,6 +126,7 @@
         "IDcard",
         "Email",
         "PhoneNumber",
+        "CanComment",
         "RequestAssociatedFile"  // ⬅️ Excluir documentos adjuntos
     ],
     }: AssociatedDetailModalProps) {
@@ -122,7 +146,7 @@
         setSelectedFileId(fileId);
     };
 
-    const renderValue = (key: string, value: any): React.ReactElement | string => {
+    const renderValue = (key: string, value: unknown): React.ReactElement | string => {
         if (value === null || value === undefined) return "-";
 
         // Estado de la solicitud
@@ -138,27 +162,28 @@
 
         // Usuario (objeto anidado) - ÚNICO BLOQUE QUE SE MUESTRA
         if (key === "User" && typeof value === "object") {
+        const user = value as AssociatedUser;
         return (
             <div className="bg-gray-50 p-3 rounded border border-gray-200 space-y-2">
-            {value.Name && (
+            {user.Name && (
                 <p className="text-sm">
                 <span className="font-medium text-gray-700">Nombre:</span>{" "}
-                {value.Name} {value.Surname1} {value.Surname2}
+                {user.Name} {user.Surname1} {user.Surname2}
                 </p>
             )}
-            {value.IDcard && (
+            {user.IDcard && (
                 <p className="text-sm">
-                <span className="font-medium text-gray-700">Cédula:</span> {value.IDcard}
+                <span className="font-medium text-gray-700">Cédula:</span> {user.IDcard}
                 </p>
             )}
-            {value.Email && (
+            {user.Email && (
                 <p className="text-sm">
-                <span className="font-medium text-gray-700">Email:</span> {value.Email}
+                <span className="font-medium text-gray-700">Email:</span> {user.Email}
                 </p>
             )}
-            {value.PhoneNumber && (
+            {user.PhoneNumber && (
                 <p className="text-sm">
-                <span className="font-medium text-gray-700">Teléfono:</span> {value.PhoneNumber}
+                <span className="font-medium text-gray-700">Teléfono:</span> {user.PhoneNumber}
                 </p>
             )}
             </div>
@@ -179,7 +204,7 @@
             {files.length > 0 ? (
                 <div className="space-y-2">
                 <div className="space-y-2">
-                    {files.map((file: any) => {
+                    {files.map((file: RequestAssociatedFile) => {
                     const fileId = file?.Id || file?.id;
                     const fileName = file?.Name || file?.name || file?.FileName || `Documento`;
                     const isDownloading = isLoadingLink && selectedFileId === fileId;
