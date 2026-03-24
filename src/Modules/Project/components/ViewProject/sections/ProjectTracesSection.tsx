@@ -1,9 +1,11 @@
 import { CalendarDays, Package } from "lucide-react";
 import { Badge } from "../../../../../Components/ui/badge";
 import { Separator } from "../../../../../Components/ui/separator";
+import type { ProjectTrace } from "../../../../Project_Trace/Models/ProjectTrace";
+import type { ProductDetail } from "../../../../Actual-Expense/Models/ActualExpense";
 
 type Props = {
-  traces: any[];
+  traces: ProjectTrace[];
   isLoading: boolean;
 };
 
@@ -38,10 +40,10 @@ export default function ProjectTracesSection({ traces, isLoading }: Props) {
         </div>
       ) : (
         <div className="space-y-0">
-          {traces.map((trace: any, idx: number) => {
+          {traces.map((trace, idx) => {
             const productCount =
               trace.ActualExpense?.ProductDetails?.reduce(
-                (s: number, pd: any) => s + (pd.Quantity || 0),
+                (s: number, pd: ProductDetail) => s + (pd.Quantity || 0),
                 0
               ) ?? 0;
 
@@ -89,7 +91,7 @@ export default function ProjectTracesSection({ traces, isLoading }: Props) {
                         </thead>
                         <tbody>
                           {trace.ActualExpense.ProductDetails.map(
-                            (detail: any, i: number) => (
+                            (detail: ProductDetail, i: number) => (
                               <tr
                                 key={detail.Id}
                                 className={`border-b last:border-0 transition-colors hover:bg-muted/30 ${

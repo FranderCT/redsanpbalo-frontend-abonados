@@ -2,13 +2,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createProjectTrace, getProjectTraceById, getProjectTracesByProjectId, getTotalActualExpenseByProjectId } from "../Services/ProjectTraceServices";
 import type { ProjectTrace } from "../Models/ProjectTrace";
 
+type TraceProjectWithLooseProjectRef = ProjectTrace & {
+  ProjectId?: number;
+  projectId?: number;
+  Project?: ProjectTrace["Project"] & { projectId?: number };
+};
+
 export const useCreateProjectTrace = () => {
     const qc = useQueryClient();
     const mutation = useMutation({
         mutationKey: ['project-trace'],
         mutationFn: createProjectTrace,
         onSuccess: (res)=>{
-            // Invalidar todas las queries relacionadas con seguimientos y proyectos
             qc.invalidateQueries({queryKey: ['project-trace']});
             qc.invalidateQueries({queryKey: ['project-traces']});
             qc.invalidateQueries({queryKey: ['project']});
@@ -42,7 +47,7 @@ export const useGetProjectTracesByProjectId = (projectId: number) => {
 
   // Mantener un filtro defensivo en el cliente, pero sin descartar trazas
   // ya resueltas desde el detalle del proyecto aunque no incluyan ProjectId.
-  const projectTraces: ProjectTrace[] = (projectTracesRaw ?? []).filter((t: any) => {
+  const projectTraces: ProjectTrace[] = (projectTracesRaw ?? []).filter((t: TraceProjectWithLooseProjectRef) => {
     const projectIdFromTrace =
       t?.Project?.Id ??
       t?.ProjectId ??

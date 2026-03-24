@@ -9,7 +9,6 @@ export const useCreateActualExpense = () => {
         mutationKey: ['actual-expense'],
         mutationFn: (newActualExpense: NewActualExpense) => createActualExpense(newActualExpense),
         onSuccess: (res) => {
-            // Invalidar queries relacionadas con gastos y proyectos
             qc.invalidateQueries({ queryKey: ['actual-expense'] });
             qc.invalidateQueries({ queryKey: ['project-trace'] });
             qc.invalidateQueries({ queryKey: ['project-traces'] });
