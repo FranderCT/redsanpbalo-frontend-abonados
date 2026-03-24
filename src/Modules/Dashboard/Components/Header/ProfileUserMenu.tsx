@@ -39,7 +39,7 @@ export default function ProfileUserMenu({ setProfileOpen }: Props) {
   };
 
   return (
-    <div className="ml-auto flex items-center justify-end">
+    <div className="flex items-center justify-end">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button

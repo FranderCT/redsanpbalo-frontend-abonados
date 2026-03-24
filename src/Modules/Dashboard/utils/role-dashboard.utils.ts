@@ -27,7 +27,7 @@ const ADMIN_ROUTE_PREFIXES = [
 
 const USER_ROUTE_PREFIXES = [USER_DASHBOARD_HOME] as const;
 
-const SHARED_ROUTE_PREFIXES = ["/dashboard/settings"] as const;
+const SHARED_ROUTE_PREFIXES = ["/dashboard/settings", "/dashboard/notifications"] as const;
 const SHARED_ROUTE_PATHS = [
   "/dashboard",
   "/dashboard/users/profile",

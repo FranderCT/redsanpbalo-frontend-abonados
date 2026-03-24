@@ -32,9 +32,9 @@ export async function getProjectTracesByProjectId(projectId: number) : Promise<P
   }
 }
 
-export async function getTotalActualExpenseByProjectId(projectId: number) : Promise<any>{
+export async function getTotalActualExpenseByProjectId(projectId: number) : Promise<unknown>{
   try{
-    const {data} = await apiAxios.get<any>(`total-actual-expense?projectId=${projectId}`);
+    const {data} = await apiAxios.get<unknown>(`total-actual-expense?projectId=${projectId}`);
     return data;
   }catch(err){
     console.error("Error al obtener el total de gastos actuales", err);

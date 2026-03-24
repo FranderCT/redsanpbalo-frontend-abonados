@@ -31,10 +31,6 @@ export const UpdateProjectSchema = z
 
     Observation: z.string().trim()
       .max(500, "La observación no puede superar los 500 caracteres."),
-
-    SpaceOfDocument: z.string().trim()
-      .max(200, "El espacio de documento no puede superar los 200 caracteres."),
-
     ProjectStateId: z.number({
       required_error: "Debe seleccionar un estado de proyecto.",
       invalid_type_error: "El estado del proyecto debe ser un número.",

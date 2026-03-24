@@ -135,7 +135,10 @@ const AsideDashboard = () => {
         </Can>
 
         <Can rule={{ any: [Role.ADMIN, Role.SUB, Role.GUEST] }}>
-          <button className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none">
+          <button
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
+            onClick={() => navigate({ to: "/dashboard/notifications" })}
+          >
             <Bell className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
             <span className="transition-colors">Notificaciones</span>
           </button>

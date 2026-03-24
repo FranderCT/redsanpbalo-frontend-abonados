@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getAllProjectStates, getProjectsInProcessCount, type ProjectsInProcessResponse } from "../Services/ProjectStateServices";
 import type { ProjectState } from "../Models/ProjectState";
+import { projectKeys } from "../../Project/queryKeys";
 
 export const useGetAllProjectStates = () => {
   const { data, isPending, error } = useQuery<ProjectState[]>({
@@ -24,7 +25,7 @@ export const useGetAllProjectStates = () => {
 
 export const useProjectsInProcessCount = () => {
   const q = useQuery<ProjectsInProcessResponse>({
-    queryKey: ["dashboard", "projects-in-process", "count"],
+    queryKey: projectKeys.dashboardInProcessCount,
     queryFn: getProjectsInProcessCount,
   });
 

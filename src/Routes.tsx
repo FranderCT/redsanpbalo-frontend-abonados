@@ -24,6 +24,7 @@ import { reportIndexRoute, reportRoutes } from "./Modules/Reports/Routes/ReportR
 import { requestListChangeNameMeter, requestUserChangeNameMeterRoute } from "./Modules/Requests/RequestChangeNameMeter/Routes/ReqChangeNameMeterRoutes";
 import HeroPage from "./Modules/Lading/HeroPage";
 import { editLandingFaqRoute, editLandingIndexRoute, editLandingRoute, editLandingServicesRoute } from "./Modules/Lading/Routes/RoutesEditLanding";
+import { notificationsRoute } from "./Modules/Notifications/Routes/NotificationsRoutes";
 
 
 export const rootRoute = createRootRoute();
@@ -90,6 +91,7 @@ export const routeTree = rootRoute.addChildren([
       physicalSuppliersRoute,
       legalSuppliersRoute,
     ]),
+    notificationsRoute,
   ]),
   reportRoutes.addChildren([
     reportIndexRoute

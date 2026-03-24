@@ -1,7 +1,30 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { ModalBase } from "../../../Components/Modals/ModalBase";
+import { Plus, Package2, Trash2 } from "lucide-react";
+import { Button } from "@/Components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
+import { Input } from "@/Components/ui/input";
+import { Textarea } from "@/Components/ui/textarea";
+import { Badge } from "@/Components/ui/badge";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/Components/ui/field";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/Components/ui/table";
 import { ProductSelectionModal } from "../../Project/components/NewProject/ProductSelectionModal";
+import { getApiErrorMessages } from "@/core/api-error";
 import { useGetAllProducts } from "../../Products/Hooks/ProductsHooks";
 import type { Product } from "../../Products/Models/CreateProduct";
 import type { newProjectTrace } from "../Models/ProjectTrace";
@@ -11,31 +34,14 @@ import { useCreateActualExpense } from "../../Actual-Expense/Hooks/ActualExpense
 import { useCreateProductDetail } from "../../Product-Detail/Hooks/ProductDetailHooks";
 import type { NewActualExpense } from "../../Actual-Expense/Models/ActualExpense";
 import type { NewProductDetail } from "../../Product-Detail/Models/ProductDetail";
+import { ProjectTraceSchema } from "../schemas/ProjectTraceSchema";
 
 type Props = { ProjectId: number };
+type EntityWithOptionalId = { Id?: number; id?: number };
 
-// 🎨 Estilos centralizados
-const PANEL = "w-full max-w-4xl !p-0 overflow-hidden shadow-2xl";
-const WRAP = "bg-white";
-const HEADER = "px-6 py-5 border-b border-gray-200";
-const TITLE = "text-xl font-bold text-[#091540]";
-const SUB = "text-sm text-gray-600";
-const SECTION = "p-6";
-const GRID = "grid gap-3";
-const LABEL = "text-sm text-[#091540]";
-const INPUT =
-  "w-full px-4 py-2 bg-gray-50 border border-gray-200  outline-none " +
-  "focus:ring-2 focus:ring-[#1789FC] focus:border-[#1789FC] placeholder-gray-400";
-const TEXTAREA =
-  "w-full min-h-[110px] px-4 py-2 resize-y bg-gray-50 border border-gray-200  outline-none " +
-  "focus:ring-2 focus:ring-[#1789FC] focus:border-[#1789FC] placeholder-gray-400";
-const FOOTER = "mt-4 flex justify-end gap-2";
-const BTN_PRIMARY =
-  "h-10 px-5  bg-[#091540] text-white hover:bg-[#1789FC] transition disabled:opacity-60";
-const BTN_SECONDARY =
-  "h-10 px-4 bg-gray-200 text-[#091540] hover:bg-gray-300 transition";
-const TRIGGER_BTN =
-  "px-4 py-2  bg-[#091540] text-white shadow hover:bg-[#1789FC] transition";
+function getEntityId(value: EntityWithOptionalId | null | undefined): number | undefined {
+  return value?.Id ?? value?.id;
+}
 
 const CreateProjectTraceModal = ({ ProjectId }: Props) => {
   const [open, setOpen] = useState(false);
@@ -119,6 +125,9 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
       Observation: "",
       ProjectId,
     },
+    validators: {
+      onChange: ProjectTraceSchema,
+    },
     onSubmit: async ({ value }) => {
       const payload: newProjectTrace = {
         Name: value.Name.trim(),
@@ -129,7 +138,7 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
       try {
         // 1. Crear seguimiento
         const traceRes = await createTraceMutation.mutateAsync(payload);
-        const traceId = (traceRes as any)?.Id ?? (traceRes as any)?.id;
+        const traceId = getEntityId(traceRes);
         
         if (!traceId) {
           throw new Error("No se pudo obtener el ID del seguimiento creado");
@@ -141,7 +150,7 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
           Observation: "Gasto automático"
         };
         const actualExpenseRes = await actualExpenseMutation.mutateAsync(actualExpensePayload);
-        const actualExpenseId = (actualExpenseRes as any)?.Id ?? (actualExpenseRes as any)?.id;
+        const actualExpenseId = getEntityId(actualExpenseRes);
         
         if (!actualExpenseId) {
           throw new Error("No se pudo obtener el ID del gasto real creado");
@@ -162,240 +171,302 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
         setOpen(false);
       } catch (err) {
         console.error("Error en el proceso de creación:", err);
-        toast.error("Error al crear el seguimiento o productos", { position: "top-right", duration: 3000 });
+        const messages = getApiErrorMessages(err);
+        toast.error("Error al crear el seguimiento o productos", {
+          position: "top-right",
+          duration: 3000,
+          description: messages.join(" | "),
+        });
       }
     },
   });
 
   return (
     <>
-      {/* Botón para abrir modal */}
-      <button onClick={() => setOpen(true)} className={TRIGGER_BTN}>
-        + Crear seguimiento de proyecto
-      </button>
+      <Button onClick={() => setOpen(true)} className="shrink-0">
+        <Plus className="mr-2 size-4" />
+        Crear seguimiento de proyecto
+      </Button>
 
-      <ModalBase open={open} onClose={handleClose} panelClassName={PANEL}>
-        <div className={WRAP}>
-          {/* Header */}
-          <header className={HEADER}>
-            <h2 className={TITLE}>Nuevo seguimiento</h2>
-            <p className={SUB}>Registre un nuevo seguimiento para el proyecto y asigne productos</p>
-          </header>
-          {/* Body */}
-          <section className={SECTION}>
+      <Dialog open={open} onOpenChange={(nextOpen) => (nextOpen ? setOpen(true) : handleClose())}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-5xl">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle>Nuevo seguimiento</DialogTitle>
+            <DialogDescription>
+              Registre un nuevo seguimiento para el proyecto y asigne productos.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="px-6 pb-6">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 form.handleSubmit();
               }}
-              className={GRID}
+              className="grid gap-6"
             >
-              {/* Nombre del seguimiento */}
-              <form.Field name="Name">
-                {(field) => (
-                  <label className="grid gap-1">
-                    <span className={LABEL}>Nombre del seguimiento</span>
-                    <input
-                      className={INPUT}
-                      placeholder="Ej. Reparación de fuga en tramo 2"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      required
-                    />
-                  </label>
-                )}
-              </form.Field>
-              {/* Observación */}
-              <form.Field name="Observation">
-                {(field) => (
-                  <label className="grid gap-1">
-                    <span className={LABEL}>Observación</span>
-                    <textarea
-                      className={TEXTAREA}
-                      placeholder="Describa brevemente la observación o avance…"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                  </label>
-                )}
-              </form.Field>
+              <FieldGroup>
+                <form.Field name="Name">
+                  {(field) => {
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
-              {/* Productos asignados */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-[#091540]">Productos para el seguimiento</span>
-                  <button 
-                    type="button" 
-                    className="px-4 py-2 bg-[#091540] text-white rounded hover:bg-[#1789FC] transition flex items-center gap-2"
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor="trace-name">Nombre del seguimiento</FieldLabel>
+                        <Input
+                          id="trace-name"
+                          placeholder="Ej. Reparación de fuga en tramo 2"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          required
+                        />
+                        {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+
+                <form.Field name="Observation">
+                  {(field) => {
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor="trace-observation">Observación</FieldLabel>
+                        <Textarea
+                          id="trace-observation"
+                          placeholder="Describa brevemente la observación o avance…"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          className="min-h-[120px]"
+                        />
+                        {isInvalid ? <FieldError errors={field.state.meta.errors} /> : null}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
+              </FieldGroup>
+
+              <Card>
+                <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="text-base">Productos para el seguimiento</CardTitle>
+                    <CardDescription>
+                      Agregue los materiales utilizados y ajuste sus cantidades.
+                    </CardDescription>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={() => setShowProductModal(true)}
+                    className="w-full sm:w-auto"
                   >
-                    <span>+</span> Agregar producto
-                  </button>
-                </div>
-                
-                <div className="border border-gray-200  bg-gray-50 min-h-[120px] max-h-[300px] overflow-y-auto">
+                    <Plus className="mr-2 size-4" />
+                    Agregar producto
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   {selectedProducts.length === 0 ? (
-                    <div className="flex items-center justify-center h-[120px] text-gray-500">
-                      <div className="text-center">
-                        <p className="mb-2">No hay productos agregados</p>
-                        <p className="text-sm">Haz clic en "Agregar producto" para comenzar</p>
+                    <div className="flex min-h-[180px] flex-col items-center justify-center rounded-lg border border-dashed bg-muted/20 px-6 text-center">
+                      <Package2 className="mb-3 size-8 text-muted-foreground" />
+                      <div className="space-y-1">
+                        <p className="font-medium">No hay productos agregados</p>
+                        <p className="text-sm text-muted-foreground">
+                          Haz clic en "Agregar producto" para comenzar.
+                        </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="p-3 space-y-3">
-                      {selectedProducts.map(({ product, qty }) => (
-                        <div key={product.Id} className="bg-white p-3 border border-gray-200 shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-medium text-[#091540] mb-1">{product.Name}</h4>
-                              {product.Observation && (
-                                <p className="text-sm text-gray-600 mb-2">{product.Observation}</p>
-                              )}
-                              <div className="flex gap-4 text-xs text-gray-500">
-                                {product.Type && <span>Tipo: {product.Type}</span>}
-                                {product.Category && <span>Categoría: {product.Category.Name}</span>}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-3 ml-4">
-                              <div className="flex items-center gap-2">
-                                <label className="text-sm text-gray-600">Cantidad:</label>
-                                <input
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Producto</TableHead>
+                            <TableHead className="hidden md:table-cell">Tipo</TableHead>
+                            <TableHead className="hidden md:table-cell">Categoría</TableHead>
+                            <TableHead className="w-[130px] text-center">Cantidad</TableHead>
+                            <TableHead className="w-[80px] text-right">Acción</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {selectedProducts.map(({ product, qty }) => (
+                            <TableRow key={product.Id}>
+                              <TableCell>
+                                <div className="space-y-1">
+                                  <p className="font-medium">{product.Name}</p>
+                                  {product.Observation && (
+                                    <p className="text-sm text-muted-foreground">{product.Observation}</p>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell text-muted-foreground">
+                                {product.Type || "—"}
+                              </TableCell>
+                              <TableCell className="hidden md:table-cell">
+                                <Badge variant="outline">
+                                  {product.Category?.Name || "—"}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Input
                                   type="number"
                                   min={1}
-                                  className="w-20 px-2 py-1 border border-gray-300 text-center focus:border-[#1789FC] focus:outline-none"
+                                  className="text-center"
                                   value={qty}
-                                  onChange={e => handleQtyChange(product.Id, Number(e.target.value) || 1)}
+                                  onChange={(e) => handleQtyChange(product.Id, Number(e.target.value) || 1)}
                                 />
-                              </div>
-                              <button 
-                                type="button" 
-                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 transition"
-                                onClick={() => handleRemoveProduct(product.Id)}
-                                title="Quitar producto"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleRemoveProduct(product.Id)}
+                                  title="Quitar producto"
+                                >
+                                  <Trash2 className="size-4 text-destructive" />
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </div>
                   )}
-                </div>
-                
-                {selectedProducts.length > 0 && (
-                  <div className="mt-2 text-sm text-gray-600 text-right">
-                    Total de productos: {selectedProducts.length} | Total cantidad: {selectedProducts.reduce((sum, p) => sum + p.qty, 0)}
-                  </div>
-                )}
-              </div>
 
-              {/* Footer / Acciones */}
+                  {selectedProducts.length > 0 && (
+                    <div className="flex flex-wrap justify-end gap-2 text-sm text-muted-foreground">
+                      <Badge variant="secondary">
+                        Productos: {selectedProducts.length}
+                      </Badge>
+                      <Badge variant="secondary">
+                        Cantidad total: {selectedProducts.reduce((sum, p) => sum + p.qty, 0)}
+                      </Badge>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
               <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
                 {([canSubmit, isSubmitting]) => {
                   const hasProducts = selectedProducts.length > 0;
                   const canSubmitForm = canSubmit && hasProducts && !isSubmitting;
-                  
+
                   return (
-                    <div className={FOOTER}>
-                      
-                      <button
-                        type="submit"
-                        className={BTN_PRIMARY}
-                        disabled={!canSubmitForm}
-                        title={!hasProducts ? "Agregue al menos un producto" : ""}
-                      >
-                        {isSubmitting ? "Registrando…" : "Registrar seguimiento"}
-                      </button>
-                      <button type="button" onClick={handleClose} className={BTN_SECONDARY}>
-                        Cancelar
-                      </button>
-                    </div>
+                    <DialogFooter className="w-full justify-between sm:justify-between sm:space-x-0">
+                      <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <Button
+                          type="submit"
+                          disabled={!canSubmitForm}
+                          title={!hasProducts ? "Agregue al menos un producto" : ""}
+                          className="w-full sm:w-auto"
+                        >
+                          {isSubmitting ? "Registrando..." : "Registrar seguimiento"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleClose}
+                          className="w-full sm:w-auto"
+                        >
+                          Cancelar
+                        </Button>
+                      </div>
+                    </DialogFooter>
                   );
                 }}
               </form.Subscribe>
             </form>
-          </section>
-        </div>
-        {/* Modal de selección de productos */}
-        <ProductSelectionModal
-          open={showProductModal}
-          onClose={() => setShowProductModal(false)}
-          products={products}
-          onSelectProduct={handleSelectProduct}
-          isLoading={productsLoading}
-          selectedProductIds={selectedProducts.map(p => p.product.Id)}
-        />
-
-        {/* Modal de cantidad */}
-        <ModalBase 
-          open={showQuantityModal} 
-          onClose={handleCancelAddProduct}
-          panelClassName="w-full max-w-md"
-        >
-          <div className="bg-white p-6">
-            <h3 className="text-lg font-semibold text-[#091540] mb-4">
-              Especificar cantidad
-            </h3>
-            
-            {selectedProductForQuantity && (
-              <div className="mb-4">
-                <div className="bg-gray-50 p-3  border mb-4">
-                  <h4 className="font-medium text-[#091540] mb-1">
-                    {selectedProductForQuantity.Name}
-                  </h4>
-                  {selectedProductForQuantity.Observation && (
-                    <p className="text-sm text-gray-600 mb-2">
-                      {selectedProductForQuantity.Observation}
-                    </p>
-                  )}
-                  <div className="flex gap-4 text-xs text-gray-500">
-                    {selectedProductForQuantity.Type && (
-                      <span>Tipo: {selectedProductForQuantity.Type}</span>
-                    )}
-                    {selectedProductForQuantity.Category && (
-                      <span>Categoría: {selectedProductForQuantity.Category.Name}</span>
-                    )}
-                  </div>
-                </div>
-                
-                <label className="block">
-                  <span className="text-sm font-medium text-[#091540] mb-2 block">
-                    Cantidad a agregar:
-                  </span>
-                  <input
-                    type="number"
-                    min={1}
-                    className="w-full px-4 py-2 border border-gray-300  focus:border-[#1789FC] focus:outline-none text-center"
-                    value={tempQuantity}
-                    onChange={(e) => setTempQuantity(Number(e.target.value) || 1)}
-                    onFocus={(e) => e.target.select()}
-                    autoFocus
-                  />
-                </label>
-              </div>
-            )}
-            
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={handleConfirmAddProduct}
-                className="px-4 py-2 bg-[#091540] text-white rounded hover:bg-[#1789FC] transition"
-                disabled={!tempQuantity || tempQuantity <= 0}
-              >
-                Agregar
-              </button>
-              <button
-                type="button"
-                onClick={handleCancelAddProduct}
-                className="px-4 py-2 bg-gray-200 text-[#091540] rounded hover:bg-gray-300 transition"
-              >
-                Cancelar
-              </button>
-            </div>
           </div>
-        </ModalBase>
-      </ModalBase>
+
+          <ProductSelectionModal
+            open={showProductModal}
+            onClose={() => setShowProductModal(false)}
+            products={products}
+            onSelectProduct={handleSelectProduct}
+            isLoading={productsLoading}
+            selectedProductIds={selectedProducts.map(p => p.product.Id)}
+          />
+
+          <Dialog open={showQuantityModal} onOpenChange={(nextOpen) => (nextOpen ? setShowQuantityModal(true) : handleCancelAddProduct())}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader className="px-6 pt-6">
+                <DialogTitle>Especificar cantidad</DialogTitle>
+                <DialogDescription>
+                  Indique cuántas unidades desea agregar al seguimiento.
+                </DialogDescription>
+              </DialogHeader>
+
+              {selectedProductForQuantity ? (
+                <>
+                  <div className="space-y-4 px-6 pb-6">
+                    <Card>
+                      <CardContent className="space-y-2 pt-6">
+                        <div>
+                          <p className="font-medium">{selectedProductForQuantity.Name}</p>
+                          {selectedProductForQuantity.Observation && (
+                            <p className="text-sm text-muted-foreground">
+                              {selectedProductForQuantity.Observation}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedProductForQuantity.Type && (
+                            <Badge variant="outline">Tipo: {selectedProductForQuantity.Type}</Badge>
+                          )}
+                          {selectedProductForQuantity.Category && (
+                            <Badge variant="outline">
+                              Categoría: {selectedProductForQuantity.Category.Name}
+                            </Badge>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <div className="grid gap-2">
+                      <FieldLabel htmlFor="trace-product-qty">Cantidad a agregar</FieldLabel>
+                      <Input
+                        id="trace-product-qty"
+                        type="number"
+                        min={1}
+                        value={tempQuantity}
+                        onChange={(e) => setTempQuantity(Number(e.target.value) || 1)}
+                        onFocus={(e) => e.target.select()}
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  <DialogFooter className="w-full justify-between px-6 pb-6 sm:justify-between sm:space-x-0">
+                    <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <Button
+                        type="button"
+                        onClick={handleConfirmAddProduct}
+                        disabled={!tempQuantity || tempQuantity <= 0}
+                        className="w-full sm:w-auto"
+                      >
+                        Agregar
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleCancelAddProduct}
+                        className="w-full sm:w-auto"
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  </DialogFooter>
+                </>
+              ) : null}
+            </DialogContent>
+          </Dialog>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

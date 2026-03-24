@@ -28,9 +28,9 @@ export async function searchProjects(
   params: ProjectPaginationParams
 ): Promise<PaginatedResponse<Project>> {
   try {
-    const { page = 1, limit = 10, name, state ,projectState} = params ?? {};
+    const { page = 1, limit = 10, name, projectState } = params ?? {};
     const { data } = await apiAxios.get<PaginatedResponse<Project>>(`${BASE}/search`, {
-      params: { page, limit, name, state, projectState },
+      params: { page, limit, name, projectState },
     });
     return data;
   } catch (err) {
@@ -42,6 +42,38 @@ export async function searchProjects(
 export async function getProjectById(id: number): Promise<Project> {
   const res = await apiAxios.get<Project>(`${BASE}/${id}`);
   return res.data;
+}
+
+export async function downloadProjectPdf(id: number): Promise<Blob> {
+  const res = await apiAxios.get<Blob>(`${BASE}/${id}/export/pdf`, {
+    responseType: "blob",
+  });
+  return res.data;
+}
+
+function buildProjectPdfFilename(projectId: number, projectName?: string): string {
+  const safeName = (projectName ?? `proyecto-${projectId}`)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9-_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase();
+
+  return `${safeName || `proyecto-${projectId}`}.pdf`;
+}
+
+export async function downloadProjectPdfFile(projectId: number, projectName?: string): Promise<void> {
+  const blob = await downloadProjectPdf(projectId);
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = buildProjectPdfFilename(projectId, projectName);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
 }
 
 export async function createProject(payload: newProject): Promise<Project> {
@@ -63,6 +95,34 @@ export async function updateProject(id: number, payload: UpdateProject): Promise
      return Promise.reject(err)
    }
  }
+
+export async function uploadProjectCoverImage(id: number, file: File): Promise<Project> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const { data } = await apiAxios.post<Project>(`${BASE}/${id}/cover-image`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      timeout: 60000,
+    });
+    return data;
+  } catch (err) {
+    console.error("Error subiendo portada del proyecto", err);
+    return Promise.reject(err);
+  }
+}
+
+export async function removeProjectCoverImage(id: number): Promise<{ ok: boolean }> {
+  try {
+    const { data } = await apiAxios.delete<{ ok: boolean }>(`${BASE}/${id}/cover-image`);
+    return data;
+  } catch (err) {
+    console.error("Error eliminando portada del proyecto", err);
+    return Promise.reject(err);
+  }
+}
 
 export async function deleteProject(id: number): Promise<void> {
   try{

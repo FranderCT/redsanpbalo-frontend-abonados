@@ -1,4 +1,5 @@
 import { Menu, X } from "lucide-react";
+import NotificationBell from "./NotificationBell";
 import ProfileUserMenu from "./ProfileUserMenu";
 
 export type HeaderDashboardProps = {
@@ -18,8 +19,11 @@ const HeaderDashboard = ({ menuOpen, setMenuOpen }: HeaderDashboardProps) => {
         {menuOpen ? <X size={26} /> : <Menu size={26} />}
       </button>
 
-      {/* Menú de perfil (avatar + DropdownMenu alineado a la derecha) */}
-      <ProfileUserMenu />
+      {/* Notificaciones + menú de perfil */}
+      <div className="ml-auto flex items-center gap-2">
+        <NotificationBell />
+        <ProfileUserMenu />
+      </div>
     </header>
   );
 };

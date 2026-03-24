@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import React from "react";
 import type { Project } from "../../Models/Project";
 import {
   useGetProjectTracesByProjectId,
@@ -32,8 +31,14 @@ export default function DetailsProjectContainer({ data }: Props) {
       : (fetchedTraces ?? []);
 
   const tracesFiltered = tracesToRender.filter((t: any) => {
-    const pid = t?.Project?.Id ?? t?.ProjectId ?? t?.projectId ?? null;
-    return Number(pid) === Number(data.Id);
+    const pid =
+      t?.Project?.Id ??
+      t?.ProjectId ??
+      t?.projectId ??
+      t?.Project?.projectId ??
+      null;
+
+    return pid == null || Number(pid) === Number(data.Id);
   });
 
   const totalToRender = data.TotalActualExpense ?? fetchedTotal ?? null;
@@ -41,7 +46,7 @@ export default function DetailsProjectContainer({ data }: Props) {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 pb-16 lg:px-0">
       {/* Header — no se imprime */}
-      <HeaderViewProject data={data} printRef={printRef as React.RefObject<HTMLDivElement>} />
+      <HeaderViewProject data={data} />
 
       <Separator className="my-5 print:hidden" />
 

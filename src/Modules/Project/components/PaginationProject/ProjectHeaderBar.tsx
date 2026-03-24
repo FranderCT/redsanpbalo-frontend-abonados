@@ -9,13 +9,11 @@ type Props = {
   limit: number;
   total: number;
   search: string;
-  state?: string;
   projectStateId?: number;
   states: ProjectState[];
   statesLoading?: boolean;
   onProjectStateChange: (id?: number) => void;
   onLimitChange: (n: number) => void;
-  onFilterClick: (text: string) => void;
   onSearchChange: (text: string) => void;
   onCleanFilters: () => void, // <- aplica al escribir (el container decide)
   rightAction?: ReactNode;
@@ -24,13 +22,11 @@ type Props = {
 export default function ProjectHeaderBar({
   limit,
   search,
-  state,
   projectStateId,
   states,
   statesLoading,
   onProjectStateChange,
   onLimitChange,
-  onFilterClick,
   onSearchChange,
   onCleanFilters,
   rightAction,
@@ -51,19 +47,6 @@ export default function ProjectHeaderBar({
         </select>
       </div>
 
-      {/* Filtrar */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-[#091540]">Estado:</span>
-        <select
-          className="h-9 px-3 border border-[#D9DBE9] bg-white text-sm outline-none"
-          value={state}
-          onChange={(e) => onFilterClick(e.target.value || "")}
-        >
-          <option value="">Todos</option>
-          <option value="1">Activo</option>
-          <option value="0">Inactivo</option>
-        </select>
-      </div>
       {/* Estado del proyecto */}
       <div className="flex items-center gap-2">
         <span className="text-sm text-[#091540]">Estado del proyecto:</span>

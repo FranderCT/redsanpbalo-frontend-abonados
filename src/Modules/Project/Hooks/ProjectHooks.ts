@@ -1,15 +1,16 @@
 // Hooks/MaterialHooks.ts
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
-import { useEffect } from "react";
 import { showApiErrorToast } from "@/core/api-error";
-import { createProject, deleteProject, getAllProjects, getProjectById, searchProjects, updateProject } from "../Services/ProjectServices";
+import { toast } from "sonner";
+import { createProject, deleteProject, downloadProjectPdfFile, getAllProjects, getProjectById, removeProjectCoverImage, searchProjects, updateProject, uploadProjectCoverImage } from "../Services/ProjectServices";
 import type { Project, ProjectPaginationParams, UpdateProject } from "../Models/Project";
+import { projectKeys } from "../queryKeys";
 
 // Obtener todos
 export const useGetAllProjects = () => {
   const { data: projects, isPending, error } = useQuery({
-    queryKey: ["projects"],
+    queryKey: projectKeys.list(),
     queryFn: getAllProjects,
   });
   return { projects, isPending, error };
@@ -25,39 +26,19 @@ export const useGetAllProjects = () => {
 // }
 
 export const useSearchProjects = (params: ProjectPaginationParams) => {
-  const query = useQuery<PaginatedResponse<Project>, Error>({
-    queryKey: ["projects", "search", params],
+  return useQuery<PaginatedResponse<Project>, Error>({
+    queryKey: projectKeys.search(params),
     queryFn: () => searchProjects(params),
-    placeholderData: keepPreviousData,   // v5
+    placeholderData: keepPreviousData,
     staleTime: 30_000,
   });
-
-  // ⬇️ Log en cada fetch/refetch exitoso
-  useEffect(() => {
-    if (query.data) {
-      const res = query.data; 
-      console.log(
-        "[Projects fetched]",
-        {
-          page: res.meta.page,
-          limit: res.meta.limit,
-          total: res.meta.total,
-          pageCount: res.meta.pageCount,
-          params,
-        },
-        res.data 
-      );
-    }
-  }, [query.data, params]);
-
-  return query;
 };
 
 
 // Obtener por ID
 export const useGetProjectById = (id?: number) => {
   const { data: project, isPending, error } = useQuery({
-    queryKey: ["projects", id],
+    queryKey: typeof id === "number" && id > 0 ? projectKeys.detail(id) : [...projectKeys.detailRoot(), "invalid"],
     queryFn: () => getProjectById(id as number),
     enabled: typeof id === "number" && id > 0,
   });
@@ -71,7 +52,8 @@ export const useCreateProject = () => {
       mutationFn: createProject,
       onSuccess: (res) =>{
           console.log('Proyecto creado correctamente',res)
-          qc.invalidateQueries({queryKey: ['projects']})
+          qc.invalidateQueries({queryKey: projectKeys.all})
+          qc.invalidateQueries({queryKey: projectKeys.dashboardInProcessCount})
       },
       onError: (err) =>{
           console.error('Error al crear', err)
@@ -88,9 +70,11 @@ export const useCreateProject = () => {
   
    const mutation = useMutation<Project, Error, {id: number; data: UpdateProject }>({
        mutationFn: ({id, data}) => updateProject(id, data),
-       onSuccess :(res)=>{
+       onSuccess :(res, variables)=>{
            console.log('Proyecto Actualizado', console.log(res))
-           qc.invalidateQueries({queryKey: [`projects`]})
+           qc.invalidateQueries({queryKey: projectKeys.all})
+           qc.invalidateQueries({queryKey: projectKeys.detail(variables.id)})
+           qc.invalidateQueries({queryKey: projectKeys.dashboardInProcessCount})
        },
        onError: (err) =>{
            console.error(err);
@@ -101,18 +85,59 @@ export const useCreateProject = () => {
    return mutation;
  };
 
+export const useUploadProjectCoverImage = () => {
+  const qc = useQueryClient();
+  return useMutation<Project, Error, { id: number; file: File }>({
+    mutationFn: ({ id, file }) => uploadProjectCoverImage(id, file),
+    onSuccess: (_res, variables) => {
+      qc.invalidateQueries({ queryKey: projectKeys.all });
+      qc.invalidateQueries({ queryKey: projectKeys.detail(variables.id) });
+    },
+    onError: (err) => {
+      console.error("Error subiendo portada", err);
+      showApiErrorToast(err);
+    },
+  });
+};
+
+export const useRemoveProjectCoverImage = () => {
+  const qc = useQueryClient();
+  return useMutation<{ ok: boolean }, Error, { id: number }>({
+    mutationFn: ({ id }) => removeProjectCoverImage(id),
+    onSuccess: (_res, variables) => {
+      qc.invalidateQueries({ queryKey: projectKeys.all });
+      qc.invalidateQueries({ queryKey: projectKeys.detail(variables.id) });
+    },
+    onError: (err) => {
+      console.error("Error eliminando portada", err);
+      showApiErrorToast(err);
+    },
+  });
+};
+
 // Eliminar
 export const useDeleteProject = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => deleteProject(id),
     onSuccess: (res) => {
-      qc.invalidateQueries({ queryKey: ["projects"] });
+      qc.invalidateQueries({ queryKey: projectKeys.all });
+      qc.invalidateQueries({ queryKey: projectKeys.dashboardInProcessCount });
       console.log("Proyecto inhabilitado", res);
     },
     onError: (err)=>{
       console.error("Error al inhabilitar", err);
       showApiErrorToast(err);
     }
+  });
+};
+
+export const useDownloadProjectPdf = () => {
+  return useMutation<void, Error, { id: number; name?: string }>({
+    mutationFn: ({ id, name }) => downloadProjectPdfFile(id, name),
+    onError: (err) => {
+      console.error("Error descargando PDF del proyecto", err);
+      toast.error("No se pudo descargar el PDF del proyecto");
+    },
   });
 };
