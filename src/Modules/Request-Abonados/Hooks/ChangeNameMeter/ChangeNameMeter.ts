@@ -114,12 +114,15 @@ export const useChangeNameMeterRq = () => {
 
     return useMutation({
         mutationFn: createChangeNameMeterRqAbonado,
-        onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['change-name-meter'] });
-            toast.success("Solicitud de disponibilidad de agua creada con éxito", { position: "top-right", duration: 2000 });
+        onSuccess: async () => {
+            await Promise.all([
+              qc.invalidateQueries({ queryKey: [baseKey], refetchType: "all" }),
+              qc.invalidateQueries({ queryKey: ["request-change-name-meter"], refetchType: "all" }),
+            ]);
+            toast.success("Solicitud de cambio de nombre de medidor creada con éxito", { position: "top-right", duration: 2000 });
         },
         onError: () => {
-            toast.error("Error al crear la solicitud de disponibilidad de agua", { position: "top-right", duration: 2000 });
+            toast.error("Error al crear la solicitud de cambio de nombre de medidor", { position: "top-right", duration: 2000 });
         }
     });
 }

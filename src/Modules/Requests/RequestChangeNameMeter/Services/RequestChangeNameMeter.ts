@@ -41,13 +41,13 @@ export async function searchReqChangeNameMeter(
   try {
     const { page = 1, limit = 10, UserName, StateRequestId, State } = params ?? {};
 
-    const q: Record<string, any> = { page, limit };
-    if (UserName && UserName.trim() !== "") q.UserName = UserName.trim();
-    if (typeof StateRequestId === "number") q.StateRequestId = StateRequestId;
-    if (State !== undefined && State !== null && State !== "") q.State = State; // "" | "true" | "false"
+    const queryParams: Record<string, any> = { page, limit };
+    if (UserName && UserName.trim() !== "") queryParams.UserName = UserName.trim();
+    if (typeof StateRequestId === "number") queryParams.StateRequestId = StateRequestId;
+    if (State !== undefined && State !== null && State !== "") queryParams.State = State;
 
     const { data } = await apiAxios.get<PaginatedResponse<ReqChangeNameMeter>>(`${BASE}/search`, {
-      params: q,
+      params: queryParams,
     });
     return data;
   } catch (err) {

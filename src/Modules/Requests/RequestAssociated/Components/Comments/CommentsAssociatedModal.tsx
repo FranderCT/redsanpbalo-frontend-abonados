@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent } from "@/Components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
 import { useGetCommentsByRequestId, useCreateAdminComment, useReplyWithFiles } from "../../../../CommentRequest/comment-associated/Hooks/commentAssociatedHooks";
 import { toast } from "sonner";
 import type { ReqAssociated } from "../../Models/RequestAssociated";
@@ -157,6 +163,12 @@ export default function CommentsAssociatedModal({
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
       <DialogContent className="flex h-[95vh] max-h-[95vh] max-w-5xl flex-col overflow-hidden rounded-none p-0">
+      <DialogHeader className="sr-only">
+        <DialogTitle>Comunicación de solicitud asociada #{request.Id}</DialogTitle>
+        <DialogDescription>
+          Revise la información, documentos y comentarios relacionados con la solicitud asociada.
+        </DialogDescription>
+      </DialogHeader>
       {/* Header */}
       <div className="px-6 py-4 bg-white text-[#091540] flex-shrink-0">
         <div>
