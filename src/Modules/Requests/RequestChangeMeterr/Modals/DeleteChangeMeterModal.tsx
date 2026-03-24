@@ -1,7 +1,18 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Trash } from "lucide-react";
-import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
+import { Button } from "@/Components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/Components/ui/alert-dialog";
 import type { ReqChangeMeter } from "../Models/RequestChangeMeter";
 import { useDeleteReqChangeMeter } from "../Hooks/RequestChangeMeter";
 
@@ -16,10 +27,12 @@ export default function DeleteRequestModal({ reqChangeMeter, onSuccess }: Props)
     const [open, setOpen] = useState(false);
     const [busy, setBusy] = useState(false);
     const deleteReqChangeMeterMutation = useDeleteReqChangeMeter();
+
     const handleClose = () =>{
-    toast.warning("Edición cancelado",{position:"top-right",duration:3000});
-    setOpen(false);
- }
+      toast.warning("Edición cancelada",{position:"top-right",duration:3000});
+      setOpen(false);
+    }
+
     const handleConfirm = async () => {
         try {
         setBusy(true);
@@ -36,32 +49,41 @@ export default function DeleteRequestModal({ reqChangeMeter, onSuccess }: Props)
     };
 
     return (
-        <>
-        <button
-            type="button"
-            onClick={() => setOpen(true)}
-            disabled={busy}
-            className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
-            ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
-            title="Inhabilitar solicitud"
-        >
-            <Trash  className="h-4 w-4"/>
-            {busy ? "..." : "Inhabilitar"}
-        </button>
+        <AlertDialog open={open} onOpenChange={setOpen}>
+          <AlertDialogTrigger asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={busy}
+              className="rounded-none border-[#F6132D] text-[#F6132D] hover:bg-[#F6132D] hover:text-white"
+              title="Inhabilitar solicitud"
+            >
+              <Trash className="h-4 w-4" />
+              {busy ? "..." : "Inhabilitar"}
+            </Button>
+          </AlertDialogTrigger>
 
-        {open && (
-            <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
-            <InhabilityActionModal
-                title="¿Inhabilitar solicitud?"
-                description={`¿Está seguro de inhabilitar esta solicitud?`}
-                cancelLabel="Cancelar"
-                confirmLabel="Inhabilitar"
-                onConfirm={handleConfirm}
-                onClose={handleClose}
-                onCancel={handleClose}
-            />
-            </div>
-        )}
-        </>
+          <AlertDialogContent className="rounded-none border-slate-200">
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Inhabilitar solicitud?</AlertDialogTitle>
+              <AlertDialogDescription>
+                ¿Está seguro de inhabilitar esta solicitud?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel className="rounded-none" onClick={handleClose}>
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="rounded-none bg-[#F6132D] text-white hover:bg-red-700"
+                onClick={handleConfirm}
+              >
+                Inhabilitar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
     );
 }
