@@ -104,8 +104,8 @@
 
     useEffect(() => {
         if (open && data) {
-        console.log('🔍 DEBUG - Data completa:', data);
-        console.log('🔍 DEBUG - RequestAvailabilityWaterFiles:', data.RequestAvailabilityWaterFiles);
+        console.log("DEBUG - Data completa:", data);
+        console.log("DEBUG - RequestAvailabilityWaterFiles:", data.RequestAvailabilityWaterFiles);
         }
     }, [open, data]);
 
@@ -187,7 +187,7 @@
                     const isDownloading = isLoadingLink && selectedFileId === fileId;
 
                     if (!fileId) {
-                        console.warn('⚠️ Archivo sin ID:', file);
+                        console.warn("Archivo sin ID:", file);
                         return null;
                     }
 

@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Bell,
   FileText,
@@ -25,12 +26,14 @@ import SidebarDropdown from "./SidebarDropdown";
 
 const AsideDashboard = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { activeRole, setActiveRole, availableRoles } = useRole();
   const { UserProfile } = useGetUserProfile();
 
   const goLogin = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("activeRole");
+    queryClient.clear();
     navigate({ to: "/login" });
   };
 

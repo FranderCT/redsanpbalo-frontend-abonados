@@ -59,5 +59,5 @@ export interface ReqAssociatedPaginationParams {
 export interface ReqAssociatedResponse {
   link?: string;
   url?: string;
-  [key: string]: any; // Para capturar cualquier otro formato
+  [key: string]: unknown; // Para capturar cualquier otro formato
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { User, LogOut } from "lucide-react";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 import {
@@ -13,13 +14,13 @@ import { cn } from "@/lib/utils";
 const DEFAULT_AVATAR = "/Image02.png";
 
 type Props = {
-  profileOpen?: boolean;
   setProfileOpen?: (v: boolean) => void;
 };
 
-export default function ProfileUserMenu({ profileOpen, setProfileOpen }: Props) {
+export default function ProfileUserMenu({ setProfileOpen }: Props) {
   const [imgError, setImgError] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { UserProfile } = useGetUserProfile();
   const photoSrc = UserProfile?.ProfilePhoto || DEFAULT_AVATAR;
   const showFallbackIcon = imgError;
@@ -31,6 +32,8 @@ export default function ProfileUserMenu({ profileOpen, setProfileOpen }: Props) 
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("activeRole");
+    queryClient.clear();
     navigate({ to: "/login" });
     setProfileOpen?.(false);
   };

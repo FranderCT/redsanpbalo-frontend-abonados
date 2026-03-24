@@ -1,7 +1,6 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { Edit2, InfoIcon, MessageSquare } from "lucide-react";
 import type { ReqAssociated } from "../../Models/RequestAssociated";
-import DeleteReqAssociatedModal from "../Modals/DeleteReqAssociatedModal";
 
 // ---- helpers ----
 const normalizeState = (s: string) =>
@@ -92,8 +91,6 @@ export const ReqAssociatedColumns = (
             <MessageSquare className="w-4 h-4" />
             Comentarios
           </button>
-
-         <DeleteReqAssociatedModal reqAssociated={req} />  
         </div>
       );
     },

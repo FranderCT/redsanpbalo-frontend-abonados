@@ -12,7 +12,7 @@ const formatDateOnly = (value?: string | Date) => {
       if (onlyDate) return value;
 
       // 2) Si trae tiempo/zona (T, Z o ±hh:mm), parsea y usa UTC
-      const hasTZ = /[Tt].*(Z|[+\-]\d{2}:?\d{2})$/.test(value);
+      const hasTZ = /[Tt].*(Z|[+-]\d{2}:?\d{2})$/.test(value);
       const d = new Date(value);
       if (isNaN(d.getTime())) return "-";
 
@@ -38,7 +38,9 @@ const formatDateOnly = (value?: string | Date) => {
       const day = String(d.getDate()).padStart(2, "0");
       return `${y}-${m}-${day}`;
     }
-  } catch {}
+  } catch {
+    return "-";
+  }
   return "-";
 };
 
@@ -111,7 +113,7 @@ export const ReqChangeMeterUserColumns = (
     header: "Acciones",
     cell: ({ row }) => {
       const canComment = row.original.CanComment === true;
-      console.log('🔍 ChangeMeter - CanComment:', row.original.CanComment, 'Type:', typeof row.original.CanComment, 'RequestId:', row.original.Id);
+      console.log("ChangeMeter - CanComment:", row.original.CanComment, "Type:", typeof row.original.CanComment, "RequestId:", row.original.Id);
       return (
         <div className="flex justify-center gap-2">
           <button

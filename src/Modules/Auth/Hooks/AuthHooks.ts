@@ -42,10 +42,12 @@ export const useCreateUser = () => {
 }
 
 export const useLogin = () => {
+    const qc = useQueryClient();
     const mutation = useMutation({
         mutationFn: Login,
         onSuccess: (res) =>{
             localStorage.setItem('token', res.token);
+            qc.clear();
             console.log("Login successful, token stored:", res.token);
         }
     })
@@ -54,9 +56,12 @@ export const useLogin = () => {
 
 export function useLogout() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   return () => {
     if (localStorage.getItem("token")) {
       localStorage.removeItem("token");
+      localStorage.removeItem("activeRole");
+      qc.clear();
       navigate({ to: "/login" }); 
     }
   };
