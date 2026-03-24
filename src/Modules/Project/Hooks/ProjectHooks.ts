@@ -1,7 +1,6 @@
 // Hooks/MaterialHooks.ts
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
-import { useEffect } from "react";
 import { showApiErrorToast } from "@/core/api-error";
 import { createProject, deleteProject, getAllProjects, getProjectById, searchProjects, updateProject } from "../Services/ProjectServices";
 import type { Project, ProjectPaginationParams, UpdateProject } from "../Models/Project";
@@ -25,32 +24,12 @@ export const useGetAllProjects = () => {
 // }
 
 export const useSearchProjects = (params: ProjectPaginationParams) => {
-  const query = useQuery<PaginatedResponse<Project>, Error>({
+  return useQuery<PaginatedResponse<Project>, Error>({
     queryKey: ["projects", "search", params],
     queryFn: () => searchProjects(params),
-    placeholderData: keepPreviousData,   // v5
+    placeholderData: keepPreviousData,
     staleTime: 30_000,
   });
-
-  // ⬇️ Log en cada fetch/refetch exitoso
-  useEffect(() => {
-    if (query.data) {
-      const res = query.data; 
-      console.log(
-        "[Projects fetched]",
-        {
-          page: res.meta.page,
-          limit: res.meta.limit,
-          total: res.meta.total,
-          pageCount: res.meta.pageCount,
-          params,
-        },
-        res.data 
-      );
-    }
-  }, [query.data, params]);
-
-  return query;
 };
 
 

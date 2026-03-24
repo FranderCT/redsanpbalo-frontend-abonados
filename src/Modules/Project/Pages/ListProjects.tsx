@@ -1,50 +1,88 @@
-
+import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { Card, CardContent } from "@/Components/ui/card";
+import { DataPagination } from "@/Components/ui/data-pagination";
 import ProjectHeaderBar from "../components/PaginationProject/ProjectHeaderBar";
-import ProjectPager from "../components/PaginationProject/ProjectPager";
-
-import { useNavigate } from "@tanstack/react-router";
 import CreateProjectModal from "../components/CardsProject/CreateProject";
-import { useMemo, useState } from "react";
 import type { ProjectPaginationParams } from "../Models/Project";
 import { useSearchProjects } from "../Hooks/ProjectHooks";
 import ProjectsGrid from "../components/CardsProject/ProjectsGrid";
 import { useGetAllProjectStates } from "../../Project_State/Hooks/ProjectStateHooks";
 
+const DEFAULT_LIMIT = 10;
+
+function getPositiveNumber(value: string | null, fallback: number) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function parseSearchState(searchStr: string) {
+  const searchParams = new URLSearchParams(searchStr);
+  const rawProjectState = searchParams.get("projectState");
+  const parsedProjectState = rawProjectState ? Number(rawProjectState) : undefined;
+
+  return {
+    page: getPositiveNumber(searchParams.get("page"), 1),
+    limit: getPositiveNumber(searchParams.get("limit"), DEFAULT_LIMIT),
+    search: searchParams.get("name") ?? "",
+    projectStateId:
+      typeof parsedProjectState === "number" && Number.isInteger(parsedProjectState) && parsedProjectState > 0
+        ? parsedProjectState
+        : undefined,
+  };
+}
 
 export default function ListProjects() {
+  const location = useLocation();
   const navigate = useNavigate();
+  const [page, setPage] = useState(() => parseSearchState(location.searchStr).page);
+  const [limit, setLimit] = useState(() => parseSearchState(location.searchStr).limit);
+  const [search, setSearch] = useState(() => parseSearchState(location.searchStr).search);
+  const [projectStateId, setProjectStateId] = useState<number | undefined>(
+    () => parseSearchState(location.searchStr).projectStateId,
+  );
+  const deferredSearch = useDeferredValue(search);
 
-  const [page, setPage] = useState(1);   // 1-based
-  const [limit, setLimit] = useState(10);
+  useEffect(() => {
+    const searchParams = new URLSearchParams();
 
-  const [search, setSearch] = useState("");
-  const [name, setName] = useState<string | undefined>(undefined);
-  const [state, setState] = useState<string | undefined>(undefined); // ""|"1"|"0" según tu API
-  const [projectStateId, setProjectStateId] = useState<number>();
+    if (page > 1) searchParams.set("page", String(page));
+    if (limit !== DEFAULT_LIMIT) searchParams.set("limit", String(limit));
+    if (search.trim()) searchParams.set("name", search.trim());
+    if (projectStateId) searchParams.set("projectState", String(projectStateId));
+
+    const nextSearch = searchParams.toString();
+    const nextUrl = `${location.pathname}${nextSearch ? `?${nextSearch}` : ""}${location.hash}`;
+    const currentUrl = `${location.pathname}${location.searchStr}${location.hash}`;
+
+    if (nextUrl !== currentUrl) {
+      window.history.replaceState(window.history.state, "", nextUrl);
+    }
+  }, [limit, location.hash, location.pathname, location.searchStr, page, projectStateId, search]);
 
   const handleSearchChange = (txt: string) => {
-    setSearch(txt);
-    const trimmed = txt.trim();
-    setName(trimmed ? trimmed : undefined);
-    setPage(1);
+    startTransition(() => {
+      setSearch(txt);
+      setPage(1);
+    });
   };
-
-  const handleStateChange = (newState: string) => {
-    setState(newState || undefined);
-    setPage(1);
-  };
-
 
   const handleCleanFilters = () => {
-    setSearch("");
-    setName(undefined);
-    setState(undefined);
-    setPage(1);
+    startTransition(() => {
+      setSearch("");
+      setProjectStateId(undefined);
+      setPage(1);
+    });
   };
 
   const params: ProjectPaginationParams = useMemo(
-    () => ({ page, limit, name, state, projectState: projectStateId?.toString(), }),
-    [page, limit, name, state, projectStateId]
+    () => ({
+      page,
+      limit,
+      name: deferredSearch.trim() || undefined,
+      projectState: projectStateId?.toString(),
+    }),
+    [deferredSearch, limit, page, projectStateId]
   );
 
   const { projectStates, projectStatesLoading } = useGetAllProjectStates();
@@ -52,10 +90,11 @@ export default function ListProjects() {
 
   const items = data?.data ?? [];
   const meta = data?.meta ?? {
-    total: 0,
-    page: 1,
-    limit,
-    pageCount: 1,
+    totalItems: 0,
+    itemCount: 0,
+    itemsPerPage: limit,
+    totalPages: 1,
+    currentPage: 1,
     hasNextPage: false,
     hasPrevPage: false,
   };
@@ -67,18 +106,27 @@ export default function ListProjects() {
       <div className="border-b border-dashed border-gray-300 mb-4"></div>
 
       <ProjectHeaderBar
-        limit={meta.limit}
-        total={meta.total}
+        limit={meta.itemsPerPage}
+        total={meta.totalItems}
         search={search}
         projectStateId={projectStateId}
         states={projectStates ?? []}
         statesLoading={projectStatesLoading}
-        onLimitChange={(l) => { setLimit(l); setPage(1); }}
-        onFilterClick={handleStateChange}
+        onLimitChange={(newLimit) => {
+          startTransition(() => {
+            setLimit(newLimit);
+            setPage(1);
+          });
+        }}
         onSearchChange={handleSearchChange}
-        onProjectStateChange={(id) => { setProjectStateId(id); setPage(1); }}
+        onProjectStateChange={(id) => {
+          startTransition(() => {
+            setProjectStateId(id);
+            setPage(1);
+          });
+        }}
         onCleanFilters={handleCleanFilters}
-        rightAction={<CreateProjectModal />} // 👈 formulario rápido
+        rightAction={<CreateProjectModal />}
       />
 
       <div className="w-full">
@@ -89,7 +137,7 @@ export default function ListProjects() {
             Ocurrió un error al cargar los Proyectos.
           </div>
         ) : (
-          <div className="">
+          <div>
             <ProjectsGrid
               projects={items}
               onDetails={(id) => navigate({ to: `/dashboard/projects/${id}` })}
@@ -99,13 +147,23 @@ export default function ListProjects() {
         )}
       </div>
 
-      <ProjectPager
-              page={meta.page}
-              total={meta.total}
-              pageCount={meta.pageCount}
-              onPageChange={setPage}
-              variant="box"
-              className="mt-2" data={[]}      />
+      <Card className="border-none shadow-none">
+        <CardContent className="pt-2 sm:pt-6">
+          <DataPagination
+            page={meta.currentPage}
+            pageCount={meta.totalPages}
+            total={meta.totalItems}
+            pageSize={meta.itemsPerPage}
+            onPageChange={(nextPage) => {
+              startTransition(() => {
+                setPage(nextPage);
+              });
+            }}
+            labels={{ totalItems: "proyectos" }}
+            compact
+          />
+        </CardContent>
+      </Card>
     </section>
   );
 }

@@ -1,23 +1,43 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useReactToPrint } from "react-to-print";
+import { toast } from "sonner";
 import { Pencil, Printer, ChevronRight } from "lucide-react";
 import { Button } from "../../../../Components/ui/button";
 import { Badge } from "../../../../Components/ui/badge";
 import type { Project } from "../../Models/Project";
 import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
+import { downloadProjectPdf } from "../../Services/ProjectServices";
 
 type Props = {
   data: Project;
-  printRef: React.RefObject<HTMLDivElement>;
 };
 
-export default function HeaderViewProject({ data, printRef }: Props) {
+export default function HeaderViewProject({ data }: Props) {
   const navigate = useNavigate();
 
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: `Proyecto_${data.Name}`,
-  });
+  const handleDownloadPdf = async () => {
+    try {
+      const blob = await downloadProjectPdf(data.Id);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const safeName = (data.Name ?? `proyecto-${data.Id}`)
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9-_]+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "")
+        .toLowerCase();
+
+      link.href = url;
+      link.download = `${safeName || `proyecto-${data.Id}`}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error descargando PDF del proyecto", error);
+      toast.error("No se pudo descargar el PDF del proyecto");
+    }
+  };
 
   return (
     <div className="print:hidden space-y-4">
@@ -36,19 +56,19 @@ export default function HeaderViewProject({ data, printRef }: Props) {
       </nav>
 
       {/* Título + acciones */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3 min-w-0">
-          <h1 className="text-2xl font-semibold tracking-tight truncate">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-3">
+          <h1 className="min-w-0 flex-1 text-2xl font-semibold tracking-tight truncate">
             {data.Name}
           </h1>
           {data.ProjectState?.Name && (
-            <Badge variant="secondary" className="shrink-0">
+            <Badge variant="secondary" className="shrink-0 px-4 py-1">
               {data.ProjectState.Name}
             </Badge>
           )}
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
           <Button
             variant="outline"
             size="sm"
@@ -63,7 +83,7 @@ export default function HeaderViewProject({ data, printRef }: Props) {
             Editar
           </Button>
 
-          <Button variant="outline" size="sm" onClick={() => handlePrint()}>
+          <Button variant="outline" size="sm" onClick={handleDownloadPdf}>
             <Printer className="size-3.5 mr-1.5" />
             PDF
           </Button>

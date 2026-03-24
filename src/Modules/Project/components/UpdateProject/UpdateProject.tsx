@@ -73,7 +73,6 @@ export default function EditProject() {
           Objective: value.Objective?.trim() ?? "",
           Description: value.Description?.trim() ?? "",
           Observation: value.Observation?.trim() ?? "",
-          SpaceOfDocument: value.SpaceOfDocument?.trim() ?? "",
           ProjectStateId: Number(value.ProjectStateId),
           UserId: Number(value.UserId),
         };
@@ -235,25 +234,6 @@ export default function EditProject() {
                 <FieldError errors={[{ message: (field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0]) }]} />
               )}
             </div>
-          )}
-        </form.Field>
-
-        {/* Espacio de documento */}
-        <form.Field name="SpaceOfDocument">
-          {(field) => (
-            <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-[#091540]">Espacio de documento</span>
-              <input
-                className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                value={field.state.value ?? ""}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                </p>
-              )}
-            </label>
           )}
         </form.Field>
 

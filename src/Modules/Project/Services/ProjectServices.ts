@@ -28,9 +28,9 @@ export async function searchProjects(
   params: ProjectPaginationParams
 ): Promise<PaginatedResponse<Project>> {
   try {
-    const { page = 1, limit = 10, name, state ,projectState} = params ?? {};
+    const { page = 1, limit = 10, name, projectState } = params ?? {};
     const { data } = await apiAxios.get<PaginatedResponse<Project>>(`${BASE}/search`, {
-      params: { page, limit, name, state, projectState },
+      params: { page, limit, name, projectState },
     });
     return data;
   } catch (err) {
@@ -41,6 +41,13 @@ export async function searchProjects(
 
 export async function getProjectById(id: number): Promise<Project> {
   const res = await apiAxios.get<Project>(`${BASE}/${id}`);
+  return res.data;
+}
+
+export async function downloadProjectPdf(id: number): Promise<Blob> {
+  const res = await apiAxios.get(`${BASE}/${id}/export/pdf`, {
+    responseType: "blob",
+  });
   return res.data;
 }
 
