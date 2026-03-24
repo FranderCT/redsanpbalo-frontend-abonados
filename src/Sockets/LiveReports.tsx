@@ -1,7 +1,27 @@
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
+import { AlertCircle, CheckCircle2, MapPin, User, Wrench } from "lucide-react";
+import ReportPhotoLightbox from "../Modules/Reports/Components/ReportPhotoLightbox";
 import { socket } from "./Sockets";
-import { ModalBase } from "../Components/Modals/ModalBase";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
+import { Button } from "@/Components/ui/button";
+import { Badge } from "@/Components/ui/badge";
+import { Separator } from "@/Components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/ui/select";
+import { Label } from "@/Components/ui/label";
 import { useAssignUserInCharge } from "../Modules/Reports/Hooks/ReportsHooks";
 import {
   mapLiveEventToListItem,
@@ -21,7 +41,7 @@ export default function LiveReports() {
 
   const [showModal, setShowModal] = useState(false);
   const [newReport, setNewReport] = useState<ReportListItem | null>(null);
-  const [selectedFontanero, setSelectedFontanero] = useState<number>(0);
+  const [selectedFontanero, setSelectedFontanero] = useState<string>("");
   const [isAssigning, setIsAssigning] = useState(false);
 
   const assignUserMutation = useAssignUserInCharge();
@@ -38,14 +58,14 @@ export default function LiveReports() {
     try {
       await assignUserMutation.mutateAsync({
         reportId: newReport.Id.toString(),
-        plumberUserId: selectedFontanero,
+        plumberUserId: Number(selectedFontanero),
         instructions: "Asignado desde la alerta de reportes en tiempo real",
       });
       const assignedFontanero =
-        fontaneros.find((item) => item.Id === selectedFontanero) ?? null;
+        fontaneros.find((item) => item.Id === Number(selectedFontanero)) ?? null;
       setNewReport(withAssignedPlumber(newReport, assignedFontanero));
       toast.success("Fontanero asignado exitosamente");
-      setSelectedFontanero(0);
+      setSelectedFontanero("");
     } catch (error) {
       toast.error("Error al asignar fontanero");
       console.error(error);
@@ -73,177 +93,186 @@ export default function LiveReports() {
     };
   }, []);
 
+  const isAssigned = !!newReport?.AssignedPlumber;
+
   return (
-    <div>
-      <ModalBase
-        open={showModal}
-        onClose={() => setShowModal(false)}
-        panelClassName="w-full max-w-2xl !p-0 overflow-hidden shadow-2xl"
-      >
+    <Dialog
+      open={showModal}
+      onOpenChange={(value) => {
+        if (!value && isAssigned) setShowModal(false);
+      }}
+    >
+      <DialogContent className="max-h-[80vh] w-full max-w-lg gap-0 overflow-hidden p-0">
+        <DialogHeader className="border-b px-6 py-5">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="size-5 text-destructive" />
+            <DialogTitle>Nuevo reporte recibido</DialogTitle>
+          </div>
+          <DialogDescription>
+            Se ha registrado un nuevo reporte en el sistema
+          </DialogDescription>
+        </DialogHeader>
+
         {newReport && (
-          <>
-            <div className="px-6 py-4 text-[#091540] border-b border-gray-200 bg-white">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    Nuevo Reporte Recibido
-                  </h3>
-                  <p className="text-sm opacity-80 mt-1">
-                    Se ha registrado un nuevo reporte en el sistema
-                  </p>
-                </div>
+          <div className="max-h-[calc(80vh-10rem)] overflow-y-auto">
+            {/* Foto del reporte */}
+            {newReport.PhotoUrl && (
+              <div className="border-b px-6 pt-4 pb-2">
+                <ReportPhotoLightbox src={newReport.PhotoUrl} thumbnailClass="h-44" />
               </div>
-            </div>
+            )}
 
-            <div className="px-6 py-4 space-y-4">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="text-lg font-semibold text-red-800">
+            <div className="space-y-4 px-6 py-4">
+              {/* Datos del reporte */}
+              <div className="rounded-lg border bg-destructive/5 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="font-semibold text-foreground">
                     Reporte #{newReport.Id}
-                  </h4>
-                  <span className="text-xs text-red-600 bg-red-100 px-2 py-1 rounded">
+                  </p>
+                  <Badge variant="destructive" className="text-xs">
                     {new Date(newReport.CreatedAt).toLocaleString("es-CR")}
-                  </span>
+                  </Badge>
                 </div>
 
-                {newReport.ReportLocation?.Neighborhood && (
-                  <div className="mb-3">
-                    <span className="inline-flex items-center text-xs font-medium px-2 py-1 border border-red-300 bg-white text-red-700">
-                      BARRIO DEL REPORTE:{" "}
+                <div className="flex flex-wrap gap-2">
+                  {newReport.ReportLocation?.Neighborhood && (
+                    <Badge variant="outline">
+                      <MapPin className="mr-1 size-3" />
                       {newReport.ReportLocation.Neighborhood}
-                    </span>
-                  </div>
-                )}
+                    </Badge>
+                  )}
+                  {newReport.ReportType?.Name && (
+                    <Badge variant="outline">{newReport.ReportType.Name}</Badge>
+                  )}
+                  {newReport.ReportState && (
+                    <Badge variant="secondary">{newReport.ReportState}</Badge>
+                  )}
+                </div>
 
-                {newReport.ReportType?.Name && (
-                  <div className="mb-3">
-                    <span className="inline-flex items-center text-xs font-medium px-2 py-1 border border-red-300 bg-white text-red-700">
-                      TIPO DE REPORTE: {newReport.ReportType.Name}
-                    </span>
-                  </div>
-                )}
+                <Separator className="my-3" />
 
-                {newReport.ReportState && (
-                  <div className="mb-3">
-                    <span className="inline-flex items-center text-xs font-medium px-2 py-1 border border-red-300 bg-white text-red-700">
-                      ESTADO DEL REPORTE: {newReport.ReportState}
-                    </span>
-                  </div>
-                )}
-
-                <div className="space-y-3">
+                <div className="space-y-2">
                   <div>
-                    <span className="text-xs text-red-600 font-medium">
-                      UBICACION
-                    </span>
-                    <p className="text-sm text-red-800 font-medium">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Ubicación
+                    </p>
+                    <p className="text-sm font-medium text-foreground">
                       {newReport.DisplayLocation}
                     </p>
                   </div>
-
                   <div>
-                    <span className="text-xs text-red-600 font-medium">
-                      DESCRIPCION
-                    </span>
-                    <p className="text-sm text-red-800">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Descripción
+                    </p>
+                    <p className="text-sm text-foreground">
                       {newReport.Description}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">
+              {/* Reportado por */}
+              <div className="rounded-lg border p-4">
+                <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  <User className="size-4" />
                   Reportado por
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <span className="text-xs text-gray-500">
-                      Nombre completo
-                    </span>
-                    <p className="text-sm font-medium text-gray-800">
-                      {newReport.ReportedByDisplayName}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-gray-500">Email</span>
-                    <p className="text-sm font-medium text-gray-800">
-                      {newReport.ReportedBy?.Email}
-                    </p>
-                  </div>
-                </div>
+                </p>
+                <p className="text-sm font-medium">{newReport.ReportedByDisplayName}</p>
+                {newReport.ReportedBy?.Email && (
+                  <p className="text-sm text-muted-foreground">
+                    {newReport.ReportedBy.Email}
+                  </p>
+                )}
               </div>
 
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <h4 className="text-sm font-semibold text-blue-700 mb-3">
-                  {newReport.AssignedPlumber
-                    ? "Reasignar Fontanero"
-                    : "Asignar Fontanero"}
-                </h4>
-                <div className="flex gap-3 items-end">
+              {/* Asignar fontanero */}
+              <div className="rounded-lg border p-4">
+                <p className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  <Wrench className="size-4" />
+                  {isAssigned ? "Reasignar fontanero" : "Asignar fontanero"}
+                </p>
+
+                {isAssigned && (
+                  <div className="mb-3 flex items-center gap-2 rounded-md bg-green-50 px-3 py-2 text-sm text-green-700 dark:bg-green-950 dark:text-green-300">
+                    <CheckCircle2 className="size-4 shrink-0" />
+                    Asignado a{" "}
+                    <span className="font-medium">
+                      {newReport.AssignedPlumber!.FullName ??
+                        newReport.AssignedPlumber!.Name}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
                   <div className="flex-1">
-                    <label className="block text-xs text-blue-600 font-medium mb-1">
+                    <Label htmlFor="fontanero-select" className="sr-only">
                       Seleccionar fontanero
-                    </label>
-                    <select
+                    </Label>
+                    <Select
                       value={selectedFontanero}
-                      onChange={(e) =>
-                        setSelectedFontanero(Number(e.target.value))
-                      }
-                      className="w-full px-3 py-2 border border-blue-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      onValueChange={setSelectedFontanero}
                       disabled={fontanerosLoading || isAssigning}
                     >
-                      <option value={0}>
-                        {fontanerosLoading
-                          ? "Cargando fontaneros..."
-                          : "Seleccionar fontanero"}
-                      </option>
-                      {fontaneros.map((fontanero) => (
-                        <option key={fontanero.Id} value={fontanero.Id}>
-                          {fontanero.Name} {fontanero.Surname1}
-                          {newReport.AssignedPlumber?.Id === fontanero.Id &&
-                            " (Actual)"}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectTrigger id="fontanero-select">
+                        <SelectValue
+                          placeholder={
+                            fontanerosLoading
+                              ? "Cargando fontaneros..."
+                              : "Seleccionar fontanero"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {fontaneros.map((fontanero) => (
+                          <SelectItem
+                            key={fontanero.Id}
+                            value={String(fontanero.Id)}
+                          >
+                            {fontanero.Name} {fontanero.Surname1}
+                            {newReport.AssignedPlumber?.Id === fontanero.Id &&
+                              " (Actual)"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                  <button
+                  <Button
                     onClick={handleAssignFontanero}
                     disabled={
-                      selectedFontanero === 0 ||
-                      isAssigning ||
-                      fontanerosLoading
+                      !selectedFontanero || isAssigning || fontanerosLoading
                     }
-                    className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                   >
                     {isAssigning ? "Asignando..." : "Asignar"}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
-
-            <div className="flex justify-between items-center gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
-              {!newReport.AssignedPlumber && (
-                <p className="text-sm text-red-600 font-medium">
-                  Debes asignar un fontanero antes de continuar
-                </p>
-              )}
-              {newReport.AssignedPlumber && (
-                <p className="text-sm text-green-600 font-medium">
-                  Fontanero asignado correctamente
-                </p>
-              )}
-              <button
-                onClick={() => setShowModal(false)}
-                disabled={!newReport.AssignedPlumber}
-                className="h-10 px-6 bg-[#091540] text-white hover:bg-[#1789FC] disabled:bg-gray-400 disabled:cursor-not-allowed transition font-medium"
-              >
-                Entendido
-              </button>
-            </div>
-          </>
+          </div>
         )}
-      </ModalBase>
-    </div>
+
+        <DialogFooter className="border-t px-6 py-4">
+          <div className="flex w-full items-center justify-between gap-3">
+            {!isAssigned ? (
+              <p className="flex items-center gap-1.5 text-sm text-destructive">
+                <AlertCircle className="size-4 shrink-0" />
+                Debes asignar un fontanero para continuar
+              </p>
+            ) : (
+              <p className="flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400">
+                <CheckCircle2 className="size-4 shrink-0" />
+                Fontanero asignado correctamente
+              </p>
+            )}
+            <Button
+              onClick={() => setShowModal(false)}
+              disabled={!isAssigned}
+              className="shrink-0"
+            >
+              Entendido
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

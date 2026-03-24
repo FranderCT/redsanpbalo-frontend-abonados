@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Upload, UserRound } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -216,7 +216,7 @@ export default function CreateAssociatedRqModalAdmin() {
   });
 
   const handleClose = () => {
-    toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+    toast.warning("Solicitud cancelada", { position: "top-right", duration: 3000 });
     form.reset();
     setIsUploading(false);
     setUploadProgress("");

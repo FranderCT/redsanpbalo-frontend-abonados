@@ -1,6 +1,6 @@
     // UpdateReqChangeMeterStateModal.tsx
     import { useEffect, useState } from "react";
-    import { toast } from "react-toastify";
+    import { toast } from "sonner";
     import type { ReqChangeMeter } from "../Models/RequestChangeMeter";
     import { useGetAllRequestStates, useUpdateChangeMeter, useUpdateCanCommentChangeMeter } from "../Hooks/RequestChangeMeter";
     type Props = {
@@ -58,7 +58,7 @@
                 newValue 
                     ? "Comentarios habilitados para el abonado" 
                     : "Comentarios deshabilitados para el abonado",
-                { position: "top-right", autoClose: 3000 }
+                { position: "top-right", duration: 3000 }
             );
         } catch (err: any) {
             console.error('❌ Error al actualizar CanComment:', err);
@@ -68,13 +68,13 @@
     };
 
     const handleCancel = () => {
-        toast.warning("Edición cancelada", { position: "top-right", autoClose: 3000 });
+        toast.warning("Edición cancelada", { position: "top-right", duration: 3000 });
         onClose();
     };
 
     const handleConfirm = async () => {
         if (!stateId || stateId === "") {
-        toast.warn("Selecciona un estado", { position: "top-right", autoClose: 2500 });
+        toast.warn("Selecciona un estado", { position: "top-right", duration: 2500 });
         return;
         }
 

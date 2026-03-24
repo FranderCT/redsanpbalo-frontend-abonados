@@ -2,7 +2,7 @@
 // import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 // import { useCreateSupervisionMeterRequest } from "../../Hooks/Supervision-Meter/SupervionMeterHooks";
 // import { useState } from "react";
-// import { toast } from "react-toastify";
+// import { toast } from "sonner";
 // import { ModalBase } from "../../../../Components/Modals/ModalBase";
 
 // const CreateRequestSupervisionMeter = () => {
@@ -11,7 +11,7 @@
 //     const [open, setOpen] = useState(false);
 
 //     const handleClose = () => {
-//         toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+//         toast.warning("Solicitud cancelada", { position: "top-right", duration: 3000 });
 //         form.reset();
 //         setOpen(false);
 //     };

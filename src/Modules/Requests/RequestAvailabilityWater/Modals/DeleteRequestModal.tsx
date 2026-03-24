@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ReqAvailWater } from "../Models/ReqAvailWater";
 import { useDeleteReqAvailWater } from "../Hooks/ReqAvailWaterHooks";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 
@@ -18,7 +18,7 @@ export default function DeleteRequestModal({ reqAvailWater, onSuccess }: Props) 
     const [busy, setBusy] = useState(false);
     const deleteReqAvailWaterMutation = useDeleteReqAvailWater();
     const handleClose = () =>{
-    toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
+    toast.warning("Edición cancelado",{position:"top-right",duration:3000});
     setOpen(false);
  }
     const handleConfirm = async () => {

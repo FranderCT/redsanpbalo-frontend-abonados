@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -20,8 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/Components/ui/select";
-import { FileText } from "lucide-react";
-import { useCreateReportByAdmin } from "../../Hooks/ReportsHooks";
+import { FileText, ImagePlus, X } from "lucide-react";
+import { showApiErrorToast } from "@/core/api-error";
+import { useCreateReportByAdmin, useUploadReportPhoto } from "../../Hooks/ReportsHooks";
 import { useGetAllReportTypes } from "../../Hooks/ReportTypesHooks";
 import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
@@ -29,16 +30,24 @@ import { createReportValidators } from "../../schemas/ReportSchema";
 import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_SIZE_MB = 5;
+
 const defaultValues = {
+  ReportLocationId: 0,
   ExactLocation: "",
   Description: "",
-  ReportLocationId: 0,
   ReportTypeId: 0,
 };
 
 export default function CreateReportModal() {
   const [open, setOpen] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const createReportMutation = useCreateReportByAdmin();
+  const uploadPhotoMutation = useUploadReportPhoto();
   const { reportTypes = [], isLoading: typesLoading } = useGetAllReportTypes();
   const { reportLocations = [], isLoading: locationsLoading } = useGetAllReportLocations();
   const { UserProfile, isLoading: profileLoading } = useGetUserProfile();
@@ -54,22 +63,52 @@ export default function CreateReportModal() {
         toast.error("No se pudo obtener la informacion del usuario");
         return;
       }
-
       try {
-        await createReportMutation.mutateAsync({
+        const created = await createReportMutation.mutateAsync({
           ExactLocation: value.ExactLocation,
           Description: value.Description,
           UserId: UserProfile.Id,
           ReportLocationId: Number(value.ReportLocationId),
           ReportTypeId: Number(value.ReportTypeId),
         });
+        if (photoFile) {
+          await uploadPhotoMutation.mutateAsync({ reportId: created.Id, photo: photoFile });
+        }
         toast.success("Reporte creado exitosamente");
-        form.reset();
-        setOpen(false);
-      } catch {
+        handleClose();
+      } catch (error) {
+        showApiErrorToast(error);
       }
     },
   });
+
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error("Formato no permitido. Use JPEG, PNG o WebP");
+      return;
+    }
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      toast.error(`La foto no puede superar ${MAX_SIZE_MB} MB`);
+      return;
+    }
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  }
+
+  function removePhoto() {
+    setPhotoFile(null);
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function handleClose() {
+    form.reset();
+    removePhoto();
+    setOpen(false);
+  }
 
   const isLoading = typesLoading || locationsLoading || profileLoading;
   const ReportField = form.Field;
@@ -78,8 +117,8 @@ export default function CreateReportModal() {
     <Dialog
       open={open}
       onOpenChange={(value) => {
-        setOpen(value);
-        if (!value) form.reset();
+        if (!value) handleClose();
+        else setOpen(true);
       }}
     >
       <DialogTrigger asChild>
@@ -112,13 +151,44 @@ export default function CreateReportModal() {
           >
             <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
               <FieldGroup className="gap-4">
+
+                {/* 1. Barrio */}
+                <ReportField
+                  name="ReportLocationId"
+                  children={(field) => {
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Barrio</FieldLabel>
+                        <Select
+                          value={field.state.value === 0 ? "" : String(field.state.value)}
+                          onValueChange={(value) => field.handleChange(Number(value))}
+                        >
+                          <SelectTrigger id={field.name} aria-invalid={isInvalid}>
+                            <SelectValue placeholder="Seleccionar barrio" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {reportLocations.map((location) => (
+                              <SelectItem key={location.Id} value={String(location.Id)}>
+                                {location.Neighborhood}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                      </Field>
+                    );
+                  }}
+                />
+
+                {/* 2. Dirección exacta */}
                 <ReportField
                   name="ExactLocation"
                   children={(field) => {
                     const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
                     return (
                       <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>Ubicacion exacta del reporte</FieldLabel>
+                        <FieldLabel htmlFor={field.name}>Direccion exacta</FieldLabel>
                         <Input
                           id={field.name}
                           name={field.name}
@@ -134,6 +204,7 @@ export default function CreateReportModal() {
                   }}
                 />
 
+                {/* 3. Descripción */}
                 <ReportField
                   name="Description"
                   children={(field) => {
@@ -158,34 +229,7 @@ export default function CreateReportModal() {
                   }}
                 />
 
-                <ReportField
-                  name="ReportLocationId"
-                  children={(field) => {
-                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>Barrio del reporte</FieldLabel>
-                        <Select
-                          value={field.state.value === 0 ? "" : String(field.state.value)}
-                          onValueChange={(value) => field.handleChange(Number(value))}
-                        >
-                          <SelectTrigger id={field.name} aria-invalid={isInvalid}>
-                            <SelectValue placeholder="Seleccionar barrio" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {reportLocations.map((location) => (
-                              <SelectItem key={location.Id} value={String(location.Id)}>
-                                {location.Neighborhood}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                      </Field>
-                    );
-                  }}
-                />
-
+                {/* 4. Tipo de reporte */}
                 <ReportField
                   name="ReportTypeId"
                   children={(field) => {
@@ -213,6 +257,48 @@ export default function CreateReportModal() {
                     );
                   }}
                 />
+
+                {/* 5. Foto (opcional) */}
+                <Field className="gap-2">
+                  <FieldLabel>
+                    Foto del reporte{" "}
+                    <span className="text-xs font-normal text-muted-foreground">(opcional)</span>
+                  </FieldLabel>
+                  {photoPreview ? (
+                    <div className="relative w-full overflow-hidden rounded-lg border">
+                      <img
+                        src={photoPreview}
+                        alt="Vista previa"
+                        className="h-40 w-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={removePhoto}
+                        className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex h-32 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 text-muted-foreground transition-colors hover:border-muted-foreground/60 hover:bg-muted/40"
+                    >
+                      <ImagePlus className="size-6" />
+                      <span className="text-sm">Agregar foto del problema</span>
+                      <span className="text-xs">JPEG, PNG o WebP · máx. 5 MB</span>
+                    </button>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handlePhotoChange}
+                  />
+                </Field>
+
               </FieldGroup>
 
               {UserProfile ? (

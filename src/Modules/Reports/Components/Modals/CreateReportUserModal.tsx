@@ -1,5 +1,6 @@
+import { useRef, useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -18,7 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/Components/ui/select";
-import { useCreateReportByUser } from "../../Hooks/ReportsHooks";
+import { ImagePlus, X } from "lucide-react";
+import { showApiErrorToast } from "@/core/api-error";
+import { useCreateReportByUser, useUploadReportPhoto } from "../../Hooks/ReportsHooks";
 import { useGetAllReportTypes } from "../../Hooks/ReportTypesHooks";
 import { useGetAllReportLocations } from "../../Hooks/ReportLocationHooks";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
@@ -26,20 +29,28 @@ import { createReportUserValidators } from "../../schemas/ReportSchema";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
 
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_SIZE_MB = 5;
+
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
 };
 
 const defaultValues = {
+  ReportLocationId: 0,
   ExactLocation: "",
   Description: "",
-  ReportLocationId: 0,
   ReportTypeId: 0,
 };
 
 export default function CreateReportUserModal({ open, setOpen }: Props) {
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const createReportMutation = useCreateReportByUser();
+  const uploadPhotoMutation = useUploadReportPhoto();
   const { reportTypes = [], isLoading: typesLoading } = useGetAllReportTypes();
   const { reportLocations = [], isLoading: locationsLoading } = useGetAllReportLocations();
   const { UserProfile, isLoading: profileLoading } = useGetUserProfile();
@@ -55,24 +66,52 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
         toast.error("Debes estar logueado para crear un reporte");
         return;
       }
-
       try {
-        await createReportMutation.mutateAsync({
+        const created = await createReportMutation.mutateAsync({
           ExactLocation: value.ExactLocation,
           Description: value.Description,
           UserId: UserProfile.Id,
           ReportLocationId: Number(value.ReportLocationId),
           ReportTypeId: Number(value.ReportTypeId),
         });
-        toast.success("Reporte creado exitosamente. Sera revisado por nuestro equipo.");
-        form.reset();
-        setOpen(false);
+        if (photoFile) {
+          await uploadPhotoMutation.mutateAsync({ reportId: created.Id, photo: photoFile });
+        }
+        toast.success("Reporte enviado. Sera revisado por nuestro equipo.");
+        handleClose();
       } catch (error) {
-        toast.error("Error al crear el reporte");
-        console.error(error);
+        showApiErrorToast(error);
       }
     },
   });
+
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error("Formato no permitido. Use JPEG, PNG o WebP");
+      return;
+    }
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      toast.error(`La foto no puede superar ${MAX_SIZE_MB} MB`);
+      return;
+    }
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  }
+
+  function removePhoto() {
+    setPhotoFile(null);
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setPhotoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function handleClose() {
+    form.reset();
+    removePhoto();
+    setOpen(false);
+  }
 
   const isLoading = typesLoading || locationsLoading || profileLoading;
   const formatErrors = (errors: unknown[]) =>
@@ -87,15 +126,15 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
     <Dialog
       open={open}
       onOpenChange={(value) => {
-        setOpen(value);
-        if (!value) form.reset();
+        if (!value) handleClose();
+        else setOpen(true);
       }}
     >
       <DialogContent className="max-h-[70vh] gap-0 overflow-hidden">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Crear nuevo reporte</DialogTitle>
           <DialogDescription>
-            Reporta un problema en tu zona. Completa la informacion para que nuestro equipo pueda atenderte.
+            Reporta un problema en tu zona. Nuestro equipo lo atenderá a la brevedad.
           </DialogDescription>
         </DialogHeader>
 
@@ -120,58 +159,8 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
           >
             <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
               <FieldGroup className="gap-4">
-                <ReportField
-                  name="ExactLocation"
-                  children={(field) => {
-                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>Ubicacion especifica</FieldLabel>
-                        <Input
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          aria-invalid={isInvalid}
-                          placeholder="Ej: Calle principal, casa #123, frente al parque"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Proporciona la direccion exacta donde esta el problema
-                        </p>
-                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
-                      </Field>
-                    );
-                  }}
-                />
 
-                <ReportField
-                  name="Description"
-                  children={(field) => {
-                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor={field.name}>Descripcion del problema</FieldLabel>
-                        <Textarea
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          aria-invalid={isInvalid}
-                          placeholder="Describe detalladamente el problema presentado..."
-                          rows={4}
-                          className="resize-none"
-                        />
-                        <p className="text-xs text-muted-foreground">
-                          Incluye todos los detalles posibles para ayudarnos a resolver el problema
-                        </p>
-                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
-                      </Field>
-                    );
-                  }}
-                />
-
+                {/* 1. Barrio */}
                 <ReportField
                   name="ReportLocationId"
                   children={(field) => {
@@ -200,6 +189,61 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
                   }}
                 />
 
+                {/* 2. Dirección exacta */}
+                <ReportField
+                  name="ExactLocation"
+                  children={(field) => {
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Direccion exacta</FieldLabel>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          placeholder="Ej: Calle principal, casa #123, frente al parque"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Proporciona la direccion exacta donde esta el problema
+                        </p>
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
+                      </Field>
+                    );
+                  }}
+                />
+
+                {/* 3. Descripción */}
+                <ReportField
+                  name="Description"
+                  children={(field) => {
+                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field data-invalid={isInvalid} className="gap-2">
+                        <FieldLabel htmlFor={field.name}>Descripcion del problema</FieldLabel>
+                        <Textarea
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          placeholder="Describe detalladamente el problema presentado..."
+                          rows={4}
+                          className="resize-none"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Incluye todos los detalles posibles para ayudarnos a resolverlo
+                        </p>
+                        {isInvalid && <FieldError errors={formatErrors(field.state.meta.errors)} />}
+                      </Field>
+                    );
+                  }}
+                />
+
+                {/* 4. Tipo de reporte */}
                 <ReportField
                   name="ReportTypeId"
                   children={(field) => {
@@ -227,12 +271,54 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
                     );
                   }}
                 />
+
+                {/* 5. Foto (opcional) */}
+                <Field className="gap-2">
+                  <FieldLabel>
+                    Foto del problema{" "}
+                    <span className="text-xs font-normal text-muted-foreground">(opcional)</span>
+                  </FieldLabel>
+                  {photoPreview ? (
+                    <div className="relative w-full overflow-hidden rounded-lg border">
+                      <img
+                        src={photoPreview}
+                        alt="Vista previa"
+                        className="h-40 w-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={removePhoto}
+                        className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex h-32 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 text-muted-foreground transition-colors hover:border-muted-foreground/60 hover:bg-muted/40"
+                    >
+                      <ImagePlus className="size-6" />
+                      <span className="text-sm">Agregar foto del problema</span>
+                      <span className="text-xs">JPEG, PNG o WebP · máx. 5 MB</span>
+                    </button>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handlePhotoChange}
+                  />
+                </Field>
+
               </FieldGroup>
 
               {UserProfile ? (
                 <div className="rounded-lg border bg-muted/40 px-4 py-3">
                   <p className="text-sm font-medium text-foreground">
-                    Tu reporte sera enviado como: {UserProfile.Name} {UserProfile.Surname1}
+                    Reporte enviado como: {UserProfile.Name} {UserProfile.Surname1}
                   </p>
                   <p className="text-xs text-muted-foreground">{UserProfile.Email}</p>
                 </div>

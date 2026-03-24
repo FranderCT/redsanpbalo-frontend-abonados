@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useRef, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,

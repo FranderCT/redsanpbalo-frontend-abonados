@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useParams, useNavigate } from "@tanstack/react-router";
 import { useGetProjectById, useUpdateProject } from "../../Hooks/ProjectHooks";
 import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
@@ -8,6 +8,18 @@ import { useGetAllProjectStates } from "../../../Project_State/Hooks/ProjectStat
 import type { UpdateProject } from "../../Models/Project";
 import { UpdateProjectSchema } from "../../schemas/UpdateProjectSchema";
 import ConfirmActionModal from "../../../../Components/Modals/ConfirmActionModal";
+import { RichTextEditor } from "@/Components/ui/rich-text-editor";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/ui/select";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
+import { FieldError } from "@/Components/ui/field";
 
 // helper: Date | string -> "YYYY-MM-DD"
 const toYMD = (d?: string | Date) => {
@@ -62,8 +74,8 @@ export default function EditProject() {
           Description: value.Description?.trim() ?? "",
           Observation: value.Observation?.trim() ?? "",
           SpaceOfDocument: value.SpaceOfDocument?.trim() ?? "",
-          ProjectStateId: String(value.ProjectStateId ?? ""),
-          UserId: Number(value.UserId), // ⬅️ como string
+          ProjectStateId: Number(value.ProjectStateId),
+          UserId: Number(value.UserId),
         };
 
         await updateMutation.mutateAsync({ id, data: fullPayload as any });
@@ -75,7 +87,6 @@ export default function EditProject() {
         });
       } catch (e: any) {
         console.error("Update error:", e?.response?.data ?? e);
-        toast.error("Error al actualizar el proyecto");
       }
     },
   });
@@ -176,60 +187,54 @@ export default function EditProject() {
         {/* Objetivo */}
         <form.Field name="Objective">
           {(field) => (
-            <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-[#091540]">Objetivo</span>
-              <textarea
-                className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
-                rows={3}
+            <div className="flex flex-col gap-1.5">
+              <Label>Objetivo</Label>
+              <RichTextEditor
                 value={field.state.value ?? ""}
-                onChange={(e) => field.handleChange(e.target.value)}
+                onChange={field.handleChange}
+                placeholder="Objetivo principal del proyecto…"
+                minHeight="7rem"
               />
               {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                </p>
+                <FieldError errors={[{ message: (field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0]) }]} />
               )}
-            </label>
+            </div>
           )}
         </form.Field>
 
         {/* Descripción */}
         <form.Field name="Description">
           {(field) => (
-            <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-[#091540]">Descripción</span>
-              <textarea
-                className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
-                rows={3}
+            <div className="flex flex-col gap-1.5">
+              <Label>Descripción</Label>
+              <RichTextEditor
                 value={field.state.value ?? ""}
-                onChange={(e) => field.handleChange(e.target.value)}
+                onChange={field.handleChange}
+                placeholder="Descripción detallada del proyecto…"
+                minHeight="9rem"
               />
               {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                </p>
+                <FieldError errors={[{ message: (field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0]) }]} />
               )}
-            </label>
+            </div>
           )}
         </form.Field>
 
         {/* Observación */}
         <form.Field name="Observation">
           {(field) => (
-            <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-[#091540]">Observaciones</span>
-              <textarea
-                className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
-                rows={3}
+            <div className="flex flex-col gap-1.5">
+              <Label>Observaciones</Label>
+              <RichTextEditor
                 value={field.state.value ?? ""}
-                onChange={(e) => field.handleChange(e.target.value)}
+                onChange={field.handleChange}
+                placeholder="Observaciones adicionales…"
+                minHeight="6rem"
               />
               {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                </p>
+                <FieldError errors={[{ message: (field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0]) }]} />
               )}
-            </label>
+            </div>
           )}
         </form.Field>
 

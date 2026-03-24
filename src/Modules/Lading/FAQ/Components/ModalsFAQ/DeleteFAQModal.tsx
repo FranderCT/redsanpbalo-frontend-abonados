@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import InhabilityActionModal from "../../../../../Components/Modals/InhabilyActionModal";
 import type { FAQ } from "../../Models/FAQ";
 import { useDeleteFAQ } from "../../Hooks/FAQHooks";
@@ -20,14 +20,14 @@ export default function DeleteFAQButton({ faqSelected, onSuccess }: Props) {
     try {
       setBusy(true);
       await deleteFAQMutation.mutateAsync(faqSelected.Id);
-      toast.success("¡FAQ inhabilitada!", { position: "top-right", autoClose: 3000 });
+      toast.success("¡FAQ inhabilitada!", { position: "top-right", duration: 3000 });
       setOpen(false);
       onSuccess?.();
     } catch (err) {
       console.error("Error al inhabilitar la FAQ:", err);
       toast.error("No se pudo inhabilitar la FAQ", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
     } finally {
       setBusy(false);

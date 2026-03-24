@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { newSupplierInitialState } from "../Models/Supplier";
 import { ModalBase } from "../../../Components/Modals/ModalBase";
 import { useCreateSupplier } from "../Hooks/SupplierHooks";
@@ -11,7 +11,7 @@ const CreateSupplierModal = () => {
   const [open, setOpen] = useState(false);
   const createSupplierMutation = useCreateSupplier();
   const handleClose = () => {
-    toast.warning("Registro cancelado", { position: "top-right", autoClose: 3000 });
+    toast.warning("Registro cancelado", { position: "top-right", duration: 3000 });
     setOpen(false);
   };
 
@@ -23,12 +23,12 @@ const CreateSupplierModal = () => {
     onSubmit: async ({ value, formApi }) => {
       try {
         await createSupplierMutation.mutateAsync(value);
-        toast.success("¡Registro exitoso!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡Registro exitoso!", { position: "top-right", duration: 3000 });
         formApi.reset(); // Limpia los campos
         setOpen(false);
       } catch (err) {
         console.error("Error creando proveedor:", err);
-        toast.error("¡Registro sin éxito!", { position: "top-right", autoClose: 3000 });
+        toast.error("¡Registro sin éxito!", { position: "top-right", duration: 3000 });
         formApi.reset();
       }
     },

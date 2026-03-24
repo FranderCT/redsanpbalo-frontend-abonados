@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import type { ReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
 import { useDeleteReqSupervisionMeter } from "../Hooks/ReqSupervisionMeterHooks";
@@ -17,7 +17,7 @@ export default function DeleteSupervisionMeterModal({ reqSupervisionMeter, onSuc
     const [busy, setBusy] = useState(false);
     const deleteReqSupervisionMeterMutation = useDeleteReqSupervisionMeter();
     const handleClose = () =>{
-    toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
+    toast.warning("Edición cancelado",{position:"top-right",duration:3000});
     setOpen(false);
  }
     const handleConfirm = async () => {

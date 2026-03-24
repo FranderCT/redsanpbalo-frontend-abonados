@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import InhabilityActionModal from "../../../../../Components/Modals/InhabilyActionModal";
 import type { Service } from "../../Models/Services";
 import { useDeleteMaterial } from "../../Hooks/ServicesHooks";
@@ -20,14 +20,14 @@ export default function DeleteServiceButton({ serviceSelected, onSuccess }: Prop
     try {
       setBusy(true);
       await deleteServiceMutation.mutateAsync(serviceSelected.Id);
-      toast.success("¡Servicio inhabilitado!", { position: "top-right", autoClose: 3000 });
+      toast.success("¡Servicio inhabilitado!", { position: "top-right", duration: 3000 });
       setOpen(false);
       onSuccess?.();
     } catch (err) {
       console.error("Error al inhabilitar el servicio:", err);
       toast.error("No se pudo inhabilitar el servicio", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
     } finally {
       setBusy(false);

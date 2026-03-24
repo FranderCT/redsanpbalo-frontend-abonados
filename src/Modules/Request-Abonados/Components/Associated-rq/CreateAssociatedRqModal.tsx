@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useCreateAssociatedRequest } from "../../Hooks/Associated/AssociatedRqHooks";
 import { UploadAssociatedFiles } from "../../../Upload-files/Services/ProjectFileServices";
@@ -53,7 +53,7 @@ const CreateAssociatedRqModal = () => {
     const [uploadProgress, setUploadProgress] = useState('');
 
     const handleClose = () => {
-        toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+        toast.warning("Solicitud cancelada", { position: "top-right", duration: 3000 });
         form.reset();
         setIsUploading(false);
         setUploadProgress('');
@@ -104,19 +104,19 @@ const CreateAssociatedRqModal = () => {
 
                         toast.success("Solicitud creada y evidencia de boleta firmada subida exitosamente", { 
                             position: "top-right", 
-                            autoClose: 3000 
+                            duration: 3000 
                         });
                     } catch (uploadError) {
                         console.error("Error subiendo evidencia:", uploadError);
                         toast.error("Solicitud creada, pero hubo un error al subir la evidencia. Intente subirla más tarde.", {
                             position: "top-right",
-                            autoClose: 5000
+                            duration: 5000
                         });
                     }
                 } else {
                     toast.success("Solicitud de asociado creada exitosamente", { 
                         position: "top-right", 
-                        autoClose: 3000 
+                        duration: 3000 
                     });
                 }
 
@@ -127,7 +127,7 @@ const CreateAssociatedRqModal = () => {
                 console.error("Error al crear la solicitud de asociado", error);
                 toast.error("Error al crear la solicitud. Intente nuevamente.", {
                     position: "top-right",
-                    autoClose: 4000
+                    duration: 4000
                 });
             } finally {
                 setIsUploading(false);

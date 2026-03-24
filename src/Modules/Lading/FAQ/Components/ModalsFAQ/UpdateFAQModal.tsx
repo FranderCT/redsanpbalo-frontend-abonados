@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -48,13 +48,13 @@ export default function UpdateFAQModal({ faq, open, onClose, onSuccess }: Props)
           id: faq.Id,
           data: value,
         });
-        toast.success("¡FAQ actualizada!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡FAQ actualizada!", { position: "top-right", duration: 3000 });
         formApi.reset();
         onClose();
         onSuccess?.();
       } catch (err) {
         console.error("Error al actualizar FAQ", err);
-        toast.error("Error al actualizar la FAQ", { position: "top-right", autoClose: 3000 });
+        toast.error("Error al actualizar la FAQ", { position: "top-right", duration: 3000 });
       }
     },
   });

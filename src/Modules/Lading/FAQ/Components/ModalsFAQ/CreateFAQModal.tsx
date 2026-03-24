@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -39,12 +39,12 @@ export default function CreateFAQModal() {
     onSubmit: async ({ value }) => {
       try {
         await createFAQMutation.mutateAsync(value);
-        toast.success("¡FAQ creada exitosamente!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡FAQ creada exitosamente!", { position: "top-right", duration: 3000 });
         setOpen(false);
         form.reset();
       } catch (err) {
         console.error("Error creando FAQ:", err);
-        toast.error("Error al crear la FAQ", { position: "top-right", autoClose: 3000 });
+        toast.error("Error al crear la FAQ", { position: "top-right", duration: 3000 });
       }
     },
   });

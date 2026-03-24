@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import type { ReqChangeNameMeter } from "../../Models/RequestChangeNameMeter";
 import { useDeleteReqChangeNameMeter } from "../../Hooks/RequestChangeNameMeterHooks";
@@ -17,7 +17,7 @@ export default function DeleteRequestModal({ reqChangeNameMeter, onSuccess }: Pr
     const [busy, setBusy] = useState(false);
     const deleteReqChangeNameMeterMutation = useDeleteReqChangeNameMeter();
     const handleClose = () =>{
-    toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
+    toast.warning("Edición cancelado",{position:"top-right",duration:3000});
     setOpen(false);
  }
     const handleConfirm = async () => {

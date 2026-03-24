@@ -1,25 +1,45 @@
 import { useState, useMemo } from "react";
 import { useForm } from "@tanstack/react-form";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { z } from "zod";
+import { Check, Plus, Trash2, FileText, Upload, Search, X } from "lucide-react";
+
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Textarea } from "@/Components/ui/textarea";
+import { Label } from "@/Components/ui/label";
+import { RichTextEditor } from "@/Components/ui/rich-text-editor";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Badge } from "@/Components/ui/badge";
+import { Separator } from "@/Components/ui/separator";
+import { FieldError } from "@/Components/ui/field";
+import { cn } from "@/lib/utils";
+
 import { newProjectInitialState } from "../../Models/Project";
 import { useCreateProject } from "../../Hooks/ProjectHooks";
 import { useGetAllProjectStates } from "../../../Project_State/Hooks/ProjectStateHooks";
-import { toast } from "react-toastify";
 import type { NewProjectProjection } from "../../Project-projection/Models/ProjectProjection";
 import { useCreateProjectProjection } from "../../Project-projection/Hooks/Project-ProjectionHooks";
-import {  type NewProductDetail } from "../../../Product-Detail/Models/ProductDetail";
-import { useGetAllProducts } from "../../../Products/Hooks/ProductsHooks";
+import { type NewProductDetail } from "../../../Product-Detail/Models/ProductDetail";
 import { useCreateProductDetail } from "../../../Product-Detail/Hooks/ProductDetailHooks";
 import { StepSchemas } from "../../schemas/StepSchema";
-import { z } from "zod";
 import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
 import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
-import { useNavigate } from "@tanstack/react-router";
+import { useGetAllProducts } from "../../../Products/Hooks/ProductsHooks";
 import { uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";
 
+type ProjectCreatePayload = typeof newProjectInitialState;
 
-
-const steps = [
+const STEPS = [
   { label: "Datos Básicos" },
   { label: "Detalles" },
   { label: "Proyección" },
@@ -27,82 +47,70 @@ const steps = [
   { label: "Confirmación" },
 ];
 
-type ProjectCreatePayload = typeof newProjectInitialState;
+const toYMD = (d?: string | Date | null): string => {
+  if (!d) return "";
+  const dd = typeof d === "string" ? new Date(d) : d;
+  if (isNaN(dd.getTime())) return "";
+  return dd.toISOString().split("T")[0];
+};
 
-const CreateProject = () => {
+// Extrae el primer mensaje de error de TanStack Form
+const firstError = (errors: unknown[]) =>
+  errors.length > 0
+    ? [{ message: (errors[0] as any)?.message ?? String(errors[0]) }]
+    : [];
+
+// Garantiza que el valor del campo sea un array (evita .map is not a function)
+const asArray = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
+
+export default function CreateProject() {
   const [step, setStep] = useState(0);
   const navigate = useNavigate();
 
   const createProjectMutation = useCreateProject();
   const createProjectProjectionMutation = useCreateProjectProjection();
   const createProductDetailMutation = useCreateProductDetail();
-  const { userAdmin = [], isPending: UserAdminIsLoading} = useGetUsersByRoleAdmin();
 
-  const { projectStates, projectStatesLoading } = useGetAllProjectStates();
+  const { userAdmin = [], isPending: userAdminLoading } = useGetUsersByRoleAdmin();
+  const { projectStates = [], projectStatesLoading } = useGetAllProjectStates();
   const { products, isPending: productsLoading, error: productsError } = useGetAllProducts();
 
-  // Estado local para múltiples documentos
+  const [productInput, setProductInput] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [tempProductId, setTempProductId] = useState<number>(0);
+  const [tempQty, setTempQty] = useState<number>(0);
 
+  const filteredProducts = useMemo(() => {
+    const s = productInput.trim().toLowerCase();
+    if (!s) return products ?? [];
+    return (products ?? []).filter((p) => p.Name.toLowerCase().includes(s));
+  }, [products, productInput]);
 
-  // UI local para el picker de detalles
-  // 👇 NUEVO: autocomplete
-    const [productInput, setProductInput] = useState("");
-    const [showSuggestions, setShowSuggestions] = useState(false);
-    const [showProductModal, setShowProductModal] = useState(false);
+  const getProductName = (id?: number) =>
+    products?.find((p) => p.Id === id)?.Name ?? "";
 
-    // cantidad y selección actual
-    const [tempProductId, setTempProductId] = useState<number>(0);
-    const [tempQty, setTempQty] = useState<number>(0);
+  const handleProductSelection = (product: Product) => {
+    setProductInput(product.Name);
+    setTempProductId(product.Id);
+    setShowProductModal(false);
+  };
 
-    // filtra cuando se escribe escribe
-    const filteredProducts = useMemo(() => {
-      const s = productInput.trim().toLowerCase();
-      if (!s) return products ?? [];
-      return (products ?? []).filter(p => p.Name.toLowerCase().includes(s));
-    }, [products, productInput]);
-
-    const getProductName = (id?: number) =>
-      products?.find(p => p.Id === id)?.Name ?? "";
-
-    // Función para manejar la selección de producto desde el modal
-    const handleProductSelection = (product: Product) => {
-      setProductInput(product.Name);
-      setTempProductId(product.Id);
-      setShowProductModal(false);
-      // Enfocar el campo de cantidad después de seleccionar
-      setTimeout(() => {
-        const qtyInput = document.querySelector('input[type="number"]') as HTMLInputElement;
-        if (qtyInput) qtyInput.focus();
-      }, 100);
-    };
-  
-  // Validación con Zod por pasos
   const handleNext = () => {
     const schema = StepSchemas[step];
-    
-    // Paso sin validación (confirmación, documentos)
     if (schema instanceof z.ZodAny) {
       setStep(step + 1);
       return;
     }
-
     const res = schema.safeParse(form.state.values);
     if (!res.success) {
-      // Marcar campos con error como "touched" para mostrar mensajes
       res.error.issues.forEach((issue) => {
         const path = issue.path.join(".");
-        if (path) {
-          form.setFieldMeta(path as any, (m: any) => ({ ...m, isTouched: true }));
-        }
+        if (path) form.setFieldMeta(path as any, (m: any) => ({ ...m, isTouched: true }));
       });
-      
-      // Mostrar primer error
-      const firstError = res.error.issues[0];
-      toast.error(firstError.message || "Completa los campos requeridos");
+      toast.error(res.error.issues[0].message || "Completa los campos requeridos");
       return;
     }
-
-    // Validación exitosa, avanzar
     setStep(step + 1);
   };
 
@@ -110,16 +118,13 @@ const CreateProject = () => {
     defaultValues: {
       ...newProjectInitialState,
       Observation: "",
-      projection: {
-        Observation: "",
-      },
+      projection: { Observation: "" },
       productDetails: [] as Array<Pick<NewProductDetail, "ProductId" | "Quantity">>,
       subfolder: "",
       files: [] as File[],
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        // 1) Proyecto
         const projectPayload: ProjectCreatePayload = {
           Name: value.Name,
           Location: value.Location,
@@ -127,9 +132,9 @@ const CreateProject = () => {
           EndDate: value.EndDate,
           Objective: value.Objective,
           Description: value.Description,
-          Observation: value.Observation, // Observation del PROYECTO
+          Observation: value.Observation,
           ProjectStateId: value.ProjectStateId,
-          UserId : value.UserId
+          UserId: value.UserId,
         };
 
         const projectRes = await createProjectMutation.mutateAsync(projectPayload);
@@ -141,199 +146,166 @@ const CreateProject = () => {
 
         if (!projectId) throw new Error("No se obtuvo el Id del proyecto creado.");
 
-        // 2) Proyección
         const projectionPayload: NewProjectProjection = {
           ProjectId: Number(projectId),
-          Observation: value.projection?.Observation ?? "", // Observation de la PROYECCIÓN
+          Observation: value.projection?.Observation ?? "",
         };
 
-        const projectionRes = await createProjectProjectionMutation.mutateAsync(projectionPayload);
+        const projectionRes =
+          await createProjectProjectionMutation.mutateAsync(projectionPayload);
         const projectProjectionId =
           (projectionRes as any)?.Id ??
           (projectionRes as any)?.id ??
           (projectionRes as any)?.data?.Id ??
           (projectionRes as any)?.data?.id;
 
-        if (!projectProjectionId) throw new Error("No se obtuvo el Id de la proyección creada.");
+        if (!projectProjectionId)
+          throw new Error("No se obtuvo el Id de la proyección creada.");
 
-        // 3) Detalles de producto (ARREGLO)
         const details = value.productDetails ?? [];
         if (details.length > 0) {
           await Promise.all(
             details
-              .filter(d => (d.ProductId ?? 0) > 0 && (d.Quantity ?? 0) > 0)
-              .map(d =>
+              .filter((d) => (d.ProductId ?? 0) > 0 && (d.Quantity ?? 0) > 0)
+              .map((d) =>
                 createProductDetailMutation.mutateAsync({
                   Quantity: Number(d.Quantity),
                   ProductId: Number(d.ProductId),
                   ProjectProjectionId: Number(projectProjectionId),
-                } satisfies NewProductDetail)
-              )
+                } satisfies NewProductDetail),
+              ),
           );
         }
 
-        // 4) Subir archivos si existen
         if (value.files && value.files.length > 0) {
-          await uploadProjectFiles(projectId, value.files, value.subfolder || 'Complementarios');
-          toast.success(`${value.files.length} archivo(s) subido(s) exitosamente`, { position: "top-right", autoClose: 2000 });
+          await uploadProjectFiles(
+            projectId,
+            value.files,
+            value.subfolder || "Complementarios",
+          );
+          toast.success(`${value.files.length} archivo(s) subido(s) exitosamente`);
         }
 
-        // 5) Éxito
         formApi.reset();
-        toast.success("¡Proyecto, proyección y detalles creados!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡Proyecto creado exitosamente!");
         navigate({ to: "/dashboard/projects" });
         setStep(0);
         setTempProductId(0);
         setTempQty(0);
-
-        
       } catch (err) {
-        console.error("Error al crear proyecto/proyección/detalles", err);
-        toast.error("¡Error al crear el proyecto, su proyección o los detalles!", { position: "top-right", autoClose: 3000 });
-        console.log(value.UserId)
-        console.log(value.Name)
+        console.error("Error al crear proyecto", err);
       }
     },
   });
 
-  const renderStepFields = () => {
+  // ── Contenido de cada paso ─────────────────────────────────────────────────
+
+  const renderStepContent = () => {
     switch (step) {
-      // Paso 0: Básicos
+      // ── Paso 0: Datos básicos ──────────────────────────────────────────────
       case 0:
         return (
-          <div className="flex flex-col gap-6" key="step-0">
+          <div className="flex flex-col gap-5">
             <form.Field name="Name">
               {(field) => (
-                <label className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Nombre del proyecto</span>
-                  <input
-                    className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="Name">Nombre del proyecto</Label>
+                  <Input
+                    id="Name"
                     placeholder="Ej. Instalación de nuevas tuberías…"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    required
                   />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
+                  {field.state.meta.isTouched && (
+                    <FieldError errors={firstError(field.state.meta.errors)} />
                   )}
-                </label>
+                </div>
               )}
             </form.Field>
 
             <form.Field name="Location">
               {(field) => (
-                <label className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Dirección</span>
-                  <textarea
-                    className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="Location">Dirección</Label>
+                  <Textarea
+                    id="Location"
                     placeholder="Ej. 200m este de la plaza…"
+                    rows={3}
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    rows={3}
-                    required
                   />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
+                  {field.state.meta.isTouched && (
+                    <FieldError errors={firstError(field.state.meta.errors)} />
                   )}
-                </label>
+                </div>
               )}
             </form.Field>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <form.Field name="InnitialDate">
                 {(field) => (
-                  <label className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-[#091540]">Fecha de inicio</span>
-                    <input
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="InnitialDate">Fecha de inicio</Label>
+                    <Input
+                      id="InnitialDate"
                       type="date"
-                      className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                      value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
+                      value={toYMD(field.state.value as any)}
                       onChange={(e) => {
-                        const selectedStartDate = new Date(e.target.value);
-                        field.handleChange(selectedStartDate);
-                        
-                        // SIEMPRE actualizar la fecha de fin cuando cambie la fecha de inicio
-                        const currentEndDate = form.state.values.EndDate;
-                        
-                        if (currentEndDate) {
-                          const endDate = new Date(currentEndDate);
-                          // Si la fecha de fin es menor O IGUAL, actualizar a la fecha de inicio
-                          if (endDate <= selectedStartDate) {
-                            form.setFieldValue('EndDate', selectedStartDate);
-                          }
-                        } else {
-                          // Si no hay fecha de fin, establecer la fecha de inicio como fecha de fin
-                          form.setFieldValue('EndDate', selectedStartDate);
+                        const selected = new Date(e.target.value);
+                        field.handleChange(selected);
+                        const current = form.state.values.EndDate;
+                        if (!current || new Date(current) <= selected) {
+                          form.setFieldValue("EndDate", selected);
                         }
-                        
-                        // Siempre limpiar errores del campo de fecha de fin
-                        form.setFieldMeta('EndDate', (prev: any) => ({
+                        form.setFieldMeta("EndDate", (prev: any) => ({
                           ...prev,
-                          errors: []
+                          errors: [],
                         }));
                       }}
-                      required
                     />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
+                    {field.state.meta.isTouched && (
+                      <FieldError errors={firstError(field.state.meta.errors)} />
                     )}
-                  </label>
+                  </div>
                 )}
               </form.Field>
 
               <form.Field name="EndDate">
                 {(field) => {
-                  // Obtener la fecha de inicio para validación (se actualiza automáticamente)
-                  const startDate = form.state.values.InnitialDate;
-                  const minEndDate = startDate ? new Date(startDate).toISOString().split("T")[0] : "";
-                  
+                  const minEnd = toYMD(form.state.values.InnitialDate as any);
                   return (
-                    <label className="flex flex-col gap-1">
-                      <span className="text-sm font-medium text-[#091540]">Fecha de fin</span>
-                      <input
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="EndDate">Fecha de fin</Label>
+                      <Input
+                        id="EndDate"
                         type="date"
-                        className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                        value={field.state.value ? new Date(field.state.value).toISOString().split("T")[0] : ""}
-                        min={minEndDate} // Se actualiza automáticamente cuando cambia startDate
+                        min={minEnd}
+                        value={toYMD(field.state.value as any)}
                         onChange={(e) => {
-                          const selectedDate = new Date(e.target.value);
-                          
-                          // Validación continua cada vez que se selecciona una fecha
-                          if (startDate && selectedDate < new Date(startDate)) {
-                            // Mostrar error si la fecha es menor
+                          const selected = new Date(e.target.value);
+                          const start = form.state.values.InnitialDate;
+                          if (start && selected < new Date(start)) {
                             field.setMeta((prev: any) => ({
                               ...prev,
-                              errors: ["La fecha de fin no puede ser anterior a la fecha de inicio"],
-                              isTouched: true
+                              errors: [
+                                "La fecha de fin no puede ser anterior a la de inicio",
+                              ],
+                              isTouched: true,
                             }));
-                            // No actualizar el valor si es inválido
                             return;
                           }
-                          
-                          // Limpiar errores y actualizar valor si la fecha es válida
                           field.setMeta((prev: any) => ({
                             ...prev,
                             errors: [],
-                            isTouched: true
+                            isTouched: true,
                           }));
-                          field.handleChange(selectedDate);
+                          field.handleChange(selected);
                         }}
-                        onFocus={() => {
-                          // Al hacer focus, asegurar que el min se actualice
-                          const input = document.querySelector('input[name="EndDate"]') as HTMLInputElement;
-                          if (input && minEndDate) {
-                            input.setAttribute('min', minEndDate);
-                          }
-                        }}
-                        required
                       />
-                    </label>
+                      {field.state.meta.isTouched && (
+                        <FieldError errors={firstError(field.state.meta.errors)} />
+                      )}
+                    </div>
                   );
                 }}
               </form.Field>
@@ -341,223 +313,217 @@ const CreateProject = () => {
           </div>
         );
 
-      // Paso 1: Detalles de Proyecto
+      // ── Paso 1: Detalles ───────────────────────────────────────────────────
       case 1:
         return (
-          <div className="flex flex-col gap-6" key="step-1">
+          <div className="flex flex-col gap-5">
             <form.Field name="Objective">
               {(field) => (
-                <label className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Objetivo del proyecto</span>
-                  <textarea
-                    className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
-                    placeholder="Objetivo"
+                <div className="flex flex-col gap-1.5">
+                  <Label>Objetivo del proyecto</Label>
+                  <RichTextEditor
                     value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    rows={3}
-                    required
+                    onChange={field.handleChange}
+                    placeholder="Objetivo principal del proyecto…"
+                    minHeight="7rem"
                   />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
+                  {field.state.meta.isTouched && (
+                    <FieldError errors={firstError(field.state.meta.errors)} />
                   )}
-                </label>
+                </div>
               )}
             </form.Field>
 
             <form.Field name="Description">
               {(field) => (
-                <label className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Descripción</span>
-                  <textarea
-                    className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
-                    placeholder="Descripción del proyecto"
+                <div className="flex flex-col gap-1.5">
+                  <Label>Descripción</Label>
+                  <RichTextEditor
                     value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    rows={3}
-                    required
+                    onChange={field.handleChange}
+                    placeholder="Descripción detallada del proyecto…"
+                    minHeight="9rem"
                   />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
+                  {field.state.meta.isTouched && (
+                    <FieldError errors={firstError(field.state.meta.errors)} />
                   )}
-                </label>
+                </div>
               )}
             </form.Field>
 
             <form.Field name="Observation">
               {(field) => (
-                <label className="flex flex-col gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Observaciones del proyecto</span>
-                  <textarea
-                    className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
-                    placeholder="Observaciones del proyecto (opcional)"
+                <div className="flex flex-col gap-1.5">
+                  <Label>
+                    Observaciones{" "}
+                    <span className="text-muted-foreground font-normal">(opcional)</span>
+                  </Label>
+                  <RichTextEditor
                     value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    rows={3}
+                    onChange={field.handleChange}
+                    placeholder="Observaciones adicionales…"
+                    minHeight="6rem"
                   />
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
+                  {field.state.meta.isTouched && (
+                    <FieldError errors={firstError(field.state.meta.errors)} />
                   )}
-                </label>
+                </div>
               )}
             </form.Field>
 
-            <form.Field name="ProjectStateId">
-              {(field) => (
-                <label className="grid gap-1">
-                  <span className="text-sm font-medium text-[#091540]">Estado del Proyecto</span>
-                  <select
-                    className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(Number(e.target.value))}
-                    disabled={projectStatesLoading}
-                  >
-                    <option value={0} disabled>
-                      {projectStatesLoading ? "Cargando estados…" : "Seleccione estado"}
-                    </option>
-                    {projectStates.map((s) => (
-                      <option key={s.Id} value={s.Id}>
-                        {s.Name}
-                      </option>
-                    ))}
-                  </select>
-                  {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
-                  )}
-                </label>
-              )}
-            </form.Field>
-
-            <form.Field name="UserId">
-            {(field) => (
-              <label className="grid gap-1">
-                <span className="text-sm font-medium text-[#091540]">Encargado del Proyecto</span>
-                <select
-                  className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition rounded"
-                  value={field.state.value ?? ""}
-                  onChange={(e) => field.handleChange(Number(e.target.value))}
-                  disabled={UserAdminIsLoading}
-                >
-                  <option value="" disabled>
-                    {UserAdminIsLoading
-                      ? "Cargando administradores..."
-                      : "Seleccione encargado del proyecto"}
-                  </option>
-
-                  {userAdmin.map((u) => (
-                    <option key={u.Id} value={u.Id}>
-                      {u.Name} {u.Surname1} {u.Surname2}
-                    </option>
-                  ))}
-                </select>
-
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ??
-                      String(field.state.meta.errors[0])}
-                  </p>
-                )}
-              </label>
-            )}
-          </form.Field>
-
-          </div>
-        );
-
-      // Paso 2: Proyección + Cajita de detalles
-      case 2:
-        return (
-          <div className="flex flex-col gap-6" key="step-2">
-              {/* Observación de la PROYECCIÓN */}
-              <form.Field name="projection.Observation">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              <form.Field name="ProjectStateId">
                 {(field) => (
-                  <label className="flex flex-col gap-1">
-                    <span className="text-sm font-medium text-[#091540]">Observación de la proyección</span>
-                    <textarea
-                      className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
-                      placeholder="Notas u observaciones para la proyección del proyecto"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      rows={3}
-                    />
-                    {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                      {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
+                  <div className="flex flex-col gap-1.5">
+                    <Label>Estado del proyecto</Label>
+                    <Select
+                      value={field.state.value ? String(field.state.value) : ""}
+                      onValueChange={(v) => field.handleChange(Number(v))}
+                      disabled={projectStatesLoading}
+                    >
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            projectStatesLoading ? "Cargando…" : "Seleccione estado"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {projectStates.map((s) => (
+                          <SelectItem key={s.Id} value={String(s.Id)}>
+                            {s.Name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {field.state.meta.isTouched && (
+                      <FieldError errors={firstError(field.state.meta.errors)} />
                     )}
-                  </label>
+                  </div>
                 )}
               </form.Field>
 
-              {/* Cajita bonita para manejar ARREGLO de detalles */}
-              <form.Field name="productDetails">
+              <form.Field name="UserId">
                 {(field) => (
-                  <div className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none">
-                    <h4 className="font-semibold text-[#091540] mb-3">Agregar Productos a este Proyecto</h4>
+                  <div className="flex flex-col gap-1.5">
+                    <Label>Encargado</Label>
+                    <Select
+                      value={field.state.value ? String(field.state.value) : ""}
+                      onValueChange={(v) => field.handleChange(Number(v))}
+                      disabled={userAdminLoading}
+                    >
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            userAdminLoading
+                              ? "Cargando…"
+                              : "Seleccione encargado"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {userAdmin.map((u) => (
+                          <SelectItem key={u.Id} value={String(u.Id)}>
+                            {u.Name} {u.Surname1} {u.Surname2}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {field.state.meta.isTouched && (
+                      <FieldError errors={firstError(field.state.meta.errors)} />
+                    )}
+                  </div>
+                )}
+              </form.Field>
+            </div>
+          </div>
+        );
 
-                    {/* Autocomplete: un solo input con sugerencias en vivo */}
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-                      <div className="md:col-span-7">
-                        <label className="text-sm text-gray-600">Producto</label>
-                        <div className="mt-1 relative">
+      // ── Paso 2: Proyección + productos ────────────────────────────────────
+      case 2:
+        return (
+          <div className="flex flex-col gap-6">
+            <form.Field name="projection.Observation">
+              {(field) => (
+                <div className="flex flex-col gap-1.5">
+                  <Label>
+                    Observación de la proyección{" "}
+                    <span className="text-muted-foreground font-normal">(opcional)</span>
+                  </Label>
+                  <RichTextEditor
+                    value={field.state.value}
+                    onChange={field.handleChange}
+                    placeholder="Notas para la proyección del proyecto…"
+                    minHeight="6rem"
+                  />
+                  {field.state.meta.isTouched && (
+                    <FieldError errors={firstError(field.state.meta.errors)} />
+                  )}
+                </div>
+              )}
+            </form.Field>
+
+            <form.Field name="productDetails">
+              {(field) => (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">
+                      Productos de la proyección
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-4">
+                    {/* Selector de producto */}
+                    <div className="grid grid-cols-1 items-end gap-3 md:grid-cols-12">
+                      <div className="flex flex-col gap-1.5 md:col-span-7">
+                        <Label>Producto</Label>
+                        <div className="relative">
                           <div className="flex gap-2">
-                            <input
-                              className="flex-1 px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
-                              placeholder="Escribe para buscar o Ctrl+K para lista completa…"
+                            <Input
+                              placeholder="Escribe para buscar o usa 'Ver Lista'…"
                               value={productInput}
                               onChange={(e) => {
                                 setProductInput(e.target.value);
                                 setShowSuggestions(true);
-                                setTempProductId(0); // hasta seleccionar
+                                setTempProductId(0);
                               }}
                               onFocus={() => setShowSuggestions(true)}
-                              onBlur={() => {
-                                // pequeño delay para permitir click en sugerencia
-                                setTimeout(() => setShowSuggestions(false), 120);
-                              }}
+                              onBlur={() =>
+                                setTimeout(() => setShowSuggestions(false), 120)
+                              }
                               onKeyDown={(e) => {
-                                if (e.key === 'Escape') {
-                                  setShowSuggestions(false);
-                                } else if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                                if (e.key === "Escape") setShowSuggestions(false);
+                                else if ((e.ctrlKey || e.metaKey) && e.key === "k") {
                                   e.preventDefault();
                                   setShowProductModal(true);
                                 }
                               }}
                               disabled={productsLoading || !!productsError}
                             />
-                            <button
+                            <Button
                               type="button"
+                              variant="outline"
+                              size="sm"
+                              className="shrink-0"
                               onClick={() => setShowProductModal(true)}
-                              className="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition disabled:opacity-50 whitespace-nowrap"
                               disabled={productsLoading || !!productsError}
                               title="Buscar en lista completa (Ctrl+K)"
                             >
+                              <Search className="mr-1 size-4" />
                               Ver Lista
-                            </button>
+                            </Button>
                           </div>
-                          {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                          <p className="text-sm text-red-500 mt-1">
-                            {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                          </p>
-                        )}
-                          {/* Sugerencias */}
+
+                          {/* Sugerencias inline */}
                           {showSuggestions && filteredProducts.length > 0 && (
-                            <ul className="absolute z-10 mt-1 w-full max-h-56 overflow-auto bg-white border border-gray-200 shadow-lg">
+                            <ul className="absolute z-10 mt-1 max-h-52 w-full overflow-auto rounded-md border bg-popover shadow-md">
                               {filteredProducts.slice(0, 8).map((p) => (
                                 <li
                                   key={p.Id}
-                                  className="px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer"
-                                  onMouseDown={(e) => e.preventDefault()} 
+                                  className="cursor-pointer px-3 py-2 text-sm hover:bg-accent"
+                                  onMouseDown={(e) => e.preventDefault()}
                                   onClick={() => {
-                                    setProductInput(p.Name);     
-                                    setTempProductId(p.Id);      
+                                    setProductInput(p.Name);
+                                    setTempProductId(p.Id);
                                     setShowSuggestions(false);
                                   }}
                                 >
@@ -568,310 +534,400 @@ const CreateProject = () => {
                           )}
                         </div>
                         {productsError && (
-                          <span className="text-xs text-red-600 mt-1 block">
+                          <p className="text-xs text-destructive">
                             No se pudieron cargar los productos.
-                          </span>
+                          </p>
                         )}
                       </div>
 
-                      <div className="md:col-span-3">
-                        <label className="text-sm text-gray-600">Cantidad</label>
-                        <input
+                      <div className="flex flex-col gap-1.5 md:col-span-3">
+                        <Label>Cantidad</Label>
+                        <Input
                           type="number"
                           min={0}
-                          className="mt-1 w-full px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
                           value={tempQty}
                           onChange={(e) => setTempQty(Number(e.target.value))}
                         />
                       </div>
 
                       <div className="md:col-span-2">
-                        <button
+                        <Button
                           type="button"
-                          className="w-full h-10 mt-6  bg-[#091540] text-white hover:opacity-90 disabled:opacity-50"
+                          className="w-full"
                           disabled={!tempProductId || tempQty <= 0}
                           onClick={() => {
-                            const current = field.state.value ?? [];
-                            // si ya existe el producto en la lista, acumula la cantidad
-                            const idx = current.findIndex((d: any) => d.ProductId === tempProductId);
+                            const current = asArray<any>(field.state.value);
+                            const idx = current.findIndex(
+                              (d: any) => d.ProductId === tempProductId,
+                            );
                             let next = [...current];
                             if (idx >= 0) {
                               next[idx] = {
                                 ...next[idx],
-                                Quantity: Number(next[idx].Quantity ?? 0) + Number(tempQty),
+                                Quantity:
+                                  Number(next[idx].Quantity ?? 0) + Number(tempQty),
                               };
                             } else {
                               next.push({ ProductId: tempProductId, Quantity: tempQty });
                             }
                             field.handleChange(next);
-
-                            // limpiar inputs
                             setTempProductId(0);
                             setTempQty(0);
                             setProductInput("");
                           }}
                         >
+                          <Plus className="mr-1 size-4" />
                           Agregar
-                        </button>
+                        </Button>
                       </div>
                     </div>
-                      {/* Lista de detalles agregados (sin mostrar ID) */}
-                      <ul className="mt-4 divide-y divide-gray-100">
-                        {(field.state.value ?? []).map((d: any, i: number) => (
-                          <li key={`${d.ProductId}-${i}`} className="py-3 flex items-center justify-between">
-                            <div className="text-sm font-medium text-[#091540]">
+
+                    {/* Lista de productos agregados */}
+                    {asArray(field.state.value).length > 0 ? (
+                      <ul className="divide-y rounded-md border">
+                        {asArray<any>(field.state.value).map((d, i) => (
+                          <li
+                            key={`${d.ProductId}-${i}`}
+                            className="flex items-center justify-between gap-3 px-3 py-2.5"
+                          >
+                            <span className="flex-1 text-sm font-medium">
                               {getProductName(d.ProductId)}
-                            </div>
+                            </span>
                             <div className="flex items-center gap-2">
-                              <input
+                              <Input
                                 type="number"
                                 min={0}
-                                className="w-24 px-2 py-1 border border-gray-300 focus:outline-none focus:border-blue-500"
+                                className="h-8 w-24 text-sm"
                                 value={d.Quantity ?? 0}
                                 onChange={(e) => {
-                                  const qty = Number(e.target.value);
-                                  const next = [...(field.state.value ?? [])];
-                                  next[i] = { ...next[i], Quantity: qty };
+                                  const next = [...asArray<any>(field.state.value)];
+                                  next[i] = {
+                                    ...next[i],
+                                    Quantity: Number(e.target.value),
+                                  };
                                   field.handleChange(next);
                                 }}
                               />
-                              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                              <p className="text-sm text-red-500 mt-1">
-                                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                              </p>
-                              )}
-                              <button
+                              <Button
                                 type="button"
-                                className="px-3 py-1  border border-gray-300 hover:bg-gray-50"
-                                onClick={() => {
-                                  const next = (field.state.value ?? []).filter((_: any, idx: number) => idx !== i);
-                                  field.handleChange(next);
-                                }}
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                onClick={() =>
+                                  field.handleChange(
+                                    asArray<any>(field.state.value).filter(
+                                      (_: any, idx: number) => idx !== i,
+                                    ),
+                                  )
+                                }
                               >
-                                Quitar
-                              </button>
+                                <Trash2 className="size-4" />
+                              </Button>
                             </div>
-                          </li>
-                        ))}
-
-                        {(!field.state.value || field.state.value.length === 0) && (
-                          <li className="py-2 text-sm text-gray-500">No hay productos agregados.</li>
-                        )}
-                      </ul>
-                    </div>
-                  )}
-            </form.Field>
-          </div>
-        );
-
-      // Paso 3: Documentos
-      case 3:
-        return (
-          <div className="flex flex-col gap-6" key="step-3">
-            <div className="text-center">
-              <h3 className="text-xl font-semibold text-[#091540] mb-2">
-                Documentos del Proyecto
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Adjunta documentos complementarios para el proyecto (opcional)
-              </p>
-            </div>
-
-            <form.Field name="files">
-              {(field) => (
-                <div className="space-y-4">
-                  {/* Zona de drag & drop mejorada */}
-                  <div
-                    className="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all duration-200 group"
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                    onDrop={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      const files = Array.from(e.dataTransfer.files);
-                      const currentFiles = field.state.value || [];
-                      field.handleChange([...currentFiles, ...files]);
-                    }}
-                  >
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                        <svg
-                          className="w-8 h-8 text-blue-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <p className="text-lg font-medium text-gray-900 mb-2">
-                          Arrastra archivos aquí o{" "}
-                          <label className="text-blue-600 cursor-pointer hover:text-blue-700 underline">
-                            selecciona archivos
-                            <input
-                              type="file"
-                              multiple
-                              className="hidden"
-                              onChange={(e) => {
-                                const files = Array.from(e.target.files || []);
-                                const currentFiles = field.state.value || [];
-                                field.handleChange([...currentFiles, ...files]);
-                              }}
-                              accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.txt,.zip,.rar"
-                            />
-                          </label>
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          PDF, DOC, DOCX, XLS, XLSX, imágenes, archivos de texto
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          Máximo 10MB por archivo
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Lista de archivos seleccionados mejorada */}
-                  {field.state.value && field.state.value.length > 0 && (
-                    <div className="bg-gray-50 rounded-xl p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <h4 className="font-semibold text-gray-900">
-                          Archivos seleccionados ({field.state.value.length})
-                        </h4>
-                        <button
-                          type="button"
-                          onClick={() => field.handleChange([])}
-                          className="text-sm text-red-600 hover:text-red-700 font-medium"
-                        >
-                          Limpiar todo
-                        </button>
-                      </div>
-                      
-                      <div className="grid gap-3 max-h-64 overflow-y-auto">
-                        {field.state.value.map((file: File, index: number) => (
-                          <div
-                            key={`${file.name}-${index}`}
-                            className="flex items-center gap-4 p-3 bg-white rounded-lg border hover:shadow-sm transition-shadow"
-                          >
-                            <div className="flex-shrink-0">
-                              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <svg
-                                  className="w-5 h-5 text-blue-600"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                  />
-                                </svg>
-                              </div>
-                            </div>
-                            
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-gray-900 truncate">
-                                {file.name}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                {(file.size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                            </div>
-                            
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newFiles = field.state.value.filter((_: File, i: number) => i !== index);
-                                field.handleChange(newFiles);
-                              }}
-                              className="flex-shrink-0 w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-colors"
-                            >
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M6 18L18 6M6 6l12 12"
-                                />
-                              </svg>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </form.Field>
-          </div>
-        );
-
-      // Paso 4: Confirmación
-      case 4:
-        return (
-          <div className="text-[#091540] space-y-2 px-2" key="step-3">
-            <h3 className="text-lg font-semibold mb-2">Confirma los datos:</h3>
-            <form.Subscribe selector={(state) => state.values}>
-              {(values) => (
-                <div className="space-y-2">
-                  <ul className="text-base space-y-1">
-                    <li><b>Nombre:</b> {values.Name}</li>
-                    <li><b>Ubicación:</b> {values.Location}</li>
-                    <li><b>Fecha inicio:</b> {values.InnitialDate ? new Date(values.InnitialDate).toLocaleDateString() : ""}</li>
-                    <li><b>Fecha fin:</b> {values.EndDate ? new Date(values.EndDate).toLocaleDateString() : ""}</li>
-                    <li><b>Objetivo:</b> {values.Objective}</li>
-                    <li><b>Descripción:</b> {values.Description}</li>
-                    <li><b>Obs. Proyecto:</b> {values.Observation}</li>
-                    <li><b>Obs. Proyección:</b> {values.projection?.Observation}</li>
-                  </ul>
-
-                  <div className="mt-4">
-                    <div className="font-semibold">Productos:</div>
-                    <ul className="list-disc pl-5">
-                      {(values.productDetails ?? []).map((d: any, i: number) => (
-                        <li key={i}>
-                          {getProductName(d.ProductId)} — Cantidad: {d.Quantity}
-                        </li>
-                      ))}
-                      {(values.productDetails ?? []).length === 0 && (
-                        <li className="text-sm text-gray-500 list-none">Sin detalles.</li>
-                      )}
-                    </ul>
-                  </div>
-
-                  <div className="mt-4">
-                    <div className="font-semibold">Documentos:</div>
-                    {values.files && values.files.length > 0 ? (
-                      <ul className="list-disc pl-5">
-                        {values.files.map((file: File, i: number) => (
-                          <li key={i} className="text-sm">
-                            {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-sm text-gray-500 pl-5">Sin documentos adjuntos.</p>
+                      <p className="py-4 text-center text-sm text-muted-foreground">
+                        No hay productos agregados.
+                      </p>
                     )}
+
+                    {field.state.meta.isTouched && (
+                      <FieldError errors={firstError(field.state.meta.errors)} />
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </form.Field>
+          </div>
+        );
+
+      // ── Paso 3: Documentos ─────────────────────────────────────────────────
+      case 3:
+        return (
+          <form.Field name="files">
+            {(field) => (
+              <div className="flex flex-col gap-4">
+                {/* Zona drag & drop */}
+                <div
+                  className={cn(
+                    "rounded-xl border-2 border-dashed p-12 text-center transition-colors",
+                    "border-border hover:border-primary/40 hover:bg-accent/20",
+                  )}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const files = Array.from(e.dataTransfer.files);
+                    field.handleChange([...(field.state.value || []), ...files]);
+                  }}
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+                      <Upload className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">
+                        Arrastra archivos aquí o{" "}
+                        <label className="cursor-pointer text-primary underline underline-offset-2 hover:text-primary/80">
+                          selecciona archivos
+                          <input
+                            type="file"
+                            multiple
+                            className="hidden"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.txt,.zip,.rar"
+                            onChange={(e) => {
+                              const files = Array.from(e.target.files || []);
+                              field.handleChange([
+                                ...(field.state.value || []),
+                                ...files,
+                              ]);
+                            }}
+                          />
+                        </label>
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        PDF, DOC, DOCX, XLS, XLSX, imágenes · Máx. 10 MB por archivo
+                      </p>
+                    </div>
                   </div>
                 </div>
-              )}
-            </form.Subscribe>
-          </div>
+
+                {/* Lista de archivos */}
+                {asArray(field.state.value).length > 0 && (
+                  <div className="rounded-xl border bg-muted/30 p-4">
+                    <div className="mb-3 flex items-center justify-between">
+                      <span className="text-sm font-semibold">
+                        {asArray(field.state.value).length} archivo(s) seleccionado(s)
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-destructive hover:text-destructive"
+                        onClick={() => field.handleChange([])}
+                      >
+                        Limpiar todo
+                      </Button>
+                    </div>
+
+                    <div className="grid max-h-64 gap-2 overflow-y-auto">
+                      {asArray<File>(field.state.value).map((file, idx) => (
+                        <div
+                          key={`${file.name}-${idx}`}
+                          className="flex items-center gap-3 rounded-lg border bg-background p-3"
+                        >
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10">
+                            <FileText className="h-4 w-4 text-primary" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium">{file.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                            onClick={() =>
+                              field.handleChange(
+                                asArray<File>(field.state.value).filter(
+                                  (_, i) => i !== idx,
+                                ),
+                              )
+                            }
+                          >
+                            <X className="size-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </form.Field>
+        );
+
+      // ── Paso 4: Confirmación ───────────────────────────────────────────────
+      case 4:
+        return (
+          <form.Subscribe selector={(s) => s.values}>
+            {(values) => (
+              <div className="flex flex-col gap-4">
+
+                {/* ── Datos básicos ── */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Datos básicos
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 gap-x-8 gap-y-3 text-sm md:grid-cols-2">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium">Nombre</span>
+                      <span className="text-muted-foreground">{values.Name || "—"}</span>
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium">Estado</span>
+                      <span className="text-muted-foreground">
+                        {projectStates.find((s) => s.Id === values.ProjectStateId)?.Name ?? "—"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium">Fecha inicio</span>
+                      <span className="text-muted-foreground">
+                        {values.InnitialDate
+                          ? new Date(values.InnitialDate).toLocaleDateString("es-CR")
+                          : "—"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-medium">Fecha fin</span>
+                      <span className="text-muted-foreground">
+                        {values.EndDate
+                          ? new Date(values.EndDate).toLocaleDateString("es-CR")
+                          : "—"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-0.5 md:col-span-2">
+                      <span className="font-medium">Encargado</span>
+                      <span className="text-muted-foreground">
+                        {(() => {
+                          const u = userAdmin.find((u) => u.Id === values.UserId);
+                          return u ? `${u.Name} ${u.Surname1} ${u.Surname2}` : "—";
+                        })()}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-0.5 md:col-span-2">
+                      <span className="font-medium">Ubicación</span>
+                      <span className="text-muted-foreground whitespace-pre-wrap">
+                        {values.Location || "—"}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* ── Objetivo ── */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Objetivo
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div
+                      className="prose prose-sm max-w-none text-muted-foreground"
+                      dangerouslySetInnerHTML={{ __html: values.Objective ?? "" }}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* ── Descripción ── */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Descripción
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div
+                      className="prose prose-sm max-w-none text-muted-foreground"
+                      dangerouslySetInnerHTML={{ __html: values.Description ?? "" }}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* ── Observaciones (opcional) ── */}
+                {values.Observation && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Observaciones
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div
+                        className="prose prose-sm max-w-none text-muted-foreground"
+                        dangerouslySetInnerHTML={{ __html: values.Observation }}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* ── Observación de proyección (opcional) ── */}
+                {values.projection?.Observation && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Observación de proyección
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div
+                        className="prose prose-sm max-w-none text-muted-foreground"
+                        dangerouslySetInnerHTML={{ __html: values.projection.Observation }}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* ── Productos ── */}
+                {asArray(values.productDetails).length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Productos ({asArray(values.productDetails).length})
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="divide-y text-sm">
+                        {asArray<any>(values.productDetails).map((d, i) => (
+                          <li
+                            key={i}
+                            className="flex items-center justify-between py-1.5"
+                          >
+                            <span>{getProductName(d.ProductId)}</span>
+                            <Badge variant="secondary">×{d.Quantity}</Badge>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* ── Documentos ── */}
+                {asArray(values.files).length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Documentos ({asArray(values.files).length})
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-1 text-sm">
+                        {asArray<File>(values.files).map((f, i) => (
+                          <li
+                            key={i}
+                            className="flex items-center gap-2 text-muted-foreground"
+                          >
+                            <FileText className="size-3.5 shrink-0" />
+                            {f.name} — {(f.size / 1024 / 1024).toFixed(2)} MB
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
+          </form.Subscribe>
         );
 
       default:
@@ -879,103 +935,93 @@ const CreateProject = () => {
     }
   };
 
+  // ── Render ─────────────────────────────────────────────────────────────────
+
   return (
-    <div className="w-full max-w-3xl mx-auto p-8">
-      <h2 className="text-2xl font-bold mb-6 text-[#091540] text-center tracking-tight">
+    <div className="mx-auto w-full max-w-3xl p-8">
+      <h2 className="mb-8 text-center text-2xl font-bold tracking-tight">
         Crear Nuevo Proyecto
       </h2>
 
-      {/* Indicador de pasos con pelotitas */}
-      <div className="mb-8">
-        <div className="flex items-center justify-center mb-4">
-          {steps.map((stepItem, index) => (
-            <div key={index} className="flex items-center">
-              {/* Pelotita del paso */}
-              <div className="flex flex-col items-center">
-                <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center font-semibold text-xs transition-all duration-200 ${
-                      index < step
-                        ? 'bg-[#1789FC] text-white'     // color completado
-                        : index === step
-                        ? 'bg-[#091540] text-white'     // color actual
-                        : 'bg-gray-200 text-gray-500'   // pendiente
-                    }`}
-                  >
-                  {index < step ? (
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  ) : (
-                    index + 1
-                  )}
-                </div>
-                <span
-                  className={`mt-2 text-xs font-medium text-center max-w-20 ${
-                    index === step
-                      ? 'text-[#091540]'
-                      : index < step
-                      ? 'text-[#1789FC]'
-                      : 'text-gray-500'
-                  }`}
-                >
-                  {stepItem.label}
-                </span>
+      {/* ── Stepper ── */}
+      <div className="mb-8 flex items-center justify-center">
+        {STEPS.map((s, i) => (
+          <div key={i} className="flex items-center">
+            <div className="flex flex-col items-center">
+              <div
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold transition-all duration-200",
+                  i < step && "bg-primary/80 text-primary-foreground",
+                  i === step &&
+                    "bg-primary text-primary-foreground ring-4 ring-primary/20",
+                  i > step && "bg-muted text-muted-foreground",
+                )}
+              >
+                {i < step ? <Check className="size-4" /> : i + 1}
               </div>
-
-              {/* Línea conectora */}
-              {index < steps.length - 1 && (
-                <div
-                  className={`h-0.5 w-12 mx-2 transition-colors duration-200 ${
-                    index < step ? 'bg-[#1789FC]' : 'bg-gray-200'
-                  }`}
-                />
-              )}
+              <span
+                className={cn(
+                  "mt-2 max-w-[4.5rem] text-center text-xs font-medium leading-tight",
+                  i === step && "text-primary",
+                  i < step && "text-primary/70",
+                  i > step && "text-muted-foreground",
+                )}
+              >
+                {s.label}
+              </span>
             </div>
-          ))}
-        </div>
-        
-        {/* Título del paso actual */}
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-[#091540]">
-            {steps[step].label}
-          </h3>
-        </div>
+
+            {i < STEPS.length - 1 && (
+              <div
+                className={cn(
+                  "mx-2 mb-5 h-0.5 w-10 transition-colors duration-200",
+                  i < step ? "bg-primary/60" : "bg-border",
+                )}
+              />
+            )}
+          </div>
+        ))}
       </div>
 
+      <Separator className="mb-6" />
+
+      {/* ── Formulario ── */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (step < steps.length - 1) {
-            handleNext();
-          } else {
-            form.handleSubmit();
-          }
+          if (step < STEPS.length - 1) handleNext();
+          else form.handleSubmit();
         }}
         className="flex flex-col gap-6"
       >
-        {renderStepFields()}
+        {renderStepContent()}
 
-        <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+        <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
-            <div className="flex justify-between mt-8">
+            <div className="flex justify-between pt-2">
               {step > 0 ? (
-                <button
+                <Button
                   type="button"
-                  className="px-6 py-2 border border-gray-300 text-[#091540] hover:border-blue-400 hover:text-blue-700 transition"
+                  variant="outline"
                   onClick={() => setStep(step - 1)}
                 >
                   Atrás
-                </button>
+                </Button>
               ) : (
                 <div />
               )}
-              <button
+              <Button
                 type="submit"
-                className="px-6 py-2 border border-[#091540] bg-[#091540] text-white hover:text-[#f5f5f5] hover:border-[#091540] transition disabled:opacity-60"
-                disabled={step === steps.length - 1 ? !canSubmit || isSubmitting : false}
+                disabled={
+                  step === STEPS.length - 1 ? !canSubmit || !!isSubmitting : false
+                }
               >
-                {step === steps.length - 1 ? (isSubmitting ? "Creando..." : "Crear Proyecto") : "Siguiente"}
-              </button>
+                {step === STEPS.length - 1
+                  ? isSubmitting
+                    ? "Creando…"
+                    : "Crear Proyecto"
+                  : "Siguiente"}
+              </Button>
             </div>
           )}
         </form.Subscribe>
@@ -988,10 +1034,10 @@ const CreateProject = () => {
         products={products ?? []}
         onSelectProduct={handleProductSelection}
         isLoading={productsLoading}
-        selectedProductIds={form.state.values.productDetails?.map(d => d.ProductId ?? 0) ?? []}
+        selectedProductIds={
+          asArray<any>(form.state.values.productDetails).map((d) => d.ProductId ?? 0)
+        }
       />
     </div>
   );
-};
-
-export default CreateProject;
+}

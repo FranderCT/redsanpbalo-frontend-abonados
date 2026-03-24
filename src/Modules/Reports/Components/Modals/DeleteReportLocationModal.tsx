@@ -1,5 +1,14 @@
-import { toast } from "react-toastify";
-import InhabilityActionModal from "@/Components/Modals/InhabilyActionModal";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/Components/ui/alert-dialog";
 import { useDeleteReportLocation } from "../../Hooks/ReportLocationHooks";
 import type { ReportLocation } from "../../Models/ReportLocation";
 
@@ -18,14 +27,6 @@ export default function DeleteReportLocationModal({
 }: Props) {
   const deleteMutation = useDeleteReportLocation();
 
-  const handleClose = () => {
-    toast.warning("Edicion cancelada", {
-      position: "top-right",
-      autoClose: 3000,
-    });
-    onClose();
-  };
-
   const handleConfirm = async () => {
     try {
       await deleteMutation.mutateAsync(reportLocation.Id);
@@ -41,16 +42,25 @@ export default function DeleteReportLocationModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
-      <InhabilityActionModal
-        title="Eliminar ubicacion?"
-        description={`Se eliminara la ubicacion "${reportLocation.Neighborhood ?? ""}".`}
-        cancelLabel="Cancelar"
-        confirmLabel="Eliminar"
-        onConfirm={handleConfirm}
-        onClose={handleClose}
-        onCancel={handleClose}
-      />
-    </div>
+    <AlertDialog open={open} onOpenChange={(value) => !value && onClose()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Eliminar ubicación</AlertDialogTitle>
+          <AlertDialogDescription>
+            Se eliminará la ubicación "{reportLocation.Neighborhood ?? ""}".
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onClose}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleConfirm}
+            disabled={deleteMutation.isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {deleteMutation.isPending ? "Eliminando..." : "Eliminar"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

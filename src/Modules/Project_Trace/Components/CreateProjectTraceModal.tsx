@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { ModalBase } from "../../../Components/Modals/ModalBase";
 import { ProductSelectionModal } from "../../Project/components/NewProject/ProductSelectionModal";
 import { useGetAllProducts } from "../../Products/Hooks/ProductsHooks";
@@ -103,7 +103,7 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
   };
 
   const handleClose = () => {
-    toast.warning("Seguimiento cancelado", { position: "top-right", autoClose: 3000 });
+    toast.warning("Seguimiento cancelado", { position: "top-right", duration: 3000 });
     form.reset();
     setSelectedProducts([]);
     setShowProductModal(false);
@@ -156,13 +156,13 @@ const CreateProjectTraceModal = ({ ProjectId }: Props) => {
           };
           await productDetailMutation.mutateAsync(productDetailPayload);
         }
-        toast.success(`Seguimiento creado con ${selectedProducts.length} producto(s) asignado(s)`, { position: "top-right", autoClose: 3000 });
+        toast.success(`Seguimiento creado con ${selectedProducts.length} producto(s) asignado(s)`, { position: "top-right", duration: 3000 });
         form.reset();
         setSelectedProducts([]);
         setOpen(false);
       } catch (err) {
         console.error("Error en el proceso de creación:", err);
-        toast.error("Error al crear el seguimiento o productos", { position: "top-right", autoClose: 3000 });
+        toast.error("Error al crear el seguimiento o productos", { position: "top-right", duration: 3000 });
       }
     },
   });

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/Components/ui/dialog";
 import { useGetCommentsByRequestId, useCreateAdminComment, useReplyWithFiles } from "../../../../CommentRequest/comment-associated/Hooks/commentAssociatedHooks";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import type { ReqAssociated } from "../../Models/RequestAssociated";
 import { useTempLinkAssociated } from "../../../../Request-Abonados/Hooks/Associated/AssociatedRqHook";
 import { useGetUserProfile } from "../../../../Users/Hooks/UsersHooks";
@@ -57,7 +57,7 @@ export default function CommentsAssociatedModal({
       if (file.size > 10 * 1024 * 1024) {
         toast.error(`El archivo ${file.name} excede el tamaño máximo de 10MB`, {
           position: "top-right",
-          autoClose: 3000,
+          duration: 3000,
         });
         return;
       }
@@ -77,7 +77,7 @@ export default function CommentsAssociatedModal({
     if (!subject.trim() || !comment.trim()) {
       toast.error("El asunto y comentario son requeridos", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
       return;
     }
@@ -85,7 +85,7 @@ export default function CommentsAssociatedModal({
     if (!isAdmin && files.length === 0) {
       toast.error("Debe adjuntar al menos un archivo como usuario", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
       return;
     }
@@ -93,7 +93,7 @@ export default function CommentsAssociatedModal({
     if (!UserProfile?.Id) {
       toast.error("Error: No se pudo identificar el usuario", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
       return;
     }
@@ -122,7 +122,7 @@ export default function CommentsAssociatedModal({
 
       toast.success("Comentario enviado exitosamente", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
 
       setSubject("");
@@ -133,7 +133,7 @@ export default function CommentsAssociatedModal({
       console.error("Error al enviar comentario:", error);
       toast.error("Error al enviar comentario. Intente nuevamente.", {
         position: "top-right",
-        autoClose: 3000,
+        duration: 3000,
       });
     } finally {
       setIsSubmitting(false);

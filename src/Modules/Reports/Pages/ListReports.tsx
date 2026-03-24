@@ -13,12 +13,14 @@ import ReportHeaderBar from "../Components/Pagination/ReportHeaderBar";
 import ReportsGrid from "../Components/ReportsGrid";
 import ReportsCalendar from "../Components/ReportsCalendar";
 import ListReportLocationsView from "../Components/ListReportLocationsView";
+import ListReportTypesView from "../Components/ListReportTypesView";
 import GetInfoReportModal from "../Components/Modals/GetInfoReportModal";
 import CreateReportModal from "../Components/Modals/CreateReportModal";
 import CreateReportLocationModal from "../Components/Modals/CreateReportLocationModal";
+import CreateReportTypeModal from "../Components/Modals/CreateReportTypeModal";
 import EditReportModal from "../Components/Modals/EditReportModal";
 import { Button } from "@/Components/ui/button";
-import { LayoutGrid, Calendar, MapPin } from "lucide-react";
+import { LayoutGrid, Calendar, MapPin, Tags } from "lucide-react";
 
 const ListReports = () => {
   const [page, setPage] = useState(1);
@@ -31,7 +33,7 @@ const ListReports = () => {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
-  const [viewMode, setViewMode] = useState<"list" | "calendar" | "locations">("list");
+  const [viewMode, setViewMode] = useState<"list" | "calendar" | "locations" | "types">("list");
   const [selectedReport, setSelectedReport] = useState<ReportListItem | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedEditReport, setSelectedEditReport] = useState<ReportListItem | null>(null);
@@ -174,9 +176,20 @@ const ListReports = () => {
               <MapPin className="size-3.5 sm:size-4 shrink-0 mr-1" />
               Ubicaciones
             </Button>
+            <Button
+              variant={viewMode === "types" ? "default" : "outline"}
+              size="sm"
+              className="h-9 text-xs sm:text-sm justify-center"
+              onClick={() => setViewMode("types")}
+            >
+              <Tags className="size-3.5 sm:size-4 shrink-0 mr-1" />
+              Tipos
+            </Button>
             <div className="col-span-2 sm:col-span-1 sm:flex sm:shrink-0">
               {viewMode === "locations" ? (
                 <CreateReportLocationModal />
+              ) : viewMode === "types" ? (
+                <CreateReportTypeModal />
               ) : (
                 <CreateReportModal />
               )}
@@ -221,6 +234,8 @@ const ListReports = () => {
       <div>
         {viewMode === "locations" ? (
           <ListReportLocationsView />
+        ) : viewMode === "types" ? (
+          <ListReportTypesView />
         ) : viewMode === "calendar" ? (
           <ReportsCalendar onViewDetails={handleViewDetails} />
         ) : isLoading ? (

@@ -5,7 +5,7 @@ import GetInfoUserModal from "../ListUsersModals/GetInfoUserModal";
 import { DataPagination } from "@/Components/ui/data-pagination";
 import { useDeleteUser } from "../../Hooks/UsersHooks";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,

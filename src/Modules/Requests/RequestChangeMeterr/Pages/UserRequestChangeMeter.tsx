@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useCreateChangeMeterRequest } from "../../../Request-Abonados/Hooks/Change-Meter/ChangeMeterHooks";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
@@ -12,7 +12,7 @@ export function UserRequestChangeMeter () {
     const [viewMode, setViewMode] = useState<'create' | 'list'>('create');
 
     const handleClose = () => {
-        toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+        toast.warning("Solicitud cancelada", { position: "top-right", duration: 3000 });
         form.reset();
     };
 

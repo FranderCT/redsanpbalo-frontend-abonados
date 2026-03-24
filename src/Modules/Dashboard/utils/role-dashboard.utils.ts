@@ -10,7 +10,7 @@ export const USER_DASHBOARD_ROLES = [
   Role.ASSOS,
   Role.PLMBR,
 ] as const;
-export const LIVE_REPORTS_ROLES = [Role.ADMIN, Role.PLMBR] as const;
+export const LIVE_REPORTS_ROLES = [Role.ADMIN, Role.BOD] as const;
 
 const ADMIN_ROUTE_PREFIXES = [
   ADMIN_DASHBOARD_HOME,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -29,7 +29,7 @@ import {
 import { Button } from "@/Components/ui/button";
 import { Skeleton } from "@/Components/ui/skeleton";
 import { Label } from "@/Components/ui/label";
-import { useGetMonthlyCountsByLocation, useExportReportsPdf } from "../Hooks/ReportsHooks";
+import { useGetMonthlyCountsByLocation, useExportReportsExcel } from "../Hooks/ReportsHooks";
 import { FileDown } from "lucide-react";
 import {
   BarChart,
@@ -93,7 +93,7 @@ export default function ReportsMonthlyByLocationChart() {
 
   const { data: rawData, isLoading, isError, error } =
     useGetMonthlyCountsByLocation({ months: 12, year, month });
-  const exportPdf = useExportReportsPdf();
+  const exportExcel = useExportReportsExcel();
 
   const chartData = useMemo(
     () => (rawData ? aggregateByNeighborhood(rawData) : []),
@@ -115,7 +115,7 @@ export default function ReportsMonthlyByLocationChart() {
           <div className="space-y-2">
             <p className="text-sm font-medium text-foreground">Mes y año del reporte</p>
             <p className="text-xs text-muted-foreground">
-              Elija el mes y el año. El gráfico y el PDF exportado usarán esta selección.
+              Elija el mes y el año. El gráfico y el Excel exportado usarán esta selección.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
@@ -153,12 +153,12 @@ export default function ReportsMonthlyByLocationChart() {
                     }}
                   >
                     <FileDown className="size-4 mr-1.5" />
-                    Exportar PDF
+                    Exportar Excel
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-h-[70vh] gap-0 overflow-hidden sm:max-w-md">
                   <DialogHeader className="space-y-1.5 border-b px-6 py-5">
-                    <DialogTitle>Exportar reporte en PDF</DialogTitle>
+                    <DialogTitle>Exportar reporte en Excel</DialogTitle>
                     <DialogDescription>
                       Elija el mes y el año del reporte que desea descargar.
                     </DialogDescription>
@@ -209,18 +209,18 @@ export default function ReportsMonthlyByLocationChart() {
                         </Button>
                       </DialogClose>
                       <Button
-                        disabled={exportPdf.isPending}
+                        disabled={exportExcel.isPending}
                         onClick={() => {
-                          exportPdf.mutate(
+                          exportExcel.mutate(
                             { year: exportYear, month: exportMonth },
                             {
                               onSuccess: () => {
-                                toast.success("PDF descargado correctamente");
+                                toast.success("Excel descargado correctamente");
                                 setOpenExportDialog(false);
                               },
                               onError: (err) => {
                                 toast.error(
-                                  err instanceof Error ? err.message : "Error al exportar el PDF"
+                                  err instanceof Error ? err.message : "Error al exportar el Excel"
                                 );
                               },
                             }
@@ -228,7 +228,7 @@ export default function ReportsMonthlyByLocationChart() {
                         }}
                       >
                         <FileDown className="size-4 mr-1.5" />
-                        {exportPdf.isPending ? "Exportando…" : "Descargar PDF"}
+                        {exportExcel.isPending ? "Exportando…" : "Descargar Excel"}
                       </Button>
                     </div>
                   </DialogFooter>

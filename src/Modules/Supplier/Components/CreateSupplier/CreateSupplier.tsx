@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useCreateSupplier } from "../../Hooks/SupplierHooks";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { newSupplierInitialState } from "../../Models/Supplier";
@@ -25,12 +25,12 @@ const CreateSupplier = () => {
       try {
         await createSupplierMutation.mutateAsync(value);
         formApi.reset();
-        toast.success("¡Proveedor creado exitosamente!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡Proveedor creado exitosamente!", { position: "top-right", duration: 3000 });
         setStep(0);
         navigate({to :'/dashboard/supplier'})
       } catch (err) {
         console.error("error al crear un proveedor", err);
-        toast.error("¡Error al crear el proveedor!", { position: "top-right", autoClose: 3000 });
+        toast.error("¡Error al crear el proveedor!", { position: "top-right", duration: 3000 });
       }
     },
   });

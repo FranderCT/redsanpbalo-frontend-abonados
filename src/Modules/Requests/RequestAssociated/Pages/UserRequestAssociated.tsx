@@ -1,71 +1,25 @@
-import { useEffect, useState } from "react";
-import { useForm } from "@tanstack/react-form";
-import { FileText, Upload, UserRound } from "lucide-react";
-import { toast } from "react-toastify";
-import { Button } from "@/Components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
-import { Label } from "@/Components/ui/label";
-import { Textarea } from "@/Components/ui/textarea";
-import { useCreateAssociatedRequest } from "../../../Request-Abonados/Hooks/Associated/AssociatedRqHooks";
-import ListReqAssociateUser from "../../../Request-Abonados/Pages/Associated-rq/ListRequestAssociatedUsers";
-import { UploadAssociatedFiles } from "../../../Upload-files/Services/ProjectFileServices";
-import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
-import { CreateAssociatedRequestAbonadoSchema } from "../schemas/CreateAssociatedRequestAbonadoSchema";
-import { getAssociatedRequestPrimaryNis } from "../utils/associatedRequestForm";
+import { useState } from 'react'
+import { useCreateAssociatedRequest } from '../../../Request-Abonados/Hooks/Associated/AssociatedRqHooks';
+import { useGetUserProfile } from '../../../Users/Hooks/UsersHooks';
+import { toast } from 'react-toastify';
+import { useForm } from '@tanstack/react-form';
+import { uploadWithRetry } from '../../../Request-Abonados/Components/AvailabilityWater/CreateAvailabilityWaterRqModal';
+import { UploadAssociatedFiles } from '../../../Upload-files/Services/ProjectFileServices';
+import ListReqAssociateUser from '../../../Request-Abonados/Pages/Associated-rq/ListRequestAssociatedUsers';
 
-type RetryableError = {
-  response?: {
-    status?: number;
-    headers?: Record<string, string | undefined>;
-  };
-};
+export function UserRequestAssociated () {
+    const useCreateAssociatedRequestMutation = useCreateAssociatedRequest();
+    const { UserProfile } = useGetUserProfile();
+    const [viewMode, setViewMode] = useState<'create' | 'list'>('create');
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState('');
 
-const getFieldErrorMessage = (error: unknown) =>
-  typeof error === "object" && error !== null && "message" in error
-    ? String((error as { message?: string }).message ?? "Valor inválido")
-    : String(error);
-
-const uploadWithRetry = async (
-  uploadFn: () => Promise<unknown>,
-  maxRetries = 3,
-  baseDelay = 1000,
-): Promise<unknown> => {
-  let attempt = 0;
-
-  while (attempt < maxRetries) {
-    try {
-      return await uploadFn();
-    } catch (error) {
-      const requestError = error as RetryableError;
-      attempt++;
-
-      if (requestError.response?.status === 429) {
-        const retryAfter = requestError.response.headers?.["retry-after"];
-        const delayMs = retryAfter
-          ? parseInt(retryAfter, 10) * 1000
-          : Math.min(baseDelay * Math.pow(2, attempt), 10000);
-
-        if (attempt < maxRetries) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, Math.max(delayMs, 500)),
-          );
-          continue;
-        }
-      }
-
-      throw error;
-    }
-  }
-
-  throw new Error("No se pudo completar la subida de archivos.");
-};
-
-export function UserRequestAssociated() {
-  const createAssociatedRequestMutation = useCreateAssociatedRequest();
-  const { UserProfile } = useGetUserProfile();
-  const [viewMode, setViewMode] = useState<"create" | "list">("create");
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState("");
+    const handleClose = () => {
+        toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+        form.reset();
+        setIsUploading(false);
+        setUploadProgress('');
+    };
 
   const form = useForm({
     defaultValues: {
@@ -113,70 +67,38 @@ export function UserRequestAssociated() {
               ),
             );
 
-            toast.success(
-              "Solicitud creada y evidencia de boleta firmada subida exitosamente",
-              {
-                position: "top-right",
-                autoClose: 3000,
-              },
-            );
-          } catch (uploadError) {
-            console.error("Error subiendo evidencia:", uploadError);
-            toast.error(
-              "Solicitud creada, pero hubo un error al subir la evidencia. Intente subirla más tarde.",
-              {
-                position: "top-right",
-                autoClose: 5000,
-              },
-            );
-          }
-        } else {
-          toast.success("Solicitud de asociado creada exitosamente", {
-            position: "top-right",
-            autoClose: 3000,
-          });
+                        toast.success("Solicitud creada y evidencia de boleta firmada subida exitosamente", { 
+                            position: "top-right", 
+                            autoClose: 3000 
+                        });
+                    } catch (uploadError) {
+                        console.error("Error subiendo evidencia:", uploadError);
+                        toast.error("Solicitud creada, pero hubo un error al subir la evidencia. Intente subirla más tarde.", {
+                            position: "top-right",
+                            autoClose: 5000
+                        });
+                    }
+                } else {
+                    toast.success("Solicitud de asociado creada exitosamente", { 
+                        position: "top-right", 
+                        autoClose: 3000 
+                    });
+                }
+
+                formApi.reset();
+                setUploadProgress('');
+            } catch (error) {
+                console.error("Error al crear la solicitud de asociado", error);
+                toast.error("Error al crear la solicitud. Intente nuevamente.", {
+                    position: "top-right",
+                    autoClose: 4000
+                });
+            } finally {
+                setIsUploading(false);
+                setUploadProgress('');
+            }
         }
-
-        formApi.reset();
-        setUploadProgress("");
-        setViewMode("list");
-      } catch (error) {
-        console.error("Error al crear la solicitud de asociado", error);
-        toast.error("Error al crear la solicitud. Intente nuevamente.", {
-          position: "top-right",
-          autoClose: 4000,
-        });
-      } finally {
-        setIsUploading(false);
-        setUploadProgress("");
-      }
-    },
-  });
-
-  useEffect(() => {
-    if (!UserProfile) return;
-
-    const nextUserId = Number(UserProfile.Id) || 0;
-    const nextNis = getAssociatedRequestPrimaryNis(UserProfile);
-
-    if (nextUserId > 0 && form.getFieldValue("UserId") !== nextUserId) {
-      form.setFieldValue("UserId", nextUserId);
-    }
-
-    if (nextNis > 0 && form.getFieldValue("NIS") !== nextNis) {
-      form.setFieldValue("NIS", nextNis);
-    }
-  }, [UserProfile, form]);
-
-  const handleClose = () => {
-    toast.warning("Solicitud cancelada", {
-      position: "top-right",
-      autoClose: 3000,
     });
-    form.reset();
-    setIsUploading(false);
-    setUploadProgress("");
-  };
 
   return (
     <div className="flex flex-col gap-6 p-4">

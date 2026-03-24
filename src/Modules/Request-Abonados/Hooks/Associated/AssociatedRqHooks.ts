@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createAssociatedRequest, getMyReqAssociated, getMyReqAssociatedPaginated, getReqAssociatedById, type MyReqAssociatedParams } from "../../Services/Associated/AssociatedSV";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import type { ReqAssociated, ReqAssociatedPaginationParams } from "../../../Requests/RequestAssociated/Models/RequestAssociated";
 import { getAllRequestAssociated, searchRequestAssociated } from "../../../Requests/RequestAssociated/Services/ReqAssociatedServices";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
@@ -108,16 +108,12 @@ export const useCreateAssociatedRequest = () => {
         mutationFn:  createAssociatedRequest,
         mutationKey: ['associated', 'create'],
         onSuccess: () => {
-            qc.invalidateQueries({ queryKey: QK.my });
-            qc.invalidateQueries({ queryKey: [baseKey, "me", "search"] });
-            qc.invalidateQueries({ queryKey: QK.all });
-            qc.invalidateQueries({ queryKey: [baseKey, "list"] });
-            qc.invalidateQueries({ queryKey: ["request-associated"], exact: false });
+            qc.invalidateQueries({ queryKey: ['associated'] });
             toast.success("Solicitud de asociado creada con éxito", {position: "top-right", autoClose: 3000});
         },
         onError: (error) => {
             console.error("Error creating associated request:", error);
-            toast.error("Error al crear la solicitud de asociado", {position: "top-right", autoClose: 3000});
+            toast.error("Error al crear la solicitud de asociado", {position: "top-right", duration: 3000});
         }
     }); 
 }

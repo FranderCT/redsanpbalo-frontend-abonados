@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { ModalBase } from "../../../../Components/Modals/ModalBase";
 import { useCreateAgentSupplier } from "../../Hooks/AgentSupplierHooks";
 import { newAgentInitialState } from "../../Models/AgentSupplier";
@@ -14,7 +14,7 @@ const CreateAgentSupplierModal = () => {
   const createAgentSupplierMutation = useCreateAgentSupplier();
   const  { supplier, isLoading } = useGetAllSupplier();
   const handleClose = () => {
-      toast.warning("Registro cancelado", { position: "top-right", autoClose: 3000 });
+      toast.warning("Registro cancelado", { position: "top-right", duration: 3000 });
       setOpen(false);
   };
   const form = useForm({
@@ -25,12 +25,12 @@ const CreateAgentSupplierModal = () => {
     onSubmit: async ({ value, formApi }) => {
       try {
         await createAgentSupplierMutation.mutateAsync(value as any);
-        toast.success("¡Registro exitoso!", { position: "top-right", autoClose: 3000 });
+        toast.success("¡Registro exitoso!", { position: "top-right", duration: 3000 });
         formApi.reset(); // limpia los campos
         setOpen(false);
       } catch (err) {
         console.error("Error creando agente:", err);
-        toast.error("¡Registro sin éxito!", { position: "top-right", autoClose: 3000 });
+        toast.error("¡Registro sin éxito!", { position: "top-right", duration: 3000 });
         formApi.reset();
       }
     },

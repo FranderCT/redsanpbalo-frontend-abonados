@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { Trash } from "lucide-react";
 import type { Project } from "../../Models/Project";
@@ -17,7 +17,7 @@ export default function DeleteProjectButton({ projectSelected, onSuccess }: Prop
   const [busy, setBusy] = useState(false);
   const deleteProjectMutation = useDeleteProject();
   const handleClose = () =>{
-  toast.warning("Edición cancelada",{position:"top-right",autoClose:3000});
+  toast.warning("Edición cancelada",{position:"top-right",duration:3000});
     setOpen(false);
  }
   const handleConfirm = async () => {

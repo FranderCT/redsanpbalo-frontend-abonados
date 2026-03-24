@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "@tanstack/react-form";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -131,7 +131,7 @@ export default function EditLegalSupplierModal({
   const handleClose = () => {
     toast.warning("Edición cancelada", {
       position: "top-right",
-      autoClose: 3000,
+      duration: 3000,
     });
     form.reset();
     onClose();

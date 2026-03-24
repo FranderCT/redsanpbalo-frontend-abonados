@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 import { useCreateSupervisionMeterRequest } from "../../../Request-Abonados/Hooks/Supervision-Meter/SupervionMeterHooks";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import ListReqSupervisionMeterUser from "../../../Request-Abonados/Pages/SupervisionMeter/ListReqSupervisionMeterUser";
 
 export default function UserRequestSupervisionMeter() {
@@ -11,7 +11,7 @@ export default function UserRequestSupervisionMeter() {
     const { UserProfile } = useGetUserProfile();
 
     const handleClose = () => {
-        toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+        toast.warning("Solicitud cancelada", { position: "top-right", duration: 3000 });
         form.reset();
     };
 

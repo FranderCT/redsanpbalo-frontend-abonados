@@ -1,7 +1,7 @@
     import { useState } from "react";
     import { useChangeNameMeterRq } from "../../../Request-Abonados/Hooks/ChangeNameMeter/ChangeNameMeter";
     import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
-    import { toast } from "react-toastify";
+    import { toast } from "sonner";
     import { useForm } from "@tanstack/react-form";
 import { uploadWithRetry } from "../../../Request-Abonados/Components/AvailabilityWater/CreateAvailabilityWaterRqModal";
 import { UploadChangeNameMeterFiles } from "../../../Upload-files/Services/ProjectFileServices";
@@ -17,7 +17,7 @@ import ListReqChangeNameMeterUser from "../../../Request-Abonados/Pages/ChangeNa
     const [uploadProgress, setUploadProgress] = useState('');
     
     const handleClose = () => {
-        toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+        toast.warning("Solicitud cancelada", { position: "top-right", duration: 3000 });
         form.reset();
         setIsUploading(false);
         setUploadProgress('');
@@ -93,7 +93,7 @@ import ListReqChangeNameMeterUser from "../../../Request-Abonados/Pages/ChangeNa
                 // Mostrar progreso
                 toast.info(`${task.name} subido exitosamente (${completedUploads}/${uploadTasks.length})`, {
                     position: "top-right",
-                    autoClose: 2000
+                    duration: 2000
                 });
                 
                 // Pausa breve entre uploads
@@ -105,19 +105,19 @@ import ListReqChangeNameMeterUser from "../../../Request-Abonados/Pages/ChangeNa
                 console.error(`Error subiendo ${task.name}:`, error);
                 toast.error(`Error al subir ${task.name}. El documento no se guardó.`, {
                     position: "top-right",
-                    autoClose: 5000
+                    duration: 5000
                 });
                 }
             }
             
             toast.success(`Solicitud creada y ${completedUploads}/${uploadTasks.length} tipo(s) de documentos subidos exitosamente`, { 
                 position: "top-right", 
-                autoClose: 4000 
+                duration: 4000 
             });
             } else {
             toast.success("Solicitud creada exitosamente", { 
                 position: "top-right", 
-                autoClose: 3000 
+                duration: 3000 
             });
             }
             
@@ -127,7 +127,7 @@ import ListReqChangeNameMeterUser from "../../../Request-Abonados/Pages/ChangeNa
             console.error("Error al crear la solicitud:", error);
             toast.error("Error al crear la solicitud. Intente nuevamente.", {
             position: "top-right",
-            autoClose: 4000
+            duration: 4000
             });
         } finally {
             setIsUploading(false);

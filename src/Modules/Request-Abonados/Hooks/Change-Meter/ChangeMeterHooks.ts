@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createChangeMeterRequest, getMyReqChangeMeter, getMyReqChangeMeterPaginated, getReqChangeMeterById, type MyReqChangeMeterParams } from "../../Services/Change-Meter/ChangeMeterSV";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import type { ReqChangeMeter, ReqChangeMeterPaginationParams } from "../../../Requests/RequestChangeMeterr/Models/RequestChangeMeter";
 import { getAllReqChangeMeter, searchReqChangeMeter } from "../../../Requests/RequestChangeMeterr/Services/RequestChangeMeterServices";
 import type { PaginatedResponse, PaginationMeta } from "../../../../assets/Dtos/PaginationCategory";
@@ -118,11 +118,10 @@ export const useCreateChangeMeterRequest = () => {
         onSuccess: () => {
             // refresca listas donde corresponda
             qc.invalidateQueries({ queryKey: ["changeMeters"] });
-            toast.success('Solicitud de cambio de medidor creada con éxito', {position: "top-right", autoClose: 2000});
+            toast.success('Solicitud de cambio de medidor creada con éxito', {position: "top-right", duration: 2000});
         },
-        onError: (error: unknown) => {
-            const message = error instanceof Error ? error.message : "Error desconocido";
-            toast.error(`Error al crear la solicitud: ${message}`, {position: "top-right", autoClose: 2000});
+        onError: (error: any) => {
+            toast.error(`Error al crear la solicitud: ${error.message}`, {position: "top-right", duration: 2000});
         }
     });
 }

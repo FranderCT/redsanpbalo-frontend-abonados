@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Trash } from "lucide-react";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import type { ReqChangeMeter } from "../Models/RequestChangeMeter";
@@ -17,7 +17,7 @@ export default function DeleteRequestModal({ reqChangeMeter, onSuccess }: Props)
     const [busy, setBusy] = useState(false);
     const deleteReqChangeMeterMutation = useDeleteReqChangeMeter();
     const handleClose = () =>{
-    toast.warning("Edición cancelado",{position:"top-right",autoClose:3000});
+    toast.warning("Edición cancelado",{position:"top-right",duration:3000});
     setOpen(false);
  }
     const handleConfirm = async () => {

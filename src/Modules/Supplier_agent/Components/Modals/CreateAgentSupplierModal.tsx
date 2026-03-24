@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useRef, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogClose,
@@ -125,7 +125,7 @@ export default function CreateAgentSupplierModal({
   });
 
   const handleClose = () => {
-    toast.warning("Registro cancelado", { position: "top-right", autoClose: 3000 });
+    toast.warning("Registro cancelado", { position: "top-right", duration: 3000 });
     setOpen(false);
     form.reset();
   };

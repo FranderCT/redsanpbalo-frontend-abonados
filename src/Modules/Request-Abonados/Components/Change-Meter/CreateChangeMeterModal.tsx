@@ -1,7 +1,7 @@
 // import { useForm } from "@tanstack/react-form";
 // import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 // import { useState } from "react";
-// import { toast } from "react-toastify";
+// import { toast } from "sonner";
 // import { ModalBase } from "../../../../Components/Modals/ModalBase";
 // import { useCreateChangeMeterRequest } from "../../Hooks/Change-Meter/ChangeMeterHooks";
 
@@ -11,7 +11,7 @@
 //     const [open, setOpen] = useState(false);
 
 //     const handleClose = () => {
-//         toast.warning("Solicitud cancelada", { position: "top-right", autoClose: 3000 });
+//         toast.warning("Solicitud cancelada", { position: "top-right", duration: 3000 });
 //         form.reset();
 //         setOpen(false);
 //     };

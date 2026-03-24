@@ -34,7 +34,7 @@ import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
 import { Button } from "@/Components/ui/button";
 import { Separator } from "@/Components/ui/separator";
-import { ArrowLeft } from "lucide-react";
+
 
 const EditProfile = () => {
   const navigate = useNavigate();
