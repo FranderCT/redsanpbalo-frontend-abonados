@@ -52,11 +52,16 @@ const CardProject: React.FC<Props> = ({ project, className }) => {
 
         {/* Descripción (flex-grow) */}
         <div
-          className="flex-grow text-xs text-gray-600 leading-relaxed 
-                    [overflow-wrap:anywhere] overflow-hidden line-clamp-3"
+          className="flex-grow overflow-hidden"
         >
           <p className="text-sm text-gray-500">Descripción:</p>
-          {project.Description}
+          <div
+            className="mt-1 text-xs text-gray-600 leading-relaxed [overflow-wrap:anywhere] line-clamp-3
+              prose prose-sm max-w-none
+              prose-p:my-0 prose-headings:my-0 prose-ul:my-0 prose-ol:my-0 prose-li:my-0
+              prose-p:text-gray-600 prose-li:text-gray-600 prose-strong:text-gray-700"
+            dangerouslySetInnerHTML={{ __html: project.Description ?? "" }}
+          />
         </div>
 
         {/* Estado (badge fijo al final del section) */}
