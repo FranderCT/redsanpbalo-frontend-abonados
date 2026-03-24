@@ -43,7 +43,8 @@ export interface UpdateReqChangeMeterr {
 export interface ReqChangeMeterPaginationParams {
   page: number;
   limit: number;
-  UserName?: string;          
-  StateRequestId?: number;  
-  State?: string; 
+  UserName?: string;
+  q?: string;
+  StateRequestId?: number;
+  State?: string;
 }

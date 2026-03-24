@@ -6,12 +6,8 @@ import type { ChangeMeter, PartialChangeMeter } from "../../Models/Change-Meter/
 const BASE = "/request-change-meter";
 
 export async function createChangeMeterRequest(payloads : PartialChangeMeter) : Promise<ChangeMeter> {
-    try{
-        const {data} = await apiAxios.post<ChangeMeter>(`${BASE}`, payloads);
-        return data;
-    } catch (error) {
-        throw error;
-    }
+    const {data} = await apiAxios.post<ChangeMeter>(`${BASE}`, payloads);
+    return data;
 }
 
 // === Mis solicitudes (usuario autenticado) ===
@@ -50,6 +46,11 @@ export async function getMyReqChangeMeterPaginated(params: MyReqChangeMeterParam
       q: params.q && params.q.trim() ? params.q.trim() : undefined,
     }).filter(([, v]) => v !== undefined && v !== null)
   );
+
+  console.log("RequestChangeMeter user search", {
+    endpoint: `${BASE}/me/search`,
+    params: cleanParams,
+  });
 
   const { data } = await apiAxios.get<PaginatedResponse<ReqChangeMeter>>(
     `${BASE}/me/search`,

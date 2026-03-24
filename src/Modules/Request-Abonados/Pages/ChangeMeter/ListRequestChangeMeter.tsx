@@ -1,116 +1,94 @@
 import { useMemo, useState } from "react";
+import type { PaginationMeta } from "../../../../assets/Dtos/PaginationCategory";
 import { useGetAllRequestStates } from "../../../Requests/StateRequest/Hooks/RequestStateHook";
-import ResumeReqAvailWater from "../../../Requests/Components/Cards/ResumeReqAvailWater";
-import ReqChangeMeterUserHeaderBar from "../../Components/Change-Meter/ReqChangeMeterUserHeaderBar";
-import ReqChangeMeterUserTable from "../../Components/Change-Meter/ReqChangeMeterUserTable";
-import { useGetMyReqChangeMeterPaginated } from "../../Hooks/Change-Meter/ChangeMeterHooks";
 import type { ReqChangeMeter } from "../../../Requests/RequestChangeMeterr/Models/RequestChangeMeter";
+import ReqChangeMeterUserHeaderBar from "../../Components/Change-Meter/ReqChangeMeterUserHeaderBar";
+import ReqChangeMeterUserCards from "../../Components/Change-Meter/ReqChangeMeterUserCards";
+import { useGetMyReqChangeMeterPaginated } from "../../Hooks/Change-Meter/ChangeMeterHooks";
+
+type LegacyMeta = {
+  page?: number;
+  limit?: number;
+  total?: number;
+  pageCount?: number;
+};
 
 export default function ListReqChangeMeterUser() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
+  const [q, setQ] = useState("");
   const [stateRequestId, setStateRequestId] = useState<number | undefined>(undefined);
 
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
+    setQ(txt.trim());
     setPage(1);
   };
+
   const handleStateRequestChange = (id?: number) => {
     setStateRequestId(id);
     setPage(1);
   };
+
   const handleCleanFilters = () => {
     setSearch("");
+    setQ("");
     setStateRequestId(undefined);
     setPage(1);
   };
 
-  // Estados disponibles (para el dropdown)
   const { requestStates = [], isPending: requestStatesLoading } = useGetAllRequestStates();
-
-  // Backend paginado (mis solicitudes) con filtros
   const { data, isLoading, error } = useGetMyReqChangeMeterPaginated({
     page,
     limit,
-    StateRequestId: stateRequestId
+    StateRequestId: stateRequestId,
+    q,
   });
 
-  const rows: ReqChangeMeter[] = data?.data ?? [];
+  const rows = useMemo<ReqChangeMeter[]>(() => data?.data ?? [], [data?.data]);
+  const rawMeta = data?.meta as (PaginationMeta & LegacyMeta) | undefined;
   const meta = {
-    total: data?.meta?.total ?? 0,
-    page: data?.meta?.page ?? page,
-    limit: data?.meta?.limit ?? limit,
-    pageCount: data?.meta?.pageCount ?? Math.ceil((data?.meta?.total ?? 0) / limit),
-    hasNextPage: data?.meta?.hasNextPage ?? false,
-    hasPrevPage: data?.meta?.hasPrevPage ?? false
+    total: rawMeta?.totalItems ?? rawMeta?.total ?? 0,
+    page: rawMeta?.currentPage ?? rawMeta?.page ?? page,
+    limit: rawMeta?.itemsPerPage ?? rawMeta?.limit ?? limit,
+    pageCount:
+      rawMeta?.totalPages ??
+      rawMeta?.pageCount ??
+      Math.ceil((rawMeta?.totalItems ?? rawMeta?.total ?? 0) / limit),
   };
 
-  // Filtrado cliente solo para el buscador
-  const filteredRows = useMemo(() => {
-    const txt = search.trim().toLowerCase();
-    if (!txt) return rows;
-    return rows.filter((r) => {
-      const inJust = String(r.Justification ?? "").toLowerCase().includes(txt);
-      const inDate = String(r.Date ?? "").toLowerCase().includes(txt);
-      const inState = String(r.StateRequest?.Name ?? "").toLowerCase().includes(txt);
-      return inJust || inDate || inState;
-    });
-  }, [rows, search]);
-
-  const pageTotals = useMemo(() => {
-    const acc = { total: 0, approved: 0, rejected: 0, pending: 0 };
-    for (const r of rows) {
-      acc.total++;
-      const name = r.StateRequest?.Name?.toLowerCase() ?? "";
-      if (name.includes("apro")) acc.approved++;
-      else if (name.includes("rech")) acc.rejected++;
-      else if (name.includes("pend") || name.includes("proce")) acc.pending++;
-    }
-    return acc;
-  }, [rows]);
-
   return (
-    <div className="px-6 py-4 space-y-6">
-      <h1 className="text-2xl font-bold text-[#091540]">Mis Solicitudes de Cambio de Medidor</h1>
-      <p className="text-[#091540]/70 text-md">Lista de solicitudes realizadas</p>
-      <div className="border-b border-dashed border-gray-300 "></div>
-      {/* Cards (con totales de la página actual) */}
-      <ResumeReqAvailWater
-        total={pageTotals.total}
-        pending={pageTotals.pending}
-        approved={pageTotals.approved}
-        rejected={pageTotals.rejected}
-        loading={isLoading || requestStatesLoading}
+    <div className="flex flex-col gap-6">
+      <ReqChangeMeterUserHeaderBar
+        limit={meta.limit}
+        total={meta.total}
+        search={search}
+        requestStateId={stateRequestId}
+        states={requestStates}
+        statesLoading={requestStatesLoading}
+        onStateRequestChange={handleStateRequestChange}
+        onLimitChange={(value) => {
+          setLimit(value);
+          setPage(1);
+        }}
+        onSearchChange={handleSearchChange}
+        onCleanFilters={handleCleanFilters}
       />
 
-      <div className="border-b border-dashed border-gray-300 mt-4 mb-6"></div>
-      {/* Control de búsqueda y filtros */}
-      <div className="mb-4">
-        <ReqChangeMeterUserHeaderBar
-          limit={meta.limit}
-          total={meta.total}
-          search={search}
-          requestStateId={stateRequestId}
-          states={requestStates}
-          statesLoading={requestStatesLoading}
-          onStateRequestChange={handleStateRequestChange}
-          onLimitChange={(l: number) => {
-            setLimit(l);
-            setPage(1);
-          }}
-          onSearchChange={handleSearchChange}
-          onCleanFilters={handleCleanFilters}
-        />
-      </div>
-      <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
+      <div>
         {isLoading ? (
-          <div className="p-6 text-center text-gray-500">Cargando…</div>
+          <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
+            Cargando solicitudes…
+          </div>
         ) : error ? (
-          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
+          <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">
+            Ocurrió un error al cargar las solicitudes.
+          </div>
         ) : (
-          <ReqChangeMeterUserTable
-            data={filteredRows}
+          <ReqChangeMeterUserCards
+            data={rows}
+            total={meta.total}
             page={meta.page}
             pageCount={meta.pageCount}
             onPageChange={setPage}

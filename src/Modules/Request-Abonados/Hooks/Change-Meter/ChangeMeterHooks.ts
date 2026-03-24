@@ -29,6 +29,9 @@ const QK = {
   byId:       (id: number) => [baseKey, "byId", id] as const,
 };
 
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : "Error al crear la solicitud";
+
 // ==== QUERIES ====
 
 // Todas (activas) — uso admin
@@ -116,12 +119,13 @@ export const useCreateChangeMeterRequest = () => {
         mutationKey: ['changeMeters'],
             // refresca listas donde corresponda
         onSuccess: () => {
-            // refresca listas donde corresponda
             qc.invalidateQueries({ queryKey: ["changeMeters"] });
+            qc.invalidateQueries({ queryKey: ["reqChangeMeter"] });
+            qc.invalidateQueries({ queryKey: ["request-change-meter"] });
             toast.success('Solicitud de cambio de medidor creada con éxito', {position: "top-right", duration: 2000});
         },
-        onError: (error: any) => {
-            toast.error(`Error al crear la solicitud: ${error.message}`, {position: "top-right", duration: 2000});
+        onError: (error) => {
+            toast.error(`Error al crear la solicitud: ${getErrorMessage(error)}`, {position: "top-right", duration: 2000});
         }
     });
 }

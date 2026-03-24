@@ -28,7 +28,7 @@ export const useGetAllReqChangeMeter = () => {
 
 // Búsqueda paginada
 export const useSearchReqChangeMeter = (params: ReqChangeMeterPaginationParams) => {
-  const { page = 1, limit = 10, UserName, StateRequestId, State } = params ?? {};
+  const { page = 1, limit = 10, UserName, q, StateRequestId, State } = params ?? {};
 
   const query = useQuery<PaginatedResponse<ReqChangeMeter>, Error>({
     queryKey: [
@@ -37,6 +37,7 @@ export const useSearchReqChangeMeter = (params: ReqChangeMeterPaginationParams) 
       page,
       limit,
       UserName ?? "",
+      q ?? "",
       StateRequestId ?? null,
       State ?? "",
     ],

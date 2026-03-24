@@ -1,52 +1,45 @@
 import { useState, useEffect } from "react";
-import { ModalBase } from "../../../../Components/Modals/ModalBase";
+import { Button } from "@/Components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
 import { useTempSMLink } from "../../Hooks/Supervision-Meter/SupervisionMeterHookF";
+import { formatRequestChangeMeterDate } from "../../../Requests/RequestChangeMeterr/utils/requestChangeMeterDate";
 
 
 interface MeterSupervisionDetailModalProps {
   open: boolean;
   onClose: () => void;
   title: string;
-  data: Record<string, any>;
+  data: object;
   excludeFields?: string[];
 }
 
-// ---- helpers ----
-const formatDateOnly = (value?: string | Date) => {
-  if (!value) return "-";
-  try {
-    if (typeof value === "string") {
-      const onlyDate = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-      if (onlyDate) return value;
-
-      const hasTZ = /[Tt].*(Z|[+\-]\d{2}:?\d{2})$/.test(value);
-      const d = new Date(value);
-      if (isNaN(d.getTime())) return "-";
-
-      if (hasTZ) {
-        const y = d.getUTCFullYear();
-        const m = String(d.getUTCMonth() + 1).padStart(2, "0");
-        const day = String(d.getUTCDate()).padStart(2, "0");
-        return `${y}-${m}-${day}`;
-      } else {
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, "0");
-        const day = String(d.getDate()).padStart(2, "0");
-        return `${y}-${m}-${day}`;
-      }
-    }
-
-    const d = value as Date;
-    if (!isNaN(d.getTime())) {
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${y}-${m}-${day}`;
-    }
-  } catch {}
-  return "-";
+type RequestDocument = {
+  Id?: number;
+  id?: number;
+  Name?: string;
+  name?: string;
+  FileName?: string;
 };
 
+type DetailEntryMap = Record<string, unknown>;
+
+const hasKey = (value: object, key: string): value is DetailEntryMap =>
+  key in value;
+
+const isDateValue = (value: unknown): value is string | Date | null | undefined =>
+  value === null ||
+  value === undefined ||
+  typeof value === "string" ||
+  value instanceof Date;
+
+// ---- helpers ----
 const normalizeState = (s: string) =>
   s
     ?.toLowerCase()
@@ -127,11 +120,17 @@ export default function MeterSupervisionDetailModal({
     setSelectedFileId(fileId);
   };
 
-  const renderValue = (key: string, value: any) => {
+  const renderValue = (key: string, value: unknown) => {
     if (value === null || value === undefined) return "-";
 
     // Estado de la solicitud
-    if (key === "StateRequest" && typeof value === "object" && value.Name) {
+    if (
+      key === "StateRequest" &&
+      typeof value === "object" &&
+      value !== null &&
+      "Name" in value &&
+      typeof value.Name === "string"
+    ) {
       const normalized = normalizeState(value.Name);
       const colorClass = guessStateColor(normalized);
       return (
@@ -142,28 +141,36 @@ export default function MeterSupervisionDetailModal({
     }
 
     // Supervisor/Usuario (objeto anidado)
-    if ((key === "Supervisor" || key === "User") && typeof value === "object") {
+    if ((key === "Supervisor" || key === "User") && typeof value === "object" && value !== null) {
+      const person = value as {
+        Name?: string;
+        Surname1?: string;
+        Surname2?: string;
+        IDcard?: string;
+        Email?: string;
+        PhoneNumber?: string;
+      };
       return (
         <div className="bg-gray-50 p-3 rounded border border-gray-200 space-y-2">
-          {value.Name && (
+          {person.Name && (
             <p className="text-sm">
               <span className="font-medium text-gray-700">Nombre:</span>{" "}
-              {value.Name} {value.Surname1} {value.Surname2}
+              {person.Name} {person.Surname1} {person.Surname2}
             </p>
           )}
-          {value.IDcard && (
+          {person.IDcard && (
             <p className="text-sm">
-              <span className="font-medium text-gray-700">Cédula:</span> {value.IDcard}
+              <span className="font-medium text-gray-700">Cédula:</span> {person.IDcard}
             </p>
           )}
-          {value.Email && (
+          {person.Email && (
             <p className="text-sm">
-              <span className="font-medium text-gray-700">Email:</span> {value.Email}
+              <span className="font-medium text-gray-700">Email:</span> {person.Email}
             </p>
           )}
-          {value.PhoneNumber && (
+          {person.PhoneNumber && (
             <p className="text-sm">
-              <span className="font-medium text-gray-700">Teléfono:</span> {value.PhoneNumber}
+              <span className="font-medium text-gray-700">Teléfono:</span> {person.PhoneNumber}
             </p>
           )}
         </div>
@@ -172,13 +179,19 @@ export default function MeterSupervisionDetailModal({
 
     // Fechas
     if (key === "Date" || key === "CreatedAt" || key === "UpdatedAt") {
-      return formatDateOnly(value);
+      return formatRequestChangeMeterDate(isDateValue(value) ? value : undefined);
     }
 
     // SpaceOfDocument - Mostrar carpeta Y archivos
     if (key === "SpaceOfDocument") {
       // Buscar archivos en diferentes posibles propiedades
-      const files = data.RequestSupervisionMeterFiles || data.SupervisionMeterFiles || [];
+      const requestFiles = hasKey(data, "RequestSupervisionMeterFiles")
+        ? data.RequestSupervisionMeterFiles
+        : undefined;
+      const supervisionFiles = hasKey(data, "SupervisionMeterFiles")
+        ? data.SupervisionMeterFiles
+        : undefined;
+      const files = (Array.isArray(requestFiles) ? requestFiles : Array.isArray(supervisionFiles) ? supervisionFiles : []) as RequestDocument[];
       
       return (
         <div className="space-y-3">
@@ -186,7 +199,7 @@ export default function MeterSupervisionDetailModal({
           {files.length > 0 ? (
             <div className="space-y-2">
               <div className="space-y-2">
-                {files.map((file: any) => {
+                {files.map((file) => {
                   const fileId = file?.Id || file?.id;
                   const fileName = file?.Name || file?.name || file?.FileName || `Documento`;
                   const isDownloading = isLoadingLink && selectedFileId === fileId;
@@ -258,52 +271,50 @@ export default function MeterSupervisionDetailModal({
     return String(value);
   };
 
-  const filteredEntries = Object.entries(data).filter(
+  const filteredEntries = Object.entries(data as DetailEntryMap).filter(
     ([key]) => !excludeFields.includes(key)
   );
 
   return (
-    <ModalBase open={open} onClose={onClose} panelClassName="w-full max-w-2xl !p-0 overflow-hidden shadow-2xl">
-      {/* Header */}
-      <div className="px-6 py-4 text-[#091540] border-b border-gray-200">
-        <h3 className="text-xl font-semibold">{title}</h3>
-        <p className="text-sm opacity-80">Información detallada de la supervisión de medidor</p>
-      </div>
+    <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
+      <DialogContent className="max-w-2xl rounded-none border-slate-200 p-0">
+        <DialogHeader className="border-b border-gray-200 px-6 py-4">
+          <DialogTitle className="text-xl font-semibold text-[#091540]">{title}</DialogTitle>
+          <DialogDescription>
+            Información detallada de la supervisión de medidor
+          </DialogDescription>
+        </DialogHeader>
 
-      {/* Body */}
-      <div
-        className="px-6 py-4 max-h-[60vh] overflow-y-auto"
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        <style>{`
-          .overflow-y-auto::-webkit-scrollbar {
-            display: none;
-          }
-        `}</style>
-        <div className="space-y-4">
-          {filteredEntries.map(([key, value]) => (
-            <div key={key} className="border-b border-gray-200 pb-3 last:border-b-0">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                {fieldLabels[key] || key}
-              </label>
-              <div className="text-sm text-gray-900">{renderValue(key, value)}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end">
-        <button
-          onClick={onClose}
-          className="h-10 px-6 bg-gray-200 text-gray-700 hover:bg-gray-300 transition font-medium rounded-md"
+        <div
+          className="max-h-[60vh] overflow-y-auto px-6 py-4"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
         >
-          Cerrar
-        </button>
-      </div>
-    </ModalBase>
+          <style>{`
+            .overflow-y-auto::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
+          <div className="space-y-4">
+            {filteredEntries.map(([key, value]) => (
+              <div key={key} className="border-b border-gray-200 pb-3 last:border-b-0">
+                <label className="mb-1 block text-sm font-semibold text-gray-700">
+                  {fieldLabels[key] || key}
+                </label>
+                <div className="text-sm text-gray-900">{renderValue(key, value)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <DialogFooter className="border-t border-gray-200 bg-gray-50 px-6 py-4">
+          <Button type="button" variant="outline" className="rounded-none" onClick={onClose}>
+            Cerrar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
