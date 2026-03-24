@@ -22,7 +22,7 @@ export interface newReqSupervisionMeter{
     NIS: number;
     Justification : string;
     UserId: number;
-    StateRequestId:number;
+    StateRequestId?: number;
 }
 
 // Estado inicial del formulario (similar a newInitialState)
@@ -31,7 +31,6 @@ export const newReqSupervisionMeterInitialState: newReqSupervisionMeter = {
   NIS: 0,
   Justification: "",
   UserId: 0,
-  StateRequestId: 0,
 };
 
 export interface UpdateReqSupervisionMeter {

@@ -1,67 +1,87 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Trash } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/Components/ui/alert-dialog";
+import { Button } from "@/Components/ui/button";
 import type { ReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
 import { useDeleteReqSupervisionMeter } from "../Hooks/ReqSupervisionMeterHooks";
-import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
-
 
 type Props = {
-    reqSupervisionMeter: ReqSupervisionMeter;
-    onSuccess?: () => void;
-  
+  reqSupervisionMeter: ReqSupervisionMeter;
+  onSuccess?: () => void;
 };
 
-export default function DeleteSupervisionMeterModal({ reqSupervisionMeter, onSuccess }: Props) {
-    const [open, setOpen] = useState(false);
-    const [busy, setBusy] = useState(false);
-    const deleteReqSupervisionMeterMutation = useDeleteReqSupervisionMeter();
-    const handleClose = () =>{
-    toast.warning("Edición cancelado",{position:"top-right",duration:3000});
+export default function DeleteSupervisionMeterModal({
+  reqSupervisionMeter,
+  onSuccess,
+}: Props) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const deleteReqSupervisionMeterMutation = useDeleteReqSupervisionMeter();
+
+  const handleClose = () => {
+    toast.warning("Edición cancelado", { position: "top-right", duration: 3000 });
     setOpen(false);
- }
-    const handleConfirm = async () => {
-        try {
-        setBusy(true);
-        await deleteReqSupervisionMeterMutation.mutateAsync(reqSupervisionMeter.Id);
-        toast.success("Solicitud inhabilitada");
-        setOpen(false);
-        onSuccess?.();
-        } catch (err) {
-        console.error("Error al inhabilitar solicitud:", err);
-        toast.error("No se pudo inhabilitar la solicitud");
-        } finally {
-        setBusy(false);
-        }
-    };
+  };
 
-    return (
-        <>
-        <button
-            type="button"
-            onClick={() => setOpen(true)}
-            disabled={busy}
-            className={`px-3 py-1 text-sm font-medium transition flex flex-row justify-center items-center gap-1
-            ${busy ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "text-[#F6132D] border-[#F6132D] border hover:bg-[#F6132D] hover:text-[#F9F5FF]"}`}
-            title="Inhabilitar solicitud"
+  const handleConfirm = async () => {
+    try {
+      setBusy(true);
+      await deleteReqSupervisionMeterMutation.mutateAsync(reqSupervisionMeter.Id);
+      toast.success("Solicitud inhabilitada");
+      setOpen(false);
+      onSuccess?.();
+    } catch (err) {
+      console.error("Error al inhabilitar solicitud:", err);
+      toast.error("No se pudo inhabilitar la solicitud");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          className="w-full justify-start rounded-none px-2 py-1.5 text-[#F6132D] hover:bg-[#F6132D]/10 hover:text-[#F6132D]"
+          disabled={busy}
         >
-            <Trash  className="h-4 w-4"/>
-            {busy ? "..." : "Inhabilitar"}
-        </button>
+          <Trash className="h-4 w-4" />
+          {busy ? "Inhabilitando..." : "Inhabilitar"}
+        </Button>
+      </AlertDialogTrigger>
 
-        {open && (
-            <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
-            <InhabilityActionModal
-                title="¿Inhabilitar solicitud?"
-                description={`¿Está seguro de inhabilitar esta solicitud?`}
-                cancelLabel="Cancelar"
-                confirmLabel="Inhabilitar"
-                onConfirm={handleConfirm}
-                onClose={handleClose}
-                onCancel={handleClose}
-            />
-            </div>
-        )}
-        </>
-    );
+      <AlertDialogContent className="rounded-none">
+        <AlertDialogHeader>
+          <AlertDialogTitle>¿Inhabilitar solicitud?</AlertDialogTitle>
+          <AlertDialogDescription>
+            ¿Está seguro de inhabilitar esta solicitud?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="rounded-none" onClick={handleClose}>
+            Cancelar
+          </AlertDialogCancel>
+          <AlertDialogAction
+            className="rounded-none bg-[#F6132D] text-white hover:bg-[#d90f27]"
+            onClick={handleConfirm}
+          >
+            Inhabilitar
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 }
