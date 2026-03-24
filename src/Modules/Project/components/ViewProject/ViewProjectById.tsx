@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import apiAxios from "../../../../api/apiConfig";
 import { useParams } from "@tanstack/react-router";
 import { viewProjectRoute } from "../../Routes/ProjectsRoutes";
+import { projectKeys } from "../../queryKeys";
 import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -132,8 +133,9 @@ export async function getProjectById(projectId: number): Promise<Project | null>
 
 export const useGetProjectById = (projectId: number) => {
   const { data: project, isLoading, error } = useQuery({
-    queryKey: ['project', projectId],
+    queryKey: projectKeys.detail(projectId),
     queryFn: () => getProjectById(projectId),
+    enabled: Number.isFinite(projectId) && projectId > 0,
   });
   return { project, isLoading, error };
 };

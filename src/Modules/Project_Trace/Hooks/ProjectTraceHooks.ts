@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createProjectTrace, getProjectTraceById, getProjectTracesByProjectId, getTotalActualExpenseByProjectId } from "../Services/ProjectTraceServices";
 import type { ProjectTrace } from "../Models/ProjectTrace";
+import { projectKeys } from "../../Project/queryKeys";
 
 type TraceProjectWithLooseProjectRef = ProjectTrace & {
   ProjectId?: number;
@@ -11,13 +12,11 @@ type TraceProjectWithLooseProjectRef = ProjectTrace & {
 export const useCreateProjectTrace = () => {
     const qc = useQueryClient();
     const mutation = useMutation({
-        mutationKey: ['project-trace'],
+        mutationKey: projectKeys.traceRoot(),
         mutationFn: createProjectTrace,
         onSuccess: (res)=>{
-            qc.invalidateQueries({queryKey: ['project-trace']});
-            qc.invalidateQueries({queryKey: ['project-traces']});
-            qc.invalidateQueries({queryKey: ['project']});
-            qc.invalidateQueries({queryKey: ['total-actual-expense']});
+            qc.invalidateQueries({queryKey: projectKeys.all});
+            qc.invalidateQueries({queryKey: projectKeys.dashboardInProcessCount});
             console.log(res)
         },
         onError: (err)=>{
@@ -31,7 +30,7 @@ export const useCreateProjectTrace = () => {
 export const useGetProjectTraceById = (id: number) => {
 
   const {data: traceProj, isLoading,error} = useQuery({
-    queryKey: ["project-trace", id],
+    queryKey: projectKeys.traceDetail(id),
     queryFn: () => getProjectTraceById(id),
   });
 
@@ -40,7 +39,7 @@ export const useGetProjectTraceById = (id: number) => {
 
 export const useGetProjectTracesByProjectId = (projectId: number) => {
   const {data: projectTracesRaw, isLoading, error} = useQuery({
-    queryKey: ["project-traces", projectId],
+    queryKey: projectKeys.tracesByProject(projectId),
     queryFn: () => getProjectTracesByProjectId(projectId),
     enabled: !!projectId,
   });
@@ -68,7 +67,7 @@ export const useGetProjectTracesByProjectId = (projectId: number) => {
 
 export const useGetTotalActualExpenseByProjectId = (projectId: number) => {
   const {data: totalActualExpense, isLoading, error} = useQuery({
-    queryKey: ["total-actual-expense", projectId],
+    queryKey: projectKeys.totalActualExpense(projectId),
     queryFn: () => getTotalActualExpenseByProjectId(projectId),
     enabled: !!projectId,
   });

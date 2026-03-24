@@ -10,21 +10,19 @@ import { FAQ } from "./FAQ/Components/FAQ"
 
 const HeroPage = () => {
   return (
-    <div className="min-h-screen">
-      {/* Header fijo siempre visible */}
+    <div className="flex flex-col min-h-screen">
       <HeaderPaanee />
-      
-      {/* Hero Section */}
-      <Hero />
-      
-      {/* Resto de secciones de la landing */}
-      <About />
-      <Services />
-      {/* <Projects /> */}
-      <MissionVision />
-      <FAQ />
-      <Feedback />
-      <Contact />
+
+      <main className="pt-[72px]">
+        <Hero />
+        <About />
+        <Services />
+        <MissionVision />
+        <FAQ />
+        <Feedback />
+        <Contact />
+      </main>
+
       <Footer />
     </div>
   )

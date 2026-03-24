@@ -2,18 +2,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { NewActualExpense } from "../Models/ActualExpense";
 import { createActualExpense } from "../Services/ActualExpenseServices";
 import { toast } from "sonner";
+import { projectKeys } from "../../Project/queryKeys";
 
 export const useCreateActualExpense = () => {
     const qc = useQueryClient();
     const mutation = useMutation({
-        mutationKey: ['actual-expense'],
+        mutationKey: [...projectKeys.all, "actual-expense"],
         mutationFn: (newActualExpense: NewActualExpense) => createActualExpense(newActualExpense),
         onSuccess: (res) => {
-            qc.invalidateQueries({ queryKey: ['actual-expense'] });
-            qc.invalidateQueries({ queryKey: ['project-trace'] });
-            qc.invalidateQueries({ queryKey: ['project-traces'] });
-            qc.invalidateQueries({ queryKey: ['project'] });
-            qc.invalidateQueries({ queryKey: ['total-actual-expense'] });
+            qc.invalidateQueries({ queryKey: projectKeys.all });
             console.log('Actual Expense created:', res);
             toast.success('Gasto real creado con éxito', { position: "top-right", duration: 3000 });
         },

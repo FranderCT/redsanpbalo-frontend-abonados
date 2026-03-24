@@ -1,114 +1,105 @@
-import { Facebook, Mail } from "lucide-react"
-import LogoRedSanPablo from "../../assets/images/LogoRedSanPabloHB.svg"
+import { Facebook, Globe, Instagram, Twitter } from "lucide-react";
+import LogoRedSanPablo from "../../assets/images/LogoRedSanPabloHB.svg";
 
 export function Footer() {
-    return (
-        <footer className="text-white py-16 px-6 bg-gradient-to-b from-[#091540] to-[#091540]">
-            <div className="max-w-7xl mx-auto">
-                {/* Grid */}
-                <div className="grid md:grid-cols-4 gap-10 mb-10">
-                {/* Brand */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                        <div>
-                            <img src={LogoRedSanPablo} className="h-12 w-auto" alt="Red San Pablo Logo" />
-                        </div>
-                    </div>
-                    <p className="leading-relaxed text-white/80 text-sm max-w-xs">
-                        Comprometidos con el suministro de agua potable de calidad para la comunidad de San Pablo, Nandayure.
-                    </p>
-                </div>
-
-                {/* Quick Links */}
-                <div>
-                    <h3 className="font-bold text-lg mb-4">Enlaces Rápidos</h3>
-                    <ul className="space-y-2 text-sm">
-                    <li>
-                        <a href="#inicio" className="text-white/80 hover:text-white transition-colors">
-                        Inicio
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#sobre-nosotros" className="text-white/80 hover:text-white transition-colors">
-                        Sobre nosotros
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#servicios" className="text-white/80 hover:text-white transition-colors">
-                        Servicios
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#mision-y-vision" className="text-white/80 hover:text-white transition-colors">
-                        Misión y Visión
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#faq" className="text-white/80 hover:text-white transition-colors">
-                        Preguntas frecuentes
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#retroalimentacion" className="text-white/80 hover:text-white transition-colors">
-                        Retroalimentación
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#contacto" className="text-white/80 hover:text-white transition-colors">
-                        Contacto
-                        </a>
-                    </li>
-                    </ul>
-                </div>
-
-                {/* Services */}
-                <div>
-                    <h3 className="font-bold text-lg mb-4">Servicios</h3>
-                    <ul className="space-y-2 text-sm">
-                    <li className="text-white/80">Suministro de Agua</li>
-                    <li className="text-white/80">Mantenimiento</li>
-                    <li className="text-white/80">Atención al Cliente</li>
-                    <li className="text-white/80">Emergencias 24/7</li>
-                    </ul>
-                </div>
-
-                {/* Contact */}
-                <div>
-                    <h3 className="font-bold text-lg mb-4">Contacto</h3>
-                    <ul className="space-y-2 text-sm">
-                        <li className="text-white/80"> San Pablo, Nandayure</li>
-                        <li className="text-white/80"> Teléfono: 2101-7345</li>
-                        <li className="text-white/80"> WhatsApp: 8843-4072</li>
-                        <li className="text-white/80"> Correo: asadasanpablo.2014@gmail.com</li>
-                    </ul>
-
-                    <div className="flex gap-4 mt-5">
-                        <a
-                            href="https://www.facebook.com/asadasanpablo"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-                            aria-label="Facebook ASADA Red San Pablo"
-                        >
-                            <Facebook className="h-5 w-5" />
-                        </a>
-                        
-                        <a
-                            href="mailto:info@asadasanpablo.cr"
-                            className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-                            aria-label="Correo electrónico"
-                        >
-                            <Mail className="h-5 w-5" />
-                        </a>
-                    </div>
-                </div>
-                </div>
-
-                {/* Divider + copyright */}
-                <div className="border-t border-white/20 pt-8 text-center text-sm text-white/80">
-                <p>© {new Date().getFullYear()} RedSanPablo. Todos los derechos reservados. Desarrrollado por @BinarySoftwareTeam</p>
-                </div>
+  return (
+    <footer className="bg-[#091540] text-white pt-16 pb-8">
+      <div className="container mx-auto px-6 md:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 mb-16">
+          {/* Brand */}
+          <div className="lg:col-span-2">
+            <div className="mb-6">
+              <img src={LogoRedSanPablo} className="h-12 w-auto" alt="ASADA San Pablo" />
             </div>
-        </footer>
-    )
+            <p className="text-white/60 text-sm leading-relaxed mb-8 max-w-md">
+              Institución dedicada a la administración profesional del recurso hídrico,
+              garantizando calidad y sostenibilidad para toda la comunidad de San Pablo,
+              Nandayure.
+            </p>
+            <div className="flex gap-4">
+              <a
+                href="https://www.facebook.com/asadasanpablo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 border border-white/10 flex items-center justify-center hover:bg-[#005CAF] hover:border-[#005CAF] transition-all"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a
+                href="#"
+                className="w-10 h-10 border border-white/10 flex items-center justify-center hover:bg-[#005CAF] hover:border-[#005CAF] transition-all"
+                aria-label="Twitter"
+              >
+                <Twitter className="w-5 h-5" />
+              </a>
+              <a
+                href="#"
+                className="w-10 h-10 border border-white/10 flex items-center justify-center hover:bg-[#005CAF] hover:border-[#005CAF] transition-all"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a
+                href="#"
+                className="w-10 h-10 border border-white/10 flex items-center justify-center hover:bg-[#005CAF] hover:border-[#005CAF] transition-all"
+                aria-label="Web"
+              >
+                <Globe className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Navegación */}
+          <div>
+            <h4 className="font-black uppercase text-xs tracking-[0.2em] mb-8 text-[#005CAF]">
+              Navegación
+            </h4>
+            <ul className="space-y-4 text-sm text-white/60">
+              {[
+                { href: "#inicio", label: "Inicio" },
+                { href: "#sobre-nosotros", label: "Sobre Nosotros" },
+                { href: "#servicios", label: "Servicios" },
+                { href: "#mision-y-vision", label: "Misión y Visión" },
+                { href: "#faq", label: "Preguntas Frecuentes" },
+                { href: "#retroalimentacion", label: "Retroalimentación" },
+                { href: "#contacto", label: "Contacto" },
+              ].map((item) => (
+                <li key={item.href}>
+                  <a href={item.href} className="hover:text-white transition-colors">
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contacto */}
+          <div>
+            <h4 className="font-black uppercase text-xs tracking-[0.2em] mb-8 text-[#005CAF]">
+              Contacto
+            </h4>
+            <ul className="space-y-4 text-sm text-white/60">
+              <li>San Pablo, Nandayure, Guanacaste</li>
+              <li>Teléfono: 2101-7345</li>
+              <li>WhatsApp: 8843-4072</li>
+              <li>asadasanpablo.2014@gmail.com</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom */}
+        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-white/40 text-xs tracking-wide">
+            © {new Date().getFullYear()} ASADA San Pablo. Todos los derechos reservados.
+            Desarrollado por @BinarySoftwareTeam
+          </p>
+          <div className="flex items-center gap-2 text-[#006D42] font-bold text-[10px] uppercase tracking-widest">
+            <div className="w-2 h-2 bg-[#006D42]"></div>
+            Sistema Operativo
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
 }

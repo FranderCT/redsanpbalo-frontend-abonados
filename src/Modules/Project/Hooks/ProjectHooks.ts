@@ -5,11 +5,12 @@ import { showApiErrorToast } from "@/core/api-error";
 import { toast } from "sonner";
 import { createProject, deleteProject, downloadProjectPdfFile, getAllProjects, getProjectById, searchProjects, updateProject } from "../Services/ProjectServices";
 import type { Project, ProjectPaginationParams, UpdateProject } from "../Models/Project";
+import { projectKeys } from "../queryKeys";
 
 // Obtener todos
 export const useGetAllProjects = () => {
   const { data: projects, isPending, error } = useQuery({
-    queryKey: ["projects"],
+    queryKey: projectKeys.list(),
     queryFn: getAllProjects,
   });
   return { projects, isPending, error };
@@ -26,7 +27,7 @@ export const useGetAllProjects = () => {
 
 export const useSearchProjects = (params: ProjectPaginationParams) => {
   return useQuery<PaginatedResponse<Project>, Error>({
-    queryKey: ["projects", "search", params],
+    queryKey: projectKeys.search(params),
     queryFn: () => searchProjects(params),
     placeholderData: keepPreviousData,
     staleTime: 30_000,
@@ -37,7 +38,7 @@ export const useSearchProjects = (params: ProjectPaginationParams) => {
 // Obtener por ID
 export const useGetProjectById = (id?: number) => {
   const { data: project, isPending, error } = useQuery({
-    queryKey: ["projects", id],
+    queryKey: typeof id === "number" && id > 0 ? projectKeys.detail(id) : [...projectKeys.detailRoot(), "invalid"],
     queryFn: () => getProjectById(id as number),
     enabled: typeof id === "number" && id > 0,
   });
@@ -51,7 +52,8 @@ export const useCreateProject = () => {
       mutationFn: createProject,
       onSuccess: (res) =>{
           console.log('Proyecto creado correctamente',res)
-          qc.invalidateQueries({queryKey: ['projects']})
+          qc.invalidateQueries({queryKey: projectKeys.all})
+          qc.invalidateQueries({queryKey: projectKeys.dashboardInProcessCount})
       },
       onError: (err) =>{
           console.error('Error al crear', err)
@@ -70,7 +72,8 @@ export const useCreateProject = () => {
        mutationFn: ({id, data}) => updateProject(id, data),
        onSuccess :(res)=>{
            console.log('Proyecto Actualizado', console.log(res))
-           qc.invalidateQueries({queryKey: [`projects`]})
+           qc.invalidateQueries({queryKey: projectKeys.all})
+           qc.invalidateQueries({queryKey: projectKeys.dashboardInProcessCount})
        },
        onError: (err) =>{
            console.error(err);
@@ -87,7 +90,8 @@ export const useDeleteProject = () => {
   return useMutation({
     mutationFn: (id: number) => deleteProject(id),
     onSuccess: (res) => {
-      qc.invalidateQueries({ queryKey: ["projects"] });
+      qc.invalidateQueries({ queryKey: projectKeys.all });
+      qc.invalidateQueries({ queryKey: projectKeys.dashboardInProcessCount });
       console.log("Proyecto inhabilitado", res);
     },
     onError: (err)=>{
