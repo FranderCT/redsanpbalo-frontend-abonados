@@ -75,22 +75,26 @@ export function useGetMyReqSupervisionMeterPaginated(params: MyReqSupervisionMet
       const res = query.data;
       const meta = res.meta as PaginationMeta & LegacyMeta;
       console.log(
-        "[ASADA API] Mis solicitudes recibidas",
+        "requestsupervision-meter.my-search response",
         {
           page: meta.currentPage ?? meta.page,
           limit: meta.itemsPerPage ?? meta.limit,
           total: meta.totalItems ?? meta.total,
           pageCount: meta.totalPages ?? meta.pageCount,
+          rows: Array.isArray(res.data) ? res.data.length : 0,
           params: { page, limit, StateRequestId, q },
         },
         res.data
       );
     } else if (query.isFetching) {
-      console.log("[ASADA API] Cargando solicitudes...", {
+      console.log("requestsupervision-meter.my-search request", {
         params: { page, limit, StateRequestId, q },
       });
     } else if (query.isError) {
-      console.error("[ASADA API] Error al conectar con el backend:", query.error);
+      console.error("requestsupervision-meter.my-search error", {
+        params: { page, limit, StateRequestId, q },
+        error: query.error,
+      });
     }
   }, [query.data, query.isFetching, query.isError, query.error, page, limit, StateRequestId, q]);
 

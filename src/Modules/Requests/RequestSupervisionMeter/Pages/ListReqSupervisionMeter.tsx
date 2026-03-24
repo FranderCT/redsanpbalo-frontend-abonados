@@ -2,35 +2,35 @@ import { useMemo, useState } from "react";
 import { useGetAllRequestStates } from "../../StateRequest/Hooks/RequestStateHook";
 import { useSearchReqSupervisionMeter } from "../Hooks/ReqSupervisionMeterHooks";
 import type { ReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
-import ResumeReqAvailWater from "../../Components/Cards/ResumeReqAvailWater";
 import ReqSupervisionMeterHeaderBar from "../Components/PaginationReqSupervisionMeter/ReqSupervisionMeterHeaderBar";
-import ReqSupervisionMeterTable from "../Components/ReqSupervisionMeterTable/ReqSupervisonMeterTable";
-import CreateRequestSupervisionMeter2 from "../Modals/AdminRequestSupervisionMeter";
+import ReqSupervisionMeterCards from "../Components/ReqSupervisionMeterCards/ReqSupervisionMeterCards";
+import { CreateReqSupervisionAdminView } from "../Modals/AdminRequestSupervisionMeter";
+import type { PaginationMeta } from "../../../../assets/Dtos/PaginationCategory";
+
+type LegacyMeta = {
+  page?: number;
+  limit?: number;
+  total?: number;
+  pageCount?: number;
+};
 
 export default function ListReqSupervisionMeter() {
+  const [viewMode, setViewMode] = useState<"create" | "list">("list");
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-
-  // 🔎 Texto visible en el input
   const [search, setSearch] = useState("");
-
-  
-  const [UserName, setUserName] = useState<string | undefined>(undefined);       // ★ se llena desde `search`
+  const [UserName, setUserName] = useState<string | undefined>(undefined);
   const [Justification, setJustification] = useState<string | undefined>(undefined);
-  const [State, setState] = useState<string | undefined>(undefined);             // "true" | "false" | undefined
-  const [StateRequestId, setStateRequestId] = useState<number | undefined>(undefined);
+  const [StateRequestId, setStateRequestId] = useState<number | undefined>(
+    undefined,
+  );
 
-  // ★ Cuando cambia el texto del buscador, mapeamos a UserName y reiniciamos la paginación
   const handleSearchChange = (txt: string) => {
     setSearch(txt);
     const trimmed = txt.trim();
     setUserName(trimmed ? trimmed : undefined);
+    setJustification(trimmed ? trimmed : undefined);
     setPage(1);
-  };
-
-  const handleStateChange = (newState: string) => {
-     setState(newState === "" ? undefined : newState); // guardamos tal cual el valor del select
-     setPage(1);
   };
 
   const handleStateRequestChange = (id?: number) => {
@@ -40,99 +40,139 @@ export default function ListReqSupervisionMeter() {
 
   const handleCleanFilters = () => {
     setSearch("");
-    setUserName(undefined);          
+    setUserName(undefined);
     setJustification(undefined);
-    setState(undefined);
     setStateRequestId(undefined);
     setPage(1);
   };
 
-  // Estados disponibles
-  const { requestStates = [], isPending: requestStatesLoading } = useGetAllRequestStates();
+  const { requestStates = [], isPending: requestStatesLoading } =
+    useGetAllRequestStates();
 
   const params = useMemo(
-    () => ({ page, limit, Justification, State:
-      State === undefined
-        ? undefined
-        : State === "true"
-        ? "1"
-        : "0", // ← conversión aquí antes de enviar
-     UserName, StateRequestId }),
-    [page, limit, Justification, State, UserName, StateRequestId]
+    () => ({
+      page,
+      limit,
+      Justification,
+      UserName,
+      StateRequestId,
+    }),
+    [page, limit, Justification, UserName, StateRequestId],
   );
 
   const { data, isLoading, error } = useSearchReqSupervisionMeter(params);
   const rows: ReqSupervisionMeter[] = data?.data ?? [];
-  const meta =
-    data?.meta ?? { total: 0, page: 1, limit, pageCount: 1, hasNextPage: false, hasPrevPage: false };
+  const filteredRows = useMemo(() => {
+    const txt = search.trim().toLowerCase();
+    if (!txt) return rows;
 
-  const pageTotals = useMemo(() => {
-    const acc = { total: 0, approved: 0, rejected: 0, pending: 0 };
-    for (const r of rows) {
-      acc.total++;
-      const name = r.StateRequest?.Name?.toLowerCase() ?? "";
-      if (name.includes("apro")) acc.approved++;
-      else if (name.includes("rech")) acc.rejected++;
-      else if (name.includes("pend") || name.includes("proce")) acc.pending++;
-    }
-    return acc;
-  }, [rows]);
+    return rows.filter((row) => {
+      const applicant = `${row.User?.Name ?? ""} ${row.User?.Surname1 ?? ""} ${row.User?.Surname2 ?? ""}`
+        .toLowerCase()
+        .trim();
+      const identity = `${row.User?.IDcard ?? ""} ${row.User?.Email ?? ""}`.toLowerCase();
+      const justification = String(row.Justification ?? "").toLowerCase();
+      const location = String(row.Location ?? "").toLowerCase();
+      return (
+        applicant.includes(txt) ||
+        identity.includes(txt) ||
+        justification.includes(txt) ||
+        location.includes(txt)
+      );
+    });
+  }, [rows, search]);
+
+  const rawMeta = data?.meta as (PaginationMeta & LegacyMeta) | undefined;
+  const meta = {
+    total: rawMeta?.totalItems ?? rawMeta?.total ?? 0,
+    page: rawMeta?.currentPage ?? rawMeta?.page ?? 1,
+    limit: rawMeta?.itemsPerPage ?? rawMeta?.limit ?? limit,
+    pageCount: rawMeta?.totalPages ?? rawMeta?.pageCount ?? 1,
+    hasNextPage: rawMeta?.hasNextPage ?? false,
+    hasPrevPage: rawMeta?.hasPrevPage ?? false,
+  };
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold text-[#091540]">Lista de Solicitudes de Revisión de Medidor</h1>
-      <p className="text-[#091540]/70 text-md">Gestione todas las solicitudes</p>
-      <div className="border-b border-dashed border-gray-300 mb-2"></div>
+    <div className="flex flex-col gap-6 p-4">
+      <section className="border border-slate-200 bg-white text-[#091540] shadow-sm">
+        <div className="flex flex-col gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {viewMode === "create"
+                ? "Nueva solicitud de supervisión de medidor"
+                : "Solicitudes de supervisión de medidor"}
+            </h1>
+            <p className="text-sm text-[#091540]/70">
+              {viewMode === "create"
+                ? "Registre una nueva solicitud de supervisión de medidor."
+                : "Revise el listado, filtre resultados y gestione el estado de cada solicitud."}
+            </p>
+          </div>
 
-      {/* Cards (con totales de la página actual) */}
-      <ResumeReqAvailWater
-        total={pageTotals.total}
-        pending={pageTotals.pending}
-        approved={pageTotals.approved}
-        rejected={pageTotals.rejected}
-        loading={isLoading || requestStatesLoading}
-      />
+          <div className="inline-flex items-center self-start border border-slate-200 bg-slate-100 p-1 shadow-sm">
+            <button
+              type="button"
+              onClick={() => setViewMode("create")}
+              aria-pressed={viewMode === "create"}
+              className={`h-10 px-4 text-sm font-medium transition-all ${viewMode === "create" ? "bg-[#091540] text-white shadow" : "bg-transparent text-[#091540] hover:bg-white"}`}
+            >
+              Nueva solicitud
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              aria-pressed={viewMode === "list"}
+              className={`h-10 px-4 text-sm font-medium transition-all ${viewMode === "list" ? "bg-[#091540] text-white shadow" : "bg-transparent text-[#091540] hover:bg-white"}`}
+            >
+              Ver solicitudes
+            </button>
+          </div>
+        </div>
+      </section>
 
-      <div className="border-b border-dashed border-gray-300 mt-4 mb-6"></div>
-
-      <ReqSupervisionMeterHeaderBar
-        limit={meta.limit}
-        total={meta.total}
-        search={search}                       // ★ valor visible del input
-        state={State}
-        requestStateId={StateRequestId}
-        states={requestStates}
-        statesLoading={requestStatesLoading}
-        onStateRequestChange={handleStateRequestChange}
-        onLimitChange={(l) => {
-          setLimit(l);
-          setPage(1);
-        }}
-        onFilterClick={handleStateChange}
-        onSearchChange={handleSearchChange}   // ★ propaga cambios de input
-        onCleanFilters={handleCleanFilters}
-        rightAction={<CreateRequestSupervisionMeter2 />}
-      />
-
-      <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
-        {isLoading ? (
-          <div className="p-6 text-center text-gray-500">Cargando…</div>
-        ) : error ? (
-          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
-        ) : (
-          <ReqSupervisionMeterTable
-            data={rows}
+      {viewMode === "create" ? (
+        <div className="space-y-6">
+          <CreateReqSupervisionAdminView onSuccess={() => setViewMode("list")} />
+        </div>
+      ) : (
+        <>
+          <ReqSupervisionMeterHeaderBar
+            limit={meta.limit}
             total={meta.total}
-            page={meta.page}
-            pageCount={meta.pageCount}
-            onPageChange={setPage}
+            search={search}
+            requestStateId={StateRequestId}
+            states={requestStates}
+            statesLoading={requestStatesLoading}
+            onStateRequestChange={handleStateRequestChange}
+            onLimitChange={(nextLimit) => {
+              setLimit(nextLimit);
+              setPage(1);
+            }}
+            onSearchChange={handleSearchChange}
+            onCleanFilters={handleCleanFilters}
           />
-        )}
-      </div>
-      {/* <div className="flex flex-row  gap-15 items-center justify-center mt-4">
-        <CreateRequestSupervisionMeter />
-      </div> */}
-      
+
+          <div className="flex flex-col">
+            {isLoading ? (
+              <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
+                Cargando solicitudes…
+              </div>
+            ) : error ? (
+              <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">
+                Ocurrió un error al cargar las solicitudes.
+              </div>
+            ) : (
+              <ReqSupervisionMeterCards
+                data={filteredRows}
+                total={meta.total}
+                page={meta.page}
+                pageCount={meta.pageCount}
+                onPageChange={setPage}
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

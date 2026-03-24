@@ -45,9 +45,34 @@ export async function searchReqSupervisionMeter(
     if (typeof StateRequestId === "number") q.StateRequestId = StateRequestId;
     if (typeof NIS === "number" && !Number.isNaN(NIS)) q.NIS = NIS;
     if (State !== undefined && State !== null && State !== "") q.State = State;
+
+    console.log("requestsupervision-meter.search request", {
+      endpoint: `${BASE}/search`,
+      params: q,
+    });
+
     const { data } = await apiAxios.get<PaginatedResponse<ReqSupervisionMeter>>(`${BASE}/search`, {
       params: q,
     });
+
+    console.log("requestsupervision-meter.search response", {
+      endpoint: `${BASE}/search`,
+      params: q,
+      total:
+        (data as any)?.meta?.totalItems ??
+        (data as any)?.meta?.total ??
+        0,
+      page:
+        (data as any)?.meta?.currentPage ??
+        (data as any)?.meta?.page ??
+        page,
+      limit:
+        (data as any)?.meta?.itemsPerPage ??
+        (data as any)?.meta?.limit ??
+        limit,
+      rows: Array.isArray(data?.data) ? data.data.length : 0,
+    });
+
     return data;
   } catch (err) {
     console.error("Error buscando supervisiones", err);

@@ -269,72 +269,72 @@ export function CommentsChangeMeterModal({
               </div>
             )}
           </div>
-        </div>
 
-        <div className="border-t-2 border-gray-300 bg-white p-6 flex-shrink-0">
-          <h4 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
-            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            Nuevo Comentario
-          </h4>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-gray-700">Asunto</label>
-              <input
-                type="text"
-                placeholder="Ingrese el asunto del comentario"
-                value={subject}
-                onChange={(event) => setSubject(event.target.value)}
-                className="w-full rounded-lg border-2 border-gray-300 px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={isSubmitting}
-              />
-            </div>
+          <div className="border-t-2 border-gray-300 bg-white p-6 flex-shrink-0">
+            <h4 className="mb-4 flex items-center gap-2 text-base font-bold text-gray-900">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Nuevo Comentario
+            </h4>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-gray-700">Asunto</label>
+                <input
+                  type="text"
+                  placeholder="Ingrese el asunto del comentario"
+                  value={subject}
+                  onChange={(event) => setSubject(event.target.value)}
+                  className="w-full rounded-lg border-2 border-gray-300 px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isSubmitting}
+                />
+              </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-semibold text-gray-700">Comentario</label>
-              <textarea
-                placeholder="Escriba su observación o solicitud..."
-                value={comment}
-                onChange={(event) => setComment(event.target.value)}
-                rows={4}
-                className="w-full resize-none rounded-lg border-2 border-gray-300 px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={isSubmitting}
-              />
-            </div>
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-gray-700">Comentario</label>
+                <textarea
+                  placeholder="Escriba su observación o solicitud..."
+                  value={comment}
+                  onChange={(event) => setComment(event.target.value)}
+                  rows={4}
+                  className="w-full resize-none rounded-lg border-2 border-gray-300 px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isSubmitting}
+                />
+              </div>
 
-            <div className="flex justify-end gap-3 pt-2">
-              <button
-                type="submit"
-                disabled={isSubmitting || !subject.trim() || !comment.trim()}
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-700 hover:to-blue-800 hover:shadow-lg disabled:cursor-not-allowed disabled:from-gray-300 disabled:to-gray-400"
-              >
-                {isSubmitting ? (
-                  <>
-                    <svg className="w-5 h-5 animate-spin" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Enviando...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
-                    {isAdmin ? "Enviar Comentario" : "Enviar Respuesta"}
-                  </>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={onClose}
-                className="bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200"
-                disabled={isSubmitting}
-              >
-                Cerrar
-              </button>
-            </div>
-          </form>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !subject.trim() || !comment.trim()}
+                  className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:from-blue-700 hover:to-blue-800 hover:shadow-lg disabled:cursor-not-allowed disabled:from-gray-300 disabled:to-gray-400"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <svg className="w-5 h-5 animate-spin" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                      {isAdmin ? "Enviar Comentario" : "Enviar Respuesta"}
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200"
+                  disabled={isSubmitting}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

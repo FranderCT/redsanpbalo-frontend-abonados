@@ -1,9 +1,17 @@
 // Hooks/RequestSupervisionMeterHooks.ts
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
-import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import type { PaginatedResponse, PaginationMeta } from "../../../../assets/Dtos/PaginationCategory";
 import { createReqSupervisionMeter, deleteReqSupervisionMeter, getAllReqSupervisionMeter, getAllRequestStates, getReqSupervisionMeterById, searchReqSupervisionMeter, updateCanCommentSupervisionMeter, updateReqSupervisionMeter } from "../Services/ReqSupervisionMeterServices";
 import type { newReqSupervisionMeter, ReqSupervisionMeter, ReqSupervisionMeterPaginationParams, UpdateReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
+
+type LegacyMeta = {
+  page?: number;
+  limit?: number;
+  total?: number;
+  pageCount?: number;
+};
 
 // Listado simple
 export const useGetAllReqSupervisionMeter = () => {
@@ -43,6 +51,42 @@ export const useSearchReqSupervisionMeter = (params: ReqSupervisionMeterPaginati
     refetchOnWindowFocus: false,
   });
 
+  useEffect(() => {
+    if (query.data) {
+      const meta = query.data.meta as PaginationMeta & LegacyMeta;
+      console.log("requestsupervision-meter.search query state", {
+        source: "admin",
+        params: { page, limit, UserName, StateRequestId, NIS, State },
+        total: meta.totalItems ?? meta.total ?? 0,
+        page: meta.currentPage ?? meta.page ?? page,
+        limit: meta.itemsPerPage ?? meta.limit ?? limit,
+        rows: Array.isArray(query.data.data) ? query.data.data.length : 0,
+      });
+    } else if (query.isFetching) {
+      console.log("requestsupervision-meter.search fetching", {
+        source: "admin",
+        params: { page, limit, UserName, StateRequestId, NIS, State },
+      });
+    } else if (query.isError) {
+      console.error("requestsupervision-meter.search error", {
+        source: "admin",
+        params: { page, limit, UserName, StateRequestId, NIS, State },
+        error: query.error,
+      });
+    }
+  }, [
+    query.data,
+    query.isFetching,
+    query.isError,
+    query.error,
+    page,
+    limit,
+    UserName,
+    StateRequestId,
+    NIS,
+    State,
+  ]);
+
   return query;
 };
 
@@ -63,8 +107,9 @@ export const useCreateReqSupervisionMeter = () => {
     mutationFn: createReqSupervisionMeter,
     onSuccess: (res) => {
       console.log("Supervisión creada", res);
-      // Invalidar todas las queries relacionadas
       qc.invalidateQueries({ queryKey: ["request-supervision-meter"] });
+      qc.invalidateQueries({ queryKey: ["reqSupervisionMeter"] });
+      qc.invalidateQueries({ queryKey: ["requestsupervision-meter"] });
     },
     onError: (err) => console.error("Error creando supervisión", err),
   });
