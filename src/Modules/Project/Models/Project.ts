@@ -10,6 +10,8 @@ export interface Project {
   Location: string;
   InnitialDate: Date;
   EndDate: Date;
+  CoverImagePath?: string | null;
+  CoverImageUrl?: string | null;
   Objective:string;
   Description:string;
   Observation:string;
@@ -66,6 +68,8 @@ export interface UpdateProject{
   Location?: string;
   InnitialDate?: Date;
   EndDate?: Date;
+  CoverImagePath?: string | null;
+  CoverImageUrl?: string | null;
   Objective?:string;
   Description?:string;
   Observation?:string;

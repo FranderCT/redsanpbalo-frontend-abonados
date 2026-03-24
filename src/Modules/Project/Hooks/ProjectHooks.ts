@@ -3,7 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import { showApiErrorToast } from "@/core/api-error";
 import { toast } from "sonner";
-import { createProject, deleteProject, downloadProjectPdfFile, getAllProjects, getProjectById, searchProjects, updateProject } from "../Services/ProjectServices";
+import { createProject, deleteProject, downloadProjectPdfFile, getAllProjects, getProjectById, removeProjectCoverImage, searchProjects, updateProject, uploadProjectCoverImage } from "../Services/ProjectServices";
 import type { Project, ProjectPaginationParams, UpdateProject } from "../Models/Project";
 import { projectKeys } from "../queryKeys";
 
@@ -70,9 +70,10 @@ export const useCreateProject = () => {
   
    const mutation = useMutation<Project, Error, {id: number; data: UpdateProject }>({
        mutationFn: ({id, data}) => updateProject(id, data),
-       onSuccess :(res)=>{
+       onSuccess :(res, variables)=>{
            console.log('Proyecto Actualizado', console.log(res))
            qc.invalidateQueries({queryKey: projectKeys.all})
+           qc.invalidateQueries({queryKey: projectKeys.detail(variables.id)})
            qc.invalidateQueries({queryKey: projectKeys.dashboardInProcessCount})
        },
        onError: (err) =>{
@@ -83,6 +84,36 @@ export const useCreateProject = () => {
 
    return mutation;
  };
+
+export const useUploadProjectCoverImage = () => {
+  const qc = useQueryClient();
+  return useMutation<Project, Error, { id: number; file: File }>({
+    mutationFn: ({ id, file }) => uploadProjectCoverImage(id, file),
+    onSuccess: (_res, variables) => {
+      qc.invalidateQueries({ queryKey: projectKeys.all });
+      qc.invalidateQueries({ queryKey: projectKeys.detail(variables.id) });
+    },
+    onError: (err) => {
+      console.error("Error subiendo portada", err);
+      showApiErrorToast(err);
+    },
+  });
+};
+
+export const useRemoveProjectCoverImage = () => {
+  const qc = useQueryClient();
+  return useMutation<{ ok: boolean }, Error, { id: number }>({
+    mutationFn: ({ id }) => removeProjectCoverImage(id),
+    onSuccess: (_res, variables) => {
+      qc.invalidateQueries({ queryKey: projectKeys.all });
+      qc.invalidateQueries({ queryKey: projectKeys.detail(variables.id) });
+    },
+    onError: (err) => {
+      console.error("Error eliminando portada", err);
+      showApiErrorToast(err);
+    },
+  });
+};
 
 // Eliminar
 export const useDeleteProject = () => {

@@ -96,6 +96,34 @@ export async function updateProject(id: number, payload: UpdateProject): Promise
    }
  }
 
+export async function uploadProjectCoverImage(id: number, file: File): Promise<Project> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const { data } = await apiAxios.post<Project>(`${BASE}/${id}/cover-image`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      timeout: 60000,
+    });
+    return data;
+  } catch (err) {
+    console.error("Error subiendo portada del proyecto", err);
+    return Promise.reject(err);
+  }
+}
+
+export async function removeProjectCoverImage(id: number): Promise<{ ok: boolean }> {
+  try {
+    const { data } = await apiAxios.delete<{ ok: boolean }>(`${BASE}/${id}/cover-image`);
+    return data;
+  } catch (err) {
+    console.error("Error eliminando portada del proyecto", err);
+    return Promise.reject(err);
+  }
+}
+
 export async function deleteProject(id: number): Promise<void> {
   try{
     await apiAxios.delete(`${BASE}/${id}`);

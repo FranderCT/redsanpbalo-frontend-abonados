@@ -36,6 +36,8 @@ import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
 import { useGetAllProducts } from "../../../Products/Hooks/ProductsHooks";
 import { uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";
+import { useUploadProjectCoverImage } from "../../Hooks/ProjectHooks";
+import ProjectCoverField from "../shared/ProjectCoverField";
 
 type ProjectCreatePayload = typeof newProjectInitialState;
 
@@ -68,6 +70,7 @@ export default function CreateProject() {
   const navigate = useNavigate();
 
   const createProjectMutation = useCreateProject();
+  const uploadProjectCoverMutation = useUploadProjectCoverImage();
   const createProjectProjectionMutation = useCreateProjectProjection();
   const createProductDetailMutation = useCreateProductDetail();
 
@@ -122,6 +125,7 @@ export default function CreateProject() {
       productDetails: [] as Array<Pick<NewProductDetail, "ProductId" | "Quantity">>,
       subfolder: "",
       files: [] as File[],
+      coverImage: null as File | null,
     },
     onSubmit: async ({ value, formApi }) => {
       try {
@@ -161,6 +165,13 @@ export default function CreateProject() {
 
         if (!projectProjectionId)
           throw new Error("No se obtuvo el Id de la proyección creada.");
+
+        if (value.coverImage) {
+          await uploadProjectCoverMutation.mutateAsync({
+            id: Number(projectId),
+            file: value.coverImage,
+          });
+        }
 
         const details = value.productDetails ?? [];
         if (details.length > 0) {
@@ -238,6 +249,15 @@ export default function CreateProject() {
                     <FieldError errors={firstError(field.state.meta.errors)} />
                   )}
                 </div>
+                )}
+              </form.Field>
+
+            <form.Field name="coverImage">
+              {(field) => (
+                <ProjectCoverField
+                  file={field.state.value}
+                  onFileChange={field.handleChange}
+                />
               )}
             </form.Field>
 
@@ -646,113 +666,115 @@ export default function CreateProject() {
       // ── Paso 3: Documentos ─────────────────────────────────────────────────
       case 3:
         return (
-          <form.Field name="files">
-            {(field) => (
-              <div className="flex flex-col gap-4">
-                {/* Zona drag & drop */}
-                <div
-                  className={cn(
-                    "rounded-xl border-2 border-dashed p-12 text-center transition-colors",
-                    "border-border hover:border-primary/40 hover:bg-accent/20",
-                  )}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const files = Array.from(e.dataTransfer.files);
-                    field.handleChange([...(field.state.value || []), ...files]);
-                  }}
-                >
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
-                      <Upload className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">
-                        Arrastra archivos aquí o{" "}
-                        <label className="cursor-pointer text-primary underline underline-offset-2 hover:text-primary/80">
-                          selecciona archivos
-                          <input
-                            type="file"
-                            multiple
-                            className="hidden"
-                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.txt,.zip,.rar"
-                            onChange={(e) => {
-                              const files = Array.from(e.target.files || []);
-                              field.handleChange([
-                                ...(field.state.value || []),
-                                ...files,
-                              ]);
-                            }}
-                          />
-                        </label>
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        PDF, DOC, DOCX, XLS, XLSX, imágenes · Máx. 10 MB por archivo
-                      </p>
+          <div className="flex flex-col gap-6">
+            <form.Field name="files">
+              {(field) => (
+                <div className="flex flex-col gap-4">
+                  {/* Zona drag & drop */}
+                  <div
+                    className={cn(
+                      "rounded-xl border-2 border-dashed p-12 text-center transition-colors",
+                      "border-border hover:border-primary/40 hover:bg-accent/20",
+                    )}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const files = Array.from(e.dataTransfer.files);
+                      field.handleChange([...(field.state.value || []), ...files]);
+                    }}
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+                        <Upload className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">
+                          Arrastra archivos aquí o{" "}
+                          <label className="cursor-pointer text-primary underline underline-offset-2 hover:text-primary/80">
+                            selecciona archivos
+                            <input
+                              type="file"
+                              multiple
+                              className="hidden"
+                              accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.txt,.zip,.rar"
+                              onChange={(e) => {
+                                const files = Array.from(e.target.files || []);
+                                field.handleChange([
+                                  ...(field.state.value || []),
+                                  ...files,
+                                ]);
+                              }}
+                            />
+                          </label>
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          PDF, DOC, DOCX, XLS, XLSX, imágenes · Máx. 10 MB por archivo
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Lista de archivos */}
-                {asArray(field.state.value).length > 0 && (
-                  <div className="rounded-xl border bg-muted/30 p-4">
-                    <div className="mb-3 flex items-center justify-between">
-                      <span className="text-sm font-semibold">
-                        {asArray(field.state.value).length} archivo(s) seleccionado(s)
-                      </span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-destructive hover:text-destructive"
-                        onClick={() => field.handleChange([])}
-                      >
-                        Limpiar todo
-                      </Button>
-                    </div>
-
-                    <div className="grid max-h-64 gap-2 overflow-y-auto">
-                      {asArray<File>(field.state.value).map((file, idx) => (
-                        <div
-                          key={`${file.name}-${idx}`}
-                          className="flex items-center gap-3 rounded-lg border bg-background p-3"
+                  {/* Lista de archivos */}
+                  {asArray(field.state.value).length > 0 && (
+                    <div className="rounded-xl border bg-muted/30 p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <span className="text-sm font-semibold">
+                          {asArray(field.state.value).length} archivo(s) seleccionado(s)
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-destructive hover:text-destructive"
+                          onClick={() => field.handleChange([])}
                         >
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10">
-                            <FileText className="h-4 w-4 text-primary" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm font-medium">{file.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {(file.size / 1024 / 1024).toFixed(2)} MB
-                            </p>
-                          </div>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
-                            onClick={() =>
-                              field.handleChange(
-                                asArray<File>(field.state.value).filter(
-                                  (_, i) => i !== idx,
-                                ),
-                              )
-                            }
+                          Limpiar todo
+                        </Button>
+                      </div>
+
+                      <div className="grid max-h-64 gap-2 overflow-y-auto">
+                        {asArray<File>(field.state.value).map((file, idx) => (
+                          <div
+                            key={`${file.name}-${idx}`}
+                            className="flex items-center gap-3 rounded-lg border bg-background p-3"
                           >
-                            <X className="size-4" />
-                          </Button>
-                        </div>
-                      ))}
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10">
+                              <FileText className="h-4 w-4 text-primary" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-medium">{file.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {(file.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                              onClick={() =>
+                                field.handleChange(
+                                  asArray<File>(field.state.value).filter(
+                                    (_, i) => i !== idx,
+                                  ),
+                                )
+                              }
+                            >
+                              <X className="size-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </form.Field>
+                  )}
+                </div>
+              )}
+            </form.Field>
+          </div>
         );
 
       // ── Paso 4: Confirmación ───────────────────────────────────────────────
@@ -903,6 +925,22 @@ export default function CreateProject() {
                 )}
 
                 {/* ── Documentos ── */}
+                {values.coverImage && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Portada
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <FileText className="size-3.5 shrink-0" />
+                        {values.coverImage.name} - {(values.coverImage.size / 1024 / 1024).toFixed(2)} MB
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {asArray(values.files).length > 0 && (
                   <Card>
                     <CardHeader className="pb-2">

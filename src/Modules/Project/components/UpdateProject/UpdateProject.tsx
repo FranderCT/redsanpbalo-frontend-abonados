@@ -2,24 +2,16 @@ import { useMemo, useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { useParams, useNavigate } from "@tanstack/react-router";
-import { useGetProjectById, useUpdateProject } from "../../Hooks/ProjectHooks";
+import { useGetProjectById, useRemoveProjectCoverImage, useUpdateProject, useUploadProjectCoverImage } from "../../Hooks/ProjectHooks";
 import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
 import { useGetAllProjectStates } from "../../../Project_State/Hooks/ProjectStateHooks";
 import type { UpdateProject } from "../../Models/Project";
 import { UpdateProjectSchema } from "../../schemas/UpdateProjectSchema";
 import ConfirmActionModal from "../../../../Components/Modals/ConfirmActionModal";
 import { RichTextEditor } from "@/Components/ui/rich-text-editor";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/Components/ui/select";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { FieldError } from "@/Components/ui/field";
+import ProjectCoverField from "../shared/ProjectCoverField";
 
 // helper: Date | string -> "YYYY-MM-DD"
 const toYMD = (d?: string | Date) => {
@@ -36,13 +28,20 @@ export default function EditProject() {
 
   const { project, isPending } = useGetProjectById(id);
   const updateMutation = useUpdateProject();
+  const uploadProjectCoverMutation = useUploadProjectCoverImage();
+  const removeProjectCoverMutation = useRemoveProjectCoverImage();
 
   const { projectStates = [], projectStatesLoading } = useGetAllProjectStates();
   const { userAdmin = [], isPending: userAdminLoading } = useGetUsersByRoleAdmin();
 
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const defaultValues = useMemo<UpdateProject | undefined>(() => {
+  type EditProjectFormValues = UpdateProject & {
+    coverImage: File | null;
+    removeCoverImage: boolean;
+  };
+
+  const defaultValues = useMemo<EditProjectFormValues | undefined>(() => {
     if (!project) return undefined;
     return {
       Name: project.Name ?? "",
@@ -55,12 +54,14 @@ export default function EditProject() {
       ProjectStateId: project.ProjectState?.Id ?? undefined, 
       UserId: project.User?.Id ?? undefined,                  
       IsActive: project.IsActive,                             
+      coverImage: null,
+      removeCoverImage: false,
     };
   }, [project]);
 
   const form = useForm({
     validators: {
-      onChange: UpdateProjectSchema,
+      onChange: UpdateProjectSchema as any,
     },
     defaultValues,
     onSubmit: async ({ value }) => {
@@ -78,6 +79,15 @@ export default function EditProject() {
         };
 
         await updateMutation.mutateAsync({ id, data: fullPayload as any });
+
+        if (value.coverImage) {
+          await uploadProjectCoverMutation.mutateAsync({
+            id,
+            file: value.coverImage,
+          });
+        } else if (value.removeCoverImage && project?.CoverImageUrl) {
+          await removeProjectCoverMutation.mutateAsync({ id });
+        }
 
         toast.success("Proyecto actualizado");
         navigate({
@@ -179,6 +189,31 @@ export default function EditProject() {
                     </p>
                 )}
               </label>
+            )}
+          </form.Field>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+          <div className="mb-4">
+            <h3 className="text-base font-semibold text-[#091540]">Portada del proyecto</h3>
+            <p className="text-sm text-slate-600">
+              Aquí puedes subir una nueva imagen o quitar la actual.
+            </p>
+          </div>
+
+          <form.Field name="coverImage">
+            {(coverField) => (
+              <form.Field name="removeCoverImage">
+                {(removeCoverField) => (
+                  <ProjectCoverField
+                    file={coverField.state.value}
+                    existingUrl={project?.CoverImageUrl}
+                    markForRemoval={removeCoverField.state.value}
+                    onFileChange={coverField.handleChange}
+                    onMarkForRemovalChange={removeCoverField.handleChange}
+                  />
+                )}
+              </form.Field>
             )}
           </form.Field>
         </div>
