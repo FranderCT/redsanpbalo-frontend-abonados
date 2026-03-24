@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ChangeEvent } from 'react'
 import { useCreateAssociatedRequest } from '../../../Request-Abonados/Hooks/Associated/AssociatedRqHooks';
 import { useGetUserProfile } from '../../../Users/Hooks/UsersHooks';
 import { toast } from 'react-toastify';
@@ -6,9 +6,21 @@ import { useForm } from '@tanstack/react-form';
 import { uploadWithRetry } from '../../../Request-Abonados/Components/AvailabilityWater/CreateAvailabilityWaterRqModal';
 import { UploadAssociatedFiles } from '../../../Upload-files/Services/ProjectFileServices';
 import ListReqAssociateUser from '../../../Request-Abonados/Pages/Associated-rq/ListRequestAssociatedUsers';
+import { getAssociatedRequestPrimaryNis } from '../utils/associatedRequestForm';
+import { CreateAssociatedRequestAbonadoSchema } from '../schemas/CreateAssociatedRequestAbonadoSchema';
+import { Button } from '@/Components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Label } from '@/Components/ui/label';
+import { Textarea } from '@/Components/ui/textarea';
+import { FileText, Upload, UserRound } from 'lucide-react';
+
+const getFieldErrorMessage = (error: unknown) =>
+  typeof error === "object" && error !== null && "message" in error
+    ? String((error as { message?: string }).message ?? "Valor inválido")
+    : String(error);
 
 export function UserRequestAssociated () {
-    const useCreateAssociatedRequestMutation = useCreateAssociatedRequest();
+    const createAssociatedRequestMutation = useCreateAssociatedRequest();
     const { UserProfile } = useGetUserProfile();
     const [viewMode, setViewMode] = useState<'create' | 'list'>('create');
     const [isUploading, setIsUploading] = useState(false);
@@ -305,7 +317,7 @@ export function UserRequestAssociated () {
                           multiple
                           className="hidden"
                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
-                          onChange={(e) => {
+                          onChange={(e: ChangeEvent<HTMLInputElement>) => {
                             if (!e.target.files) return;
                             const validFiles = Array.from(
                               e.target.files,

@@ -109,11 +109,11 @@ export const useCreateAssociatedRequest = () => {
         mutationKey: ['associated', 'create'],
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ['associated'] });
-            toast.success("Solicitud de asociado creada con éxito", {position: "top-right", autoClose: 3000});
+            toast.success("Solicitud de asociado creada con éxito", { position: "top-right", duration: 3000 });
         },
         onError: (error) => {
             console.error("Error creating associated request:", error);
-            toast.error("Error al crear la solicitud de asociado", {position: "top-right", duration: 3000});
+            toast.error("Error al crear la solicitud de asociado", { position: "top-right", duration: 3000 });
         }
     }); 
 }
