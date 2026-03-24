@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { notificationSocket } from './notificationSocket';
+import { notificationSocket, syncNotificationSocketAuth } from './notificationSocket';
 
 export interface NotificationSummary {
   Id: number;
@@ -15,6 +15,8 @@ export function useNotifications() {
   const prevLengthRef = useRef(0);
 
   useEffect(() => {
+    syncNotificationSocketAuth();
+
     const handler = (payload: NotificationSummary[]) => {
       setNotifications(payload);
       const newCount = payload.length - prevLengthRef.current;
