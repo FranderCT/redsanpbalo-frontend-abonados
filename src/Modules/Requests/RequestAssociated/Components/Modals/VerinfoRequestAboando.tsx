@@ -11,6 +11,22 @@
     import { useReqAssociatedFolderLink } from "../../Hooks/ReqAssociatedHooks";
     import type { ReqAssociated } from "../../Models/RequestAssociated";
     import { formatAssociatedRequestDate } from "../../utils/associatedRequestDate";
+    import { useEffect, useState } from "react";
+    import { useTempLinkAssociated } from "../../../../Request-Abonados/Hooks/Associated/AssociatedRqHook";
+    
+    type AssociatedStateLike = {
+    Name?: string;
+    name?: string;
+    };
+
+    type AssociatedUserLike = {
+    Name?: string;
+    Surname1?: string;
+    Surname2?: string;
+    IDcard?: string;
+    Email?: string;
+    PhoneNumber?: string;
+    };
 
     interface ReqSubscriberDetailModalProps {
     open: boolean;
@@ -95,6 +111,15 @@
     ],
     }: ReqSubscriberDetailModalProps) {
     const { mutate: getFolderLink, isPending } = useReqAssociatedFolderLink();
+    const [selectedFileId, setSelectedFileId] = useState<number | null>(null);
+    const { data: tempLinkData, isLoading: isLoadingLink } = useTempLinkAssociated(selectedFileId);
+
+    useEffect(() => {
+        if (tempLinkData?.link && selectedFileId) {
+        window.open(tempLinkData.link, "_blank", "noopener,noreferrer");
+        setSelectedFileId(null);
+        }
+    }, [tempLinkData, selectedFileId]);
 
     const handleOpenFolder = () => {
         if (!data.Id) {
@@ -111,7 +136,8 @@
 
         // Estado de la solicitud
         if (key === "StateRequest" && typeof value === "object") {
-        const stateName = value.Name || value.name;
+        const stateValue = value as AssociatedStateLike;
+        const stateName = stateValue.Name || stateValue.name;
         
         if (stateName) {
             const normalized = normalizeState(stateName);
@@ -126,27 +152,28 @@
 
         // Usuario (objeto anidado)
         if (key === "User" && typeof value === "object") {
+        const userValue = value as AssociatedUserLike;
         return (
             <div className="bg-gray-50 p-3 rounded border border-gray-200 space-y-2">
-            {value.Name && (
+            {userValue.Name && (
                 <p className="text-sm">
                 <span className="font-medium text-gray-700">Nombre:</span>{" "}
-                {value.Name} {value.Surname1 || ""} {value.Surname2 || ""}
+                {userValue.Name} {userValue.Surname1 || ""} {userValue.Surname2 || ""}
                 </p>
             )}
-            {value.IDcard && (
+            {userValue.IDcard && (
                 <p className="text-sm">
-                <span className="font-medium text-gray-700">Cédula:</span> {value.IDcard}
+                <span className="font-medium text-gray-700">Cédula:</span> {userValue.IDcard}
                 </p>
             )}
-            {value.Email && (
+            {userValue.Email && (
                 <p className="text-sm">
-                <span className="font-medium text-gray-700">Email:</span> {value.Email}
+                <span className="font-medium text-gray-700">Email:</span> {userValue.Email}
                 </p>
             )}
-            {value.PhoneNumber && (
+            {userValue.PhoneNumber && (
                 <p className="text-sm">
-                <span className="font-medium text-gray-700">Teléfono:</span> {value.PhoneNumber}
+                <span className="font-medium text-gray-700">Teléfono:</span> {userValue.PhoneNumber}
                 </p>
             )}
             </div>
@@ -160,29 +187,45 @@
 
         // SpaceOfDocument - Integración con Dropbox
         if (key === "SpaceOfDocument") {
+        const files = data.RequestAssociatedFile ?? [];
         return (
-            <button
-            type="button"
-            onClick={handleOpenFolder}
-            disabled={isPending || !data.Id}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-md transition-colors"
+            <div className="space-y-4">
+            <Button
+                type="button"
+                onClick={handleOpenFolder}
+                disabled={isPending || !data.Id}
+                className="rounded-none bg-[#1789FC] text-white hover:bg-[#0f6fd1]"
             >
-            {isPending ? (
-                <>
-                <svg className="animate-spin h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                Abriendo...
-                </>
+                {isPending ? "Abriendo..." : "Ver carpeta en Dropbox"}
+            </Button>
+
+            {files.length > 0 ? (
+                <div className="space-y-2">
+                {files.map((file) => (
+                    <button
+                    key={file.Id}
+                    type="button"
+                    onClick={() => setSelectedFileId(file.Id)}
+                    disabled={isLoadingLink && selectedFileId === file.Id}
+                    className="group flex w-full items-center justify-between gap-3 rounded-md border border-gray-200 bg-white px-4 py-3 text-sm transition-all hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:bg-gray-100"
+                    >
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                        <span className="truncate text-left font-medium text-gray-900">
+                        {file.FileName}
+                        </span>
+                    </div>
+                    <span className="text-xs font-medium text-slate-500">
+                        {isLoadingLink && selectedFileId === file.Id ? "Abriendo..." : "Abrir"}
+                    </span>
+                    </button>
+                ))}
+                </div>
             ) : (
-                <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                Ver carpeta en Dropbox
-                </>
+                <div className="rounded-md border border-yellow-200 bg-yellow-50 p-3">
+                <p className="text-sm text-yellow-800">No se encontraron documentos adjuntos</p>
+                </div>
             )}
-            </button>
+            </div>
         );
         }
 

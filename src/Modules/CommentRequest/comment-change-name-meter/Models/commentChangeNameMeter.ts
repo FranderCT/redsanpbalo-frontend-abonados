@@ -7,6 +7,7 @@ export interface CommentChangeNameMeter {
   Subject: string;
   Comment: string;
   createdAt: Date;
+  hasFileUpdate?: boolean;
   requestChangeNameMeter: ReqChangeNameMeter;
   User: User;
 }
