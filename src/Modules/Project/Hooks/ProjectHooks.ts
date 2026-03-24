@@ -2,7 +2,8 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import { showApiErrorToast } from "@/core/api-error";
-import { createProject, deleteProject, getAllProjects, getProjectById, searchProjects, updateProject } from "../Services/ProjectServices";
+import { toast } from "sonner";
+import { createProject, deleteProject, downloadProjectPdfFile, getAllProjects, getProjectById, searchProjects, updateProject } from "../Services/ProjectServices";
 import type { Project, ProjectPaginationParams, UpdateProject } from "../Models/Project";
 
 // Obtener todos
@@ -93,5 +94,15 @@ export const useDeleteProject = () => {
       console.error("Error al inhabilitar", err);
       showApiErrorToast(err);
     }
+  });
+};
+
+export const useDownloadProjectPdf = () => {
+  return useMutation<void, Error, { id: number; name?: string }>({
+    mutationFn: ({ id, name }) => downloadProjectPdfFile(id, name),
+    onError: (err) => {
+      console.error("Error descargando PDF del proyecto", err);
+      toast.error("No se pudo descargar el PDF del proyecto");
+    },
   });
 };

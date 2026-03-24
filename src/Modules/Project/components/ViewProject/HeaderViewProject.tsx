@@ -1,11 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
 import { Pencil, Printer, ChevronRight } from "lucide-react";
 import { Button } from "../../../../Components/ui/button";
 import { Badge } from "../../../../Components/ui/badge";
 import type { Project } from "../../Models/Project";
 import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
-import { downloadProjectPdf } from "../../Services/ProjectServices";
+import { useDownloadProjectPdf } from "../../Hooks/ProjectHooks";
 
 type Props = {
   data: Project;
@@ -13,31 +12,7 @@ type Props = {
 
 export default function HeaderViewProject({ data }: Props) {
   const navigate = useNavigate();
-
-  const handleDownloadPdf = async () => {
-    try {
-      const blob = await downloadProjectPdf(data.Id);
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      const safeName = (data.Name ?? `proyecto-${data.Id}`)
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9-_]+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "")
-        .toLowerCase();
-
-      link.href = url;
-      link.download = `${safeName || `proyecto-${data.Id}`}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error descargando PDF del proyecto", error);
-      toast.error("No se pudo descargar el PDF del proyecto");
-    }
-  };
+  const downloadProjectPdf = useDownloadProjectPdf();
 
   return (
     <div className="print:hidden space-y-4">
@@ -83,9 +58,14 @@ export default function HeaderViewProject({ data }: Props) {
             Editar
           </Button>
 
-          <Button variant="outline" size="sm" onClick={handleDownloadPdf}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => downloadProjectPdf.mutate({ id: data.Id, name: data.Name })}
+            disabled={downloadProjectPdf.isPending}
+          >
             <Printer className="size-3.5 mr-1.5" />
-            PDF
+            {downloadProjectPdf.isPending ? "Generando..." : "PDF"}
           </Button>
 
           <CreateProjectTraceModal ProjectId={data.Id} />

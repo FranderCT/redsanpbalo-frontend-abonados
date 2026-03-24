@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import React from "react";
 import type { Project } from "../../Models/Project";
 import {
   useGetProjectTracesByProjectId,
