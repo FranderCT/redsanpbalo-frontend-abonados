@@ -9,15 +9,14 @@
     } from "@/Components/ui/dialog";
     import { Separator } from "@/Components/ui/separator";
     import { useReqAssociatedFolderLink } from "../../Hooks/ReqAssociatedHooks";
+    import type { ReqAssociated } from "../../Models/RequestAssociated";
     import { formatAssociatedRequestDate } from "../../utils/associatedRequestDate";
-
-    type DetailData = Record<string, unknown>;
 
     interface ReqSubscriberDetailModalProps {
     open: boolean;
     onClose: () => void;
     title: string;
-    data: DetailData;
+    data: ReqAssociated;
     excludeFields?: string[];
     }
 

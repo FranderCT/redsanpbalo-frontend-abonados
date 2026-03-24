@@ -63,13 +63,11 @@ export function useGetMyReqAssociatedPaginated(params: MyReqAssociatedParams = {
     staleTime: 30_000,
   });
 
-  // 🧩 Log de depuración — confirma que el backend está respondiendo
   useEffect(() => {
     if (query.data) {
       const res = query.data;
       console.log(
-        "%c[ASADA API] 🔵 Mis solicitudes recibidas",
-        "color: #3DA9FC; font-weight: bold;",
+        "[ASADA API] Mis solicitudes recibidas",
         {
           page: res.meta.currentPage,
           limit: res.meta.itemsPerPage,
@@ -80,16 +78,11 @@ export function useGetMyReqAssociatedPaginated(params: MyReqAssociatedParams = {
         res.data
       );
     } else if (query.isFetching) {
-      console.log(
-        "%c[ASADA API] 🟡 Cargando solicitudes...",
-        "color: #EFB700; font-weight: bold;",
-        { params: { page, limit, StateRequestId, q } }
-      );
+      console.log("[ASADA API] Cargando solicitudes...", {
+        params: { page, limit, StateRequestId, q },
+      });
     } else if (query.isError) {
-      console.error(
-        "[ASADA API] 🔴 Error al conectar con el backend:",
-        query.error
-      );
+      console.error("[ASADA API] Error al conectar con el backend:", query.error);
     }
   }, [query.data, query.isFetching, query.isError, query.error, page, limit, StateRequestId, q]);
 

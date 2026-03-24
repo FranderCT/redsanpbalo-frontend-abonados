@@ -73,7 +73,7 @@ export const ReqAssociatedUserColumns = (
     header: "Acciones",
     cell: ({ row }) => {
       const canComment = row.original.CanComment === true;
-      console.log('🔍 Associated - CanComment:', row.original.CanComment, 'Type:', typeof row.original.CanComment, 'RequestId:', row.original.Id);
+      console.log("Associated - CanComment:", row.original.CanComment, "Type:", typeof row.original.CanComment, "RequestId:", row.original.Id);
       return (
         <div className="flex justify-center gap-2">
           <button

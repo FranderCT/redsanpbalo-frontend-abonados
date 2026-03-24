@@ -73,7 +73,7 @@ export const ReqChangeNameMeterUserColumns = (
     cell: ({ row }) => {
       // Solo habilitar si CanComment es explícitamente true
       const canComment = row.original.CanComment === true;
-      console.log('🔍 [ChangeNameMeter] - CanComment:', row.original.CanComment, 'Type:', typeof row.original.CanComment, 'RequestId:', row.original.Id, 'Habilitado:', canComment);
+      console.log("ChangeNameMeter - CanComment:", row.original.CanComment, "Type:", typeof row.original.CanComment, "RequestId:", row.original.Id, "Habilitado:", canComment);
 
       return (
         <div className="flex justify-center gap-2">
@@ -90,7 +90,7 @@ export const ReqChangeNameMeterUserColumns = (
               if (!canComment) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log('❌ Comentarios deshabilitados para esta solicitud');
+                console.log("Comentarios deshabilitados para esta solicitud");
                 return;
               }
               onOpenComments?.(row.original);

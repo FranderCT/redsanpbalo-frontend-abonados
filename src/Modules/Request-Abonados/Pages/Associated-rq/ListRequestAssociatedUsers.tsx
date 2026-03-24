@@ -1,9 +1,17 @@
 import { useMemo, useState } from "react";
+import type { PaginationMeta } from "../../../../assets/Dtos/PaginationCategory";
 import { useGetAllRequestStates } from "../../../Requests/StateRequest/Hooks/RequestStateHook";
 import type { ReqAssociated } from "../../../Requests/RequestAssociated/Models/RequestAssociated";
 import { useGetMyReqAssociatedPaginated } from "../../Hooks/Associated/AssociatedRqHooks";
 import ReqAssociatedUserHeaderBar from "../../Components/Associated-rq/ReqAssociatedUserHeaderBar";
 import ReqAssociatedUserCards from "../../Components/Associated-rq/ReqAssociatedUserCards";
+
+type LegacyMeta = {
+  page?: number;
+  limit?: number;
+  total?: number;
+  pageCount?: number;
+};
 
 export default function ListReqAssociateUser() {
   const [page, setPage] = useState(1);
@@ -37,13 +45,17 @@ export default function ListReqAssociateUser() {
   });
 
   const rows = useMemo<ReqAssociated[]>(() => data?.data ?? [], [data?.data]);
+  const rawMeta = data?.meta as (PaginationMeta & LegacyMeta) | undefined;
   const meta = {
-    total: data?.meta?.totalItems ?? 0,
-    page: data?.meta?.currentPage ?? page,
-    limit: data?.meta?.itemsPerPage ?? limit,
-    pageCount: data?.meta?.totalPages ?? Math.ceil((data?.meta?.totalItems ?? 0) / limit),
-    hasNextPage: data?.meta?.hasNextPage ?? false,
-    hasPrevPage: data?.meta?.hasPrevPage ?? false
+    total: rawMeta?.totalItems ?? rawMeta?.total ?? 0,
+    page: rawMeta?.currentPage ?? rawMeta?.page ?? page,
+    limit: rawMeta?.itemsPerPage ?? rawMeta?.limit ?? limit,
+    pageCount:
+      rawMeta?.totalPages ??
+      rawMeta?.pageCount ??
+      Math.ceil((rawMeta?.totalItems ?? rawMeta?.total ?? 0) / limit),
+    hasNextPage: rawMeta?.hasNextPage ?? false,
+    hasPrevPage: rawMeta?.hasPrevPage ?? false,
   };
 
   // Filtrado cliente solo para el buscador

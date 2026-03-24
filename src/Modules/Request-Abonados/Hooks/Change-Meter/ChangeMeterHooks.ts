@@ -3,8 +3,15 @@ import { createChangeMeterRequest, getMyReqChangeMeter, getMyReqChangeMeterPagin
 import { toast } from "react-toastify";
 import type { ReqChangeMeter, ReqChangeMeterPaginationParams } from "../../../Requests/RequestChangeMeterr/Models/RequestChangeMeter";
 import { getAllReqChangeMeter, searchReqChangeMeter } from "../../../Requests/RequestChangeMeterr/Services/RequestChangeMeterServices";
-import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
+import type { PaginatedResponse, PaginationMeta } from "../../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
+
+type LegacyMeta = {
+  page?: number;
+  limit?: number;
+  total?: number;
+  pageCount?: number;
+};
 
 // Claves de caché estándar (todas las claves derivan de un baseKey sólido)
 const baseKey = "reqChangeMeter" as const;
@@ -63,35 +70,29 @@ export function useGetMyReqChangeMeterPaginated(params: MyReqChangeMeterParams =
     staleTime: 30_000,
   });
 
-  // 🧩 Log de depuración — confirma que el backend está respondiendo
   useEffect(() => {
     if (query.data) {
       const res = query.data;
+      const meta = res.meta as PaginationMeta & LegacyMeta;
       console.log(
-        "%c[ASADA API] 🔵 Mis solicitudes recibidas",
-        "color: #3DA9FC; font-weight: bold;",
+        "[ASADA API] Mis solicitudes recibidas",
         {
-          page: res.meta.page,
-          limit: res.meta.limit,
-          total: res.meta.total,
-          pageCount: res.meta.pageCount,
+          page: meta.currentPage ?? meta.page,
+          limit: meta.itemsPerPage ?? meta.limit,
+          total: meta.totalItems ?? meta.total,
+          pageCount: meta.totalPages ?? meta.pageCount,
           params: { page, limit, StateRequestId, q },
         },
         res.data
       );
     } else if (query.isFetching) {
-      console.log(
-        "%c[ASADA API] 🟡 Cargando solicitudes...",
-        "color: #EFB700; font-weight: bold;",
-        { params: { page, limit, StateRequestId, q } }
-      );
+      console.log("[ASADA API] Cargando solicitudes...", {
+        params: { page, limit, StateRequestId, q },
+      });
     } else if (query.isError) {
-      console.error(
-        "[ASADA API] 🔴 Error al conectar con el backend:",
-        query.error
-      );
+      console.error("[ASADA API] Error al conectar con el backend:", query.error);
     }
-  }, [query.data, query.isFetching, query.isError, page, limit, StateRequestId, q]);
+  }, [query.data, query.isFetching, query.isError, query.error, page, limit, StateRequestId, q]);
 
   return query;
 }
@@ -119,8 +120,9 @@ export const useCreateChangeMeterRequest = () => {
             qc.invalidateQueries({ queryKey: ["changeMeters"] });
             toast.success('Solicitud de cambio de medidor creada con éxito', {position: "top-right", autoClose: 2000});
         },
-        onError: (error: any) => {
-            toast.error(`Error al crear la solicitud: ${error.message}`, {position: "top-right", autoClose: 2000});
+        onError: (error: unknown) => {
+            const message = error instanceof Error ? error.message : "Error desconocido";
+            toast.error(`Error al crear la solicitud: ${message}`, {position: "top-right", autoClose: 2000});
         }
     });
 }

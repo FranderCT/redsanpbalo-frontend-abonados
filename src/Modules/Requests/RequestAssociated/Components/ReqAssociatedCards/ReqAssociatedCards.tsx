@@ -134,7 +134,7 @@ function ReqAssociatedCard({
         <div className="flex flex-1 flex-col gap-2 border-t border-slate-100 pt-4">
           <div className="flex items-center gap-2 text-sm font-medium text-slate-900">
             <FileText className="h-4 w-4 text-[#091540]" />
-            Justificacion
+            Justificación
           </div>
           <p className={`text-sm leading-6 text-slate-600 ${expanded ? "" : "line-clamp-4 min-h-24"}`}>
             {justification}
