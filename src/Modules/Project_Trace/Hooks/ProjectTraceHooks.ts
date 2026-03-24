@@ -40,10 +40,17 @@ export const useGetProjectTracesByProjectId = (projectId: number) => {
     enabled: !!projectId,
   });
 
-  // Filtrar por projectId en el cliente — algunos endpoints devuelven trazas mezcladas
+  // Mantener un filtro defensivo en el cliente, pero sin descartar trazas
+  // ya resueltas desde el detalle del proyecto aunque no incluyan ProjectId.
   const projectTraces: ProjectTrace[] = (projectTracesRaw ?? []).filter((t: any) => {
-    const projectIdFromTrace = t?.Project?.Id ?? t?.ProjectId ?? t?.projectId ?? null;
-    return Number(projectIdFromTrace) === Number(projectId);
+    const projectIdFromTrace =
+      t?.Project?.Id ??
+      t?.ProjectId ??
+      t?.projectId ??
+      t?.Project?.projectId ??
+      null;
+
+    return projectIdFromTrace == null || Number(projectIdFromTrace) === Number(projectId);
   });
 
   // Log simple para debugging: cuántas trazas devuelve el endpoint vs. las filtradas

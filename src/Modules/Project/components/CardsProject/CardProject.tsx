@@ -43,7 +43,7 @@ const CardProject: React.FC<Props> = ({ project, className }) => {
         <header className="w-full min-w-0">
           <p className="text-sm text-gray-500">Proyecto:</p>
           <h3
-            className="text-lg font-semibold leading-snug line-clamp-2 break-words "
+            className="min-h-[1.75rem] text-lg font-semibold leading-7 line-clamp-1 break-words"
             title={project.Name}
           >
             {project.Name}

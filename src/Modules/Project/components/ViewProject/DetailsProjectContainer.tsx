@@ -32,8 +32,14 @@ export default function DetailsProjectContainer({ data }: Props) {
       : (fetchedTraces ?? []);
 
   const tracesFiltered = tracesToRender.filter((t: any) => {
-    const pid = t?.Project?.Id ?? t?.ProjectId ?? t?.projectId ?? null;
-    return Number(pid) === Number(data.Id);
+    const pid =
+      t?.Project?.Id ??
+      t?.ProjectId ??
+      t?.projectId ??
+      t?.Project?.projectId ??
+      null;
+
+    return pid == null || Number(pid) === Number(data.Id);
   });
 
   const totalToRender = data.TotalActualExpense ?? fetchedTotal ?? null;
