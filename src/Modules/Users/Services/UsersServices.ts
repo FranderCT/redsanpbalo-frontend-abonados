@@ -8,9 +8,23 @@ import type { UpdateUser, User, UsersPaginationParams, UserUpdateMe } from "../M
 
 const BASE = "/users";
 
+function getRequiredAuthHeaders() {
+  const token = localStorage.getItem("token");
+
+  if (!token || token === "null" || token === "undefined") {
+    throw new Error("No hay una sesion activa. Inicia sesion nuevamente.");
+  }
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
 export async function getUserProfile(): Promise<User> {
   try{
-  const response = await apiAxios.get<User>(`${BASE}/me`);
+  const response = await apiAxios.get<User>(`${BASE}/me`, {
+    headers: getRequiredAuthHeaders(),
+  });
   return response.data;
   }catch(err){
     console.error(err);
@@ -21,7 +35,9 @@ export async function getUserProfile(): Promise<User> {
 
 export async function updateUserEmail(User: UpdateEmailUser) : Promise<UpdateEmailUser>{
   try{
-    const res = await apiAxios.put<UpdateEmailUser>(`${BASE}/update/email`, User)
+    const res = await apiAxios.put<UpdateEmailUser>(`${BASE}/update/email`, User, {
+      headers: getRequiredAuthHeaders(),
+    })
     return res.data;
   }catch(err){
     console.error(err);
@@ -49,11 +65,16 @@ export async function updateUserProfile(
       if (payload.Birthdate instanceof Date)
         formData.append("Birthdate", payload.Birthdate.toISOString().slice(0, 10));
       const res = await apiAxios.put<User>(`${BASE}/me`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          ...getRequiredAuthHeaders(),
+          "Content-Type": "multipart/form-data",
+        },
       });
       return res.data;
     }
-    const res = await apiAxios.put<User>(`${BASE}/me`, payload);
+    const res = await apiAxios.put<User>(`${BASE}/me`, payload, {
+      headers: getRequiredAuthHeaders(),
+    });
     return res.data;
   } catch (err) {
     console.error(err);
@@ -63,7 +84,9 @@ export async function updateUserProfile(
 
 export async function getAllUsers(): Promise<User[]> {
   try{
-    const res = await apiAxios.get<User[]>(`${BASE}`);
+    const res = await apiAxios.get<User[]>(`${BASE}`, {
+      headers: getRequiredAuthHeaders(),
+    });
     return res.data;
   }catch(err){
     console.error(err);
@@ -74,7 +97,9 @@ export async function getAllUsers(): Promise<User[]> {
 
 export async function getAllAbonados(): Promise<number> {
   try{
-    const res = await apiAxios.get<number>(`${BASE}/role-abonado`);
+    const res = await apiAxios.get<number>(`${BASE}/role-abonado`, {
+      headers: getRequiredAuthHeaders(),
+    });
     return res.data;
   }catch(err){
     console.error(err);
@@ -84,7 +109,9 @@ export async function getAllAbonados(): Promise<number> {
 
 export async function deleteUser(id: number): Promise<void> {
   try{
-    await apiAxios.delete(`${BASE}/${id}`);
+    await apiAxios.delete(`${BASE}/${id}`, {
+      headers: getRequiredAuthHeaders(),
+    });
   }catch(err){
     console.error(err);
   }
@@ -93,7 +120,9 @@ export async function deleteUser(id: number): Promise<void> {
 //REHACER
 export async function createUserModal(user: Omit<RegisterUser, "ConfirmPassword"> & { RoleIds: number[] }) {
   try{
-    const { data } = await apiAxios.post(`${BASE}`, user);
+    const { data } = await apiAxios.post(`${BASE}`, user, {
+      headers: getRequiredAuthHeaders(),
+    });
     return data;
   }catch(err){
     console.error('error');
@@ -103,7 +132,9 @@ export async function createUserModal(user: Omit<RegisterUser, "ConfirmPassword"
 
 export async function getAllRoles(): Promise<Roles[]> {
   try{
-    const { data } = await apiAxios.get<Roles[]>(`/roles`);
+    const { data } = await apiAxios.get<Roles[]>(`/roles`, {
+      headers: getRequiredAuthHeaders(),
+    });
     return data;
   }catch(err){
     console.log(err);
@@ -113,7 +144,9 @@ export async function getAllRoles(): Promise<Roles[]> {
 
 export async function updateUser(id: number, payloads: UpdateUser) : Promise<User>{
   try{
-    const res = await apiAxios.put<User>(`${BASE}/${id}`, payloads);
+    const res = await apiAxios.put<User>(`${BASE}/${id}`, payloads, {
+      headers: getRequiredAuthHeaders(),
+    });
     return res.data;
   }catch(err){
     console.log(err);
@@ -123,7 +156,9 @@ export async function updateUser(id: number, payloads: UpdateUser) : Promise<Use
 
 export async function getUserById(id: number) : Promise<User>{
   try{
-    const {data} = await apiAxios.get<User>(`${BASE}/${id}`);
+    const {data} = await apiAxios.get<User>(`${BASE}/${id}`, {
+      headers: getRequiredAuthHeaders(),
+    });
     return data;
   }catch(err){
     console.error("Error al obtener la informacion del ususario", err);
@@ -133,7 +168,9 @@ export async function getUserById(id: number) : Promise<User>{
 
 export async function deteleUserById(id: number) : Promise<void>{
   try{
-    await apiAxios.delete(`${BASE}/${id}`);
+    await apiAxios.delete(`${BASE}/${id}`, {
+      headers: getRequiredAuthHeaders(),
+    });
   }catch(err){
     console.error("Error al eliminar Usuario", err);
   }
@@ -141,7 +178,10 @@ export async function deteleUserById(id: number) : Promise<void>{
 
 export async function searchUsers(params: UsersPaginationParams) {
   try{
-    const { data } = await apiAxios.get<PaginatedResponse<User>>(`${BASE}/search`, { params });
+    const { data } = await apiAxios.get<PaginatedResponse<User>>(`${BASE}/search`, {
+      params,
+      headers: getRequiredAuthHeaders(),
+    });
     return data;
   }catch(err){
     console.error(err);
@@ -152,7 +192,9 @@ export async function searchUsers(params: UsersPaginationParams) {
 
 export async function getUserByRoleAdmin () : Promise<User[]>{
   try{
-    const {data} = await apiAxios.get<User[]>(`${BASE}/role-admin`);
+    const {data} = await apiAxios.get<User[]>(`${BASE}/role-admin`, {
+      headers: getRequiredAuthHeaders(),
+    });
     return data;
   }catch(err){
     return Promise.reject(err);
@@ -161,7 +203,9 @@ export async function getUserByRoleAdmin () : Promise<User[]>{
 
 export async function getUsersByRoleFontanero(): Promise<User[]> {
   try {
-    const { data } = await apiAxios.get<User[]>(`${BASE}/role-fontanero`);
+    const { data } = await apiAxios.get<User[]>(`${BASE}/role-fontanero`, {
+      headers: getRequiredAuthHeaders(),
+    });
     return data;
   } catch (err) {
     return Promise.reject(err);

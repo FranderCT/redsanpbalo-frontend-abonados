@@ -25,6 +25,7 @@ import { requestListChangeNameMeter, requestUserChangeNameMeterRoute } from "./M
 import HeroPage from "./Modules/Lading/HeroPage";
 import { editLandingFaqRoute, editLandingIndexRoute, editLandingRoute, editLandingServicesRoute } from "./Modules/Lading/Routes/RoutesEditLanding";
 import { notificationsRoute } from "./Modules/Notifications/Routes/NotificationsRoutes";
+import { auditUsersRoute } from "./Modules/AuditUsers/Routes/AuditUsersRoutes";
 
 
 export const rootRoute = createRootRoute();
@@ -92,6 +93,7 @@ export const routeTree = rootRoute.addChildren([
       legalSuppliersRoute,
     ]),
     notificationsRoute,
+    auditUsersRoute,
   ]),
   reportRoutes.addChildren([
     reportIndexRoute
