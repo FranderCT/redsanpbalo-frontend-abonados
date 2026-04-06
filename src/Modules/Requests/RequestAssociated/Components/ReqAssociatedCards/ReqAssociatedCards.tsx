@@ -79,7 +79,9 @@ function ReqAssociatedCard({
           <CardTitle className="line-clamp-2 text-base font-medium leading-6">
             {applicant}
           </CardTitle>
-          <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">Solicitud de asociación</p>
+          <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">
+            Solicitud de asociación
+          </p>
         </div>
 
         <DropdownMenu>
@@ -124,10 +126,8 @@ function ReqAssociatedCard({
             <p className="mt-1 font-medium text-slate-900">{formatAssociatedRequestDate(req.Date)}</p>
           </div>
           <div className="border-l-2 border-slate-200 pl-3">
-            <p className="text-xs uppercase tracking-wide text-slate-400">Comentarios</p>
-            <p className="mt-1 font-medium text-slate-900">
-              {req.CanComment ? "Habilitados" : "Deshabilitados"}
-            </p>
+            <p className="text-xs uppercase tracking-wide text-slate-400">NIS</p>
+            <p className="mt-1 font-medium text-slate-900">{req.NIS ?? "-"}</p>
           </div>
         </div>
 

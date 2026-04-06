@@ -9,17 +9,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
-import { Eye, FileText, MapPin, MoreVertical } from "lucide-react";
-import type { ReqSupervisionMeter } from "../../Models/ReqSupervisionMeter";
-import UpdateReqSupervisionMeterStateModal from "../../Modals/UpdateReqSupervicionMeterModal";
-import ViewReqSupervisionMeterModal from "../../Modals/ViewReqSupervisionMeterModal";
-import { CommentsSupervisionMeterModal } from "../Comments/CommentsSupervisionMeterModal";
-import { formatRequestSupervisionMeterDate } from "../../utils/requestSupervisionMeterDate";
+import { Eye, FileText, MoreVertical } from "lucide-react";
+import type { ReqAvailWater } from "../../Models/ReqAvailWater";
+import UpdateReqAvailWaterStateModal from "../../Modals/UpdateRequestModal";
+import RequestAvailWaterDetailModalAdmin from "../../../GeneralGetUser/VerInfoAbonadoModal";
+import { CommentsAvailWaterModal } from "../Comments/CommentsAvailWaterModal";
+import { formatAvailabilityWaterDate } from "../../utils/requestAvailabilityWaterDate";
 
 type Props = {
-  data: ReqSupervisionMeter[];
+  data: ReqAvailWater[];
   total?: number;
   page: number;
+  pageSize?: number;
   pageCount: number;
   onPageChange: (page: number) => void;
 };
@@ -43,44 +44,35 @@ function getStateClass(stateName?: string) {
   return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
-function formatApplicant(req: ReqSupervisionMeter) {
+function getApplicant(req: ReqAvailWater) {
   return `${req.User?.Name ?? ""} ${req.User?.Surname1 ?? ""} ${req.User?.Surname2 ?? ""}`.trim() || "Sin nombre";
 }
 
-function ReqSupervisionMeterCard({
+function ReqAvailWaterCard({
   req,
   onEdit,
   onOpenDetails,
   onOpenComments,
 }: {
-  req: ReqSupervisionMeter;
-  onEdit: (req: ReqSupervisionMeter) => void;
-  onOpenDetails: (req: ReqSupervisionMeter) => void;
-  onOpenComments: (req: ReqSupervisionMeter) => void;
+  req: ReqAvailWater;
+  onEdit: (req: ReqAvailWater) => void;
+  onOpenDetails: (req: ReqAvailWater) => void;
+  onOpenComments: (req: ReqAvailWater) => void;
 }) {
-  const applicant = useMemo(() => formatApplicant(req), [req]);
+  const applicant = useMemo(() => getApplicant(req), [req]);
   const justification = req.Justification?.trim() || "Sin justificación registrada.";
   const isLongText = justification.length > 150;
   const [expanded, setExpanded] = useState(false);
-  const profilePhoto = req.User?.ProfilePhoto?.trim();
 
   return (
     <Card className="flex h-full flex-col rounded-none border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
       <CardHeader className="flex flex-row items-start gap-3 space-y-0 border-b border-slate-100 pb-4">
-        {profilePhoto ? (
-          <img
-            src={profilePhoto}
-            alt={`Foto de perfil de ${applicant}`}
-            className="mt-0.5 h-10 w-10 shrink-0 rounded-none border border-slate-200 object-cover"
-          />
-        ) : null}
-
         <div className="min-w-0 flex-1">
           <CardTitle className="line-clamp-2 text-base font-medium leading-6">
             {applicant}
           </CardTitle>
           <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">
-            Solicitud de supervisión de medidor
+            Solicitud de disponibilidad de agua
           </p>
         </div>
 
@@ -93,7 +85,7 @@ function ReqSupervisionMeterCard({
           <DropdownMenuContent align="end" className="rounded-none">
             <DropdownMenuItem onSelect={(event) => event.preventDefault()} className="rounded-none p-0">
               <button type="button" onClick={() => onOpenDetails(req)} className="w-full px-2 py-1.5 text-left">
-                Ver más
+                Ver mas
               </button>
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={(event) => event.preventDefault()} className="rounded-none p-0">
@@ -115,32 +107,17 @@ function ReqSupervisionMeterCard({
           <Badge className={`rounded-none border ${getStateClass(req.StateRequest?.Name)}`}>
             {req.StateRequest?.Name ?? "Sin estado"}
           </Badge>
-          <Badge variant="outline" className="rounded-none border-slate-300 text-slate-700">
-            NIS: {req.NIS ?? "-"}
-          </Badge>
         </div>
 
         <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
           <div className="border-l-2 border-slate-200 pl-3">
             <p className="text-xs uppercase tracking-wide text-slate-400">Fecha</p>
-            <p className="mt-1 font-medium text-slate-900">
-              {formatRequestSupervisionMeterDate(req.Date)}
-            </p>
+            <p className="mt-1 font-medium text-slate-900">{formatAvailabilityWaterDate(req.Date)}</p>
           </div>
           <div className="border-l-2 border-slate-200 pl-3">
             <p className="text-xs uppercase tracking-wide text-slate-400">Comentarios</p>
             <p className="mt-1 font-medium text-slate-900">{req.CanComment ? "Habilitados" : "Deshabilitados"}</p>
           </div>
-        </div>
-
-        <div className="flex flex-col gap-2 border-t border-slate-100 pt-4">
-          <div className="flex items-center gap-2 text-sm font-medium text-slate-900">
-            <MapPin className="h-4 w-4 text-[#091540]" />
-            Ubicación del medidor
-          </div>
-          <p className="text-sm leading-6 text-slate-600">
-            {req.Location || "Sin ubicación registrada."}
-          </p>
         </div>
 
         <div className="flex flex-1 flex-col gap-2 border-t border-slate-100 pt-4">
@@ -178,20 +155,32 @@ function ReqSupervisionMeterCard({
   );
 }
 
-export default function ReqSupervisionMeterCards({
+export default function ReqAvailWaterCards({
   data,
   total,
   page,
+  pageSize,
   pageCount,
   onPageChange,
 }: Props) {
-  const [selectedRequest, setSelectedRequest] = useState<ReqSupervisionMeter | null>(null);
-  const [editingRequest, setEditingRequest] = useState<ReqSupervisionMeter | null>(null);
-  const [commentingRequest, setCommentingRequest] = useState<ReqSupervisionMeter | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<ReqAvailWater | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [editingRequest, setEditingRequest] = useState<ReqAvailWater | null>(null);
+  const [commentingRequest, setCommentingRequest] = useState<ReqAvailWater | null>(null);
+
+  const handleOpenDetails = (req: ReqAvailWater) => {
+    setSelectedRequest(req);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetailModal(false);
+    setSelectedRequest(null);
+  };
 
   return (
     <section className="flex w-full flex-col gap-4">
-      <UpdateReqSupervisionMeterStateModal
+      <UpdateReqAvailWaterStateModal
         open={!!editingRequest}
         req={editingRequest}
         onClose={() => setEditingRequest(null)}
@@ -199,20 +188,20 @@ export default function ReqSupervisionMeterCards({
       />
 
       {selectedRequest ? (
-        <ViewReqSupervisionMeterModal
-          open={!!selectedRequest}
-          onClose={() => setSelectedRequest(null)}
-          title="Detalles de solicitud de supervisión de medidor"
+        <RequestAvailWaterDetailModalAdmin
+          open={showDetailModal}
+          onClose={handleCloseDetails}
+          title="Detalles de Solicitud de Disponibilidad de Agua"
           data={selectedRequest}
         />
       ) : null}
 
       {commentingRequest ? (
-        <CommentsSupervisionMeterModal
+        <CommentsAvailWaterModal
           open={!!commentingRequest}
           onClose={() => setCommentingRequest(null)}
           request={commentingRequest}
-          isAdmin
+          isAdmin={true}
         />
       ) : null}
 
@@ -226,11 +215,11 @@ export default function ReqSupervisionMeterCards({
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {data.map((req) => (
-            <ReqSupervisionMeterCard
+            <ReqAvailWaterCard
               key={req.Id}
               req={req}
               onEdit={setEditingRequest}
-              onOpenDetails={setSelectedRequest}
+              onOpenDetails={handleOpenDetails}
               onOpenComments={setCommentingRequest}
             />
           ))}
@@ -243,6 +232,7 @@ export default function ReqSupervisionMeterCards({
             page={page}
             pageCount={pageCount}
             total={total ?? data.length}
+            pageSize={pageSize}
             onPageChange={onPageChange}
             labels={{ totalItems: "solicitudes" }}
             compact

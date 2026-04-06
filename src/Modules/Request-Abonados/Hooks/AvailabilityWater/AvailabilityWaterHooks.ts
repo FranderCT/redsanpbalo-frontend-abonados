@@ -129,6 +129,7 @@ export function useCreateAvailabilityWaterRq() {
       // (Opcional) admin:
       qc.invalidateQueries({ queryKey: QK.all });
       qc.invalidateQueries({ queryKey: [baseKey, "list"] });
+      qc.invalidateQueries({ queryKey: ["request-availability-water"] });
 
       toast.success("Solicitud de disponibilidad de agua creada con éxito", { position: "top-right", duration: 2000 });
     },

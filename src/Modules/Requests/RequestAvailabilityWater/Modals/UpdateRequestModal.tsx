@@ -1,220 +1,225 @@
-    import { useEffect, useState } from "react";
-    import { toast } from "sonner";
-    import type { ReqAvailWater } from "../Models/ReqAvailWater";
-    import { useGetAllRequestStates, useUpdateAvailabilityWater, useUpdateCanCommentAvailWater } from "../Hooks/ReqAvailWaterHooks";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Badge } from "@/Components/ui/badge";
+import { Button } from "@/Components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
+import { Label } from "@/Components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/ui/select";
+import type { ReqAvailWater } from "../Models/ReqAvailWater";
+import {
+  useGetAllRequestStates,
+  useUpdateAvailabilityWater,
+  useUpdateCanCommentAvailWater,
+} from "../Hooks/ReqAvailWaterHooks";
 
+type Props = {
+  open: boolean;
+  req: ReqAvailWater | null;
+  onClose: () => void;
+  onSuccess?: () => void;
+};
 
-    type Props = {
-    open: boolean;
-    req: ReqAvailWater | null;
-    onClose: () => void;
-    onSuccess?: () => void;
-    };
+export default function UpdateReqAvailWaterStateModal({
+  open,
+  req,
+  onClose,
+  onSuccess,
+}: Props) {
+  const { requestStates = [], isPending, error } = useGetAllRequestStates();
+  const updateMutation = useUpdateAvailabilityWater();
+  const updateCanCommentMutation = useUpdateCanCommentAvailWater();
+  const [stateId, setStateId] = useState<string>("");
+  const [canComment, setCanComment] = useState(false);
 
-    export default function UpdateReqAvailWaterStateModal({
-    open,
-    req,
-    onClose,
-    onSuccess,
-    }: Props) {
-    const { requestStates = [], isPending, error } = useGetAllRequestStates();
-    const updateMutation = useUpdateAvailabilityWater();
-    const updateCanCommentMutation = useUpdateCanCommentAvailWater();
+  useEffect(() => {
+    if (!req) return;
+    const current = req.StateRequest?.Id;
+    setStateId(current ? String(current) : "");
+    setCanComment(req.CanComment ?? false);
+  }, [req]);
 
-    const [stateId, setStateId] = useState<string>("");
-    const [canComment, setCanComment] = useState<boolean>(false);
+  if (!open || !req) return null;
 
-    useEffect(() => {
-        if (!req) return;
-        const current = req.StateRequest?.Id;
+  const busy = updateMutation.isPending || updateCanCommentMutation.isPending;
 
-        setStateId(current ? String(current) : "");
-        const initialCanComment = req.CanComment ?? false;
-        setCanComment(initialCanComment);
-    }, [req, req?.CanComment]);
+  const handleToggleCanComment = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (busy) return;
 
-    useEffect(() => {
-        if (requestStates.length > 0) {
-        }
-    }, [requestStates]);
+    const newValue = !canComment;
+    setCanComment(newValue);
 
-    if (!open || !req) return null;
-
-    const busy = updateMutation.isPending || updateCanCommentMutation.isPending;
-
-    const handleToggleCanComment = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        if (busy) return;
-        
-        const newValue = !canComment;
-        console.log('🔄 Cambiando CanComment:', { actual: canComment, nuevo: newValue, requestId: req.Id });
-        
-        setCanComment(newValue);
-        
-        try {
-            const result = await updateCanCommentMutation.mutateAsync({
-                id: req.Id,
-                canComment: newValue,
-            });
-            console.log('✅ CanComment actualizado en servidor:', result);
-            toast.success(
-                newValue 
-                    ? "Comentarios habilitados para el abonado" 
-                    : "Comentarios deshabilitados para el abonado",
-                { position: "top-right", duration: 3000 }
-            );
-        } catch (err: any) {
-            setCanComment(!newValue);
-            toast.error(err?.response?.data?.message || "No se pudo actualizar el permiso de comentarios");
-        }
-    };
-
-    const handleCancel = () => {
-        toast.warning("Edición cancelada", { position: "top-right", duration: 3000 });
-        onClose();
-    };
-
-    const handleConfirm = async () => {
-        if (!stateId || stateId === "") {
-        toast.warn("Selecciona un estado", { position: "top-right", duration: 2500 });
-        return;
-        }
-
-        try {
-        await updateMutation.mutateAsync({
-            id: req.Id,
-            data: { StateRequestId: Number(stateId) },
-        });
-        toast.success("Estado actualizado");
-        onSuccess?.();
-        onClose();
-        } catch (err: any) {
-        toast.error(err?.response?.data?.message || "No se pudo actualizar el estado");
-        }
-    };
-
-    return (
-        <div className="fixed inset-0 z-[999] grid place-items-center bg-black/40">
-        <div className="w-[95%] max-w-md rounded-lg bg-white p-5 shadow-xl">
-            <h3 className="mb-3 text-lg font-semibold text-[#091540]">Editar estado</h3>
-
-            <div className="mb-4 space-y-1 text-sm text-gray-700">
-            <p>
-                <span className="text-gray-500">Solicitante: </span>
-                <b>
-                {`${req.User?.Name ?? ""} ${req.User?.Surname1 ?? ""} ${req.User?.Surname2 ?? ""}`.trim() || "-"}
-                </b>
-            </p>
-            </div>
-
-            <label className="mb-1 block text-sm font-medium text-[#091540]">Estado</label>
-            {isPending ? (
-            <div className="mb-4 rounded border border-gray-200 p-3 text-sm text-gray-600">
-                Cargando estados…
-            </div>
-            ) : error ? (
-            <div className="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                No se pudieron cargar los estados: {error.message}
-            </div>
-            ) : requestStates.length === 0 ? (
-            <div className="mb-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-700">
-                No hay estados disponibles
-            </div>
-            ) : (
-            <select
-                className="mb-4 w-full rounded border border-gray-300 px-3 py-2 outline-none focus:border-[#1789FC]"
-                value={stateId}
-                onChange={(e) => {
-                const newValue = e.target.value;
-                setStateId(newValue);
-                }}
-                disabled={busy}
-            >
-                <option value="">Seleccione un estado…</option>
-                {requestStates.map((s) => {
-                const id = s.Id;
-                if (!id) {
-                    return null;
-                }
-                return (
-                    <option key={id} value={id}>
-                    {s.Name}
-                    </option>
-                );
-                })}
-            </select>
-            )}
-
-            {/* Control de permisos de comentarios */}
-            <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <label className="block text-sm font-medium text-[#091540] mb-2">
-                    Permisos de comentarios
-                </label>
-                <p className="text-xs text-gray-600 mb-3">
-                    {canComment 
-                        ? "El abonado puede ver y agregar comentarios a esta solicitud" 
-                        : "El abonado no puede acceder a los comentarios de esta solicitud"}
-                </p>
-                
-                <div className="flex items-center gap-3">
-                    <button
-                        type="button"
-                        onMouseDown={handleToggleCanComment}
-                        disabled={busy}
-                        className={`
-                            px-4 py-2 text-sm font-medium rounded transition-all
-                            ${canComment 
-                                ? 'bg-[#068A53] text-white hover:bg-[#057A47]' 
-                                : 'bg-gray-400 text-white hover:bg-gray-500'}
-                            ${busy ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                        `}
-                    >
-                        {busy ? (
-                            <span className="flex items-center gap-2">
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                Actualizando...
-                            </span>
-                        ) : (
-                            <span>
-                                {canComment ? '✓ Comentarios Habilitados' : '✕ Comentarios Deshabilitados'}
-                            </span>
-                        )}
-                    </button>
-                    
-                    <span className="text-xs text-gray-500">
-                        Click para {canComment ? 'deshabilitar' : 'habilitar'}
-                    </span>
-                </div>
-            </div>
-
-            <div className="mt-2 flex items-center justify-end gap-2">
-            <button
-                type="button"
-                onClick={handleCancel}
-                disabled={busy}
-                className={`px-3 py-1 text-sm font-medium transition border border-gray-300 rounded ${
-                busy ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "hover:bg-gray-50"
-                }`}
-            >
-                Cancelar
-            </button>
-
-            <button
-                type="button"
-                onClick={handleConfirm}
-                disabled={busy || !stateId || stateId === ""}
-                className={`px-3 py-1 text-sm font-medium transition rounded ${
-                busy || !stateId || stateId === ""
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "text-white bg-[#1789FC] hover:opacity-90"
-                }`}
-            >
-                {busy ? "Guardando..." : "Guardar"}
-            </button>
-            </div>
-        </div>
-        </div>
-    );
+    try {
+      await updateCanCommentMutation.mutateAsync({
+        id: req.Id,
+        canComment: newValue,
+      });
+      toast.success(
+        newValue
+          ? "Comentarios habilitados para el abonado"
+          : "Comentarios deshabilitados para el abonado",
+      );
+    } catch (err: any) {
+      setCanComment(!newValue);
+      toast.error(
+        err?.response?.data?.message || "No se pudo actualizar el permiso de comentarios",
+      );
     }
+  };
+
+  const handleCancel = () => {
+    toast.warning("Edición cancelada", { position: "top-right", duration: 3000 });
+    onClose();
+  };
+
+  const handleConfirm = async () => {
+    if (!stateId) {
+      toast.warning("Selecciona un estado", { position: "top-right", duration: 2500 });
+      return;
+    }
+
+    try {
+      await updateMutation.mutateAsync({
+        id: req.Id,
+        data: { StateRequestId: Number(stateId) },
+      });
+      toast.success("Estado actualizado");
+      onSuccess?.();
+      onClose();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "No se pudo actualizar el estado");
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
+      <DialogContent className="max-w-md rounded-none border-slate-200 p-0">
+        <DialogHeader className="border-b border-slate-200 px-6 py-4">
+          <DialogTitle className="text-[#091540]">Editar estado</DialogTitle>
+          <DialogDescription>
+            {`${req.User?.Name ?? ""} ${req.User?.Surname1 ?? ""} ${req.User?.Surname2 ?? ""}`.trim() || "-"}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-5 px-6 py-5">
+          <div className="space-y-1 text-sm text-slate-600">
+            {req.User?.IDcard ? (
+              <p>
+                <span className="text-slate-500">Cédula:</span>{" "}
+                <span className="font-medium text-slate-900">{req.User.IDcard}</span>
+              </p>
+            ) : null}
+            {req.User?.Address ? (
+              <p>
+                <span className="text-slate-500">Dirección:</span>{" "}
+                <span className="font-medium text-slate-900">{req.User.Address}</span>
+              </p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="request-availability-water-state-select">Estado</Label>
+            {isPending ? (
+              <div className="border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+                Cargando estados…
+              </div>
+            ) : error ? (
+              <div className="border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                No se pudieron cargar los estados: {error.message}
+              </div>
+            ) : requestStates.length === 0 ? (
+              <div className="border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-700">
+                No hay estados disponibles
+              </div>
+            ) : (
+              <Select value={stateId} onValueChange={setStateId} disabled={busy}>
+                <SelectTrigger id="request-availability-water-state-select" className="rounded-none">
+                  <SelectValue placeholder="Seleccione un estado" />
+                </SelectTrigger>
+                <SelectContent className="rounded-none">
+                  {requestStates.map((s) => {
+                    const id = s.Id;
+                    if (!id) return null;
+                    return (
+                      <SelectItem key={id} value={String(id)}>
+                        {s.Name}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
+          <div className="space-y-3 border border-slate-200 bg-slate-50 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <Label className="text-[#091540]">Permisos de comentarios</Label>
+              <Badge
+                variant="outline"
+                className={
+                  canComment
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : "border-slate-300 bg-white text-slate-700"
+                }
+              >
+                {canComment ? "Habilitados" : "Deshabilitados"}
+              </Badge>
+            </div>
+            <p className="text-xs text-slate-600">
+              {canComment
+                ? "El abonado puede ver y agregar comentarios a esta solicitud."
+                : "El abonado no puede acceder a los comentarios de esta solicitud."}
+            </p>
+            <Button
+              type="button"
+              variant={canComment ? "destructive" : "secondary"}
+              className="rounded-none"
+              onMouseDown={handleToggleCanComment}
+              disabled={busy}
+            >
+              {busy
+                ? "Actualizando..."
+                : canComment
+                  ? "Deshabilitar comentarios"
+                  : "Habilitar comentarios"}
+            </Button>
+          </div>
+        </div>
+
+        <DialogFooter className="border-t border-slate-200 px-6 py-4">
+          <Button
+            type="button"
+            variant="ghost"
+            className="rounded-none"
+            onClick={handleCancel}
+            disabled={busy}
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="button"
+            className="rounded-none bg-[#1789FC] text-white hover:bg-[#0f6fd1]"
+            onClick={handleConfirm}
+            disabled={busy || !stateId}
+          >
+            {busy ? "Guardando..." : "Guardar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

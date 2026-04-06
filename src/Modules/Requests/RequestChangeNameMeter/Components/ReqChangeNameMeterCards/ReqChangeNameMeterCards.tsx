@@ -115,9 +115,6 @@ function ReqChangeNameMeterCard({
           <Badge className={`rounded-none border ${getStateClass(req.StateRequest?.Name)}`}>
             {req.StateRequest?.Name ?? "Sin estado"}
           </Badge>
-          <Badge variant="outline" className="rounded-none border-slate-300 text-slate-700">
-            {req.CanComment ? "Comentarios habilitados" : "Comentarios deshabilitados"}
-          </Badge>
         </div>
 
         <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
@@ -126,8 +123,8 @@ function ReqChangeNameMeterCard({
             <p className="mt-1 font-medium text-slate-900">{formatChangeNameMeterDate(req.Date)}</p>
           </div>
           <div className="border-l-2 border-slate-200 pl-3">
-            <p className="text-xs uppercase tracking-wide text-slate-400">Solicitud</p>
-            <p className="mt-1 font-medium text-slate-900">Cambio de nombre</p>
+            <p className="text-xs uppercase tracking-wide text-slate-400">Comentarios</p>
+            <p className="mt-1 font-medium text-slate-900">{req.CanComment ? "Habilitados" : "Deshabilitados"}</p>
           </div>
         </div>
 

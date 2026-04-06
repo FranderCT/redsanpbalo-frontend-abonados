@@ -19,6 +19,13 @@ export interface ReqAvailWater {
   User: User;
   StateRequest: RequestState;
   commentRquest?: CommentRequest[];
+  RequestAvailabilityWaterFiles?: Array<{
+    Id?: number;
+    FileName?: string;
+    FilePath?: string;
+    FileType?: string;
+    UploadedAt?: Date;
+  }>;
 }
 
 export interface NewReqAvailWater {
