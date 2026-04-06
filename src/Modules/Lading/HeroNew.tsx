@@ -20,9 +20,6 @@ const Hero = () => {
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         <div className="max-w-3xl">
-          <span className="inline-block bg-[#006D42] text-white px-4 py-1 text-xs font-bold tracking-widest uppercase mb-6">
-            Compromiso Vital
-          </span>
           <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] mb-8">
             Agua Pura para Nuestra Comunidad
           </h1>
