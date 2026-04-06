@@ -49,6 +49,8 @@
     const stateColorsDict: Record<string, string> = {
     pendiente: "bg-[#E9F2FF] text-[#1789FC] border border-[#1789FC]/20",
     "en proceso": "bg-[#E9F2FF] text-[#1789FC] border border-[#1789FC]/20",
+    "en revision": "bg-amber-50 text-amber-700 border border-amber-200",
+    "en tramite": "bg-amber-50 text-amber-700 border border-amber-200",
     aprobado: "bg-[#E8F8F0] text-[#068A53] border border-[#68D89B]/30",
     completado: "bg-[#E8F8F0] text-[#068A53] border border-[#68D89B]/30",
     rechazado: "bg-[#FFE8E8] text-[#F6132D] border border-[#F6132D]/30",
@@ -60,6 +62,8 @@
     if (normalized.includes("aproba") || normalized.includes("complet"))
         return stateColorsDict["aprobado"];
     if (normalized.includes("rechaz")) return stateColorsDict["rechazado"];
+    if (normalized.includes("revision") || normalized.includes("tramite"))
+        return stateColorsDict["en revision"];
     if (normalized.includes("pend") || normalized.includes("proce"))
         return stateColorsDict["pendiente"];
     return "bg-gray-100 text-gray-700 border border-gray-300";
@@ -100,7 +104,6 @@
         "IsActive",
         "CanComment",
         "RequestAssociatedFile",
-        "NIS",
         // Excluir campos individuales del usuario que se muestran en la tarjeta
         "Name",
         "Surname1", 

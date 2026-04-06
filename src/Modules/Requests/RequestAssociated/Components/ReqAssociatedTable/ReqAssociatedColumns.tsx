@@ -16,6 +16,8 @@ const normalizeState = (s: string) =>
 const stateColorsDict: Record<string, string> = {
   "pendiente": "bg-[#E9F2FF] text-[#1789FC] border border-[#1789FC]/20", // azul suave
   "en proceso": "bg-[#E9F2FF] text-[#1789FC] border border-[#1789FC]/20",
+  "en revision": "bg-amber-50 text-amber-700 border border-amber-200",
+  "en tramite": "bg-amber-50 text-amber-700 border border-amber-200",
   "aprobado": "bg-[#E8F8F0] text-[#068A53] border border-[#68D89B]/30", // verde menta
   "rechazado": "bg-[#FFE8E8] text-[#F6132D] border border-[#F6132D]/30", // rojo claro
   "finalizado": "bg-[#F9F5FF] text-[#091540] border border-[#091540]/20",
@@ -26,6 +28,9 @@ const guessStateColor = (normalized: string) => {
   if (stateColorsDict[normalized]) return stateColorsDict[normalized];
   if (normalized.includes("aproba")) return stateColorsDict["aprobado"];
   if (normalized.includes("rechaz")) return stateColorsDict["rechazado"];
+  if (normalized.includes("revision") || normalized.includes("tramite")) {
+    return stateColorsDict["en revision"];
+  }
   if (normalized.includes("pend") || normalized.includes("proce"))
     return stateColorsDict["pendiente"];
 };
