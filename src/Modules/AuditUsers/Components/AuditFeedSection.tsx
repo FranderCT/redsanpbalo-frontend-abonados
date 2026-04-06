@@ -16,8 +16,9 @@ import { useGetAllAuditUsers } from "../Hooks/AuditUsersHooks";
 import type { AuditRecordScope, AuditUserMetadata, AuditUserRecord } from "../Models/AuditUser";
 
 type AuditCategory = "INSERCIONES" | "ELIMINACIONES" | "ACTUALIZACIONES" | "OTROS";
-type AuditImpact = "EXITOSO" | "FALLIDO" | "SISTEMA" | "ALTO IMPACTO" | "MEDIO";
 type FilterTab = "TODAS" | AuditCategory;
+
+
 
 const ITEMS_PER_PAGE = 8;
 
@@ -28,7 +29,6 @@ interface AuditRecordView {
   author: string;
   objective: string;
   timestamp: string;
-  impact: AuditImpact;
   source: string;
   outcome: string;
   changedFields: string[];
@@ -52,14 +52,6 @@ interface AuditFilterTabsProps {
 interface AuditItemProps {
   record: AuditRecordView;
 }
-
-const impactStyles: Record<AuditImpact, string> = {
-  EXITOSO: "bg-emerald-100 text-emerald-700",
-  FALLIDO: "bg-amber-100 text-amber-700",
-  SISTEMA: "bg-slate-200 text-slate-700",
-  "ALTO IMPACTO": "bg-rose-100 text-rose-700",
-  MEDIO: "bg-blue-100 text-blue-700",
-};
 
 const actionIcons: Record<AuditCategory, ReactNode> = {
   INSERCIONES: <Activity className="size-4 text-blue-700" aria-hidden="true" />,
@@ -227,14 +219,6 @@ function mapActionToCategory(action: string): AuditCategory {
   return "OTROS";
 }
 
-function mapActionToImpact(action: string, metadata: AuditUserMetadata): AuditImpact {
-  if (metadata.outcome && metadata.outcome !== "SUCCESS") return "FALLIDO";
-  if (action.includes("LOGIN")) return "SISTEMA";
-  if (action.includes("DELETE") || action.includes("REMOVE") || action.includes("DISABLE")) return "ALTO IMPACTO";
-  if (action.includes("UPDATE")) return "MEDIO";
-  return "EXITOSO";
-}
-
 function formatTimestamp(dateInput: string): string {
   const date = new Date(dateInput);
   if (Number.isNaN(date.getTime())) {
@@ -263,7 +247,6 @@ function mapAuditRecord(record: AuditUserRecord): AuditRecordView {
     author,
     objective,
     timestamp: formatTimestamp(record.CreatedAt),
-    impact: mapActionToImpact(record.Action, metadata),
     source,
     outcome,
     changedFields,
@@ -310,25 +293,20 @@ function AuditFilterTabs({ activeFilter, onChange, tabs }: AuditFilterTabsProps)
 function AuditItem({ record }: AuditItemProps) {
   return (
     <article className="flex items-start gap-3 border border-slate-200 bg-white p-4 shadow-sm md:items-center md:gap-4 md:p-5">
-      <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center bg-slate-100 md:mt-0">
+      <div className="mt-0.5 shrink-0 md:mt-0">
         {actionIcons[record.category]}
       </div>
 
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-slate-900 md:text-base">{record.action}</p>
         <p className="mt-1 text-xs text-slate-500 md:text-sm">Autor: {record.author}</p>
-        <p className="mt-1 text-xs text-slate-500 md:text-sm">Objetivo: {record.objective}</p>
+        <p className="mt-1 text-xs text-slate-500 md:text-sm">Afectado: {record.objective}</p>
         <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-slate-500 md:text-xs">
           <Clock3 className="size-3.5" aria-hidden="true" />
           <span>{record.timestamp}</span>
         </div>
       </div>
 
-      <span
-        className={`inline-flex shrink-0 px-3 py-1 text-[10px] font-bold tracking-wide md:text-xs ${impactStyles[record.impact]}`}
-      >
-        {record.impact}
-      </span>
     </article>
   );
 }
