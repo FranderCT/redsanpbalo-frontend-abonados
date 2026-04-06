@@ -89,15 +89,11 @@ export function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-center items-center gap-4">
           <p className="text-white/40 text-xs tracking-wide">
             © {new Date().getFullYear()} ASADA San Pablo. Todos los derechos reservados.
             Desarrollado por @BinarySoftwareTeam
           </p>
-          <div className="flex items-center gap-2 text-[#006D42] font-bold text-[10px] uppercase tracking-widest">
-            <div className="w-2 h-2 bg-[#006D42]"></div>
-            Sistema Operativo
-          </div>
         </div>
       </div>
     </footer>
