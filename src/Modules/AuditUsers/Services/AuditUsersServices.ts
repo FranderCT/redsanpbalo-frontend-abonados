@@ -1,10 +1,22 @@
 import apiAxios from "@/api/apiConfig";
-import type { AuditLogActor, AuditUserMetadata, AuditUserRecord, AuditUserRef, AuditUsersApiResponse } from "../Models/AuditUser";
+import type {
+  AuditLogActor,
+  AuditRecordScope,
+  AuditUserMetadata,
+  AuditUserRecord,
+  AuditUserRef,
+  AuditUsersApiResponse,
+} from "../Models/AuditUser";
 import type { User } from "@/Modules/Users/Models/User";
 
 const AUDIT_LOGS_ENDPOINT = "/audit/logs";
 const USERS_ENDPOINT = "/users";
 const USER_TABLE_FILTERS = (import.meta.env.VITE_AUDIT_USER_TABLES ?? "users,usuario,usuarios,user")
+  .split(",")
+  .map((value: string) => value.trim().toLowerCase())
+  .filter(Boolean);
+const REQUEST_TABLE_FILTERS = (import.meta.env.VITE_AUDIT_REQUEST_TABLES ??
+  "request_,request_associated,request_change_meter,request_change_name_meter,request_supervision_meter,request_availability_water")
   .split(",")
   .map((value: string) => value.trim().toLowerCase())
   .filter(Boolean);
@@ -50,6 +62,45 @@ function toStringArray(value: unknown): string[] {
 
 function toRecordMap(value: unknown): Record<string, unknown> | null {
   return asRecord(value);
+}
+
+function toLowerHaystack(...values: Array<string | null | undefined>): string {
+  return values.filter(Boolean).join(" ").toLowerCase();
+}
+
+function getNestedUserId(value: Record<string, unknown> | null | undefined): number | null {
+  if (!value) return null;
+
+  return (
+    toNumber(
+      getFirstDefined(value, [
+        "UserId",
+        "userId",
+        "user_id",
+        "IdUser",
+        "idUser",
+        "IdUsuario",
+        "idUsuario",
+        "usuarioId",
+        "associatedUserId",
+        "requestUserId",
+        "abonadoId",
+        "subscriberId",
+      ])
+    ) ??
+    toNumber(getFirstDefined(value, ["TargetUserId", "targetUserId", "target_user_id", "objectiveUserId"])) ??
+    null
+  );
+}
+
+function getNestedUserRef(value: Record<string, unknown> | null | undefined): AuditUserRef | null {
+  if (!value) return null;
+
+  const nestedUser =
+    asRecord(getFirstDefined(value, ["User", "user", "ObjectiveUser", "objectiveUser", "TargetUser", "targetUser"])) ??
+    asRecord(getFirstDefined(value, ["requestUser", "RequestUser", "requester", "Requester", "associatedUser", "abonado", "subscriber"]));
+
+  return normalizeUserRef(nestedUser);
 }
 
 function normalizeMetadata(value: unknown, fallbackSource?: string | null): AuditUserMetadata | null {
@@ -234,9 +285,77 @@ function getCollection(payload: AuditUsersApiResponse): unknown[] {
   return [];
 }
 
-function isUserAudit(tableName: string, moduleName: string, entityName: string): boolean {
-  const haystack = [tableName, moduleName, entityName].join(" ").toLowerCase();
-  return USER_TABLE_FILTERS.some((candidate: string) => haystack.includes(candidate));
+function getAuditScope(tableName: string, moduleName: string, entityName: string): AuditRecordScope {
+  const haystack = toLowerHaystack(tableName, moduleName, entityName);
+
+  if (REQUEST_TABLE_FILTERS.some((candidate: string) => haystack.includes(candidate))) {
+    return "request";
+  }
+
+  if (USER_TABLE_FILTERS.some((candidate: string) => haystack.includes(candidate))) {
+    return "user";
+  }
+
+  return "other";
+}
+
+function inferTargetUserId(source: UnknownRecord | null, metadata: AuditUserMetadata | null): number | null {
+  const directTargetUserId = toNumber(
+    getFirstDefined(source, [
+      "objectiveUserId",
+      "ObjectiveUserId",
+      "objectUserId",
+      "ObjectUserId",
+      "targetUserId",
+      "TargetUserId",
+      "affectedUserId",
+      "userId",
+      "UserId",
+      "idUser",
+      "IdUser",
+      "idUsuario",
+      "IdUsuario",
+      "associatedUserId",
+      "requestUserId",
+      "abonadoId",
+      "subscriberId",
+    ])
+  );
+
+  if (directTargetUserId !== null) {
+    return directTargetUserId;
+  }
+
+  return (
+    getNestedUserId(metadata?.context) ??
+    getNestedUserId(metadata?.after) ??
+    getNestedUserId(metadata?.before) ??
+    null
+  );
+}
+
+function inferTargetUserRef(source: UnknownRecord | null, metadata: AuditUserMetadata | null): AuditUserRef | null {
+  const directTarget = normalizeUserRef(
+    getFirstDefined(source, [
+      "ObjectiveUser",
+      "objectiveUser",
+      "ObjectUser",
+      "objectUser",
+      "TargetUser",
+      "targetUser",
+      "requestUser",
+      "RequestUser",
+      "associatedUser",
+      "abonado",
+      "subscriber",
+    ])
+  );
+
+  if (directTarget) {
+    return directTarget;
+  }
+
+  return getNestedUserRef(metadata?.context) ?? getNestedUserRef(metadata?.after) ?? getNestedUserRef(metadata?.before) ?? null;
 }
 
 function normalizeAuditRecord(value: unknown, index: number): AuditUserRecord | null {
@@ -285,10 +404,9 @@ function normalizeAuditRecord(value: unknown, index: number): AuditUserRecord | 
     actor?.id ??
     actorUser?.Id ??
     null;
-  const targetUserId =
-    toNumber(getFirstDefined(source, ["objectiveUserId", "ObjectiveUserId", "objectUserId", "ObjectUserId", "targetUserId", "TargetUserId", "affectedUserId"])) ??
-    targetUser?.Id ??
-    null;
+  const scope = getAuditScope(tableName, moduleName, entityName);
+  const targetUserRef = targetUser ?? inferTargetUserRef(source, metadata);
+  const targetUserId = inferTargetUserId(source, metadata) ?? targetUser?.Id ?? null;
 
   return {
     Id: toNumber(getFirstDefined(source, ["Id", "id", "auditId"])) ?? index + 1,
@@ -304,12 +422,13 @@ function normalizeAuditRecord(value: unknown, index: number): AuditUserRecord | 
     CreatedAt: createdAt,
     UpdatedAt: updatedAt,
     ActorUser: actorUser,
-    TargetUser: targetUser,
+    TargetUser: targetUserRef,
     TableName: tableName || null,
     RecordId: recordId,
     Actor: actor,
     AuthorName: authorName,
     ObjectiveName: objectiveName,
+    Scope: scope,
   };
 }
 
@@ -326,7 +445,7 @@ export async function getAllAuditUsers(): Promise<AuditUserRecord[]> {
   return getCollection(auditLogs)
     .map(normalizeAuditRecord)
     .filter((record): record is AuditUserRecord => record !== null)
-    .filter((record) => isUserAudit(record.TableName ?? "", record.Module, record.EntityName))
+    .filter((record) => (record.Scope ?? "other") !== "other")
     .map((record) => {
       const actorFromUsers = record.ActorUserId ? usersById.get(record.ActorUserId) ?? null : null;
       const targetFromUsers = record.TargetUserId ? usersById.get(record.TargetUserId) ?? null : null;

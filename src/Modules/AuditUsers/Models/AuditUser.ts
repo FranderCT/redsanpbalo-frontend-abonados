@@ -36,6 +36,8 @@ export interface AuditLogActor {
   email?: string | null;
 }
 
+export type AuditRecordScope = "user" | "request" | "other";
+
 export interface AuditUserRecord {
   Id: number;
   Module: string;
@@ -56,6 +58,7 @@ export interface AuditUserRecord {
   Actor?: AuditLogActor | null;
   AuthorName?: string | null;
   ObjectiveName?: string | null;
+  Scope?: AuditRecordScope;
 }
 
 export interface AuditUsersMeta {
