@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Droplets } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import LogoRedSanPablo from "../../assets/images/LogoRedSanPabloHG.svg";
 
@@ -18,7 +17,7 @@ export default function HeaderPaanee() {
 
         {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-8">
-          <a href="#inicio" className="font-bold tracking-tight text-[#005CAF] border-b-2 border-[#005CAF] pb-1">
+          <a href="#inicio" className="font-bold tracking-tight text-[#404754] hover:text-[#005CAF] transition-all">
             Inicio
           </a>
           <a href="#sobre-nosotros" className="font-bold tracking-tight text-[#404754] hover:text-[#005CAF] transition-all">

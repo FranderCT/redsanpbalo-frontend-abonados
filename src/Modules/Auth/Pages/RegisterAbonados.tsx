@@ -48,7 +48,7 @@ const RegisterAbonados = () => {
 
   return (
     <div className="grid min-h-screen place-items-center bg-slate-100 p-4">
-      <Card className="w-full max-w-2xl rounded-xl shadow-lg border border-slate-200">
+      <Card className="w-full max-w-2xl shadow-lg border border-slate-200">
         <CardHeader className="relative pb-3">
           {/* Botón volver (arriba izquierda) */}
           <div className="flex absolute top-3 left-3">
