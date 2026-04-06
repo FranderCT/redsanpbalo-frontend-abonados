@@ -3,18 +3,20 @@ import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { DataPagination } from "@/Components/ui/data-pagination";
-import { Eye, FileText, MapPin, MessageSquare } from "lucide-react";
-import type { ReqChangeMeter } from "../../../Requests/RequestChangeMeterr/Models/RequestChangeMeter";
-import { CommentsChangeMeterModal } from "../../../Requests/RequestChangeMeterr/Components/Comments/CommentsChangeMeterModal";
-import RequestDetailModal from "../Modals/RequestSuperVisionMeterr";
-import { formatRequestChangeMeterDate } from "../../../Requests/RequestChangeMeterr/utils/requestChangeMeterDate";
+import { Eye, FileText, MessageSquare } from "lucide-react";
+import type { ReqAvailWater } from "../../../Requests/RequestAvailabilityWater/Models/ReqAvailWater";
+import { CommentsAvailWaterModal } from "../../../Requests/RequestAvailabilityWater/Components/Comments/CommentsAvailWaterModal";
+import RequestAvailabilityWaterModalAbo from "../Modals/RequesAvailabilityModal";
+import { formatAvailabilityWaterDate } from "../../../Requests/RequestAvailabilityWater/utils/requestAvailabilityWaterDate";
 
 type Props = {
-  data: ReqChangeMeter[];
+  data: ReqAvailWater[];
   total?: number;
   page: number;
+  pageSize?: number;
   pageCount: number;
   onPageChange: (page: number) => void;
+  applicantName?: string;
 };
 
 const normalizeState = (value?: string) =>
@@ -36,22 +38,64 @@ function getStateClass(stateName?: string) {
   return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
-function ReqChangeMeterUserCard({
+function getApplicantName(req: ReqAvailWater) {
+  const requestWithFallbacks = req as ReqAvailWater & {
+    Name?: string;
+    Surname1?: string;
+    Surname2?: string;
+    FullName?: string;
+    fullName?: string;
+    UserName?: string;
+    ApplicantName?: string;
+  };
+
+  const nestedUserName = [
+    req.User?.Name,
+    req.User?.Surname1,
+    req.User?.Surname2,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
+  const directName = [
+    requestWithFallbacks.Name,
+    requestWithFallbacks.Surname1,
+    requestWithFallbacks.Surname2,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
+  return (
+    nestedUserName ||
+    directName ||
+    requestWithFallbacks.FullName?.trim() ||
+    requestWithFallbacks.fullName?.trim() ||
+    requestWithFallbacks.UserName?.trim() ||
+    requestWithFallbacks.ApplicantName?.trim() ||
+    "Solicitante"
+  );
+}
+
+function ReqAvailWaterUserCard({
   req,
   onOpenDetails,
   onOpenComments,
+  applicantName,
 }: {
-  req: ReqChangeMeter;
-  onOpenDetails: (req: ReqChangeMeter) => void;
-  onOpenComments: (req: ReqChangeMeter) => void;
+  req: ReqAvailWater;
+  onOpenDetails: (req: ReqAvailWater) => void;
+  onOpenComments: (req: ReqAvailWater) => void;
+  applicantName?: string;
 }) {
+  const fullName = useMemo(() => {
+    const requestName = getApplicantName(req);
+    return requestName !== "Solicitante" ? requestName : applicantName?.trim() || "Solicitante";
+  }, [applicantName, req]);
   const justification = req.Justification?.trim() || "Sin justificación registrada.";
   const isLongText = justification.length > 150;
   const [expanded, setExpanded] = useState(false);
-  const fullName = useMemo(
-    () => `${req.User?.Name ?? ""} ${req.User?.Surname1 ?? ""} ${req.User?.Surname2 ?? ""}`.trim() || "Solicitante",
-    [req],
-  );
 
   return (
     <Card className="flex h-full flex-col rounded-none border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
@@ -62,7 +106,7 @@ function ReqChangeMeterUserCard({
               {fullName}
             </CardTitle>
             <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">
-              Cambio de medidor
+              Solicitud de disponibilidad de agua
             </p>
           </div>
           <Badge className={`rounded-none border ${getStateClass(req.StateRequest?.Name)}`}>
@@ -70,31 +114,18 @@ function ReqChangeMeterUserCard({
           </Badge>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline" className="rounded-none border-slate-300 text-slate-700">
-            NIS: {req.NIS ?? "-"}
-          </Badge>
-        </div>
       </CardHeader>
 
       <CardContent className="flex flex-1 flex-col gap-4 p-5">
         <div className="grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
           <div className="border-l-2 border-slate-200 pl-3">
             <p className="text-xs uppercase tracking-wide text-slate-400">Fecha</p>
-            <p className="mt-1 font-medium text-slate-900">{formatRequestChangeMeterDate(req.Date)}</p>
+            <p className="mt-1 font-medium text-slate-900">{formatAvailabilityWaterDate(req.Date)}</p>
           </div>
           <div className="border-l-2 border-slate-200 pl-3">
             <p className="text-xs uppercase tracking-wide text-slate-400">Comentarios</p>
             <p className="mt-1 font-medium text-slate-900">{req.CanComment ? "Habilitados" : "Deshabilitados"}</p>
           </div>
-        </div>
-
-        <div className="flex flex-col gap-2 border-t border-slate-100 pt-4">
-          <div className="flex items-center gap-2 text-sm font-medium text-slate-900">
-            <MapPin className="h-4 w-4 text-[#091540]" />
-            Ubicación
-          </div>
-          <p className="text-sm leading-6 text-slate-600">{req.Location || "Sin ubicación registrada."}</p>
         </div>
 
         <div className="flex flex-1 flex-col gap-2 border-t border-slate-100 pt-4">
@@ -142,30 +173,42 @@ function ReqChangeMeterUserCard({
   );
 }
 
-export default function ReqChangeMeterUserCards({
+export default function ReqAvailWaterUserCards({
   data,
   total,
   page,
+  pageSize,
   pageCount,
   onPageChange,
+  applicantName,
 }: Props) {
-  const [selectedRequest, setSelectedRequest] = useState<ReqChangeMeter | null>(null);
-  const [commentingRequest, setCommentingRequest] = useState<ReqChangeMeter | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<ReqAvailWater | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [commentingRequest, setCommentingRequest] = useState<ReqAvailWater | null>(null);
+
+  const handleOpenDetails = (req: ReqAvailWater) => {
+    setSelectedRequest(req);
+    setShowDetailModal(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetailModal(false);
+    setSelectedRequest(null);
+  };
 
   return (
     <section className="flex w-full flex-col gap-4">
       {selectedRequest ? (
-        <RequestDetailModal
-          open={!!selectedRequest}
-          onClose={() => setSelectedRequest(null)}
-          title="Detalles de solicitud de cambio de medidor"
+        <RequestAvailabilityWaterModalAbo
+          open={showDetailModal}
+          onClose={handleCloseDetails}
+          title="Detalles de Solicitud de Disponibilidad de Agua"
           data={selectedRequest}
-          excludeFields={["Id", "SupervisorId", "CreatedAt", "UpdatedAt", "IsActive", "RequestSupervisionMeterFiles", "SupervisionMeterFiles", "CanComment"]}
         />
       ) : null}
 
       {commentingRequest ? (
-        <CommentsChangeMeterModal
+        <CommentsAvailWaterModal
           open={!!commentingRequest}
           onClose={() => setCommentingRequest(null)}
           request={commentingRequest}
@@ -183,10 +226,11 @@ export default function ReqChangeMeterUserCards({
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {data.map((req) => (
-            <ReqChangeMeterUserCard
+            <ReqAvailWaterUserCard
               key={req.Id}
               req={req}
-              onOpenDetails={setSelectedRequest}
+              applicantName={applicantName}
+              onOpenDetails={handleOpenDetails}
               onOpenComments={setCommentingRequest}
             />
           ))}
@@ -199,6 +243,7 @@ export default function ReqChangeMeterUserCards({
             page={page}
             pageCount={pageCount}
             total={total ?? data.length}
+            pageSize={pageSize}
             onPageChange={onPageChange}
             labels={{ totalItems: "solicitudes" }}
             compact

@@ -1,10 +1,17 @@
 import { useMemo, useState } from "react";
 import { useGetAllRequestStates } from "../../Requests/StateRequest/Hooks/RequestStateHook";
-import { useGetMyReqAvailWaterPaginated } from "../Hooks/AvailabilityWater/AvailabilityWaterHooks";
 import type { ReqAvailWater } from "../../Requests/RequestAvailabilityWater/Models/ReqAvailWater";
 import ReqAvailWaterUserHeaderBar from "../Components/AvailabilityWater/ReqAvailWaterUserHeaderBar";
-import ReqAvailWaterUserTable from "../Components/AvailabilityWater/ReqAvailWaterUserTable";
-import ResumeReqAvailWater from "../../Requests/Components/Cards/ResumeReqAvailWater";
+import ReqAvailWaterUserCards from "../Components/AvailabilityWater/ReqAvailWaterUserCards";
+import { useGetMyReqAvailWater } from "../Hooks/AvailabilityWater/AvailabilityWaterHooks";
+import { useGetUserProfile } from "../../Users/Hooks/UsersHooks";
+
+const normalizeText = (value: unknown) =>
+  String(value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
 
 export default function ListReqAvailWaterUser() {
   const [page, setPage] = useState(1);
@@ -12,108 +19,106 @@ export default function ListReqAvailWaterUser() {
   const [search, setSearch] = useState("");
   const [stateRequestId, setStateRequestId] = useState<number | undefined>(undefined);
 
-  const handleSearchChange = (txt: string) => {
-    setSearch(txt);
+  const handleSearchChange = (text: string) => {
+    setSearch(text);
     setPage(1);
   };
+
   const handleStateRequestChange = (id?: number) => {
     setStateRequestId(id);
     setPage(1);
   };
+
   const handleCleanFilters = () => {
     setSearch("");
     setStateRequestId(undefined);
     setPage(1);
   };
 
-  // Estados disponibles (para el dropdown)
   const { requestStates = [], isPending: requestStatesLoading } = useGetAllRequestStates();
+  const { data, isLoading, error } = useGetMyReqAvailWater();
+  const { UserProfile } = useGetUserProfile();
 
-  // Backend paginado (mis solicitudes) con filtros
-  const { data, isLoading, error } = useGetMyReqAvailWaterPaginated({
-    page,
-    limit,
-    StateRequestId: stateRequestId
-  });
-
-  const rows: ReqAvailWater[] = data?.data ?? [];
-  const meta = {
-    total: data?.meta?.total ?? 0,
-    page: data?.meta?.page ?? page,
-    limit: data?.meta?.limit ?? limit,
-    pageCount: data?.meta?.pageCount ?? Math.ceil((data?.meta?.total ?? 0) / limit),
-    hasNextPage: data?.meta?.hasNextPage ?? false,
-    hasPrevPage: data?.meta?.hasPrevPage ?? false
-  };
-
-  // Filtrado cliente solo para el buscador
+  const allRows = useMemo<ReqAvailWater[]>(() => data ?? [], [data]);
   const filteredRows = useMemo(() => {
-    const txt = search.trim().toLowerCase();
-    if (!txt) return rows;
-    return rows.filter((r) => {
-      const inJust = String(r.Justification ?? "").toLowerCase().includes(txt);
-      const inDate = String(r.Date ?? "").toLowerCase().includes(txt);
-      const inState = String(r.StateRequest?.Name ?? "").toLowerCase().includes(txt);
-      return inJust || inDate || inState;
-    });
-  }, [rows, search]);
+    const normalizedSearch = normalizeText(search);
 
-  const pageTotals = useMemo(() => {
-    const acc = { total: 0, approved: 0, rejected: 0, pending: 0 };
-    for (const r of rows) {
-      acc.total++;
-      const name = r.StateRequest?.Name?.toLowerCase() ?? "";
-      if (name.includes("apro")) acc.approved++;
-      else if (name.includes("rech")) acc.rejected++;
-      else if (name.includes("pend") || name.includes("proce")) acc.pending++;
-    }
-    return acc;
-  }, [rows]);
+    return allRows.filter((row) => {
+      const matchesState = stateRequestId ? row.StateRequest?.Id === stateRequestId : true;
+
+      if (!matchesState) {
+        return false;
+      }
+
+      if (!normalizedSearch) {
+        return true;
+      }
+
+      const justification = normalizeText(row.Justification);
+      const legacyJustification = normalizeText((row as ReqAvailWater & { justification?: string }).justification);
+      const searchableText = [
+        justification,
+        legacyJustification,
+        row.StateRequest?.Name,
+        row.User?.Name,
+        row.User?.Surname1,
+        row.User?.Surname2,
+        row.User?.IDcard,
+        row.User?.Email,
+        row.Date ? String(row.Date) : "",
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+      return searchableText.includes(normalizedSearch);
+    });
+  }, [allRows, search, stateRequestId]);
+
+  const total = filteredRows.length;
+  const pageCount = Math.max(1, Math.ceil(total / limit));
+  const safePage = Math.min(page, pageCount);
+  const start = (safePage - 1) * limit;
+  const paginatedRows = filteredRows.slice(start, start + limit);
 
   return (
-    <div className="px-6 py-4 space-y-6">
-      <h1 className="text-2xl font-bold text-[#091540]">Mis Solicitudes de Disponibilidad de Agua</h1>
-      <p className="text-[#091540]/70 text-md">Lista de solicitudes realizadas</p>
-      <div className="border-b border-dashed border-gray-300 "></div>
-      {/* Cards (con totales de la página actual) */}
-      <ResumeReqAvailWater
-        total={pageTotals.total}
-        pending={pageTotals.pending}
-        approved={pageTotals.approved}
-        rejected={pageTotals.rejected}
-        loading={isLoading || requestStatesLoading}
+    <div className="flex flex-col gap-6">
+      <ReqAvailWaterUserHeaderBar
+        limit={limit}
+        total={total}
+        search={search}
+        requestStateId={stateRequestId}
+        states={requestStates}
+        statesLoading={requestStatesLoading}
+        onStateRequestChange={handleStateRequestChange}
+        onLimitChange={(value) => {
+          setLimit(value);
+          setPage(1);
+        }}
+        onSearchChange={handleSearchChange}
+        onCleanFilters={handleCleanFilters}
       />
 
-      <div className="border-b border-dashed border-gray-300 mt-4 mb-6"></div>
-      {/* Control de búsqueda y filtros */}
-      <div className="mb-4">
-        <ReqAvailWaterUserHeaderBar
-          limit={meta.limit}
-          total={meta.total}
-          search={search}
-          requestStateId={stateRequestId}
-          states={requestStates}
-          statesLoading={requestStatesLoading}
-          onStateRequestChange={handleStateRequestChange}
-          onLimitChange={(l: number) => {
-            setLimit(l);
-            setPage(1);
-          }}
-          onSearchChange={handleSearchChange}
-          onCleanFilters={handleCleanFilters}
-        />
-      </div>
-      <div className="overflow-x-auto shadow-xl border border-gray-200 rounded">
+      <div>
         {isLoading ? (
-          <div className="p-6 text-center text-gray-500">Cargando…</div>
+          <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
+            Cargando solicitudes…
+          </div>
         ) : error ? (
-          <div className="p-6 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
+          <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">
+            Ocurrió un error al cargar las solicitudes.
+          </div>
         ) : (
-          <ReqAvailWaterUserTable
-            data={filteredRows}
-            page={meta.page}
-            pageCount={meta.pageCount}
+          <ReqAvailWaterUserCards
+            data={paginatedRows}
+            total={total}
+            page={safePage}
+            pageSize={limit}
+            pageCount={pageCount}
             onPageChange={setPage}
+            applicantName={`${UserProfile?.Name ?? ""} ${UserProfile?.Surname1 ?? ""} ${UserProfile?.Surname2 ?? ""}`.trim()}
           />
         )}
       </div>
