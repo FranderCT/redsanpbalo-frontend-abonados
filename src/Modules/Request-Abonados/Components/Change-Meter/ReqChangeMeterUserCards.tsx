@@ -30,6 +30,9 @@ function getStateClass(stateName?: string) {
   const normalized = normalizeState(stateName);
   if (normalized.includes("aproba")) return "border-[#68D89B]/30 bg-[#E8F8F0] text-[#068A53]";
   if (normalized.includes("rechaz")) return "border-[#F6132D]/30 bg-[#FFE8E8] text-[#F6132D]";
+  if (normalized.includes("revision") || normalized.includes("tramite")) {
+    return "border-amber-200 bg-amber-50 text-amber-700";
+  }
   if (normalized.includes("pend") || normalized.includes("proce")) {
     return "border-[#1789FC]/20 bg-[#E9F2FF] text-[#1789FC]";
   }

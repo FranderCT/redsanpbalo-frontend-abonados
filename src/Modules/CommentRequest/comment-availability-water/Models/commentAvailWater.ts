@@ -7,6 +7,7 @@ export interface CommentAvailabilityWater {
   Subject: string;
   Comment: string;
   createdAt: Date;
+  hasFileUpdate?: boolean;
   requestAvailability: ReqAvailWater;
   User: User;
 }

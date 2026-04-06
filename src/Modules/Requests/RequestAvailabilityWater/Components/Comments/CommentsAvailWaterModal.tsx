@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ModalBase } from "../../../../../Components/Modals/ModalBase";
 import { useGetCommentsByRequestIdAvailabilityWater, useCreateAdminCommentAvailabilityWater, useReplyWithFilesAvailabilityWater } from "../../../../CommentRequest/comment-availability-water/Hooks/commentAvailWaterHooks";
 import { toast } from "sonner";
 import type { ReqAvailWater } from "../../Models/ReqAvailWater";
 import { useGetUserProfile } from "../../../../Users/Hooks/UsersHooks";
 import { useReqAvailWaterFolderLink } from "../../Hooks/ReqAvailWaterHooks";
+import { useTempLink } from "../../../../Request-Abonados/Hooks/AvailabilityWater/AvailabilityWaterHookF";
 
 interface CommentsAvailWaterModalProps {
   open: boolean;
@@ -12,6 +13,16 @@ interface CommentsAvailWaterModalProps {
   request: ReqAvailWater;
   isAdmin?: boolean;
 }
+
+type RequestAvailabilityWaterFileItem = NonNullable<
+  ReqAvailWater["RequestAvailabilityWaterFiles"]
+>[number];
+
+type LegacyDocument = {
+  name: string;
+  path: string;
+  type: string;
+};
 
 export function CommentsAvailWaterModal({
   open,
@@ -29,6 +40,15 @@ export function CommentsAvailWaterModal({
   const [comment, setComment] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFileId, setSelectedFileId] = useState<number | null>(null);
+  const { data: tempLinkData, isLoading: isLoadingLink } = useTempLink(selectedFileId);
+
+  useEffect(() => {
+    if (tempLinkData?.link && selectedFileId) {
+      window.open(tempLinkData.link, "_blank", "noopener,noreferrer");
+      setSelectedFileId(null);
+    }
+  }, [tempLinkData, selectedFileId]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -136,8 +156,17 @@ export function CommentsAvailWaterModal({
     folderLinkMutation.mutate(request.Id);
   };
 
+  const handleViewFile = (fileId: number) => {
+    setSelectedFileId(fileId);
+  };
+
   // Preparar lista de documentos adjuntos
-  const documents = [];
+  const originalFiles: Array<RequestAvailabilityWaterFileItem & { Id: number }> =
+    request.RequestAvailabilityWaterFiles?.filter(
+      (file): file is RequestAvailabilityWaterFileItem & { Id: number } =>
+        typeof file?.Id === "number" && file.Id > 0
+    ) ?? [];
+  const documents: LegacyDocument[] = [];
   
   if (request.IdCardFiles && request.IdCardFiles.length > 0) {
     request.IdCardFiles.forEach((file, idx) => {
@@ -215,7 +244,7 @@ export function CommentsAvailWaterModal({
           </div>
 
           {/* Documentos originales */}
-          {documents.length > 0 && (
+          {(originalFiles.length > 0 || documents.length > 0) && (
             <div className="mt-6">
               <h5 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,45 +253,92 @@ export function CommentsAvailWaterModal({
                 Documentos Adjuntos a la Solicitud
               </h5>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {documents.map((doc, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white p-4 rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:shadow-md transition-all group"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
-                        <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate" title={doc.name}>{doc.name}</p>
-                        <p className="text-xs text-gray-500 mt-1">{doc.type}</p>
-                        <button
-                          onClick={handleViewFolder}
-                          disabled={folderLinkMutation.isPending}
-                          className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-wait"
+                {originalFiles.length > 0
+                  ? originalFiles.map((file, idx) => {
+                      const fileId = file.Id;
+                      const fileName = file.FileName || `Documento ${idx + 1}`;
+                      const fileType = file.FileType || "Documento adjunto";
+
+                      return (
+                        <div
+                          key={fileId}
+                          className="bg-white p-4 rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:shadow-md transition-all group"
                         >
-                          {folderLinkMutation.isPending ? (
-                            <>
-                              <svg className="w-4 h-4 animate-spin" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          <div className="flex items-start gap-3">
+                            <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                              <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clipRule="evenodd" />
                               </svg>
-                              Cargando...
-                            </>
-                          ) : (
-                            <>
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                              </svg>
-                              Ver Carpeta
-                            </>
-                          )}
-                        </button>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 truncate" title={fileName}>{fileName}</p>
+                              <p className="text-xs text-gray-500 mt-1">{fileType}</p>
+                              <button
+                                onClick={() => handleViewFile(fileId)}
+                                disabled={isLoadingLink && selectedFileId === fileId}
+                                className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-wait"
+                              >
+                                {isLoadingLink && selectedFileId === fileId ? (
+                                  <>
+                                    <svg className="w-4 h-4 animate-spin" fill="currentColor" viewBox="0 0 24 24">
+                                      <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                    </svg>
+                                    Cargando...
+                                  </>
+                                ) : (
+                                  <>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Ver Documento
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  : documents.map((doc, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-white p-4 rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:shadow-md transition-all group"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                            <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate" title={doc.name}>{doc.name}</p>
+                            <p className="text-xs text-gray-500 mt-1">{doc.type}</p>
+                            <button
+                              onClick={handleViewFolder}
+                              disabled={folderLinkMutation.isPending}
+                              className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-wait"
+                            >
+                              {folderLinkMutation.isPending ? (
+                                <>
+                                  <svg className="w-4 h-4 animate-spin" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                  </svg>
+                                  Cargando...
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                  </svg>
+                                  Ver Carpeta
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    ))}
               </div>
             </div>
           )}
@@ -365,6 +441,24 @@ export function CommentsAvailWaterModal({
                         }`}>
                           {commentItem.Comment}
                         </p>
+
+                        {commentItem.hasFileUpdate && (
+                          <div className={`mt-3 pt-3 border-t ${
+                            isMyMessage ? "border-blue-500" : "border-gray-200"
+                          }`}>
+                            <p className={`text-xs font-medium mb-2 flex items-center gap-1 ${
+                              isMyMessage ? "text-blue-200" : "text-gray-600"
+                            }`}>
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M8 4a3 3 0 00-3 3v4a5 5 0 0010 0V7a1 1 0 112 0v4a7 7 0 11-14 0V7a5 5 0 0110 0v4a3 3 0 11-6 0V7a1 1 0 012 0v4a1 1 0 102 0V7a3 3 0 00-3-3z" clipRule="evenodd" />
+                              </svg>
+                              Documentos actualizados adjuntos
+                            </p>
+                            <div className="text-xs text-gray-500 italic">
+                              Los archivos actualizados se encuentran en la sección superior del chat
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
