@@ -27,7 +27,9 @@ export const AddUserSchema = z.object({
     invalid_type_error: 'El teléfono es obligatorio',
     }).refine((val) => isValidPhoneNumber(val), 'Número telefónico inválido'),
     
-    Birthdate: z.coerce.date().refine(
+    Birthdate: z.coerce.date({
+      errorMap: () => ({ message: "Fecha inválida" }),
+    }).refine(
       (d) => !Number.isNaN(d.getTime()),
       { message: "Fecha inválida" }
     ).refine(

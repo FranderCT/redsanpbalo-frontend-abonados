@@ -33,6 +33,15 @@ import { useGetAllRoles } from "../../Hooks/UsersHooks";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { AddUserSchema } from "../../schemas/AddUserSchema";
 
+const isValidDateValue = (value: unknown): value is Date =>
+  value instanceof Date && !Number.isNaN(value.getTime());
+
+const toDateInputValue = (value: unknown) => {
+  if (typeof value === "string") return value;
+  if (isValidDateValue(value)) return value.toISOString().split("T")[0];
+  return "";
+};
+
 export default function RegisterAbonadosModal() {
   const [open, setOpen] = useState(false);
   const [tempNis, setTempNis] = useState("");
@@ -412,15 +421,14 @@ export default function RegisterAbonadosModal() {
                       id={field.name}
                       name={field.name}
                       type="date"
-                      value={
-                        field.state.value
-                          ? field.state.value instanceof Date
-                            ? field.state.value.toISOString().split("T")[0]
-                            : String(field.state.value)
-                          : ""
-                      }
+                      value={toDateInputValue(field.state.value)}
                       onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(new Date(e.target.value))}
+                      onChange={(e) => {
+                        const nextValue = e.target.value;
+                        field.handleChange(
+                          nextValue ? new Date(`${nextValue}T00:00:00`) : ("" as unknown as Date)
+                        );
+                      }}
                       aria-invalid={isInvalid}
                     />
                     {isInvalid && (
