@@ -2,8 +2,6 @@ import { startTransition, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
   Activity,
-  ChevronLeft,
-  ChevronRight,
   Clock3,
   LoaderCircle,
   Pencil,
@@ -12,6 +10,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { showApiErrorToast } from "@/core/api-error";
+import { DataPagination } from "@/Components/ui/data-pagination";
 import { useGetAllAuditUsers } from "../Hooks/AuditUsersHooks";
 import type { AuditRecordScope, AuditUserMetadata, AuditUserRecord } from "../Models/AuditUser";
 
@@ -424,30 +423,16 @@ export default function AuditFeedSection({
       </section>
 
       <section>
-        <div className="flex items-center justify-between border border-slate-200 bg-white p-3 shadow-sm sm:max-w-md">
-          <button
-            type="button"
-            onClick={() => setCurrentPage((previousPage) => Math.max(1, previousPage - 1))}
-            disabled={currentPage === 1 || isLoading}
-            className="inline-flex size-10 items-center justify-center border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Pagina anterior"
-          >
-            <ChevronLeft className="size-4" aria-hidden="true" />
-          </button>
-
-          <p className="text-xs font-semibold tracking-[0.06em] text-slate-600 md:text-sm">
-            PAGINA {currentPage} DE {pageCount}
-          </p>
-
-          <button
-            type="button"
-            onClick={() => setCurrentPage((previousPage) => Math.min(pageCount, previousPage + 1))}
-            disabled={currentPage === pageCount || isLoading}
-            className="inline-flex size-10 items-center justify-center border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Pagina siguiente"
-          >
-            <ChevronRight className="size-4" aria-hidden="true" />
-          </button>
+        <div className="border-t pt-4">
+          <DataPagination
+            page={currentPage}
+            pageCount={pageCount}
+            total={filteredRecords.length}
+            pageSize={ITEMS_PER_PAGE}
+            onPageChange={setCurrentPage}
+            labels={{ totalItems: "auditorias" }}
+            compact
+          />
         </div>
       </section>
     </section>
