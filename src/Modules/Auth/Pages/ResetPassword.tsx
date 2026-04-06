@@ -1,143 +1,221 @@
 import { useForm } from "@tanstack/react-form";
-import { useNavigate } from "@tanstack/react-router";
-import { ResetPasswordInitialState } from "../Models/ResetPassword";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { CheckCircle2, ChevronLeft, KeyRound } from "lucide-react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/Components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/Components/ui/card";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/Components/ui/field";
+import { Input } from "@/Components/ui/input";
 import { useResetPassword } from "../Hooks/AuthHooks";
-import { useState } from "react";
+import { ResetPasswordInitialState } from "../Models/ResetPassword";
 import { ResetPasswordSchema } from "../schemas/ResetPasswordSchema";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
-  const resetPasswdMutation = useResetPassword();
+  const resetPasswordMutation = useResetPassword();
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Leer ?token=... desde la URL
-  const token = new URLSearchParams(window.location.search).get("token") ?? "";
+  const token = useMemo(
+    () => new URLSearchParams(window.location.search).get("token") ?? "",
+    []
+  );
 
   const form = useForm({
     defaultValues: ResetPasswordInitialState,
     validators: {
       onChange: ResetPasswordSchema,
+      onSubmit: ResetPasswordSchema,
     },
     onSubmit: async ({ value }) => {
-      if (value.NewPassword !== value.ConfirmPassword) {
-        alert("Las contraseñas no coinciden");
-        return;
-      }
       if (!token) {
-        alert("Token no encontrado en la URL");
+        toast.error("Token no encontrado en la URL");
         return;
       }
 
       try {
-        await resetPasswdMutation.mutateAsync({ payload: value, token });
+        await resetPasswordMutation.mutateAsync({ payload: value, token });
+        setIsSuccess(true);
+        toast.success("Contraseña restablecida correctamente");
         form.reset();
-        setIsSuccess(true); // <- mostrar vista de éxito
-      } catch (err) {
-        console.error(err);
-        alert("No se pudo restablecer la contraseña. Intente nuevamente.");
+      } catch (error) {
+        console.error("Error al restablecer contraseña", error);
+        toast.error("No se pudo restablecer la contraseña");
       }
     },
   });
 
   return (
-    <div className="max-w-md bg-white rounded-sm shadow-lg border-t-20 border-[#091540] px-8 py-10 h-screen w-screen flex items-center justify-center md:mx-auto md:my-20">
-      <div className="flex flex-col justify-center items-center flex-grow w-full gap-4">
-        <h2 className="md:text-3xl font-bold text-[#091540] text-center drop-shadow-lg gap-4">
-          Restablecer contraseña
-        </h2>
+    <div className="grid min-h-screen place-items-center bg-slate-100 p-4">
+      <Card className="w-full max-w-md shadow-lg border border-slate-200">
+        <CardHeader className="relative pb-3">
+          <div className="flex absolute top-3 left-3">
+            <Link
+              to="/login"
+              className="hover:underline underline-offset-4 inline-flex items-center gap-2 text-xs px-3 py-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span>Volver</span>
+            </Link>
+          </div>
+
+          <div className="mt-8 flex justify-center items-center">
+            <img
+              src="src\assets\images\LogoRedSanPabloHG.png"
+              alt="Logo ASADA"
+              className="h-15 w-auto object-contain"
+            />
+          </div>
+
+          <CardTitle className="mt-4 text-center text-3xl font-extrabold tracking-tight text-slate-900">
+            Restablecer contraseña
+          </CardTitle>
+          <p className="text-center text-sm text-slate-600 mt-2">
+            Defina una nueva contraseña segura para su cuenta.
+          </p>
+        </CardHeader>
 
         {isSuccess ? (
-          // --- Vista de éxito ---
-          <div className="flex flex-col items-center gap-3 p-4 text-center">
-            <p className="text-[#68D89B] text-lg font-semibold">
-              ¡Contraseña restablecida con éxito!
-            </p>
-            <p className="text-[#091540]">
-              Ya puedes iniciar sesión con tu nueva contraseña.
-            </p>
-            <button
-              onClick={() => navigate({ to: "/login" })}
-              className="w-1/2 bg-[#091540] shadow-xl text-white py-2 rounded-md font-semibold hover:bg-[#1789FC] transition cursor-pointer"
-            >
-              Ir a Iniciar sesión
-            </button>
-          </div>
+          <>
+            <CardContent className="pt-2">
+              <div className="flex flex-col items-center gap-4 rounded-lg border border-emerald-200 bg-emerald-50 px-6 py-8 text-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                  <CheckCircle2 className="h-6 w-6" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-base font-semibold text-emerald-700">
+                    Contraseña restablecida con éxito.
+                  </p>
+                  <p className="text-sm text-slate-700">
+                    Ya puede iniciar sesión con su nueva contraseña.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex-col gap-3 pt-2 pb-6">
+              <Button
+                asChild
+                className="w-full h-10 font-semibold bg-blue-700 hover:bg-blue-800"
+              >
+                <Link to="/login">Ir a iniciar sesión</Link>
+              </Button>
+            </CardFooter>
+          </>
         ) : (
-          // --- Formulario ---
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              form.handleSubmit();
-            }}
-            className="w-full max-w-md p-2 flex flex-col gap-6"
-          >
-            <form.Field name="NewPassword">
-              {(field) => (
-                <>
-                  <input
-                    type="password"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder="Nueva contraseña"
-                    className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                  />
-                  {field.state.meta.isTouched &&
-                    field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ??
-                          String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                </>
+          <>
+            <CardContent className="pt-2">
+              {!token && (
+                <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                  El enlace no contiene un token válido para restablecer la contraseña.
+                </div>
               )}
-            </form.Field>
 
-            <form.Field name="ConfirmPassword">
-              {(field) => (
-                <>
-                  <input
-                    type="password"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder="Confirmar contraseña"
-                    className="w-full px-4 py-2 bg-gray-100 text-[#091540] rounded-md text-sm"
-                  />
-                  {field.state.meta.isTouched &&
-                    field.state.meta.errors.length > 0 && (
-                      <p className="text-sm text-red-500 mt-1">
-                        {(field.state.meta.errors[0] as any)?.message ??
-                          String(field.state.meta.errors[0])}
-                      </p>
-                    )}
-                </>
-              )}
-            </form.Field>
+              <form
+                id="reset-password-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  form.handleSubmit();
+                }}
+                className="space-y-5"
+              >
+                <FieldGroup className="gap-4">
+                  <form.Field name="NewPassword">
+                    {(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <Field data-invalid={isInvalid} className="gap-2">
+                          <FieldLabel htmlFor="new-password">
+                            Nueva contraseña
+                          </FieldLabel>
+                          <Input
+                            id="new-password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            aria-invalid={isInvalid}
+                            className="h-10"
+                          />
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
+                  </form.Field>
 
-            <div className="flex justify-center gap-4">
-              <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+                  <form.Field name="ConfirmPassword">
+                    {(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <Field data-invalid={isInvalid} className="gap-2">
+                          <FieldLabel htmlFor="confirm-password">
+                            Confirmar contraseña
+                          </FieldLabel>
+                          <Input
+                            id="confirm-password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            aria-invalid={isInvalid}
+                            className="h-10"
+                          />
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
+                  </form.Field>
+                </FieldGroup>
+              </form>
+            </CardContent>
+
+            <CardFooter className="flex-col gap-3 pt-2 pb-6">
+              <form.Subscribe
+                selector={(state) => [state.canSubmit, state.isSubmitting]}
+              >
                 {([canSubmit, isSubmitting]) => (
-                  <button
+                  <Button
                     type="submit"
-                    className="bg-[#68D89B] hover:bg-green-600 text-white font-semibold w-1/3 rounded disabled:opacity-60"
+                    form="reset-password-form"
+                    className="w-full h-10 font-semibold bg-blue-700 hover:bg-blue-800"
                     disabled={!canSubmit || isSubmitting || !token}
                   >
-                    {isSubmitting ? "..." : "Restablecer"}
-                  </button>
+                    {isSubmitting ? "Restableciendo..." : "Restablecer contraseña"}
+                  </Button>
                 )}
               </form.Subscribe>
 
-              <button
+              <Button
                 type="button"
-                className="bg-[#F6132D] hover:bg-red-700 text-white font-semibold w-1/3 px-6 py-2 rounded"
+                variant="outline"
+                className="w-full h-10"
                 onClick={() => navigate({ to: "/login" })}
               >
+                <KeyRound className="h-4 w-4" />
                 Cancelar
-              </button>
-            </div>
-          </form>
+              </Button>
+            </CardFooter>
+          </>
         )}
-      </div>
+      </Card>
     </div>
   );
 };

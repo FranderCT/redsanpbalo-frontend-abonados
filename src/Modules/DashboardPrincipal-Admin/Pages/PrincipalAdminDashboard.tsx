@@ -111,13 +111,13 @@ const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyRe
           title="Reportes por Mes"
           description={loadingMonthly ? "Cargando..." : "Últimos 12 meses"}
           data={reportesMensuales}
-          color="hsl(var(--chart-1))"
+          color="#091540"
         />
         <BarChartCard
           title="Solicitudes por Mes"
           description={loadingReqMonthly ? "Cargando..." : "Últimos 12 meses"}
           data={solicitudesMensuales}
-          color="hsl(var(--chart-1))"
+          color="#091540"
         />
       </div>
 
