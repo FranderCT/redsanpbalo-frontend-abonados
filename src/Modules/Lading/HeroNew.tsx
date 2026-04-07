@@ -46,7 +46,7 @@ const Hero = () => {
 
       {/* Geometric accent */}
       <div className="absolute bottom-0 right-0 w-32 h-32 md:w-48 md:h-48 bg-[#005CAF] opacity-20 z-0"></div>
-      <div className="absolute top-20 right-20 w-16 h-16 bg-[#006D42] opacity-30 z-0"></div>
+      <div className="absolute top-20 right-20 w-16 h-16 bg-[#005CAF] opacity-30 z-0"></div>
     </section>
   );
 };

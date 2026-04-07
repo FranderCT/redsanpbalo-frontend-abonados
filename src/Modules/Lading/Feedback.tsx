@@ -30,7 +30,7 @@ export function Feedback() {
           <div>
             <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-none mb-8 text-[#091540]">
               Escuchamos a la{" "}
-              <span className="text-[#006D42]">Comunidad</span>.
+              <span>Comunidad</span>.
             </h2>
             <p className="text-lg text-[#404754] mb-12">
               Sus sugerencias y comentarios nos ayudan a mejorar el servicio día
