@@ -66,10 +66,19 @@ function ReqAvailWaterCard({
   const justification = req.Justification?.trim() || "Sin justificación registrada.";
   const isLongText = justification.length > 150;
   const [expanded, setExpanded] = useState(false);
+  const profilePhoto = req.User?.ProfilePhoto?.trim();
 
   return (
     <Card className="flex h-full flex-col rounded-none border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
       <CardHeader className="flex flex-row items-start gap-3 space-y-0 border-b border-slate-100 pb-4">
+        {profilePhoto ? (
+          <img
+            src={profilePhoto}
+            alt={`Foto de perfil de ${applicant}`}
+            className="mt-0.5 h-10 w-10 shrink-0 rounded-none border border-slate-200 object-cover"
+          />
+        ) : null}
+
         <div className="min-w-0 flex-1">
           <CardTitle className="line-clamp-2 text-base font-medium leading-6">
             {applicant}
