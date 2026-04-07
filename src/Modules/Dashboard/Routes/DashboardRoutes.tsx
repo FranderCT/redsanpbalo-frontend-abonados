@@ -4,6 +4,7 @@ import { ValidateToken } from "../../Auth/Services/AuthServices";
 import PrincipalAdminDashboard from "../../DashboardPrincipal-Admin/Pages/PrincipalAdminDashboard";
 import PrincipalUserDashboard from "../../DashboardPrincipal-Abonado/Pages/PrincipalUserDashboard";
 import DashboardLayout from "../Layouts/DashboardLayout";
+import { disconnectAppSocket } from "@/Sockets/appSocket";
 
 export const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -12,12 +13,14 @@ export const dashboardRoute = createRoute({
   beforeLoad: async () => {
     const token = localStorage.getItem("token");
     if (!token) {
+      disconnectAppSocket();
       throw redirect({ to: "/login" });
     }
 
     try {
       await ValidateToken(token);
     } catch {
+      disconnectAppSocket();
       localStorage.removeItem("token");
       throw redirect({ to: "/login" });
     }

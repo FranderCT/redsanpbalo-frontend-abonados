@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { notificationSocket, syncNotificationSocketAuth } from './notificationSocket';
+import { appSocket, syncAppSocketAuth } from './appSocket';
 
 export interface NotificationSummary {
   Id: number;
@@ -15,7 +15,7 @@ export function useNotifications() {
   const prevLengthRef = useRef(0);
 
   useEffect(() => {
-    syncNotificationSocketAuth();
+    syncAppSocketAuth();
 
     const handler = (payload: NotificationSummary[]) => {
       setNotifications(payload);
@@ -26,9 +26,9 @@ export function useNotifications() {
       prevLengthRef.current = payload.length;
     };
 
-    notificationSocket.on('notification.all', handler);
+    appSocket.on('notification.all', handler);
     return () => {
-      notificationSocket.off('notification.all', handler);
+      appSocket.off('notification.all', handler);
     };
   }, []);
 

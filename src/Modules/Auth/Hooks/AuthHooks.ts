@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import type { ResetPassword } from "../Models/ResetPassword";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { changePassword } from "../Models/changePassword";
+import { disconnectAppSocket, syncAppSocketAuth } from "@/Sockets/appSocket";
 
 export const useCreateAbonado = () => {
   const qc = useQueryClient();
@@ -47,6 +48,7 @@ export const useLogin = () => {
         mutationFn: Login,
         onSuccess: (res) =>{
             localStorage.setItem('token', res.token);
+            syncAppSocketAuth();
             qc.clear();
             console.log("Login successful, token stored:", res.token);
         }
@@ -59,6 +61,7 @@ export function useLogout() {
   const qc = useQueryClient();
   return () => {
     if (localStorage.getItem("token")) {
+      disconnectAppSocket();
       localStorage.removeItem("token");
       localStorage.removeItem("activeRole");
       qc.clear();

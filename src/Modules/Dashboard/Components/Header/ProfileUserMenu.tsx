@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { disconnectAppSocket } from "@/Sockets/appSocket";
 
 const DEFAULT_AVATAR = "/Image02.png";
 
@@ -31,6 +32,7 @@ export default function ProfileUserMenu({ setProfileOpen }: Props) {
   };
 
   const handleLogout = () => {
+    disconnectAppSocket();
     localStorage.removeItem("token");
     localStorage.removeItem("activeRole");
     queryClient.clear();

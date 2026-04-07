@@ -24,6 +24,7 @@ import {
   normalizeRole,
 } from "../../utils/role-dashboard.utils";
 import SidebarDropdown from "./SidebarDropdown";
+import { disconnectAppSocket } from "@/Sockets/appSocket";
 
 const AsideDashboard = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ const AsideDashboard = () => {
   const { UserProfile } = useGetUserProfile();
 
   const goLogin = () => {
+    disconnectAppSocket();
     localStorage.removeItem("token");
     localStorage.removeItem("activeRole");
     queryClient.clear();

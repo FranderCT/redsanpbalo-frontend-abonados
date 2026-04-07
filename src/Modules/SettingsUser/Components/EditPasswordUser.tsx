@@ -22,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/Components/ui/card";
+import { disconnectAppSocket } from "@/Sockets/appSocket";
 
 type EditPayload = typeof changePasswordInitialState;
 
@@ -72,6 +73,7 @@ const ChangePassword = () => {
         duration: 2500,
       });
 
+      disconnectAppSocket();
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
 
