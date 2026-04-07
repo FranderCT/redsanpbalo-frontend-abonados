@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AlertCircle, CheckCircle2, MapPin, User, Wrench } from "lucide-react";
 import ReportPhotoLightbox from "../Modules/Reports/Components/ReportPhotoLightbox";
-import { socket } from "./Sockets";
+import { appSocket, syncAppSocketAuth } from "./appSocket";
 import {
   Dialog,
   DialogContent,
@@ -75,6 +75,8 @@ export default function LiveReports() {
   };
 
   useEffect(() => {
+    syncAppSocketAuth();
+
     const handler = (payload: ReportLiveEvent) => {
       const report = mapLiveEventToListItem(payload);
 
@@ -87,9 +89,9 @@ export default function LiveReports() {
       });
     };
 
-    socket.on("report.created", handler);
+    appSocket.on("averia:nueva", handler);
     return () => {
-      socket.off("report.created", handler);
+      appSocket.off("averia:nueva", handler);
     };
   }, []);
 

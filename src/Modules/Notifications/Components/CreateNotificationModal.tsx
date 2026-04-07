@@ -28,12 +28,11 @@ import { Role } from "@/Modules/Users/Models/Roles";
 import { useCreateNotification } from "../Hooks/NotificationHooks";
 import { createNotificationValidators } from "../schemas/CreateNotificationSchema";
 import {
-  ALL_ROLES_OPTION_ID,
   ALL_ROLES_OPTION_NAME,
   type Notification,
   type NotificationApiResponse,
 } from "../Types/Notification";
-import { mapNotificationResponse } from "@/Modules/utils/utils";
+
 
 type CreateNotificationModalProps = {
   onCreate: (notification: Notification) => void;
@@ -42,7 +41,7 @@ type CreateNotificationModalProps = {
 const notificationInitialState = {
   subject: "",
   description: "",
-  targetRoleId: 0,
+  userRole: "",
 };
 
 const fallbackRoles = Object.values(Role).map((roleName, index) => ({
@@ -60,7 +59,7 @@ export default function CreateNotificationModal({
   const availableRoles = useMemo(() => {
     const resolvedRoles = roles.length > 0 ? roles : fallbackRoles;
     return [
-      { Id: ALL_ROLES_OPTION_ID, Rolname: ALL_ROLES_OPTION_NAME },
+      { Id: 0, Rolname: ALL_ROLES_OPTION_NAME },
       ...resolvedRoles,
     ];
   }, [roles]);
@@ -72,7 +71,7 @@ export default function CreateNotificationModal({
       onSubmit: createNotificationValidators,
     },
     onSubmit: async ({ value, formApi }) => {
-      const selectedRole = availableRoles.find((role) => role.Id === value.targetRoleId);
+      const selectedRole = availableRoles.find((role) => role.Rolname === value.userRole);
 
       if (!selectedRole) {
         toast.error("Debe seleccionar un rol valido");
@@ -82,14 +81,14 @@ export default function CreateNotificationModal({
       const response = await createNotificationMutation.mutateAsync({
         Subject: value.subject.trim(),
         Message: value.description.trim(),
-        TargetRoleId: selectedRole.Id,
+        User_Role: selectedRole.Rolname,
       });
 
       onCreate(
-        mapNotificationResponse(response, {
-          targetRoleId: selectedRole.Id,
-          targetRoleName: selectedRole.Rolname,
-        })
+        mapNotificationResponse(
+          response,
+          selectedRole.Rolname
+        )
       );
       toast.success("Notificacion creada correctamente");
       formApi.reset();
@@ -188,7 +187,7 @@ export default function CreateNotificationModal({
                 }}
               </form.Field>
 
-              <form.Field name="targetRoleId">
+              <form.Field name="userRole">
                 {(field) => {
                   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
 
@@ -196,8 +195,8 @@ export default function CreateNotificationModal({
                     <Field data-invalid={isInvalid} className="gap-2">
                       <FieldLabel htmlFor="notification-role">Rol destinatario</FieldLabel>
                       <Select
-                        value={field.state.value !== 0 ? String(field.state.value) : undefined}
-                        onValueChange={(value) => field.handleChange(Number(value))}
+                        value={field.state.value || undefined}
+                        onValueChange={(value) => field.handleChange(value)}
                       >
                         <SelectTrigger
                           id="notification-role"
@@ -212,7 +211,7 @@ export default function CreateNotificationModal({
                         </SelectTrigger>
                         <SelectContent className="rounded-none border-slate-200">
                           {availableRoles.map((role) => (
-                            <SelectItem key={role.Id} value={String(role.Id)} className="rounded-none">
+                            <SelectItem key={role.Id} value={role.Rolname} className="rounded-none">
                               {role.Rolname}
                             </SelectItem>
                           ))}
@@ -262,7 +261,6 @@ export default function CreateNotificationModal({
 
 function mapNotificationResponse(
   response: NotificationApiResponse,
-  targetRoleId: number,
   targetRoleName: string
 ): Notification {
   return {
@@ -271,7 +269,6 @@ function mapNotificationResponse(
     description: response.description ?? response.Description ?? response.message ?? response.Message ?? "",
     date: response.date ?? response.Date ?? new Date().toISOString(),
     status: response.status ?? response.Status ?? "UNREAD",
-    targetRoleId,
     targetRoleName,
   };
 }

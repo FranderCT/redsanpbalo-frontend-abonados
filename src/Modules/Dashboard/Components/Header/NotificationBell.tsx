@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { Bell } from "lucide-react";
 import { useNotifications } from "@/Sockets/useNotifications";
 import {
@@ -9,16 +8,6 @@ import {
 
 export default function NotificationBell() {
   const { notifications, unreadCount, markAllRead } = useNotifications();
-  const isFirstEmit = useRef(true);
-
-  useEffect(() => {
-    if (notifications.length === 0) return;
-
-    if (isFirstEmit.current) {
-      isFirstEmit.current = false;
-      return;
-    }
-  }, [notifications]);
 
   return (
     <Popover onOpenChange={(open) => { if (open) markAllRead(); }}>

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ALL_ROLES_OPTION_ID } from "../Types/Notification";
+import { ALL_ROLES_OPTION_NAME } from "../Types/Notification";
 
 export const createNotificationValidators = z.object({
   subject: z
@@ -12,10 +12,10 @@ export const createNotificationValidators = z.object({
     .trim()
     .min(10, { message: "La descripcion debe tener al menos 10 caracteres" })
     .max(500, { message: "La descripcion debe tener como maximo 500 caracteres" }),
-  targetRoleId: z
-    .number({ message: "Debe seleccionar un rol" })
-    .int()
-    .refine((value) => value > 0 || value === ALL_ROLES_OPTION_ID, {
+  userRole: z
+    .string({ message: "Debe seleccionar un rol" })
+    .trim()
+    .refine((value) => value.length > 0 || value === ALL_ROLES_OPTION_NAME, {
       message: "Debe seleccionar un rol",
     }),
 });

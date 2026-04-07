@@ -11,6 +11,7 @@ import {
   OctagonAlert,
   PencilOff,
   Settings,
+  ShieldCheck,
   UserCog,
 } from "lucide-react";
 import g28 from "../../../Auth/Assets/g28.png";
@@ -23,6 +24,7 @@ import {
   normalizeRole,
 } from "../../utils/role-dashboard.utils";
 import SidebarDropdown from "./SidebarDropdown";
+import { disconnectAppSocket } from "@/Sockets/appSocket";
 
 const AsideDashboard = () => {
   const navigate = useNavigate();
@@ -31,6 +33,7 @@ const AsideDashboard = () => {
   const { UserProfile } = useGetUserProfile();
 
   const goLogin = () => {
+    disconnectAppSocket();
     localStorage.removeItem("token");
     localStorage.removeItem("activeRole");
     queryClient.clear();
@@ -116,6 +119,16 @@ const AsideDashboard = () => {
           >
             <UserCog className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
             <span className="transition-colors">Usuarios</span>
+          </button>
+        </Can>
+
+        <Can rule={{ any: [Role.ADMIN, Role.BOD] }}>
+          <button
+            onClick={() => navigate({ to: "/dashboard/user-audit" })}
+            className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
+          >
+            <ShieldCheck className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />
+            <span className="transition-colors">Auditorias</span>
           </button>
         </Can>
 

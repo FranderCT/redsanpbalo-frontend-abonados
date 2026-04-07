@@ -20,9 +20,6 @@ const Hero = () => {
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         <div className="max-w-3xl">
-          <span className="inline-block bg-[#006D42] text-white px-4 py-1 text-xs font-bold tracking-widest uppercase mb-6">
-            Compromiso Vital
-          </span>
           <h1 className="text-5xl md:text-8xl font-black text-white leading-[0.9] mb-8">
             Agua Pura para Nuestra Comunidad
           </h1>
@@ -49,7 +46,7 @@ const Hero = () => {
 
       {/* Geometric accent */}
       <div className="absolute bottom-0 right-0 w-32 h-32 md:w-48 md:h-48 bg-[#005CAF] opacity-20 z-0"></div>
-      <div className="absolute top-20 right-20 w-16 h-16 bg-[#006D42] opacity-30 z-0"></div>
+      <div className="absolute top-20 right-20 w-16 h-16 bg-[#005CAF] opacity-30 z-0"></div>
     </section>
   );
 };

@@ -40,4 +40,21 @@ export type NotificationApiResponse = {
     isRead?: boolean;
     IsRead?: boolean;
   }>;
+  Notification?: {
+    id?: string | number;
+    Id?: string | number;
+    subject?: string;
+    Subject?: string;
+    description?: string;
+    Description?: string;
+    message?: string;
+    Message?: string;
+    date?: string;
+    Date?: string;
+    createdAt?: string;
+    CreatedAt?: string;
+    status?: Notification["status"];
+    Status?: Notification["status"];
+  };
+  Is_Read?: boolean;
 };

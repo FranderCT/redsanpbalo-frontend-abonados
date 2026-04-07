@@ -5,7 +5,7 @@ export function About() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Image side */}
           <div className="relative">
-            <div className="absolute -top-4 -left-4 w-24 h-24 bg-[#006D42] z-0"></div>
+            <div className="absolute -top-4 -left-4 w-24 h-24 bg-[#005CAF] z-0"></div>
             <img
               src="/ASADA-San Pablo.jpg"
               alt="Instalaciones ASADA"

@@ -10,7 +10,7 @@ export interface Notification {
 export interface CreateNotification {
     Subject: string;
     Message: string;
-    TargetRoleId?: number;
+    User_Role?: string;
 }
 
 export const NotificationInitialState: Notification = {

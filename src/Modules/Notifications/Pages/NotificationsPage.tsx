@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Can } from "@/Modules/Auth/Components/Can";
 import { useRole } from "@/Modules/Auth/Components/RolesContext";
 import { Role } from "@/Modules/Users/Models/Roles";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -20,7 +21,10 @@ const isFromCurrentMonth = (isoDate: string) => {
 export default function NotificationsPage() {
   const { activeRole } = useRole();
   const isMobile = useIsMobile();
-  const { data = [], isLoading } = useNotificationsQuery();
+  const shouldLoadCurrentUserNotifications = activeRole !== Role.ADMIN;
+  const { data = [], isLoading } = useNotificationsQuery({
+    onlyCurrentUser: shouldLoadCurrentUserNotifications,
+  });
 
   const [notifications, setNotifications] = useState<Notification[]>(data);
   const [searchTerm, setSearchTerm] = useState("");
@@ -89,9 +93,9 @@ export default function NotificationsPage() {
             <p className="mt-1 text-sm text-slate-500">Gestion de notificaciones del sistema</p>
           </div>
 
-          {activeRole === Role.ADMIN ? (
+          <Can rule={{ any: [Role.ADMIN] }}>
             <CreateNotificationModal onCreate={handleCreateNotification} />
-          ) : null}
+          </Can>
         </header>
 
         <NotificationStats total={stats.total} recentThisMonth={stats.recentThisMonth} />
