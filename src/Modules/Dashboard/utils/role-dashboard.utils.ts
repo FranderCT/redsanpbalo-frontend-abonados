@@ -1,19 +1,24 @@
 import { Role } from "../../Users/Models/Roles";
 
 export const ADMIN_DASHBOARD_HOME = "/dashboard/principal-admin";
+export const BOD_DASHBOARD_HOME = "/dashboard/principal-junta-directiva";
+export const PLUMBER_DASHBOARD_HOME = "/dashboard/principal-fontanero";
 export const USER_DASHBOARD_HOME = "/dashboard/principal-user";
 
-export const ADMIN_DASHBOARD_ROLES = [Role.ADMIN, Role.BOD] as const;
-export const USER_DASHBOARD_ROLES = [
+export const ADMIN_DASHBOARD_ROLES: readonly Role[] = [Role.ADMIN, Role.BOD];
+export const USER_DASHBOARD_ROLES: readonly Role[] = [
   Role.GUEST,
   Role.SUB,
   Role.ASSOS,
   Role.PLMBR,
 ] as const;
-export const LIVE_REPORTS_ROLES = [Role.ADMIN, Role.BOD] as const;
+export const LIVE_REPORTS_ROLES: readonly Role[] = [Role.ADMIN, Role.BOD];
+
+const REPORTS_DASHBOARD_ROLES: readonly Role[] = [Role.ADMIN, Role.ASSOS, Role.PLMBR];
 
 const ADMIN_ROUTE_PREFIXES = [
   ADMIN_DASHBOARD_HOME,
+  BOD_DASHBOARD_HOME,
   "/dashboard/edit-landing",
   "/dashboard/products",
   "/dashboard/materials",
@@ -22,19 +27,19 @@ const ADMIN_ROUTE_PREFIXES = [
   "/dashboard/suppliers",
   "/dashboard/projects",
   "/dashboard/comments",
-  "/dashboard/reports",
 ] as const;
 
-const USER_ROUTE_PREFIXES = [USER_DASHBOARD_HOME] as const;
+const USER_ROUTE_PREFIXES = [USER_DASHBOARD_HOME, PLUMBER_DASHBOARD_HOME] as const;
+const REPORTS_ROUTE_PREFIXES = ["/dashboard/reports"] as const;
 
 const SHARED_ROUTE_PREFIXES = ["/dashboard/settings", "/dashboard/notifications"] as const;
-const SHARED_ROUTE_PATHS = [
+const SHARED_ROUTE_PATHS: readonly string[] = [
   "/dashboard",
   "/dashboard/users/profile",
   "/dashboard/users/edit",
 ] as const;
 
-type DashboardRouteGroup = "admin" | "user" | "shared";
+type DashboardRouteGroup = "admin" | "user" | "reports" | "shared";
 
 const ALL_ROLES = new Set<string>(Object.values(Role));
 
@@ -55,7 +60,19 @@ export function isUserDashboardRole(role?: Role | null): boolean {
 }
 
 export function getDashboardHomeByRole(role?: Role | null): string {
-  return isAdminDashboardRole(role) ? ADMIN_DASHBOARD_HOME : USER_DASHBOARD_HOME;
+  if (role === Role.ADMIN) {
+    return ADMIN_DASHBOARD_HOME;
+  }
+
+  if (role === Role.BOD) {
+    return BOD_DASHBOARD_HOME;
+  }
+
+  if (role === Role.PLMBR) {
+    return PLUMBER_DASHBOARD_HOME;
+  }
+
+  return USER_DASHBOARD_HOME;
 }
 
 export function getDefaultActiveRole(roles: readonly Role[]): Role | null {
@@ -113,6 +130,10 @@ function getDashboardRouteGroup(pathname: string): DashboardRouteGroup {
     return "admin";
   }
 
+  if (REPORTS_ROUTE_PREFIXES.some((prefix) => matchesPrefix(normalizedPath, prefix))) {
+    return "reports";
+  }
+
   if (USER_ROUTE_PREFIXES.some((prefix) => matchesPrefix(normalizedPath, prefix))) {
     return "user";
   }
@@ -129,6 +150,10 @@ export function canAccessDashboardPath(role: Role, pathname: string): boolean {
 
   if (routeGroup === "admin") {
     return isAdminDashboardRole(role);
+  }
+
+  if (routeGroup === "reports") {
+    return REPORTS_DASHBOARD_ROLES.includes(role);
   }
 
   return isUserDashboardRole(role);

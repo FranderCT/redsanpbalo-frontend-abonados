@@ -2,6 +2,7 @@ import { createRoute, redirect } from "@tanstack/react-router";
 import { rootRoute } from "../../../Routes";
 import { ValidateToken } from "../../Auth/Services/AuthServices";
 import PrincipalAdminDashboard from "../../DashboardPrincipal-Admin/Pages/PrincipalAdminDashboard";
+import PrincipalPlumberDashboard from "../../DashboardPrincipal-Abonado/Pages/PrincipalPlumberDashboard";
 import PrincipalUserDashboard from "../../DashboardPrincipal-Abonado/Pages/PrincipalUserDashboard";
 import DashboardLayout from "../Layouts/DashboardLayout";
 import { disconnectAppSocket } from "@/Sockets/appSocket";
@@ -37,6 +38,18 @@ export const dashboardAdminPrincipalRoute = createRoute({
   getParentRoute: () => dashboardRoute,
   path: "principal-admin",
   component: PrincipalAdminDashboard,
+});
+
+export const dashboardBodPrincipalRoute = createRoute({
+  getParentRoute: () => dashboardRoute,
+  path: "principal-junta-directiva",
+  component: PrincipalAdminDashboard,
+});
+
+export const dashboardPlumberPrincipalRoute = createRoute({
+  getParentRoute: () => dashboardRoute,
+  path: "principal-fontanero",
+  component: PrincipalPlumberDashboard,
 });
 
 export const dashboardUserPrincipalRoute = createRoute({

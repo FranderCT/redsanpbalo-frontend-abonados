@@ -1,45 +1,25 @@
-import { Bell, FileText, OctagonAlert, Loader2 } from "lucide-react";
+import { Bell, Loader2, OctagonAlert } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
-import { StatCardPro } from "../../DashboardPrincipal-Admin/Components/stat-card";
-import { QuickActionSolicitudes } from "../Components/quick-action-solicitudes";
-import { useMyReportsSummary, useMyRequestsSummary } from "../Hooks/dashboardUserHooks";
-import { useGetUserProfile } from "../../Users/Hooks/UsersHooks";
 import { useState } from "react";
+import { StatCardPro } from "../../DashboardPrincipal-Admin/Components/stat-card";
+import { useMyReportsSummary } from "../Hooks/dashboardUserHooks";
+import { useGetUserProfile } from "../../Users/Hooks/UsersHooks";
 import CreateReportUserModal from "../../Reports/Components/Modals/CreateReportUserModal";
-export default function UserDashboard() {
+
+export default function PrincipalPlumberDashboard() {
   const navigate = useNavigate();
   const [openReport, setOpenReport] = useState(false);
-  // KPIs Solicitudes
-  const {
-    summary: reqSummary,
-    isLoading: loadingReq,
-    isError: isErrorReq,
-  } = useMyRequestsSummary();
-
-  // KPIs Reportes
   const {
     summary: repSummary,
     isLoading: loadingRep,
     isError: isErrorRep,
   } = useMyReportsSummary();
-
-  // Perfil usuario
   const { UserProfile, isLoading: loadingUser } = useGetUserProfile();
-
-  const handleSolicitudClick = () => {
-    console.log("Solicitud seleccionada");
-  };
-
-  // Texto KPIs (con loading y fallback)
-  const solicitudesValor = loadingReq ? "…" : String(reqSummary?.total ?? 0);
-  const solicitudesDesc =
-    loadingReq ? "cargando…" : `${reqSummary?.pending ?? 0} pendiente`;
 
   const reportesValor = loadingRep ? "…" : String(repSummary?.total ?? 0);
   const reportesDesc =
     loadingRep ? "cargando…" : `${repSummary?.inProcess ?? 0} pendiente`;
 
-  // Capitaliza solo primeras letras (nombre y apellido1)
   const formatName = (name?: string) =>
     !name
       ? ""
@@ -52,7 +32,6 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 p-4 sm:p-6 lg:p-8">
-      {/* Encabezado*/}
       <div className="mb-8">
         <div className="bg-white shadow-sm border border-gray-100 p-6 sm:p-8">
           <div className="flex items-start justify-between gap-4">
@@ -75,40 +54,14 @@ export default function UserDashboard() {
                 </div>
               </div>
               <p className="text-gray-500 text-sm max-w-2xl">
-                Sistema de gestión <span className="font-medium text-[#091540]">Red San Pablo</span> - Administra tus solicitudes, reportes y notificaciones
+                Sistema de gestión <span className="font-medium text-[#091540]">Red San Pablo</span> - Administra tus reportes y revisa tus notificaciones
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* KPIs del usuario con diseño mejorado */}
-      <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-2 mb-8">
-        {/* MIS SOLICITUDES */}
-        {loadingReq ? (
-          <StatCardPro
-            title="Mis Solicitudes"
-            value="Cargando..."
-            description="Obteniendo datos"
-            icon={FileText}
-          />
-        ) : isErrorReq ? (
-          <StatCardPro
-            title="Mis Solicitudes"
-            value="Error"
-            description="No se pudo cargar"
-            icon={FileText}
-          />
-        ) : (
-          <StatCardPro
-            title="Mis Solicitudes"
-            value={solicitudesValor}
-            description={solicitudesDesc}
-            icon={FileText}
-          />
-        )}
-
-        {/* MIS REPORTES */}
+      <div className="grid gap-4 sm:gap-6 md:grid-cols-1 lg:grid-cols-1 mb-8">
         {loadingRep ? (
           <StatCardPro
             title="Mis Reportes"
@@ -131,42 +84,24 @@ export default function UserDashboard() {
             icon={OctagonAlert}
           />
         )}
-
-        {/* Si luego agregas notificaciones: */}
-        {/* <StatCardPro title="Notificaciones" value="5" description="3 sin leer" icon={Bell} /> */}
       </div>
 
-      {/* Mensajes globales de error (si alguno falló) */}
-      {(isErrorReq || isErrorRep) && (
+      {isErrorRep && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
           <OctagonAlert className="w-5 h-5 text-red-600 flex-shrink-0" />
           <p className="text-sm text-red-700">
-            Hubo un problema al cargar tus datos. Por favor, recarga la página.
+            Hubo un problema al cargar tus reportes. Por favor, recarga la página.
           </p>
         </div>
       )}
 
-      {/* Acciones rápidas con diseño mejorado y colores temáticos */}
       <section className="space-y-6">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-[#091540] mb-2">Acciones Rápidas</h2>
           <p className="text-gray-500 text-sm">Accede rápidamente a las funciones disponibles</p>
         </div>
-        
-        {/* Tarjeta de Solicitudes mejorada - Ocupa todo el ancho */}
-        <div className="mb-6">
-          <QuickActionSolicitudes
-            title="Nueva Solicitud"
-            description="Selecciona el tipo de solicitud que necesitas crear"
-            icon={FileText}
-            onClick={handleSolicitudClick}
-          />
-        </div>
 
-        {/* Otras acciones en grid */}
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-2">
-
-          {/* Reportar Problema - Rojo */}
           <div className="group relative">
             <div
               className="cursor-pointer border border-primary/10 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-md"
@@ -182,7 +117,7 @@ export default function UserDashboard() {
                       Reportar Problema
                     </h3>
                     <p className="text-sm leading-relaxed text-[#091540]/70">
-                      Informar una incidencia
+                      Registrar una incidencia o seguimiento de campo
                     </p>
                   </div>
                 </div>
@@ -190,7 +125,6 @@ export default function UserDashboard() {
             </div>
           </div>
 
-          {/* Ver Notificaciones - Amarillo/Naranja */}
           <div className="group relative">
             <div
               className="cursor-pointer border border-primary/10 bg-white transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-md"
@@ -216,8 +150,6 @@ export default function UserDashboard() {
         </div>
       </section>
 
-      {/* Notificaciones importantes */}
-      {/* <NotificationCard /> */}
       <CreateReportUserModal open={openReport} setOpen={setOpenReport} />
     </div>
   );
