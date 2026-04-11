@@ -106,18 +106,59 @@ export async function getNotifications(): Promise<Notification[]> {
 export async function getfindAllByUser(): Promise<Notification[]> {
   try {
     const { data } = await apiAxios.get<NotificationApiResponse[]>(`${BASE}/me`);
-    return data.map((response) =>
-      mapNotificationResponse({
+    return data.map((response) => ({
+      ...mapNotificationResponse({
         ...(response.Notification ?? {}),
-        UserNotifications: [
-          {
-            IsRead: response.Is_Read,
-          },
-        ],
-      })
-    );
+        UserNotifications: [{ IsRead: response.Is_Read }],
+      }),
+      userNotificationId: Number(response.Id ?? response.id ?? 0) || undefined,
+    }));
   } catch (error) {
     console.error("Error fetching notifications for user:", error);
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export interface UserNotificationItem {
+  userNotificationId: number;
+  notificationId: number;
+  subject: string;
+  message: string;
+  createdAt: string;
+  isRead: boolean;
+}
+
+export async function getUserNotifications(): Promise<UserNotificationItem[]> {
+  try {
+    const { data } = await apiAxios.get<NotificationApiResponse[]>(`${BASE}/me`);
+    return data.map((item) => ({
+      userNotificationId: Number(item.Id ?? item.id ?? 0),
+      notificationId: Number(item.Notification?.Id ?? item.Notification?.id ?? 0),
+      subject: item.Notification?.Subject ?? item.Notification?.subject ?? item.Subject ?? item.subject ?? "",
+      message: item.Notification?.Message ?? item.Notification?.message ?? item.Message ?? item.message ?? "",
+      createdAt: item.Notification?.CreatedAt ?? item.Notification?.createdAt ?? item.CreatedAt ?? item.createdAt ?? new Date().toISOString(),
+      isRead: item.Is_Read ?? item.IsRead ?? item.isRead ?? false,
+    }));
+  } catch (error) {
+    console.error("Error fetching user notifications:", error);
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export async function markNotificationRead(userNotificationId: number): Promise<void> {
+  try {
+    await apiAxios.patch(`${BASE}/${userNotificationId}/read`);
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+    throw new Error(getErrorMessage(error));
+  }
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  try {
+    await apiAxios.patch(`${BASE}/read-all`);
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error);
     throw new Error(getErrorMessage(error));
   }
 }
