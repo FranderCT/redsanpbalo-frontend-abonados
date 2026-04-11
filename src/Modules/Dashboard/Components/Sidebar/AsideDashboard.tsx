@@ -14,6 +14,13 @@ import {
   ShieldCheck,
   UserCog,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/ui/select";
 import g28 from "../../../Auth/Assets/g28.png";
 import { Can } from "../../../Auth/Components/Can";
 import { useRole } from "../../../Auth/Components/RolesContext";
@@ -45,7 +52,7 @@ const AsideDashboard = () => {
   const showRoleSelector = roleOptions.length > 1;
 
   return (
-    <div className="bg-sidebar h-dvh min-h-0 flex flex-col text-sidebar-foreground">
+    <div className="bg-sidebar bg-white h-dvh min-h-0 flex flex-col text-sidebar-foreground">
       <div className="flex items-center gap-3 px-4 pt-6 pb-4 flex-col">
         <img src={g28} alt="Logo ASADA" className="w-16 h-16 object-contain" />
         <h1 className="text-2xl text-sidebar-foreground font-bold leading-tight">RedSanPablo</h1>
@@ -201,45 +208,35 @@ const AsideDashboard = () => {
       </nav>
 
       {showRoleSelector && (
-        <div className="w-full mt-3">
-          <label className="block text-xs text-muted-foreground mb-1 text-center">
+        <div className="px-3 pb-2 pt-1 shrink-0">
+          <label className="mb-2 block text-center text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
             Rol activo
           </label>
-
-          <div className="relative">
-            <select
-              value={activeRole ?? ""}
-              onChange={(event) => {
-                const nextRole = normalizeRole(event.target.value);
-                if (nextRole) {
-                  setActiveRole(nextRole);
-                  navigate({ to: getDashboardHomeByRole(nextRole) });
-                }
-              }}
-              className="
-                w-full text-center
-                bg-transparent
-                text-sidebar-foreground font-medium
-                border-none
-                focus:outline-none
-                focus:ring-0
-                appearance-none
-                cursor-pointer
-                hover:text-sidebar-primary
-                transition-colors
-              "
+          <Select
+            value={activeRole ?? undefined}
+            onValueChange={(value) => {
+              const nextRole = normalizeRole(value);
+              if (nextRole) {
+                setActiveRole(nextRole);
+                navigate({ to: getDashboardHomeByRole(nextRole) });
+              }
+            }}
+          >
+            <SelectTrigger
+              id="active-role-select"
+              aria-label="Seleccionar rol activo"
+              className="mx-auto h-8 w-full max-w-[180px] rounded-md border-sidebar-border bg-sidebar-accent/40 px-3 text-xs font-medium text-sidebar-foreground shadow-none hover:bg-sidebar-accent focus:ring-sidebar-ring"
             >
+              <SelectValue placeholder="Selecciona rol" />
+            </SelectTrigger>
+            <SelectContent className="min-w-[180px] rounded-md border-sidebar-border">
               {roleOptions.map((role) => (
-                <option key={role} value={role} className="text-sidebar-foreground bg-sidebar">
+                <SelectItem key={role} value={role} className="text-sm">
                   {role}
-                </option>
+                </SelectItem>
               ))}
-            </select>
-
-            <span className="pointer-events-none absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
-              v
-            </span>
-          </div>
+            </SelectContent>
+          </Select>
         </div>
       )}
 
