@@ -106,16 +106,13 @@ export async function getNotifications(): Promise<Notification[]> {
 export async function getfindAllByUser(): Promise<Notification[]> {
   try {
     const { data } = await apiAxios.get<NotificationApiResponse[]>(`${BASE}/me`);
-    return data.map((response) =>
-      mapNotificationResponse({
+    return data.map((response) => ({
+      ...mapNotificationResponse({
         ...(response.Notification ?? {}),
-        UserNotifications: [
-          {
-            IsRead: response.Is_Read,
-          },
-        ],
-      })
-    );
+        UserNotifications: [{ IsRead: response.Is_Read }],
+      }),
+      userNotificationId: Number(response.Id ?? response.id ?? 0) || undefined,
+    }));
   } catch (error) {
     console.error("Error fetching notifications for user:", error);
     throw new Error(getErrorMessage(error));

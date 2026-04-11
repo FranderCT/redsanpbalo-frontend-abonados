@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { Can } from "@/Modules/Auth/Components/Can";
-import { useRole } from "@/Modules/Auth/Components/RolesContext";
 import { Role } from "@/Modules/Users/Models/Roles";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CreateNotificationModal from "../Components/CreateNotificationModal";
@@ -9,6 +8,7 @@ import NotificationFilters from "../Components/NotificationFilters";
 import NotificationStats from "../Components/NotificationStats";
 import NotificationTable from "../Components/NotificationTable";
 import { useNotificationsQuery } from "../Hooks/useNotificationsQuery";
+import { markNotificationRead } from "../Services/NotificationSV";
 import type { Notification, NotificationFilter } from "../Types/Notification";
 
 const isFromCurrentMonth = (isoDate: string) => {
@@ -19,12 +19,8 @@ const isFromCurrentMonth = (isoDate: string) => {
 };
 
 export default function NotificationsPage() {
-  const { activeRole } = useRole();
   const isMobile = useIsMobile();
-  const shouldLoadCurrentUserNotifications = activeRole !== Role.ADMIN;
-  const { data = [], isLoading } = useNotificationsQuery({
-    onlyCurrentUser: shouldLoadCurrentUserNotifications,
-  });
+  const { data = [], isLoading } = useNotificationsQuery({ onlyCurrentUser: true });
 
   const [notifications, setNotifications] = useState<Notification[]>(data);
   const [searchTerm, setSearchTerm] = useState("");
@@ -67,15 +63,17 @@ export default function NotificationsPage() {
   const handleOpenNotification = (notification: Notification) => {
     setSelectedNotification(notification);
 
-    setNotifications((current) => {
-      return current.map((item) => {
-        if (item.id !== notification.id) {
-          return item;
-        }
+    if (notification.userNotificationId && notification.status === "UNREAD") {
+      markNotificationRead(notification.userNotificationId).catch(() => {});
+    }
 
-        return item.status === "UNREAD" ? { ...item, status: "READ" } : item;
-      });
-    });
+    setNotifications((current) =>
+      current.map((item) =>
+        item.id !== notification.id
+          ? item
+          : item.status === "UNREAD" ? { ...item, status: "READ" } : item
+      )
+    );
   };
 
   const handleCreateNotification = (notification: Notification) => {

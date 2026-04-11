@@ -2,6 +2,7 @@ import type { CreateNotification as CreateNotificationModel } from "../Models/No
 
 export type Notification = {
   id: string;
+  userNotificationId?: number;
   subject: string;
   description: string;
   date: string;

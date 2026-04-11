@@ -9,14 +9,8 @@ import {
 export default function NotificationBell() {
   const { items, unreadCount, markAllRead, markOneRead } = useNotifications();
 
-  const handleOpen = (open: boolean) => {
-    if (open && unreadCount > 0) {
-      markAllRead();
-    }
-  };
-
   return (
-    <Popover onOpenChange={handleOpen}>
+    <Popover>
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -35,10 +29,20 @@ export default function NotificationBell() {
       <PopoverContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <p className="text-sm font-semibold">Notificaciones</p>
-          {items.length > 0 && (
-            <span className="text-xs text-muted-foreground">
-              {items.length} en total
-            </span>
+          {unreadCount > 0 ? (
+            <button
+              type="button"
+              onClick={markAllRead}
+              className="text-xs text-primary hover:underline"
+            >
+              Marcar todas como leídas
+            </button>
+          ) : (
+            items.length > 0 && (
+              <span className="text-xs text-muted-foreground">
+                {items.length} en total
+              </span>
+            )
           )}
         </div>
 
