@@ -7,10 +7,16 @@ import {
 } from "@/Components/ui/popover";
 
 export default function NotificationBell() {
-  const { notifications, unreadCount, markAllRead } = useNotifications();
+  const { items, unreadCount, markAllRead, markOneRead } = useNotifications();
+
+  const handleOpen = (open: boolean) => {
+    if (open && unreadCount > 0) {
+      markAllRead();
+    }
+  };
 
   return (
-    <Popover onOpenChange={(open) => { if (open) markAllRead(); }}>
+    <Popover onOpenChange={handleOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -29,28 +35,41 @@ export default function NotificationBell() {
       <PopoverContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <p className="text-sm font-semibold">Notificaciones</p>
-          {notifications.length > 0 && (
+          {items.length > 0 && (
             <span className="text-xs text-muted-foreground">
-              {notifications.length} en total
+              {items.length} en total
             </span>
           )}
         </div>
 
         <ul className="max-h-72 overflow-y-auto divide-y">
-          {notifications.length === 0 ? (
+          {items.length === 0 ? (
             <li className="px-4 py-6 text-center text-sm text-muted-foreground">
               Sin notificaciones
             </li>
           ) : (
-            notifications.map((n) => (
-              <li key={n.Id} className="flex items-start gap-3 px-4 py-3 hover:bg-muted/50 transition-colors">
-                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10">
+            items.map((n) => (
+              <li
+                key={n.userNotificationId}
+                onClick={() => { if (!n.isRead) markOneRead(n.userNotificationId); }}
+                className={`flex items-start gap-3 px-4 py-3 transition-colors cursor-pointer ${
+                  n.isRead ? "hover:bg-muted/50" : "bg-primary/5 hover:bg-primary/10"
+                }`}
+              >
+                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 relative">
                   <Bell className="h-3.5 w-3.5 text-primary" />
+                  {!n.isRead && (
+                    <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-destructive" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium leading-tight truncate">{n.Subject}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.Message}</p>
-                  <p className="text-[11px] text-muted-foreground/70 mt-1">{n.Hour}</p>
+                  <p className={`text-sm leading-tight truncate ${!n.isRead ? "font-semibold" : "font-medium"}`}>
+                    {n.subject}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.message}</p>
+                  <p className="text-[11px] text-muted-foreground/70 mt-1">
+                    {new Date(n.createdAt).toLocaleString()}
+                  </p>
                 </div>
               </li>
             ))
