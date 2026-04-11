@@ -53,7 +53,7 @@ interface AuditItemProps {
 }
 
 const actionIcons: Record<AuditCategory, ReactNode> = {
-  INSERCIONES: <Activity className="size-4 text-blue-700" aria-hidden="true" />,
+  INSERCIONES: <Activity className="size-4 text-primary" aria-hidden="true" />,
   ELIMINACIONES: <Trash2 className="size-4 text-rose-700" aria-hidden="true" />,
   ACTUALIZACIONES: <Pencil className="size-4 text-indigo-700" aria-hidden="true" />,
   OTROS: <Settings className="size-4 text-amber-700" aria-hidden="true" />,
@@ -277,7 +277,7 @@ function AuditFilterTabs({ activeFilter, onChange, tabs }: AuditFilterTabsProps)
             onClick={() => onChange(tab)}
             className={`shrink-0 px-4 py-2 text-xs font-semibold tracking-wide transition-colors md:text-sm ${
               active
-                ? "bg-[#133A6B] text-white"
+                ? "bg-primary text-white"
                 : "border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200"
             }`}
           >
@@ -393,7 +393,7 @@ export default function AuditFeedSection({
             value={searchTerm}
             onChange={(event) => handleSearchChange(event.target.value)}
             placeholder="Buscar por accion, usuario, origen o campo..."
-            className="w-full border border-slate-200 px-3 py-2 pl-9 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="w-full border border-slate-200 px-3 py-2 pl-9 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
             aria-label="Buscar auditorias"
           />
         </div>
