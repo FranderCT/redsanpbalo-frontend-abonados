@@ -64,6 +64,8 @@ export function QuickActionSolicitudes({
     },
   ];
 
+  const visibleSolicitudes = solicitudes.filter((solicitud) => solicitud.id !== "asociado");
+
   const handleNavigate = (route: string) => {
     onClick();
     navigate({ to: route });
@@ -123,9 +125,41 @@ export function QuickActionSolicitudes({
           </Can>
 
           {/* Para otros roles: Grid con todas las solicitudes */}
-          <Can rule={{ none: [Role.GUEST] }}>
+          <Can rule={{ any: [Role.SUB] }}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {solicitudes.map((solicitud) => {
+                const IconComponent = solicitud.icon;
+                return (
+                  <div
+                    key={solicitud.id}
+                    onClick={() => handleNavigate(solicitud.route)}
+                    className="group relative cursor-pointer border border-primary/10 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-md"
+                  >
+                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-primary shadow-lg transition-transform duration-300 group-hover:scale-110">
+                      <IconComponent className="h-7 w-7 text-white" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-semibold leading-tight text-[#091540]">
+                        {solicitud.title}
+                      </h4>
+                      <p className="text-xs leading-relaxed text-[#091540]/70">
+                        {solicitud.description}
+                      </p>
+                    </div>
+
+                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <ArrowRight className="h-4 w-4 text-primary" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Can>
+
+          <Can rule={{ any: [Role.ASSOS] }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {visibleSolicitudes.map((solicitud) => {
                 const IconComponent = solicitud.icon;
                 return (
                   <div

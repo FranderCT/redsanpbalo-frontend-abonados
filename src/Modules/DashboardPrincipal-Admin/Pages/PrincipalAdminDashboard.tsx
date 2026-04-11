@@ -62,7 +62,7 @@ const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyRe
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-3 flex-1">
               <h1 className="text-3xl sm:text-4xl font-bold text-[#091540] tracking-tight">
-                Panel Administrativo
+                Panel de Gestión Principal
               </h1>
               <p className="text-gray-600 text-sm sm:text-base mt-1">
                 Bienvenido al sistema de gestión <span className="font-semibold">Red San Pablo</span>
@@ -123,11 +123,14 @@ const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyRe
 
       {/* Acciones rápidas con diseño mejorado y colores temáticos */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">Acciones Rápidas</h2>
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-[#091540] mb-2">Acciones Rápidas</h2>
+          <p className="text-gray-500 text-sm">Accede rápidamente a las funciones disponibles</p>
+        </div>
         <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
           {/* Usuarios - Indigo */}
           <div className="group relative">
-            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+            <div className="transition-all duration-300 cursor-pointer bg-white border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
                 onClick={() => navigate({ to: "/dashboard/users" })}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
@@ -145,7 +148,7 @@ const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyRe
 
           {/* Notificaciones - Amarillo/Naranja */}
           <div className="group relative">
-            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+            <div className="transition-all duration-300 cursor-pointer bg-white border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
                 onClick={() => navigate({ to: "/dashboard/notifications" })}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
@@ -163,7 +166,7 @@ const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyRe
 
           {/* Reportes - Rojo */}
           <div className="group relative">
-            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+            <div className="transition-all duration-300 cursor-pointer bg-white border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
                 onClick={() => navigate({ to: "/dashboard/reports" })}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
@@ -181,7 +184,7 @@ const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyRe
 
           {/* Productos - Verde */}
           <div className="group relative">
-            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+            <div className="transition-all duration-300 cursor-pointer bg-white border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
                 onClick={() => navigate({ to: "/dashboard/products" })}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
@@ -199,7 +202,7 @@ const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyRe
 
           {/* Proyectos - Azul */}
           <div className="group relative">
-            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+            <div className="transition-all duration-300 cursor-pointer bg-white border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
                 onClick={() => navigate({ to: "/dashboard/projects" })}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
@@ -217,7 +220,7 @@ const { chartData: reportesMensuales, isLoading: loadingMonthly } = useMonthlyRe
 
           {/* Comentarios - Morado */}
           <div className="group relative">
-            <div className="transition-all duration-300 cursor-pointer border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
+            <div className="transition-all duration-300 cursor-pointer bg-white border border-primary/10 hover:shadow-md hover:-translate-y-1 hover:border-primary/25"
                 onClick={() => navigate({ to: "/dashboard/comments" })}>
               <div className="p-6">
                 <div className="flex items-start gap-4">
