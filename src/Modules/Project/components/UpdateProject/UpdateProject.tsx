@@ -8,6 +8,7 @@ import { useGetAllProjectStates } from "../../../Project_State/Hooks/ProjectStat
 import type { UpdateProject } from "../../Models/Project";
 import { UpdateProjectBase, UpdateProjectSchema } from "../../schemas/UpdateProjectSchema";
 import ConfirmActionModal from "../../../../Components/Modals/ConfirmActionModal";
+import { Button } from "@/Components/ui/button";
 import { RichTextEditor } from "@/Components/ui/rich-text-editor";
 import { Field, FieldError, FieldLabel } from "@/Components/ui/field";
 import { Input } from "@/Components/ui/input";
@@ -132,7 +133,7 @@ export default function EditProject() {
   if (isPending || !defaultValues) return <div className="p-6">Cargando…</div>;
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-8">
+    <div className="mx-auto w-full max-w-3xl">
       <form
         key={project?.Id ?? "edit-project"}
         onSubmit={(e) => {
@@ -237,30 +238,21 @@ export default function EditProject() {
           </form.Field>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-          <div className="mb-4">
-            <h3 className="text-base font-semibold text-[#091540]">Portada del proyecto</h3>
-            <p className="text-sm text-slate-600">
-              Aquí puedes subir una nueva imagen o quitar la actual.
-            </p>
-          </div>
-
-          <form.Field name="coverImage">
-            {(coverField) => (
-              <form.Field name="removeCoverImage">
-                {(removeCoverField) => (
-                  <ProjectCoverField
-                    file={coverField.state.value}
-                    existingUrl={project?.CoverImageUrl}
-                    markForRemoval={removeCoverField.state.value}
-                    onFileChange={coverField.handleChange}
-                    onMarkForRemovalChange={removeCoverField.handleChange}
-                  />
-                )}
-              </form.Field>
-            )}
-          </form.Field>
-        </div>
+        <form.Field name="coverImage">
+          {(coverField) => (
+            <form.Field name="removeCoverImage">
+              {(removeCoverField) => (
+                <ProjectCoverField
+                  file={coverField.state.value}
+                  existingUrl={project?.CoverImageUrl}
+                  markForRemoval={removeCoverField.state.value}
+                  onFileChange={coverField.handleChange}
+                  onMarkForRemovalChange={removeCoverField.handleChange}
+                />
+              )}
+            </form.Field>
+          )}
+        </form.Field>
 
         {/* Objetivo */}
         <form.Field
@@ -406,23 +398,22 @@ export default function EditProject() {
         {/* Acciones */}
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
-            <div className="flex justify-between mt-8">
-              {/* Abrimos modal de confirmación */}
-              <button
+            <div className="mt-2 flex justify-between pb-4">
+              <Button
                 type="submit"
-                className="px-6 py-2 border border-[#091540] bg-[#091540] text-white disabled:opacity-60"
+                className="bg-[#091540] text-white hover:bg-[#0b1b56]"
                 disabled={!canSubmit || isSubmitting}
               >
                 {isSubmitting ? "Actualizando..." : "Guardar cambios"}
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
-                className="px-6 py-2 border border-gray-300 text-[#091540]"
+                variant="outline"
                 onClick={() => {navigate({ to: "/dashboard/projects" }); toast.warning("Edición cancelada");}}
               >
                 Cancelar
-              </button>
+              </Button>
             </div>
           )}
         </form.Subscribe>

@@ -27,15 +27,15 @@ export default function HeaderViewProject({ data }: Props) {
           Proyectos
         </button>
         <ChevronRight className="size-3" />
-        <span className="text-foreground font-medium truncate max-w-[240px]">
+        <span className="min-w-0 max-w-full font-medium text-foreground break-words [overflow-wrap:anywhere]">
           {data.Name}
         </span>
       </nav>
 
       {/* Título + acciones */}
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-3">
-          <h1 className="min-w-0 flex-1 text-2xl font-semibold tracking-tight truncate">
+        <div className="flex min-w-0 flex-col items-start gap-3 xl:flex-row xl:items-center xl:gap-5">
+          <h1 className="min-w-0 flex-1 text-2xl font-semibold tracking-tight break-words [overflow-wrap:anywhere]">
             {data.Name}
           </h1>
           {data.ProjectState?.Name && (

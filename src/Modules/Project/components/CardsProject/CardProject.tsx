@@ -6,6 +6,8 @@ import { projectRoute, viewProjectRoute } from "../../Routes/ProjectsRoutes";
 import { CalendarDays, ImageOff, MapPin } from "lucide-react";
 import ReportPhotoLightbox from "../../../Reports/Components/ReportPhotoLightbox";
 import { getProjectStateBadgeClass } from "../../utils/projectStateTone";
+import { Button } from "@/Components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/Components/ui/card";
 
 type Props = { project: Project; onDetails?: (id: number) => void; className?: string; };
 
@@ -18,9 +20,9 @@ const formatDate = (d: unknown) => {
 const CardProject: React.FC<Props> = ({ project, className }) => {
   const navigate = useNavigate({ from: projectRoute.id });
   return (
-    <div
+    <Card
       className={[
-        "h-full flex flex-col overflow-hidden border border-gray-200 shadow-xl bg-white",
+        "flex h-full flex-col overflow-hidden border-gray-200 bg-white shadow-xl",
         className ?? "",
       ].join(" ")}
     >
@@ -46,9 +48,7 @@ const CardProject: React.FC<Props> = ({ project, className }) => {
         </div>
       </div>
 
-      {/* Contenido del card: ocupa todo y empuja el footer */}
-      <section className="flex grow flex-col border border-gray-200 border-t-0 bg-white p-5">
-        <header className="min-w-0 space-y-3">
+      <CardHeader className="min-w-0 space-y-3 p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
@@ -76,9 +76,10 @@ const CardProject: React.FC<Props> = ({ project, className }) => {
               {project.Location || "Sin ubicación registrada"}
             </p>
           </div>
-        </header>
+      </CardHeader>
 
-        <div className="my-4 border-t border-slate-100" />
+      <CardContent className="flex grow flex-col px-5 pb-0 pt-0">
+        <div className="mb-4 border-t border-slate-100" />
 
         <div className="flex-grow overflow-hidden">
           <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
@@ -95,25 +96,25 @@ const CardProject: React.FC<Props> = ({ project, className }) => {
             dangerouslySetInnerHTML={{ __html: project.Description ?? "" }}
           />
         </div>
-      </section>
+      </CardContent>
 
 
-      {/* Footer fijo abajo */}
-      <div className="mt-auto flex justify-end border-t border-slate-100 px-5 py-4">
-        <button
+      <CardFooter className="mt-auto flex justify-end border-t border-slate-100 px-5 py-4">
+        <Button
           type="button"
+          variant="outline"
           onClick={() =>
             navigate({
               to: viewProjectRoute.to,                 
               params: { projectId: String(project.Id) }
             })
           }
-          className="border border-[#091540] px-3 py-1.5 text-sm font-medium text-[#091540] transition-colors hover:bg-slate-100"
+          className="border-[#091540] text-[#091540] hover:bg-slate-100"
         >
           Ver detalles
-        </button>
-      </div>
-    </div>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
