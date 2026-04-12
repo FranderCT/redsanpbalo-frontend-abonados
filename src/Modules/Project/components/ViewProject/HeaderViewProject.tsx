@@ -33,50 +33,53 @@ export default function HeaderViewProject({ data }: Props) {
       </nav>
 
       {/* Título + acciones */}
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex min-w-0 flex-col items-start gap-3 xl:flex-row xl:items-center xl:gap-5">
-          <h1 className="min-w-0 flex-1 text-2xl font-semibold tracking-tight break-words [overflow-wrap:anywhere]">
-            {data.Name}
-          </h1>
-          {data.ProjectState?.Name && (
-            <Badge
+      <div className="space-y-4">
+        <h1 className="text-2xl font-semibold tracking-tight break-words [overflow-wrap:anywhere]">
+          {data.Name}
+        </h1>
+
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            {data.ProjectState?.Name && (
+              <Badge
+                variant="outline"
+                className={cn(
+                  "px-4 py-1",
+                  getProjectStateBadgeClass(data.ProjectState.Name),
+                )}
+              >
+                {data.ProjectState.Name}
+              </Badge>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
               variant="outline"
-              className={cn(
-                "shrink-0 px-4 py-1",
-                getProjectStateBadgeClass(data.ProjectState.Name),
-              )}
+              size="sm"
+              onClick={() =>
+                navigate({
+                  to: "/dashboard/projects/$projectId/edit",
+                  params: { projectId: String(data.Id) },
+                })
+              }
             >
-              {data.ProjectState.Name}
-            </Badge>
-          )}
-        </div>
+              <Pencil className="size-3.5 mr-1.5" />
+              Editar
+            </Button>
 
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              navigate({
-                to: "/dashboard/projects/$projectId/edit",
-                params: { projectId: String(data.Id) },
-              })
-            }
-          >
-            <Pencil className="size-3.5 mr-1.5" />
-            Editar
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadProjectPdf.mutate({ id: data.Id, name: data.Name })}
+              disabled={downloadProjectPdf.isPending}
+            >
+              <Printer className="size-3.5 mr-1.5" />
+              {downloadProjectPdf.isPending ? "Generando..." : "PDF"}
+            </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => downloadProjectPdf.mutate({ id: data.Id, name: data.Name })}
-            disabled={downloadProjectPdf.isPending}
-          >
-            <Printer className="size-3.5 mr-1.5" />
-            {downloadProjectPdf.isPending ? "Generando..." : "PDF"}
-          </Button>
-
-          <CreateProjectTraceModal ProjectId={data.Id} />
+            <CreateProjectTraceModal ProjectId={data.Id} />
+          </div>
         </div>
       </div>
     </div>
