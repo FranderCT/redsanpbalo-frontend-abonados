@@ -1,5 +1,6 @@
 import { CalendarDays, ImageOff, MapPin, User2 } from "lucide-react";
 import { Separator } from "../../../../../Components/ui/separator";
+import { cn } from "@/lib/utils";
 import type { Project } from "../../../Models/Project";
 import ReportPhotoLightbox from "../../../../Reports/Components/ReportPhotoLightbox";
 
@@ -15,10 +16,12 @@ function StatItem({
   icon: Icon,
   label,
   value,
+  multiline = false,
 }: {
   icon: React.ElementType;
   label: string;
   value: React.ReactNode;
+  multiline?: boolean;
 }) {
   return (
     <div className="flex items-start gap-3 min-w-0">
@@ -29,7 +32,16 @@ function StatItem({
         <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           {label}
         </p>
-        <p className="text-sm font-medium truncate">{value || "—"}</p>
+        <p
+          className={cn(
+            "text-sm font-medium",
+            multiline
+              ? "whitespace-pre-wrap break-words [overflow-wrap:anywhere]"
+              : "truncate",
+          )}
+        >
+          {value || "—"}
+        </p>
       </div>
     </div>
   );
@@ -64,7 +76,12 @@ export default function ProjectInfoSection({ data }: Props) {
         <StatItem icon={User2} label="Encargado" value={fullName} />
         <StatItem icon={CalendarDays} label="Inicio" value={formatDate(data.InnitialDate)} />
         <StatItem icon={CalendarDays} label="Fin" value={formatDate(data.EndDate)} />
-        <StatItem icon={MapPin} label="Ubicación" value={data.Location} />
+        <StatItem
+          icon={MapPin}
+          label="Ubicación"
+          value={data.Location}
+          multiline
+        />
       </div>
 
       {/* Descripción del estado si existe */}

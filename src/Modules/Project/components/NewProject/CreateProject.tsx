@@ -20,7 +20,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
 import { Separator } from "@/Components/ui/separator";
-import { FieldError } from "@/Components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/Components/ui/field";
 import { cn } from "@/lib/utils";
 
 import { newProjectInitialState } from "../../Models/Project";
@@ -31,6 +31,7 @@ import { useCreateProjectProjection } from "../../Project-projection/Hooks/Proje
 import { type NewProductDetail } from "../../../Product-Detail/Models/ProductDetail";
 import { useCreateProductDetail } from "../../../Product-Detail/Hooks/ProductDetailHooks";
 import { StepSchemas } from "../../schemas/StepSchema";
+import { ProjectBase, ProjectSchema } from "../../schemas/ProjectSchema";
 import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
 import { ProductSelectionModal } from "./ProductSelectionModal";
 import type { Product } from "../../../Products/Models/CreateProduct";
@@ -56,11 +57,38 @@ const toYMD = (d?: string | Date | null): string => {
   return dd.toISOString().split("T")[0];
 };
 
-// Extrae el primer mensaje de error de TanStack Form
-const firstError = (errors: unknown[]) =>
-  errors.length > 0
-    ? [{ message: (errors[0] as any)?.message ?? String(errors[0]) }]
-    : [];
+const normalizeDateForApi = (value?: string | Date | null): string | undefined => {
+  const normalized = toYMD(value);
+  return normalized || undefined;
+};
+
+const extractErrorMessages = (error: unknown): string[] => {
+  if (!error) return [];
+
+  if (typeof error === "string") return [error];
+
+  if (Array.isArray(error)) {
+    return error.flatMap(extractErrorMessages);
+  }
+
+  if (typeof error === "object") {
+    if ("message" in error && typeof (error as { message?: unknown }).message === "string") {
+      return [(error as { message: string }).message];
+    }
+
+    if ("errors" in error) {
+      return extractErrorMessages((error as { errors?: unknown }).errors);
+    }
+  }
+
+  return [];
+};
+
+const formatErrors = (errors: unknown[]) =>
+  errors.flatMap(extractErrorMessages).map((message) => ({ message }));
+
+const shouldShowFieldError = (meta: { isTouched?: boolean; isDirty?: boolean; errors?: unknown[] }) =>
+  Boolean(meta.isTouched || meta.isDirty) && Array.isArray(meta.errors) && meta.errors.length > 0;
 
 // Garantiza que el valor del campo sea un array (evita .map is not a function)
 const asArray = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
@@ -126,17 +154,24 @@ export default function CreateProject() {
       subfolder: "",
       files: [] as File[],
       coverImage: null as File | null,
+      SpaceOfDocument: "",
+      ProjectStateId: 0,
+      UserId: 0,
+    },
+    validators: {
+      onChange: ProjectSchema as any,
+      onSubmit: ProjectSchema as any,
     },
     onSubmit: async ({ value, formApi }) => {
       try {
         const projectPayload: ProjectCreatePayload = {
-          Name: value.Name,
-          Location: value.Location,
-          InnitialDate: value.InnitialDate,
-          EndDate: value.EndDate,
-          Objective: value.Objective,
-          Description: value.Description,
-          Observation: value.Observation,
+          Name: value.Name.trim(),
+          Location: value.Location.trim(),
+          InnitialDate: normalizeDateForApi(value.InnitialDate) as ProjectCreatePayload["InnitialDate"],
+          EndDate: normalizeDateForApi(value.EndDate) as ProjectCreatePayload["EndDate"],
+          Objective: value.Objective.trim(),
+          Description: value.Description.trim(),
+          Observation: value.Observation?.trim() ?? "",
           ProjectStateId: value.ProjectStateId,
           UserId: value.UserId,
         };
@@ -152,7 +187,7 @@ export default function CreateProject() {
 
         const projectionPayload: NewProjectProjection = {
           ProjectId: Number(projectId),
-          Observation: value.projection?.Observation ?? "",
+          Observation: value.projection?.Observation?.trim() ?? "",
         };
 
         const projectionRes =
@@ -217,39 +252,53 @@ export default function CreateProject() {
       case 0:
         return (
           <div className="flex flex-col gap-5">
-            <form.Field name="Name">
-              {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="Name">Nombre del proyecto</Label>
+            <form.Field
+              name="Name"
+              validators={{ onChange: ProjectBase.shape.Name as any }}
+            >
+              {/*
+                Validador por campo para que TanStack Form publique el error
+                directamente en field.state.meta.errors mientras el usuario escribe.
+              */}
+              {(field) => {
+                const isInvalid = shouldShowFieldError(field.state.meta);
+                return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor="Name">Nombre del proyecto</FieldLabel>
                   <Input
                     id="Name"
                     placeholder="Ej. Instalación de nuevas tuberías…"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    aria-invalid={isInvalid}
                   />
-                  {field.state.meta.isTouched && (
-                    <FieldError errors={firstError(field.state.meta.errors)} />
-                  )}
-                </div>
-              )}
+                  {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+                </Field>
+              )}}
             </form.Field>
 
-            <form.Field name="Location">
-              {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="Location">Dirección</Label>
+            <form.Field
+              name="Location"
+              validators={{ onChange: ProjectBase.shape.Location as any }}
+            >
+              {(field) => {
+                const isInvalid = shouldShowFieldError(field.state.meta);
+                return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor="Location">Dirección</FieldLabel>
                   <Textarea
                     id="Location"
                     placeholder="Ej. 200m este de la plaza…"
                     rows={3}
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    aria-invalid={isInvalid}
                   />
-                  {field.state.meta.isTouched && (
-                    <FieldError errors={firstError(field.state.meta.errors)} />
-                  )}
-                </div>
-                )}
+                  {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+                </Field>
+                )}}
               </form.Field>
 
             <form.Field name="coverImage">
@@ -262,10 +311,15 @@ export default function CreateProject() {
             </form.Field>
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <form.Field name="InnitialDate">
-                {(field) => (
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="InnitialDate">Fecha de inicio</Label>
+              <form.Field
+                name="InnitialDate"
+                validators={{ onChange: ProjectBase.shape.InnitialDate as any }}
+              >
+                {(field) => {
+                  const isInvalid = shouldShowFieldError(field.state.meta);
+                  return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor="InnitialDate">Fecha de inicio</FieldLabel>
                     <Input
                       id="InnitialDate"
                       type="date"
@@ -282,20 +336,24 @@ export default function CreateProject() {
                           errors: [],
                         }));
                       }}
+                      onBlur={field.handleBlur}
+                      aria-invalid={isInvalid}
                     />
-                    {field.state.meta.isTouched && (
-                      <FieldError errors={firstError(field.state.meta.errors)} />
-                    )}
-                  </div>
-                )}
+                    {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+                  </Field>
+                )}}
               </form.Field>
 
-              <form.Field name="EndDate">
+              <form.Field
+                name="EndDate"
+                validators={{ onChange: ProjectBase.shape.EndDate as any }}
+              >
                 {(field) => {
                   const minEnd = toYMD(form.state.values.InnitialDate as any);
+                  const isInvalid = shouldShowFieldError(field.state.meta);
                   return (
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="EndDate">Fecha de fin</Label>
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor="EndDate">Fecha de fin</FieldLabel>
                       <Input
                         id="EndDate"
                         type="date"
@@ -321,11 +379,11 @@ export default function CreateProject() {
                           }));
                           field.handleChange(selected);
                         }}
+                        onBlur={field.handleBlur}
+                        aria-invalid={isInvalid}
                       />
-                      {field.state.meta.isTouched && (
-                        <FieldError errors={firstError(field.state.meta.errors)} />
-                      )}
-                    </div>
+                      {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+                    </Field>
                   );
                 }}
               </form.Field>
@@ -337,71 +395,91 @@ export default function CreateProject() {
       case 1:
         return (
           <div className="flex flex-col gap-5">
-            <form.Field name="Objective">
-              {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <Label>Objetivo del proyecto</Label>
+            <form.Field
+              name="Objective"
+              validators={{ onChange: ProjectBase.shape.Objective as any }}
+            >
+              {(field) => {
+                const isInvalid = shouldShowFieldError(field.state.meta);
+                return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel>Objetivo del proyecto</FieldLabel>
                   <RichTextEditor
                     value={field.state.value}
                     onChange={field.handleChange}
+                    onBlur={field.handleBlur}
                     placeholder="Objetivo principal del proyecto…"
                     minHeight="7rem"
                   />
-                  {field.state.meta.isTouched && (
-                    <FieldError errors={firstError(field.state.meta.errors)} />
-                  )}
-                </div>
-              )}
+                  {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+                </Field>
+              )}}
             </form.Field>
 
-            <form.Field name="Description">
-              {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <Label>Descripción</Label>
+            <form.Field
+              name="Description"
+              validators={{ onChange: ProjectBase.shape.Description as any }}
+            >
+              {(field) => {
+                const isInvalid = shouldShowFieldError(field.state.meta);
+                return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel>Descripción</FieldLabel>
                   <RichTextEditor
                     value={field.state.value}
                     onChange={field.handleChange}
+                    onBlur={field.handleBlur}
                     placeholder="Descripción detallada del proyecto…"
                     minHeight="9rem"
                   />
-                  {field.state.meta.isTouched && (
-                    <FieldError errors={firstError(field.state.meta.errors)} />
-                  )}
-                </div>
-              )}
+                  {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+                </Field>
+              )}}
             </form.Field>
 
-            <form.Field name="Observation">
-              {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <Label>
+            <form.Field
+              name="Observation"
+              validators={{ onChange: ProjectBase.shape.Observation as any }}
+            >
+              {(field) => {
+                const isInvalid = shouldShowFieldError(field.state.meta);
+                return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel>
                     Observaciones{" "}
                     <span className="text-muted-foreground font-normal">(opcional)</span>
-                  </Label>
+                  </FieldLabel>
                   <RichTextEditor
                     value={field.state.value}
                     onChange={field.handleChange}
+                    onBlur={field.handleBlur}
                     placeholder="Observaciones adicionales…"
                     minHeight="6rem"
                   />
-                  {field.state.meta.isTouched && (
-                    <FieldError errors={firstError(field.state.meta.errors)} />
-                  )}
-                </div>
-              )}
+                  {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+                </Field>
+              )}}
             </form.Field>
 
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-              <form.Field name="ProjectStateId">
-                {(field) => (
-                  <div className="flex flex-col gap-1.5">
-                    <Label>Estado del proyecto</Label>
+              <form.Field
+                name="ProjectStateId"
+                validators={{ onChange: ProjectBase.shape.ProjectStateId as any }}
+              >
+                {(field) => {
+                  const isInvalid = shouldShowFieldError(field.state.meta);
+                  return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel>Estado del proyecto</FieldLabel>
                     <Select
                       value={field.state.value ? String(field.state.value) : ""}
-                      onValueChange={(v) => field.handleChange(Number(v))}
+                      onValueChange={(v) => {
+                        field.handleChange(Number(v));
+                        field.handleBlur();
+                      }}
                       disabled={projectStatesLoading}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger aria-invalid={isInvalid}>
                         <SelectValue
                           placeholder={
                             projectStatesLoading ? "Cargando…" : "Seleccione estado"
@@ -416,23 +494,29 @@ export default function CreateProject() {
                         ))}
                       </SelectContent>
                     </Select>
-                    {field.state.meta.isTouched && (
-                      <FieldError errors={firstError(field.state.meta.errors)} />
-                    )}
-                  </div>
-                )}
+                    {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+                  </Field>
+                )}}
               </form.Field>
 
-              <form.Field name="UserId">
-                {(field) => (
-                  <div className="flex flex-col gap-1.5">
-                    <Label>Encargado</Label>
+              <form.Field
+                name="UserId"
+                validators={{ onChange: ProjectBase.shape.UserId as any }}
+              >
+                {(field) => {
+                  const isInvalid = shouldShowFieldError(field.state.meta);
+                  return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel>Encargado</FieldLabel>
                     <Select
                       value={field.state.value ? String(field.state.value) : ""}
-                      onValueChange={(v) => field.handleChange(Number(v))}
+                      onValueChange={(v) => {
+                        field.handleChange(Number(v));
+                        field.handleBlur();
+                      }}
                       disabled={userAdminLoading}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger aria-invalid={isInvalid}>
                         <SelectValue
                           placeholder={
                             userAdminLoading
@@ -449,11 +533,9 @@ export default function CreateProject() {
                         ))}
                       </SelectContent>
                     </Select>
-                    {field.state.meta.isTouched && (
-                      <FieldError errors={firstError(field.state.meta.errors)} />
-                    )}
-                  </div>
-                )}
+                    {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+                  </Field>
+                )}}
               </form.Field>
             </div>
           </div>
@@ -463,24 +545,28 @@ export default function CreateProject() {
       case 2:
         return (
           <div className="flex flex-col gap-6">
-            <form.Field name="projection.Observation">
-              {(field) => (
-                <div className="flex flex-col gap-1.5">
-                  <Label>
+            <form.Field
+              name="projection.Observation"
+              validators={{ onChange: ProjectBase.shape.projection.shape.Observation as any }}
+            >
+              {(field) => {
+                const isInvalid = shouldShowFieldError(field.state.meta);
+                return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel>
                     Observación de la proyección{" "}
                     <span className="text-muted-foreground font-normal">(opcional)</span>
-                  </Label>
+                  </FieldLabel>
                   <RichTextEditor
                     value={field.state.value}
                     onChange={field.handleChange}
+                    onBlur={field.handleBlur}
                     placeholder="Notas para la proyección del proyecto…"
                     minHeight="6rem"
                   />
-                  {field.state.meta.isTouched && (
-                    <FieldError errors={firstError(field.state.meta.errors)} />
-                  )}
-                </div>
-              )}
+                  {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+                </Field>
+              )}}
             </form.Field>
 
             <form.Field name="productDetails">
@@ -654,7 +740,7 @@ export default function CreateProject() {
                     )}
 
                     {field.state.meta.isTouched && (
-                      <FieldError errors={firstError(field.state.meta.errors)} />
+                      <FieldError errors={formatErrors(field.state.meta.errors)} />
                     )}
                   </CardContent>
                 </Card>
@@ -794,7 +880,9 @@ export default function CreateProject() {
                   <CardContent className="grid grid-cols-1 gap-x-8 gap-y-3 text-sm md:grid-cols-2">
                     <div className="flex flex-col gap-0.5">
                       <span className="font-medium">Nombre</span>
-                      <span className="text-muted-foreground">{values.Name || "—"}</span>
+                      <span className="text-muted-foreground break-words [overflow-wrap:anywhere]">
+                        {values.Name || "—"}
+                      </span>
                     </div>
                     <div className="flex flex-col gap-0.5">
                       <span className="font-medium">Estado</span>
@@ -820,7 +908,7 @@ export default function CreateProject() {
                     </div>
                     <div className="flex flex-col gap-0.5 md:col-span-2">
                       <span className="font-medium">Encargado</span>
-                      <span className="text-muted-foreground">
+                      <span className="text-muted-foreground break-words [overflow-wrap:anywhere]">
                         {(() => {
                           const u = userAdmin.find((u) => u.Id === values.UserId);
                           return u ? `${u.Name} ${u.Surname1} ${u.Surname2}` : "—";
@@ -829,7 +917,7 @@ export default function CreateProject() {
                     </div>
                     <div className="flex flex-col gap-0.5 md:col-span-2">
                       <span className="font-medium">Ubicación</span>
-                      <span className="text-muted-foreground whitespace-pre-wrap">
+                      <span className="text-muted-foreground whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                         {values.Location || "—"}
                       </span>
                     </div>
@@ -845,7 +933,7 @@ export default function CreateProject() {
                   </CardHeader>
                   <CardContent>
                     <div
-                      className="prose prose-sm max-w-none text-muted-foreground"
+                      className="prose prose-sm max-w-none text-muted-foreground [&_*]:break-words [&_*]:[overflow-wrap:anywhere]"
                       dangerouslySetInnerHTML={{ __html: values.Objective ?? "" }}
                     />
                   </CardContent>
@@ -860,7 +948,7 @@ export default function CreateProject() {
                   </CardHeader>
                   <CardContent>
                     <div
-                      className="prose prose-sm max-w-none text-muted-foreground"
+                      className="prose prose-sm max-w-none text-muted-foreground [&_*]:break-words [&_*]:[overflow-wrap:anywhere]"
                       dangerouslySetInnerHTML={{ __html: values.Description ?? "" }}
                     />
                   </CardContent>
@@ -876,7 +964,7 @@ export default function CreateProject() {
                     </CardHeader>
                     <CardContent>
                       <div
-                        className="prose prose-sm max-w-none text-muted-foreground"
+                        className="prose prose-sm max-w-none text-muted-foreground [&_*]:break-words [&_*]:[overflow-wrap:anywhere]"
                         dangerouslySetInnerHTML={{ __html: values.Observation }}
                       />
                     </CardContent>
@@ -893,7 +981,7 @@ export default function CreateProject() {
                     </CardHeader>
                     <CardContent>
                       <div
-                        className="prose prose-sm max-w-none text-muted-foreground"
+                        className="prose prose-sm max-w-none text-muted-foreground [&_*]:break-words [&_*]:[overflow-wrap:anywhere]"
                         dangerouslySetInnerHTML={{ __html: values.projection.Observation }}
                       />
                     </CardContent>
@@ -913,10 +1001,12 @@ export default function CreateProject() {
                         {asArray<any>(values.productDetails).map((d, i) => (
                           <li
                             key={i}
-                            className="flex items-center justify-between py-1.5"
+                            className="flex items-start justify-between gap-3 py-1.5"
                           >
-                            <span>{getProductName(d.ProductId)}</span>
-                            <Badge variant="secondary">×{d.Quantity}</Badge>
+                            <span className="min-w-0 break-words [overflow-wrap:anywhere]">
+                              {getProductName(d.ProductId)}
+                            </span>
+                            <Badge variant="secondary" className="shrink-0">×{d.Quantity}</Badge>
                           </li>
                         ))}
                       </ul>
@@ -933,9 +1023,11 @@ export default function CreateProject() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-start gap-2 text-sm text-muted-foreground">
                         <FileText className="size-3.5 shrink-0" />
-                        {values.coverImage.name} - {(values.coverImage.size / 1024 / 1024).toFixed(2)} MB
+                        <span className="break-words [overflow-wrap:anywhere]">
+                          {values.coverImage.name} - {(values.coverImage.size / 1024 / 1024).toFixed(2)} MB
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
@@ -953,10 +1045,12 @@ export default function CreateProject() {
                         {asArray<File>(values.files).map((f, i) => (
                           <li
                             key={i}
-                            className="flex items-center gap-2 text-muted-foreground"
+                            className="flex items-start gap-2 text-muted-foreground"
                           >
                             <FileText className="size-3.5 shrink-0" />
-                            {f.name} — {(f.size / 1024 / 1024).toFixed(2)} MB
+                            <span className="break-words [overflow-wrap:anywhere]">
+                              {f.name} — {(f.size / 1024 / 1024).toFixed(2)} MB
+                            </span>
                           </li>
                         ))}
                       </ul>

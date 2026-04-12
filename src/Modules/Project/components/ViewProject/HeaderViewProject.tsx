@@ -2,9 +2,11 @@ import { useNavigate } from "@tanstack/react-router";
 import { Pencil, Printer, ChevronRight } from "lucide-react";
 import { Button } from "../../../../Components/ui/button";
 import { Badge } from "../../../../Components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { Project } from "../../Models/Project";
 import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
 import { useDownloadProjectPdf } from "../../Hooks/ProjectHooks";
+import { getProjectStateBadgeClass } from "../../utils/projectStateTone";
 
 type Props = {
   data: Project;
@@ -37,7 +39,13 @@ export default function HeaderViewProject({ data }: Props) {
             {data.Name}
           </h1>
           {data.ProjectState?.Name && (
-            <Badge variant="secondary" className="shrink-0 px-4 py-1">
+            <Badge
+              variant="outline"
+              className={cn(
+                "shrink-0 px-4 py-1",
+                getProjectStateBadgeClass(data.ProjectState.Name),
+              )}
+            >
               {data.ProjectState.Name}
             </Badge>
           )}

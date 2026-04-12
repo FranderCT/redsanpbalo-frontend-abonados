@@ -6,8 +6,8 @@ import { projectKeys } from "../../queryKeys";
 import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
 import { useState } from "react";
 import { toast } from "sonner";
-import { uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";
-import { 
+import { getProjectFolderLink, uploadProjectFiles } from "../../../Upload-files/Services/ProjectFileServices";
+import {
   Calendar, 
   MapPin, 
   User, 
@@ -26,6 +26,7 @@ import {
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import LogoRedSanPabloHG from "../../../../assets/images/LogoRedSanPabloHG.png";
+import { getProjectStateBadgeClass } from "../../utils/projectStateTone";
 
 export interface Project {
   Id: number;
@@ -496,12 +497,9 @@ const ViewProjectById = () => {
   const navigateToProjectFolder = async () => {
     setIsGettingFolderLink(true);
     try {
-      const response = await apiAxios.get(
-        `/project-file/folder-link/${projectIdNumber}`
-      );
-      const dropboxUrl = response.data;
-      if (typeof dropboxUrl === 'string' && dropboxUrl.includes('dropbox.com')) {
-        window.open(dropboxUrl, '_blank');
+      const folderLink = await getProjectFolderLink(projectIdNumber);
+      if (folderLink && folderLink.includes("dropbox.com")) {
+        window.open(folderLink, "_blank", "noopener,noreferrer");
       } else {
         toast.error("No se pudo obtener el enlace de la carpeta");
       }
@@ -538,16 +536,6 @@ const ViewProjectById = () => {
     );
   }
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      'PENDIENTE': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-      'EN PROGRESO': 'bg-blue-100 text-blue-800 border-blue-200',
-      'COMPLETADO': 'bg-green-100 text-green-800 border-green-200',
-      'CANCELADO': 'bg-red-100 text-red-800 border-red-200',
-    };
-    return colors[status?.toUpperCase()] || 'bg-gray-100 text-gray-800 border-gray-200';
-  };
-
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -556,19 +544,19 @@ const ViewProjectById = () => {
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
-                <span className={`px-3 py-1 text-sm font-medium border ${getStatusColor(project?.ProjectState?.Name || '')}`}>
+                <span className={`px-3 py-1 text-sm font-medium border ${getProjectStateBadgeClass(project?.ProjectState?.Name)}`}>
                   {project?.ProjectState?.Name}
                 </span>
                 <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium">
                   ID: #{project?.Id}
                 </span>
               </div>
-              <h1 className="text-3xl font-bold text-[#091540] mb-2">
+              <h1 className="text-3xl font-bold text-[#091540] mb-2 break-words [overflow-wrap:anywhere]">
                 {project?.Name}
               </h1>
               <div className="flex items-center gap-2 text-gray-600">
                 <MapPin className="w-4 h-4" />
-                <span>{project?.Location}</span>
+                <span className="break-words [overflow-wrap:anywhere]">{project?.Location}</span>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -643,7 +631,7 @@ const ViewProjectById = () => {
               <CheckCircle2 className="w-5 h-5 text-[#1789FC]" />
               <h3 className="text-lg font-bold text-[#091540]">Objetivo</h3>
             </div>
-            <p className="text-gray-600">{project?.Objective || 'Sin objetivo especificado'}</p>
+            <p className="text-gray-600 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{project?.Objective || 'Sin objetivo especificado'}</p>
           </div>
         </div>
 
@@ -819,7 +807,7 @@ const ViewProjectById = () => {
                           {t.Name}
                         </h4>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{t.Observation}</p>
+                      <p className="text-sm text-gray-600 mb-2 whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{t.Observation}</p>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
@@ -977,7 +965,7 @@ const ViewProjectById = () => {
               </svg>
               <h3 className="text-lg font-bold text-[#091540]">Observaciones</h3>
             </div>
-            <p className="text-gray-700 leading-relaxed">{project.Observation}</p>
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{project.Observation}</p>
           </div>
         )}
       </div>

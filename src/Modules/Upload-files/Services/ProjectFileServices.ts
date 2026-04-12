@@ -1,6 +1,31 @@
 // services/projectFileService.ts
 import apiAxios from "../../../api/apiConfig";
 
+type FolderLinkResponse =
+  | string
+  | {
+      link?: string;
+      url?: string;
+    };
+
+export async function getProjectFolderLink(projectId: number): Promise<string | null> {
+  const { data } = await apiAxios.get<FolderLinkResponse>(`project-file/folder-link/${projectId}`);
+
+  if (typeof data === "string") {
+    return data;
+  }
+
+  if (data?.link) {
+    return data.link;
+  }
+
+  if (data?.url) {
+    return data.url;
+  }
+
+  return null;
+}
+
 export async function uploadProjectFiles(
   projectId: number,
   files: File[],

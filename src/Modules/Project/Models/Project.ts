@@ -41,11 +41,11 @@ export interface Project {
 export interface newProject{
   Name: string;
   Location: string;
-  InnitialDate: Date;
-  EndDate: Date;
+  InnitialDate: string | Date;
+  EndDate?: string | Date;
   Objective:string;
   Description:string;
-  Observation:string;
+  Observation?:string;
   ProjectStateId : number;
   UserId : number;
 }
@@ -54,13 +54,13 @@ export interface newProject{
 export const newProjectInitialState: newProject = {
   Name: "",
   Location:"",
-  InnitialDate: '' as unknown as Date,
-  EndDate: '' as unknown as Date,
+  InnitialDate: "",
+  EndDate: undefined,
   Objective:"",
   Description:"",
   Observation:"",
-  ProjectStateId : 1,
-  UserId : 1
+  ProjectStateId : 0,
+  UserId : 0
 };
 
 export interface UpdateProject{

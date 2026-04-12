@@ -3,8 +3,9 @@ import React from "react";
 import type { Project } from "../../Models/Project";
 import { useNavigate } from "@tanstack/react-router";
 import { projectRoute, viewProjectRoute } from "../../Routes/ProjectsRoutes";
-import { CalendarDays, ImageOff } from "lucide-react";
+import { CalendarDays, ImageOff, MapPin } from "lucide-react";
 import ReportPhotoLightbox from "../../../Reports/Components/ReportPhotoLightbox";
+import { getProjectStateBadgeClass } from "../../utils/projectStateTone";
 
 type Props = { project: Project; onDetails?: (id: number) => void; className?: string; };
 
@@ -15,14 +16,7 @@ const formatDate = (d: unknown) => {
 };
 
 const CardProject: React.FC<Props> = ({ project, className }) => {
-
   const navigate = useNavigate({ from: projectRoute.id });
-  const stateColors: Record<string, string> = {
-  pendiente: "bg-yellow-100 text-yellow-800 border-yellow-300",
-  "en proceso": "bg-blue-100 text-blue-800 border-blue-300",
-  aprobado: "bg-green-100 text-green-800 border-green-300",
-  denegado: "bg-red-100 text-red-800 border-red-300",
-  };
   return (
     <div
       className={[
@@ -53,52 +47,59 @@ const CardProject: React.FC<Props> = ({ project, className }) => {
       </div>
 
       {/* Contenido del card: ocupa todo y empuja el footer */}
-      <section className="flex grow flex-col  border border-gray-200 border-t-0 bg-white p-4">
+      <section className="flex grow flex-col border border-gray-200 border-t-0 bg-white p-5">
+        <header className="min-w-0 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
+                Proyecto
+              </p>
+              <h3
+                className="mt-1 text-lg font-semibold leading-7 text-slate-950 break-words [overflow-wrap:anywhere] line-clamp-2"
+                title={project.Name}
+              >
+                {project.Name}
+              </h3>
+            </div>
+            <div
+              className={`shrink-0 border px-3 py-1 text-[11px] font-semibold ${getProjectStateBadgeClass(
+                project.ProjectState?.Name,
+              )}`}
+            >
+              {project.ProjectState?.Name ?? "Sin estado"}
+            </div>
+          </div>
 
-        {/* Título */}
-        <header className="w-full min-w-0">
-          <p className="text-sm text-gray-500">Proyecto</p>
-          <h3
-            className="min-h-[1.75rem] text-lg font-semibold leading-7 line-clamp-1 break-words"
-            title={project.Name}
-          >
-            {project.Name}
-          </h3>
+          <div className="flex items-start gap-2 rounded-md bg-slate-50 px-3 py-2 text-sm text-slate-600">
+            <MapPin className="mt-0.5 size-4 shrink-0 text-slate-400" />
+            <p className="line-clamp-2 break-words [overflow-wrap:anywhere]">
+              {project.Location || "Sin ubicación registrada"}
+            </p>
+          </div>
         </header>
 
-        {/* Descripción (flex-grow) */}
-        <div
-          className="flex-grow overflow-hidden"
-        >
-          <p className="text-sm text-gray-500">Descripción</p>
+        <div className="my-4 border-t border-slate-100" />
+
+        <div className="flex-grow overflow-hidden">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
+            Descripción
+          </p>
+          <h3
+            className="sr-only"
+          />
           <div
-            className="mt-1 text-xs text-gray-600 leading-relaxed [overflow-wrap:anywhere] line-clamp-3
+            className="mt-2 text-sm text-slate-600 leading-relaxed [overflow-wrap:anywhere] line-clamp-4
               prose prose-sm max-w-none
               prose-p:my-0 prose-headings:my-0 prose-ul:my-0 prose-ol:my-0 prose-li:my-0
-              prose-p:text-gray-600 prose-li:text-gray-600 prose-strong:text-gray-700"
+              prose-p:text-slate-600 prose-li:text-slate-600 prose-strong:text-slate-700"
             dangerouslySetInnerHTML={{ __html: project.Description ?? "" }}
           />
-        </div>
-
-        {/* Estado (badge fijo al final del section) */}
-        <div
-          className={`text-xs px-3 py-1 border w-fit font-bold
-            ${
-              stateColors[
-                (project.ProjectState?.Name ?? "")
-                  .toString()
-                  .trim()
-                  .toLowerCase()
-              ] ?? "bg-gray-100 text-gray-600 border-gray-300"
-            }`}
-        >
-          {project.ProjectState?.Name ?? "Sin estado"}
         </div>
       </section>
 
 
       {/* Footer fijo abajo */}
-      <div className="mt-auto flex justify-end px-4 pb-4 pt-3">
+      <div className="mt-auto flex justify-end border-t border-slate-100 px-5 py-4">
         <button
           type="button"
           onClick={() =>
@@ -107,7 +108,7 @@ const CardProject: React.FC<Props> = ({ project, className }) => {
               params: { projectId: String(project.Id) }
             })
           }
-          className="text-base text-[#091540] px-3 py-1.5 border border-[#091540] hover:bg-gray-200"
+          className="border border-[#091540] px-3 py-1.5 text-sm font-medium text-[#091540] transition-colors hover:bg-slate-100"
         >
           Ver detalles
         </button>

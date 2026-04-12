@@ -13,7 +13,8 @@ function SectionBlock({ title, html }: { title: string; html?: string | null }) 
         className="prose prose-sm max-w-none text-foreground
           prose-headings:font-semibold prose-headings:text-foreground
           prose-p:text-muted-foreground prose-li:text-muted-foreground
-          prose-strong:text-foreground prose-strong:font-semibold"
+          prose-strong:text-foreground prose-strong:font-semibold
+          [&_*]:break-words [&_*]:[overflow-wrap:anywhere]"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

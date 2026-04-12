@@ -1,25 +1,125 @@
 // Modules/Project/schemas/ProjectSchema.ts
 import { z } from "zod";
 
+const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+const trimString = (value: unknown) =>
+  typeof value === "string" ? value.trim() : value;
+
+const toDateOnlyString = (value: unknown) => {
+  if (value === null || value === undefined || value === "") {
+    return undefined;
+  }
+
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value.toISOString().split("T")[0];
+  }
+
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  return value;
+};
+
+const requiredTrimmedString = (requiredMessage: string, max: number, maxMessage: string) =>
+  z.preprocess(
+    trimString,
+    z
+      .string({
+        required_error: requiredMessage,
+        invalid_type_error: requiredMessage,
+      })
+      .min(1, requiredMessage)
+      .max(max, maxMessage),
+  );
+
+const optionalTrimmedString = (max: number, maxMessage: string) =>
+  z.preprocess(
+    (value) => {
+      const trimmed = trimString(value);
+      return trimmed === "" ? undefined : trimmed;
+    },
+    z.string().max(max, maxMessage).optional(),
+  );
+
+const requiredDateOnly = (requiredMessage: string, formatMessage: string) =>
+  z.preprocess(
+    toDateOnlyString,
+    z
+      .string({
+        required_error: requiredMessage,
+        invalid_type_error: formatMessage,
+      })
+      .min(1, requiredMessage)
+      .regex(DATE_ONLY_REGEX, formatMessage),
+  );
+
+const optionalDateOnly = (formatMessage: string) =>
+  z.preprocess(
+    toDateOnlyString,
+    z
+      .string({
+        invalid_type_error: formatMessage,
+      })
+      .regex(DATE_ONLY_REGEX, formatMessage)
+      .optional(),
+  );
+
+const positiveInt = (requiredMessage: string, intMessage: string, minMessage: string) =>
+  z
+    .number({
+      required_error: requiredMessage,
+      invalid_type_error: intMessage,
+    })
+    .int(intMessage)
+    .min(1, minMessage);
+
 export const ProjectBase = z.object({
-  Name: z.string().trim().min(3, "El nombre debe tener al menos 3 caracteres.").max(400, "El nombre no puede superar los 400 caracteres."),
-  Location: z.string().trim().min(5, "La ubicación debe tener al menos 5 caracteres.").max(400, "La ubicación no puede superar los 400 caracteres."),
-
-  InnitialDate: z.coerce.date({ required_error: "La fecha de inicio es obligatoria.", invalid_type_error: "La fecha de inicio no es válida." }),
-  EndDate: z.coerce.date({ required_error: "La fecha de fin es obligatoria.", invalid_type_error: "La fecha de fin no es válida." }),
-
-  Objective: z.string().trim().min(5, "El objetivo debe tener al menos 5 caracteres.").max(400, "El objetivo no puede superar los 400 caracteres."),
-  Description: z.string().trim().min(10, "La descripción debe tener al menos 10 caracteres.").max(2000, "La descripción no puede superar los 2000 caracteres."),
-
-  Observation: z.string().trim().max(500, "La observación no puede superar los 500 caracteres."),
-  SpaceOfDocument: z.string().trim().max(200, "El espacio de documento no puede superar los 200 caracteres."),
-
-  ProjectStateId: z.number({ required_error: "Debe seleccionar un estado de proyecto.", invalid_type_error: "El estado del proyecto debe ser un número." })
-                    .int("El estado debe ser un número entero.")
-                    .positive("Debe elegir un estado válido (mayor a 0)."),
+  Name: requiredTrimmedString(
+    "El nombre del proyecto es obligatorio",
+    255,
+    "El nombre del proyecto no puede superar los 255 caracteres",
+  ),
+  Location: requiredTrimmedString(
+    "La ubicación es obligatoria",
+    500,
+    "La ubicación no puede superar los 500 caracteres",
+  ),
+  InnitialDate: requiredDateOnly(
+    "La fecha inicial es obligatoria",
+    "La fecha inicial debe tener el formato dd/mm/aaaa",
+  ),
+  EndDate: optionalDateOnly("La fecha final debe tener el formato dd/mm/aaaa"),
+  Objective: requiredTrimmedString(
+    "El objetivo es obligatorio",
+    8000,
+    "El objetivo no puede superar los 8000 caracteres (incluyendo formato HTML)",
+  ),
+  Description: requiredTrimmedString(
+    "La descripción es obligatoria",
+    20000,
+    "La descripción no puede superar los 20000 caracteres (incluyendo formato HTML)",
+  ),
+  Observation: optionalTrimmedString(
+    10000,
+    "La observación no puede superar los 10000 caracteres (incluyendo formato HTML)",
+  ),
+  SpaceOfDocument: optionalTrimmedString(
+    1000,
+    "El espacio de documentos no puede superar los 1000 caracteres",
+  ),
+  ProjectStateId: positiveInt(
+    "El estado del proyecto es obligatorio",
+    "Debe seleccionar un estado de proyecto válido",
+    "Debe seleccionar un estado de proyecto válido",
+  ),
 
   projection: z.object({
-    Observation: z.string().trim().max(500, "La observación de la proyección no puede superar los 500 caracteres."),
+    Observation: optionalTrimmedString(
+      10000,
+      "La observación de la proyección no puede superar los 10000 caracteres (incluyendo formato HTML)",
+    ),
   }),
 
   productDetails: z.array(
@@ -33,12 +133,16 @@ export const ProjectBase = z.object({
     })
   ),
 
-  UserId: z.number()
+  UserId: positiveInt(
+    "El usuario responsable es obligatorio",
+    "Debe seleccionar un usuario responsable válido",
+    "Debe seleccionar un usuario responsable válido",
+  ),
 });
 
 // ← Este es el que usas como validador global del formulario
 export const ProjectSchema = ProjectBase.superRefine((val, ctx) => {
-  if (val.EndDate.getTime() < val.InnitialDate.getTime()) {
+  if (val.EndDate && val.EndDate < val.InnitialDate) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["EndDate"],

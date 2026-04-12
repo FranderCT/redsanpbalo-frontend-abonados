@@ -9,6 +9,14 @@ export const StepSchemas = [
     Location: true,
     InnitialDate: true,
     EndDate: true,
+  }).superRefine((val, ctx) => {
+    if (val.EndDate && val.EndDate < val.InnitialDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["EndDate"],
+        message: "La fecha de fin debe ser mayor o igual a la fecha de inicio.",
+      });
+    }
   }),
 
   // Paso 1: detalles
