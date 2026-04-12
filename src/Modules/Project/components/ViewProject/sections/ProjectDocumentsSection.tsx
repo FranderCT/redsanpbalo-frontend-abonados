@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Upload, FolderOpen, X, FileText } from "lucide-react";
 import { toast } from "sonner";
-import axios from "axios";
 import { Button } from "../../../../../Components/ui/button";
-import { uploadProjectFiles } from "../../../../Upload-files/Services/ProjectFileServices";
+import { getProjectFolderLink, uploadProjectFiles } from "../../../../Upload-files/Services/ProjectFileServices";
 
 type Props = { projectId: number };
 
@@ -36,11 +35,10 @@ export default function ProjectDocumentsSection({ projectId }: Props) {
   const openFolder = async () => {
     setIsFetchingLink(true);
     try {
-      const { data } = await axios.get(
-        `https://asada-san-pablo-backend-production.up.railway.app/project-file/folder-link/${projectId}`
-      );
-      if (typeof data === "string" && data.includes("dropbox.com")) {
-        window.open(data, "_blank");
+      const folderLink = await getProjectFolderLink(projectId);
+
+      if (folderLink && folderLink.includes("dropbox.com")) {
+        window.open(folderLink, "_blank", "noopener,noreferrer");
       } else {
         toast.error("No se pudo obtener el enlace de la carpeta");
       }

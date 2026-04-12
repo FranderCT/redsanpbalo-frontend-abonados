@@ -34,6 +34,7 @@ import { Separator } from "@/Components/ui/separator";
 type Props = {
   value?: string;
   onChange?: (html: string) => void;
+  onBlur?: () => void;
   placeholder?: string;
   minHeight?: string;
   disabled?: boolean;
@@ -79,6 +80,7 @@ function TBtn({ onClick, active, disabled, title, children }: TBtnProps) {
 export function RichTextEditor({
   value = "",
   onChange,
+  onBlur,
   placeholder = "Escribe aquí…",
   minHeight = "8rem",
   disabled = false,
@@ -116,7 +118,7 @@ export function RichTextEditor({
     }
     const current = editor.isEmpty ? "" : editor.getHTML();
     if (value !== current) {
-      editor.commands.setContent(value || "", false /* emitUpdate = false */);
+      editor.commands.setContent(value || "", { emitUpdate: false });
     }
   }, [value, editor]);
 
@@ -290,6 +292,7 @@ export function RichTextEditor({
       {/* ── Área editable ────────────────────────────────────────────────── */}
       <EditorContent
         editor={editor}
+        onBlur={onBlur}
         className={cn(
           // prose base
           "prose prose-sm max-w-none px-3 py-2",

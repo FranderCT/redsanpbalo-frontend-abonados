@@ -6,11 +6,14 @@ import { useGetProjectById, useRemoveProjectCoverImage, useUpdateProject, useUpl
 import { useGetUsersByRoleAdmin } from "../../../Users/Hooks/UsersHooks";
 import { useGetAllProjectStates } from "../../../Project_State/Hooks/ProjectStateHooks";
 import type { UpdateProject } from "../../Models/Project";
-import { UpdateProjectSchema } from "../../schemas/UpdateProjectSchema";
+import { UpdateProjectBase, UpdateProjectSchema } from "../../schemas/UpdateProjectSchema";
 import ConfirmActionModal from "../../../../Components/Modals/ConfirmActionModal";
+import { Button } from "@/Components/ui/button";
 import { RichTextEditor } from "@/Components/ui/rich-text-editor";
-import { Label } from "@/Components/ui/label";
-import { FieldError } from "@/Components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/Components/ui/field";
+import { Input } from "@/Components/ui/input";
+import { Textarea } from "@/Components/ui/textarea";
+import { cn } from "@/lib/utils";
 import ProjectCoverField from "../shared/ProjectCoverField";
 
 // helper: Date | string -> "YYYY-MM-DD"
@@ -20,6 +23,32 @@ const toYMD = (d?: string | Date) => {
   if (isNaN(dd.getTime())) return "";
   return dd.toISOString().split("T")[0];
 };
+
+const normalizeDateForApi = (value?: string | Date | null): string | undefined => {
+  const normalized = toYMD(value ?? undefined);
+  return normalized || undefined;
+};
+
+const extractErrorMessages = (error: unknown): string[] => {
+  if (!error) return [];
+  if (typeof error === "string") return [error];
+  if (Array.isArray(error)) return error.flatMap(extractErrorMessages);
+  if (typeof error === "object") {
+    if ("message" in error && typeof (error as { message?: unknown }).message === "string") {
+      return [(error as { message: string }).message];
+    }
+    if ("errors" in error) {
+      return extractErrorMessages((error as { errors?: unknown }).errors);
+    }
+  }
+  return [];
+};
+
+const formatErrors = (errors: unknown[]) =>
+  errors.flatMap(extractErrorMessages).map((message) => ({ message }));
+
+const shouldShowFieldError = (meta: { isTouched?: boolean; isDirty?: boolean; errors?: unknown[] }) =>
+  Boolean(meta.isTouched || meta.isDirty) && Array.isArray(meta.errors) && meta.errors.length > 0;
 
 export default function EditProject() {
   const { projectId } = useParams({ from: "/dashboard/projects/$projectId/edit" });
@@ -62,20 +91,21 @@ export default function EditProject() {
   const form = useForm({
     validators: {
       onChange: UpdateProjectSchema as any,
+      onSubmit: UpdateProjectSchema as any,
     },
     defaultValues,
     onSubmit: async ({ value }) => {
       try {
         const fullPayload = {
-          Name: value.Name?.trim() ?? "",
-          Location: value.Location?.trim() ?? "",
-          InnitialDate: toYMD(value.InnitialDate)!, 
-          EndDate: toYMD(value.EndDate)!,          
-          Objective: value.Objective?.trim() ?? "",
-          Description: value.Description?.trim() ?? "",
-          Observation: value.Observation?.trim() ?? "",
-          ProjectStateId: Number(value.ProjectStateId),
-          UserId: Number(value.UserId),
+          Name: value.Name?.trim() || undefined,
+          Location: value.Location?.trim() || undefined,
+          InnitialDate: normalizeDateForApi(value.InnitialDate),
+          EndDate: normalizeDateForApi(value.EndDate),
+          Objective: value.Objective?.trim() || undefined,
+          Description: value.Description?.trim() || undefined,
+          Observation: value.Observation?.trim() || undefined,
+          ProjectStateId: value.ProjectStateId ? Number(value.ProjectStateId) : undefined,
+          UserId: value.UserId ? Number(value.UserId) : undefined,
         };
 
         await updateMutation.mutateAsync({ id, data: fullPayload as any });
@@ -103,7 +133,7 @@ export default function EditProject() {
   if (isPending || !defaultValues) return <div className="p-6">Cargando…</div>;
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-8">
+    <div className="mx-auto w-full max-w-3xl">
       <form
         key={project?.Id ?? "edit-project"}
         onSubmit={(e) => {
@@ -113,175 +143,207 @@ export default function EditProject() {
         className="flex flex-col gap-6"
       >
         {/* Nombre */}
-        <form.Field name="Name">
-          {(field) => (
-            <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-[#091540]">Nombre</span>
-              <input
-                className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
+        <form.Field
+          name="Name"
+          validators={{ onChange: UpdateProjectBase.shape.Name as any }}
+        >
+          {(field) => {
+            const isInvalid = shouldShowFieldError(field.state.meta);
+            return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor={field.name}>Nombre</FieldLabel>
+              <Input
+                id={field.name}
                 value={field.state.value ?? ""}
                 onChange={(e) => field.handleChange(e.target.value)}
-                required
+                onBlur={field.handleBlur}
+                aria-invalid={isInvalid}
+                className={cn(isInvalid && "border-destructive focus-visible:ring-destructive")}
               />
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                </p>
-              )}
-            </label>
-          )}
+              {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+            </Field>
+          )}}
         </form.Field>
 
         {/* Dirección */}
-        <form.Field name="Location">
-          {(field) => (
-            <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-[#091540]">Dirección</span>
-              <textarea
-                className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition resize-none"
+        <form.Field
+          name="Location"
+          validators={{ onChange: UpdateProjectBase.shape.Location as any }}
+        >
+          {(field) => {
+            const isInvalid = shouldShowFieldError(field.state.meta);
+            return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor={field.name}>Dirección</FieldLabel>
+              <Textarea
+                id={field.name}
                 rows={3}
                 value={field.state.value ?? ""}
                 onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                aria-invalid={isInvalid}
+                className={cn(isInvalid && "border-destructive focus-visible:ring-destructive")}
               />
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                </p>
-              )}
-            </label>
-          )}
+              {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+            </Field>
+          )}}
         </form.Field>
 
         {/* Fechas */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <form.Field name="InnitialDate">
-            {(field) => (
-              <label className="flex flex-col gap-1">
-                <span className="text-sm font-medium text-[#091540]">Fecha inicio</span>
-                <input
+          <form.Field
+            name="InnitialDate"
+            validators={{ onChange: UpdateProjectBase.shape.InnitialDate as any }}
+          >
+            {(field) => {
+              const isInvalid = shouldShowFieldError(field.state.meta);
+              return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Fecha inicio</FieldLabel>
+                <Input
+                  id={field.name}
                   type="date"
-                  className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
                   value={field.state.value ? toYMD(field.state.value as any) : ""}
                   onChange={(e) => field.handleChange(new Date(e.target.value))}
+                  onBlur={field.handleBlur}
+                  aria-invalid={isInvalid}
+                  className={cn(isInvalid && "border-destructive focus-visible:ring-destructive")}
                 />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
-                )}
-              </label>
-            )}
+                {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+              </Field>
+            )}}
           </form.Field>
 
-          <form.Field name="EndDate">
-            {(field) => (
-              <label className="flex flex-col gap-1">
-                <span className="text-sm font-medium text-[#091540]">Fecha fin</span>
-                <input
+          <form.Field
+            name="EndDate"
+            validators={{ onChange: UpdateProjectBase.shape.EndDate as any }}
+          >
+            {(field) => {
+              const isInvalid = shouldShowFieldError(field.state.meta);
+              return (
+              <Field data-invalid={isInvalid}>
+                <FieldLabel htmlFor={field.name}>Fecha fin</FieldLabel>
+                <Input
+                  id={field.name}
                   type="date"
-                  className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
                   value={field.state.value ? toYMD(field.state.value as any) : ""}
                   onChange={(e) => field.handleChange(new Date(e.target.value))}
+                  onBlur={field.handleBlur}
+                  aria-invalid={isInvalid}
+                  className={cn(isInvalid && "border-destructive focus-visible:ring-destructive")}
                 />
-                {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                    <p className="text-sm text-red-500 mt-1">
-                    {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                    </p>
-                )}
-              </label>
-            )}
+                {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+              </Field>
+            )}}
           </form.Field>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-          <div className="mb-4">
-            <h3 className="text-base font-semibold text-[#091540]">Portada del proyecto</h3>
-            <p className="text-sm text-slate-600">
-              Aquí puedes subir una nueva imagen o quitar la actual.
-            </p>
-          </div>
-
-          <form.Field name="coverImage">
-            {(coverField) => (
-              <form.Field name="removeCoverImage">
-                {(removeCoverField) => (
-                  <ProjectCoverField
-                    file={coverField.state.value}
-                    existingUrl={project?.CoverImageUrl}
-                    markForRemoval={removeCoverField.state.value}
-                    onFileChange={coverField.handleChange}
-                    onMarkForRemovalChange={removeCoverField.handleChange}
-                  />
-                )}
-              </form.Field>
-            )}
-          </form.Field>
-        </div>
+        <form.Field name="coverImage">
+          {(coverField) => (
+            <form.Field name="removeCoverImage">
+              {(removeCoverField) => (
+                <ProjectCoverField
+                  file={coverField.state.value}
+                  existingUrl={project?.CoverImageUrl}
+                  markForRemoval={removeCoverField.state.value}
+                  onFileChange={coverField.handleChange}
+                  onMarkForRemovalChange={removeCoverField.handleChange}
+                />
+              )}
+            </form.Field>
+          )}
+        </form.Field>
 
         {/* Objetivo */}
-        <form.Field name="Objective">
-          {(field) => (
-            <div className="flex flex-col gap-1.5">
-              <Label>Objetivo</Label>
+        <form.Field
+          name="Objective"
+          validators={{ onChange: UpdateProjectBase.shape.Objective as any }}
+        >
+          {(field) => {
+            const isInvalid = shouldShowFieldError(field.state.meta);
+            return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel>Objetivo</FieldLabel>
               <RichTextEditor
                 value={field.state.value ?? ""}
                 onChange={field.handleChange}
+                onBlur={field.handleBlur}
                 placeholder="Objetivo principal del proyecto…"
                 minHeight="7rem"
+                className={cn(isInvalid && "border-destructive focus-within:ring-destructive")}
               />
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <FieldError errors={[{ message: (field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0]) }]} />
-              )}
-            </div>
-          )}
+              {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+            </Field>
+          )}}
         </form.Field>
 
         {/* Descripción */}
-        <form.Field name="Description">
-          {(field) => (
-            <div className="flex flex-col gap-1.5">
-              <Label>Descripción</Label>
+        <form.Field
+          name="Description"
+          validators={{ onChange: UpdateProjectBase.shape.Description as any }}
+        >
+          {(field) => {
+            const isInvalid = shouldShowFieldError(field.state.meta);
+            return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel>Descripción</FieldLabel>
               <RichTextEditor
                 value={field.state.value ?? ""}
                 onChange={field.handleChange}
+                onBlur={field.handleBlur}
                 placeholder="Descripción detallada del proyecto…"
                 minHeight="9rem"
+                className={cn(isInvalid && "border-destructive focus-within:ring-destructive")}
               />
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <FieldError errors={[{ message: (field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0]) }]} />
-              )}
-            </div>
-          )}
+              {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+            </Field>
+          )}}
         </form.Field>
 
         {/* Observación */}
-        <form.Field name="Observation">
-          {(field) => (
-            <div className="flex flex-col gap-1.5">
-              <Label>Observaciones</Label>
+        <form.Field
+          name="Observation"
+          validators={{ onChange: UpdateProjectBase.shape.Observation as any }}
+        >
+          {(field) => {
+            const isInvalid = shouldShowFieldError(field.state.meta);
+            return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel>Observaciones</FieldLabel>
               <RichTextEditor
                 value={field.state.value ?? ""}
                 onChange={field.handleChange}
+                onBlur={field.handleBlur}
                 placeholder="Observaciones adicionales…"
                 minHeight="6rem"
+                className={cn(isInvalid && "border-destructive focus-within:ring-destructive")}
               />
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <FieldError errors={[{ message: (field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0]) }]} />
-              )}
-            </div>
-          )}
+              {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+            </Field>
+          )}}
         </form.Field>
 
         {/* Estado */}
-        <form.Field name="ProjectStateId">
-          {(field) => (
-            <label className="grid gap-1">
-              <span className="text-sm font-medium text-[#091540]">Estado</span>
+        <form.Field
+          name="ProjectStateId"
+          validators={{ onChange: UpdateProjectBase.shape.ProjectStateId as any }}
+        >
+          {(field) => {
+            const isInvalid = shouldShowFieldError(field.state.meta);
+            return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor={field.name}>Estado</FieldLabel>
               <select
-                className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition"
+                id={field.name}
+                className={cn(
+                  "px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition",
+                  isInvalid && "border-destructive text-destructive focus:border-destructive",
+                )}
                 value={field.state.value ?? ""}
                 onChange={(e) => field.handleChange(Number(e.target.value))}
+                onBlur={field.handleBlur}
                 disabled={projectStatesLoading}
+                aria-invalid={isInvalid}
               >
                 <option value="" disabled>
                   {projectStatesLoading ? "Cargando estados…" : "Seleccione estado"}
@@ -292,25 +354,32 @@ export default function EditProject() {
                   </option>
                 ))}
               </select>
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                </p>
-              )}
-            </label>
-          )}
+              {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+            </Field>
+          )}}
         </form.Field>
 
         {/* Encargado (solo UI). NO se envía en PUT actual */}
-        <form.Field name="UserId">
-          {(field) => (
-            <label className="grid gap-1">
-              <span className="text-sm font-medium text-[#091540]">Encargado</span>
+        <form.Field
+          name="UserId"
+          validators={{ onChange: UpdateProjectBase.shape.UserId as any }}
+        >
+          {(field) => {
+            const isInvalid = shouldShowFieldError(field.state.meta);
+            return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor={field.name}>Encargado</FieldLabel>
               <select
-                className="px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition rounded"
+                id={field.name}
+                className={cn(
+                  "px-4 py-2 border border-gray-300 focus:border-blue-500 focus:outline-none transition rounded",
+                  isInvalid && "border-destructive text-destructive focus:border-destructive",
+                )}
                 value={field.state.value ?? ""}
                 onChange={(e) => field.handleChange(Number(e.target.value))}
+                onBlur={field.handleBlur}
                 disabled={userAdminLoading}
+                aria-invalid={isInvalid}
               >
                 <option value="" disabled>
                   {userAdminLoading ? "Cargando administradores..." : "Seleccione encargado"}
@@ -321,35 +390,30 @@ export default function EditProject() {
                   </option>
                 ))}
               </select>
-              {field.state.meta.isTouched && field.state.meta.errors.length > 0 && (
-                <p className="text-sm text-red-500 mt-1">
-                {(field.state.meta.errors[0] as any)?.message ?? String(field.state.meta.errors[0])}
-                </p>
-              )}
-            </label>
-          )}
+              {isInvalid ? <FieldError errors={formatErrors(field.state.meta.errors)} /> : null}
+            </Field>
+          )}}
         </form.Field>
 
         {/* Acciones */}
         <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
           {([canSubmit, isSubmitting]) => (
-            <div className="flex justify-between mt-8">
-              {/* Abrimos modal de confirmación */}
-              <button
+            <div className="mt-2 flex justify-between pb-4">
+              <Button
                 type="submit"
-                className="px-6 py-2 border border-[#091540] bg-[#091540] text-white disabled:opacity-60"
+                className="bg-[#091540] text-white hover:bg-[#0b1b56]"
                 disabled={!canSubmit || isSubmitting}
               >
                 {isSubmitting ? "Actualizando..." : "Guardar cambios"}
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
-                className="px-6 py-2 border border-gray-300 text-[#091540]"
+                variant="outline"
                 onClick={() => {navigate({ to: "/dashboard/projects" }); toast.warning("Edición cancelada");}}
               >
                 Cancelar
-              </button>
+              </Button>
             </div>
           )}
         </form.Subscribe>

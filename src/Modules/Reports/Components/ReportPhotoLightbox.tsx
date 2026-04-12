@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ZoomIn, X } from "lucide-react";
+import { ZoomIn } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/Components/ui/dialog";
 
 type Props = {
@@ -40,7 +40,7 @@ export default function ReportPhotoLightbox({
 
       {/* Lightbox */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-screen max-w-screen-lg border-0 bg-black/95 p-0 shadow-none [&>button]:text-white [&>button]:hover:bg-white/20">
+        <DialogContent className="max-h-screen max-w-screen-lg border-0 bg-black/95 p-0 shadow-none [&>button]:text-white [&>button]:hover:bg-white/20 [&>button]:data-[state=open]:bg-transparent [&>button]:focus:ring-white [&>button]:focus:ring-offset-0">
           <DialogTitle className="sr-only">{alt}</DialogTitle>
           <div className="relative flex max-h-screen items-center justify-center p-4">
             <img
@@ -49,13 +49,6 @@ export default function ReportPhotoLightbox({
               className="max-h-[90vh] max-w-full rounded object-contain"
             />
           </div>
-          <button
-            onClick={() => setOpen(false)}
-            className="absolute right-3 top-3 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-            aria-label="Cerrar foto"
-          >
-            <X className="size-5" />
-          </button>
         </DialogContent>
       </Dialog>
     </>

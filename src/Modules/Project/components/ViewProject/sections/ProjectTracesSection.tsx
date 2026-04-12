@@ -55,7 +55,9 @@ export default function ProjectTracesSection({ traces, isLoading }: Props) {
                   {/* Header del seguimiento */}
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
-                      <p className="text-sm font-semibold">{trace.Name}</p>
+                      <p className="text-sm font-semibold break-words [overflow-wrap:anywhere]">
+                        {trace.Name}
+                      </p>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <CalendarDays className="size-3" />
                         {formatDate(trace.date)}
@@ -71,7 +73,7 @@ export default function ProjectTracesSection({ traces, isLoading }: Props) {
 
                   {/* Observación */}
                   {trace.Observation && (
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words [overflow-wrap:anywhere]">
                       {trace.Observation}
                     </p>
                   )}

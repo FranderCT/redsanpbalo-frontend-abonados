@@ -19,7 +19,8 @@ export default function ProjectProjectionSection({ data }: Props) {
       {projection.Observation && (
         <div
           className="prose prose-sm max-w-none text-foreground
-            prose-p:text-muted-foreground prose-headings:font-semibold"
+            prose-p:text-muted-foreground prose-headings:font-semibold
+            [&_*]:break-words [&_*]:[overflow-wrap:anywhere]"
           dangerouslySetInnerHTML={{ __html: projection.Observation }}
         />
       )}

@@ -2,9 +2,11 @@ import { useNavigate } from "@tanstack/react-router";
 import { Pencil, Printer, ChevronRight } from "lucide-react";
 import { Button } from "../../../../Components/ui/button";
 import { Badge } from "../../../../Components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { Project } from "../../Models/Project";
 import CreateProjectTraceModal from "../../../Project_Trace/Components/CreateProjectTraceModal";
 import { useDownloadProjectPdf } from "../../Hooks/ProjectHooks";
+import { getProjectStateBadgeClass } from "../../utils/projectStateTone";
 
 type Props = {
   data: Project;
@@ -25,50 +27,59 @@ export default function HeaderViewProject({ data }: Props) {
           Proyectos
         </button>
         <ChevronRight className="size-3" />
-        <span className="text-foreground font-medium truncate max-w-[240px]">
+        <span className="min-w-0 max-w-full font-medium text-foreground break-words [overflow-wrap:anywhere]">
           {data.Name}
         </span>
       </nav>
 
       {/* Título + acciones */}
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex min-w-0 flex-wrap items-center gap-x-5 gap-y-3">
-          <h1 className="min-w-0 flex-1 text-2xl font-semibold tracking-tight truncate">
-            {data.Name}
-          </h1>
-          {data.ProjectState?.Name && (
-            <Badge variant="secondary" className="shrink-0 px-4 py-1">
-              {data.ProjectState.Name}
-            </Badge>
-          )}
-        </div>
+      <div className="space-y-4">
+        <h1 className="text-2xl font-semibold tracking-tight break-words [overflow-wrap:anywhere]">
+          {data.Name}
+        </h1>
 
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              navigate({
-                to: "/dashboard/projects/$projectId/edit",
-                params: { projectId: String(data.Id) },
-              })
-            }
-          >
-            <Pencil className="size-3.5 mr-1.5" />
-            Editar
-          </Button>
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-wrap items-center gap-3">
+            {data.ProjectState?.Name && (
+              <Badge
+                variant="outline"
+                className={cn(
+                  "px-4 py-1",
+                  getProjectStateBadgeClass(data.ProjectState.Name),
+                )}
+              >
+                {data.ProjectState.Name}
+              </Badge>
+            )}
+          </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => downloadProjectPdf.mutate({ id: data.Id, name: data.Name })}
-            disabled={downloadProjectPdf.isPending}
-          >
-            <Printer className="size-3.5 mr-1.5" />
-            {downloadProjectPdf.isPending ? "Generando..." : "PDF"}
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                navigate({
+                  to: "/dashboard/projects/$projectId/edit",
+                  params: { projectId: String(data.Id) },
+                })
+              }
+            >
+              <Pencil className="size-3.5 mr-1.5" />
+              Editar
+            </Button>
 
-          <CreateProjectTraceModal ProjectId={data.Id} />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadProjectPdf.mutate({ id: data.Id, name: data.Name })}
+              disabled={downloadProjectPdf.isPending}
+            >
+              <Printer className="size-3.5 mr-1.5" />
+              {downloadProjectPdf.isPending ? "Generando..." : "PDF"}
+            </Button>
+
+            <CreateProjectTraceModal ProjectId={data.Id} />
+          </div>
         </div>
       </div>
     </div>

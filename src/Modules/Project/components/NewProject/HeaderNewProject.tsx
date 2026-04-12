@@ -4,7 +4,7 @@ const HeaderNewProject = () => {
       <h1 className="text-4xl sm:text-5xl font-semibold text-[#091540] mb-1">
         Nuevo Proyecto
       </h1>
-      <p className="text-base text-blue-700 opacity-70 text-center">
+      <p className="text-base text-md text-[#091540]/70 text-center">
         Completa los datos para crear un nuevo proyecto
       </p>
     </div>
