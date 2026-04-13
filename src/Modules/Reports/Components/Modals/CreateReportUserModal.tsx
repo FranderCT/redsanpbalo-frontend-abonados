@@ -130,7 +130,7 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
         else setOpen(true);
       }}
     >
-      <DialogContent className="max-h-[70vh] gap-0 overflow-hidden">
+      <DialogContent className="flex max-h-[calc(100vh-2rem)] flex-col gap-0 overflow-hidden">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Crear nuevo reporte</DialogTitle>
           <DialogDescription>
@@ -151,13 +151,13 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
         ) : (
           <form
             id="create-report-user-form"
-            className="flex flex-col gap-4"
+            className="flex flex-1 min-h-0 flex-col gap-4"
             onSubmit={(e) => {
               e.preventDefault();
               form.handleSubmit();
             }}
           >
-            <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
+            <div className="flex flex-1 min-h-0 flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
               <FieldGroup className="gap-4">
 
                 {/* 1. Barrio */}

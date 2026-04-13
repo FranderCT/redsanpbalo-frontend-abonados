@@ -176,7 +176,7 @@ export default function EditReportModal({
         }
       }}
     >
-      <DialogContent className="max-h-[70vh] gap-0 overflow-hidden">
+      <DialogContent className="flex max-h-[calc(100vh-2rem)] flex-col gap-0 overflow-hidden">
         <DialogHeader className="space-y-1.5 border-b px-6 py-5">
           <DialogTitle>Editar reporte #{report.Id}</DialogTitle>
           <DialogDescription>
@@ -193,13 +193,13 @@ export default function EditReportModal({
         ) : (
           <form
             id="edit-report-form"
-            className="flex flex-col gap-4"
+            className="flex flex-1 min-h-0 flex-col gap-4"
             onSubmit={(e) => {
               e.preventDefault();
               form.handleSubmit();
             }}
           >
-            <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
+            <div className="flex flex-1 min-h-0 flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
               {/* Preview foto existente */}
               {report.PhotoUrl && (
                 <ReportPhotoLightbox src={report.PhotoUrl} thumbnailClass="h-40" />
