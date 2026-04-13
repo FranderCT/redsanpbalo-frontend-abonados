@@ -93,7 +93,7 @@ export default function UpdateReqAssociatedStateModal({
 
   const handleConfirm = async () => {
     if (!stateId || stateId === "") {
-      toast.warn("Selecciona un estado", { position: "top-right", duration: 2500 });
+      toast.warning("Selecciona un estado", { position: "top-right", duration: 2500 });
       return;
     }
 

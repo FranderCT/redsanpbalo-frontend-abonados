@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { User } from "../../../Users/Models/User";
 
 const nonNegativeInteger = z
   .number({ invalid_type_error: "Valor inválido" })
@@ -20,7 +21,7 @@ export const CreateAvailabilityWaterRequestSchema = z
     copiaPlano: z.array(z.instanceof(File)),
     permisoMatricula: z.array(z.instanceof(File)),
     permisoMunicipal: z.array(z.instanceof(File)),
-    _selectedUser: z.any().optional(),
+    _selectedUser: z.custom<User | null>().nullable(),
   })
   .superRefine((data, ctx) => {
     if (data.UserId <= 0) {
