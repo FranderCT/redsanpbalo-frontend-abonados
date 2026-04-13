@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const isDev = import.meta.env.DEV;
+
 const apiAxios = axios.create({
-  baseURL: "http://2.24.196.166:3000",
+  baseURL: isDev ? "/api" : "http://2.24.196.166:3000",
   timeout: 5000,
 });
 
