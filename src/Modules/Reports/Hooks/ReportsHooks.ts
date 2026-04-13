@@ -14,6 +14,7 @@ import type {
 } from "../Models/Report";
 import {
   getAllReports,
+  getReportsByUser,
   searchReports,
   createReportByAdmin,
   createReportByUser,
@@ -34,13 +35,17 @@ export const useGetAllReports = () => {
   return { reports, error, isLoading };
 };
 
-export const useSearchReports = (query: ReportPaginationParams) => {
+export const useSearchReports = (
+  query: ReportPaginationParams,
+  options?: { enabled?: boolean },
+) => {
   const { data, isLoading, isError, error } = useQuery<
     PaginatedReportsResponse,
     Error
   >({
     queryKey: ["reports", "search", query],
     queryFn: () => searchReports(query),
+    enabled: options?.enabled ?? true,
     placeholderData: keepPreviousData,
     staleTime: 30_000,
   });
@@ -51,6 +56,18 @@ export const useSearchReports = (query: ReportPaginationParams) => {
       }
     : undefined;
   return { data: normalizedData, isLoading, isError, error };
+};
+
+export const useGetReportsByUser = (userId?: number) => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["reports", "user", userId],
+    queryFn: () => getReportsByUser(userId as number),
+    enabled: !!userId,
+    staleTime: 30_000,
+  });
+
+  const reports = data?.map(mapReportApiToListItem) ?? [];
+  return { reports, isLoading, isError, error };
 };
 
 export const useCreateReportByAdmin = () => {
@@ -76,6 +93,7 @@ export const useCreateReportByUser = () => {
       createReportByUser(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reports"] });
+      queryClient.invalidateQueries({ queryKey: ["reports", "user"] });
     },
     onError: (error) => {
       showApiErrorToast(error);
@@ -91,6 +109,7 @@ export const useUploadReportPhoto = () => {
       uploadReportPhoto(reportId, photo),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reports"] });
+      queryClient.invalidateQueries({ queryKey: ["reports", "user"] });
     },
     onError: (error) => {
       console.error("Error uploading photo:", error);

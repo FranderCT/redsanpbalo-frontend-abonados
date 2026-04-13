@@ -164,7 +164,7 @@ const AsideDashboard = () => {
           </button>
         </Can>
 
-        <Can rule={{ none: [Role.GUEST, Role.SUB, Role.BOD] }}>
+        <Can rule={{ any: [Role.ADMIN, Role.ASSOS, Role.PLMBR, Role.SUB] }}>
           <button
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
             onClick={() => navigate({ to: "/dashboard/reports" })}

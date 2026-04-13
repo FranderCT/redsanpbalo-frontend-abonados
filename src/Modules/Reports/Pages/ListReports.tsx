@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import type {
+  PaginatedReportsResponse,
   ReportListItem,
   ReportPaginationParams,
   ReportStateValue,
 } from "../Models/Report";
-import { useSearchReports } from "../Hooks/ReportsHooks";
+import { useGetReportsByUser, useSearchReports } from "../Hooks/ReportsHooks";
 import { useGetAllReportStates } from "../Hooks/ReportStatesHooks";
 import { useGetAllReportTypes } from "../Hooks/ReportTypesHooks";
 import { useGetAllReportLocations } from "../Hooks/ReportLocationHooks";
@@ -19,8 +20,12 @@ import CreateReportModal from "../Components/Modals/CreateReportModal";
 import CreateReportLocationModal from "../Components/Modals/CreateReportLocationModal";
 import CreateReportTypeModal from "../Components/Modals/CreateReportTypeModal";
 import EditReportModal from "../Components/Modals/EditReportModal";
+import CreateReportUserModal from "../Components/Modals/CreateReportUserModal";
 import { Button } from "@/Components/ui/button";
 import { LayoutGrid, Calendar, MapPin, Tags } from "lucide-react";
+import { useRole } from "../../Auth/Components/RolesContext";
+import { Role } from "../../Users/Models/Roles";
+import { useGetUserProfile } from "../../Users/Hooks/UsersHooks";
 
 const ListReports = () => {
   const [page, setPage] = useState(1);
@@ -38,6 +43,11 @@ const ListReports = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedEditReport, setSelectedEditReport] = useState<ReportListItem | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateUserReportModalOpen, setIsCreateUserReportModalOpen] = useState(false);
+
+  const { activeRole } = useRole();
+  const { UserProfile } = useGetUserProfile();
+  const isSubscriber = activeRole === Role.SUB;
 
   const handleSearch = (txt: string) => {
     setSearch(txt);
@@ -123,7 +133,116 @@ const ListReports = () => {
   const { reportStates, isLoading: statesLoading } = useGetAllReportStates();
   const { reportTypes, isLoading: typesLoading } = useGetAllReportTypes();
   const { reportLocations, isLoading: locationsLoading } = useGetAllReportLocations();
-  const { data, isLoading, isError, error } = useSearchReports(query);
+  const {
+    data: adminData,
+    isLoading: isAdminLoading,
+    isError: isAdminError,
+    error: adminError,
+  } = useSearchReports(query, { enabled: !isSubscriber });
+  const {
+    reports: userReports,
+    isLoading: isUserLoading,
+    isError: isUserError,
+    error: userError,
+  } = useGetReportsByUser(isSubscriber ? UserProfile?.Id : undefined);
+
+  const subscriberData = useMemo<PaginatedReportsResponse>(() => {
+    const normalizedSearch = search.trim().toLowerCase();
+
+    const filtered = userReports
+      .filter((report) => {
+        if (
+          normalizedSearch &&
+          ![
+            report.Code,
+            report.Description,
+            report.ExactLocation,
+            report.DisplayLocation,
+            report.ReportedByDisplayName,
+          ]
+            .filter(Boolean)
+            .some((value) =>
+              String(value).toLowerCase().includes(normalizedSearch),
+            )
+        ) {
+          return false;
+        }
+
+        if (state && report.ReportState !== state) {
+          return false;
+        }
+
+        if (
+          reportLocationId !== undefined &&
+          report.ReportLocation?.Id !== reportLocationId
+        ) {
+          return false;
+        }
+
+        if (reportTypeId !== undefined && report.ReportType?.Id !== reportTypeId) {
+          return false;
+        }
+
+        if (startDate) {
+          const reportDate = new Date(report.CreatedAt);
+          const fromDate = new Date(startDate);
+          if (reportDate < fromDate) {
+            return false;
+          }
+        }
+
+        if (endDate) {
+          const reportDate = new Date(report.CreatedAt);
+          const toDate = new Date(endDate);
+          toDate.setHours(23, 59, 59, 999);
+          if (reportDate > toDate) {
+            return false;
+          }
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        const aDate = new Date(a.CreatedAt).getTime();
+        const bDate = new Date(b.CreatedAt).getTime();
+        return sortDir === "ASC" ? aDate - bDate : bDate - aDate;
+      });
+
+    const totalItems = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+    const currentPage = Math.min(page, totalPages);
+    const startIndex = (currentPage - 1) * limit;
+    const pageData = filtered.slice(startIndex, startIndex + limit);
+
+    return {
+      data: pageData,
+      meta: {
+        totalItems,
+        itemCount: pageData.length,
+        itemsPerPage: limit,
+        totalPages,
+        currentPage,
+        hasNextPage: currentPage < totalPages,
+        hasPrevPage: currentPage > 1,
+      },
+    };
+  }, [
+    userReports,
+    search,
+    state,
+    reportLocationId,
+    reportTypeId,
+    startDate,
+    endDate,
+    sortDir,
+    limit,
+    page,
+  ]);
+
+  const data = isSubscriber ? subscriberData : adminData;
+  const isLoading = isSubscriber ? isUserLoading : isAdminLoading;
+  const isError = isSubscriber ? isUserError : isAdminError;
+  const error = isSubscriber ? userError : adminError;
 
   const items = data?.data ?? [];
   const meta = data?.meta ?? {
@@ -142,10 +261,12 @@ const ListReports = () => {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h1 className="text-lg sm:text-2xl font-bold text-[#091540] truncate">
-              Lista de Reportes
+              {isSubscriber ? "Mis Reportes" : "Lista de Reportes"}
             </h1>
             <p className="text-xs sm:text-base text-[#091540]/70">
-              Gestione todos los reportes del sistema
+              {isSubscriber
+                ? "Gestione los reportes que has creado"
+                : "Gestione todos los reportes del sistema"}
             </p>
           </div>
           <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-stretch gap-2 min-w-0">
@@ -158,35 +279,43 @@ const ListReports = () => {
               <LayoutGrid className="size-3.5 sm:size-4 shrink-0 mr-1" />
               Lista
             </Button>
-            <Button
-              variant={viewMode === "calendar" ? "default" : "outline"}
-              size="sm"
-              className="h-9 text-xs sm:text-sm justify-center"
-              onClick={() => setViewMode("calendar")}
-            >
-              <Calendar className="size-3.5 sm:size-4 shrink-0 mr-1" />
-              Calendario
-            </Button>
-            <Button
-              variant={viewMode === "locations" ? "default" : "outline"}
-              size="sm"
-              className="h-9 text-xs sm:text-sm justify-center"
-              onClick={() => setViewMode("locations")}
-            >
-              <MapPin className="size-3.5 sm:size-4 shrink-0 mr-1" />
-              Ubicaciones
-            </Button>
-            <Button
-              variant={viewMode === "types" ? "default" : "outline"}
-              size="sm"
-              className="h-9 text-xs sm:text-sm justify-center"
-              onClick={() => setViewMode("types")}
-            >
-              <Tags className="size-3.5 sm:size-4 shrink-0 mr-1" />
-              Tipos
-            </Button>
+            {!isSubscriber && (
+              <>
+                <Button
+                  variant={viewMode === "calendar" ? "default" : "outline"}
+                  size="sm"
+                  className="h-9 text-xs sm:text-sm justify-center"
+                  onClick={() => setViewMode("calendar")}
+                >
+                  <Calendar className="size-3.5 sm:size-4 shrink-0 mr-1" />
+                  Calendario
+                </Button>
+                <Button
+                  variant={viewMode === "locations" ? "default" : "outline"}
+                  size="sm"
+                  className="h-9 text-xs sm:text-sm justify-center"
+                  onClick={() => setViewMode("locations")}
+                >
+                  <MapPin className="size-3.5 sm:size-4 shrink-0 mr-1" />
+                  Ubicaciones
+                </Button>
+                <Button
+                  variant={viewMode === "types" ? "default" : "outline"}
+                  size="sm"
+                  className="h-9 text-xs sm:text-sm justify-center"
+                  onClick={() => setViewMode("types")}
+                >
+                  <Tags className="size-3.5 sm:size-4 shrink-0 mr-1" />
+                  Tipos
+                </Button>
+              </>
+            )}
             <div className="col-span-2 sm:col-span-1 sm:flex sm:shrink-0">
-              {viewMode === "locations" ? (
+              {isSubscriber ? (
+                <Button className="w-full sm:w-auto" onClick={() => setIsCreateUserReportModalOpen(true)}>
+                  Crear reporte
+                </Button>
+              ) : viewMode === "locations" ? (
                 <CreateReportLocationModal />
               ) : viewMode === "types" ? (
                 <CreateReportTypeModal />
@@ -232,11 +361,11 @@ const ListReports = () => {
       )}
 
       <div>
-        {viewMode === "locations" ? (
+        {!isSubscriber && viewMode === "locations" ? (
           <ListReportLocationsView />
-        ) : viewMode === "types" ? (
+        ) : !isSubscriber && viewMode === "types" ? (
           <ListReportTypesView />
-        ) : viewMode === "calendar" ? (
+        ) : !isSubscriber && viewMode === "calendar" ? (
           <ReportsCalendar onViewDetails={handleViewDetails} />
         ) : isLoading ? (
           <div className="p-6 sm:p-8 text-center text-muted-foreground">
@@ -250,7 +379,7 @@ const ListReports = () => {
           <ReportsGrid
             reports={items}
             onViewDetails={handleViewDetails}
-            onEditReport={handleEditReport}
+            onEditReport={isSubscriber ? undefined : handleEditReport}
             emptyText="No se encontraron reportes con los filtros aplicados."
           />
         )}
@@ -278,11 +407,18 @@ const ListReports = () => {
         />
       )}
 
-      {selectedEditReport && (
+      {selectedEditReport && !isSubscriber && (
         <EditReportModal
           report={selectedEditReport}
           open={isEditModalOpen}
           onClose={handleCloseEditModal}
+        />
+      )}
+
+      {isSubscriber && (
+        <CreateReportUserModal
+          open={isCreateUserReportModalOpen}
+          setOpen={setIsCreateUserReportModalOpen}
         />
       )}
     </section>

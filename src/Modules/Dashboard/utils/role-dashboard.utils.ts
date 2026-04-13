@@ -14,7 +14,12 @@ export const USER_DASHBOARD_ROLES: readonly Role[] = [
 ] as const;
 export const LIVE_REPORTS_ROLES: readonly Role[] = [Role.ADMIN, Role.BOD];
 
-const REPORTS_DASHBOARD_ROLES: readonly Role[] = [Role.ADMIN, Role.ASSOS, Role.PLMBR];
+const REPORTS_DASHBOARD_ROLES: readonly Role[] = [
+  Role.ADMIN,
+  Role.ASSOS,
+  Role.PLMBR,
+  Role.SUB,
+];
 
 const ADMIN_ROUTE_PREFIXES = [
   ADMIN_DASHBOARD_HOME,

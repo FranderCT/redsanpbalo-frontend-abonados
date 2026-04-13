@@ -28,6 +28,15 @@ export async function getAllReports(): Promise<ReportApi[]> {
   }
 }
 
+export async function getReportsByUser(userId: number): Promise<ReportApi[]> {
+  try {
+    const { data } = await apiAxios.get<ReportApi[]>(`${BASE_URL}/user/${userId}`);
+    return data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+}
+
 export async function searchReports(
   query: ReportPaginationParams,
 ): Promise<PaginatedReportsResponse> {
