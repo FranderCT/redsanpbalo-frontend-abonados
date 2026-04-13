@@ -1,7 +1,7 @@
 export interface AvailabilityWater {
     Id: number;
     Justification: string;
-    UserdId: number;
+    UserId: number;
 }
 
 export interface TempLinkResponse {

@@ -66,7 +66,7 @@ export interface ProductPaginationParams {
   materialId?: number;
   unitId?: number;
   supplierId?: number;
-  state?: boolean | "true" | "false" | "1" | "0";
+  state?: boolean | string;
 }
 
 export function getProductSuppliers(product: Product): Supplier[] {

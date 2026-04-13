@@ -37,13 +37,14 @@ export default function ListLegalSuppliers() {
   const { data, isLoading, error } = useSearchLegalSupplier(params);
 
   const rows: LegalSupplier[] = data?.data ?? [];
-  const meta = data?.meta ?? {
-    total: 0,
-    page: 1,
-    limit,
-    pageCount: 1,
-    hasNextPage: false,
-    hasPrevPage: false,
+  const rawMeta = data?.meta;
+  const meta = {
+    limit: rawMeta?.itemsPerPage ?? limit,
+    total: rawMeta?.totalItems ?? 0,
+    page: rawMeta?.currentPage ?? 1,
+    pageCount: rawMeta?.totalPages ?? 1,
+    hasNextPage: rawMeta?.hasNextPage ?? false,
+    hasPrevPage: rawMeta?.hasPrevPage ?? false,
   };
 
   return (

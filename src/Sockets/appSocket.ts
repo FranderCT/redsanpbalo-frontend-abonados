@@ -1,4 +1,4 @@
-import { io } from "socket.io-client";
+import io from "socket.io-client";
 
 const SOCKET_URL = "http://2.24.196.166:3000";
 

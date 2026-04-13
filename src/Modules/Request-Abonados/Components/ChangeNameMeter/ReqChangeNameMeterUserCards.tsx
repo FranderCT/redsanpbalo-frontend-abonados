@@ -74,11 +74,6 @@ function ReqChangeNameMeterUserCard({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {req.NIS ? (
-            <Badge variant="outline" className="rounded-none border-slate-300 text-slate-700">
-              NIS: {req.NIS}
-            </Badge>
-          ) : null}
         </div>
       </CardHeader>
 

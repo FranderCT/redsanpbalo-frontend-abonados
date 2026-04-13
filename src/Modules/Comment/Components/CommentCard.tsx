@@ -1,4 +1,4 @@
-import type { Comment } from "../../Models/Comment";
+import type { Comment } from "../Models/Comment";
 
 interface CommentCardProps {
     comment: Comment;

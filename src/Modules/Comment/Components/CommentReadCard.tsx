@@ -1,4 +1,4 @@
-import type { Comment } from "../../Models/Comment";
+import type { Comment } from "../Models/Comment";
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader } from "@/Components/ui/card";

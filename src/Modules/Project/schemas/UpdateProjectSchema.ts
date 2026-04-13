@@ -65,15 +65,6 @@ const optionalDateOnly = (formatMessage: string) =>
       .optional(),
   );
 
-const optionalPositiveInt = (invalidMessage: string, minMessage: string) =>
-  z
-    .number({
-      invalid_type_error: invalidMessage,
-    })
-    .int(invalidMessage)
-    .min(1, minMessage)
-    .optional();
-
 const requiredPositiveInt = (requiredMessage: string, invalidMessage: string, minMessage: string) =>
   z
     .number({

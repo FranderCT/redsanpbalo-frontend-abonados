@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import type {
-  PaginatedReportsResponse,
   ReportListItem,
   ReportPaginationParams,
   ReportStateValue,
@@ -146,7 +145,7 @@ const ListReports = () => {
     error: userError,
   } = useGetReportsByUser(isSubscriber ? UserProfile?.Id : undefined);
 
-  const subscriberData = useMemo<PaginatedReportsResponse>(() => {
+  const subscriberData = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
 
     const filtered = userReports

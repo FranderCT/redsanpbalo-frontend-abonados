@@ -1,5 +1,4 @@
 import {
-  Activity,
   Bell,
   CheckCheck,
 } from "lucide-react";

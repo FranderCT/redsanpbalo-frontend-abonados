@@ -16,10 +16,10 @@ export const CreateAvailabilityWaterRequestAbonadoSchema = z
       .trim()
       .min(10, "La justificación debe tener al menos 10 caracteres.")
       .max(1000, "La justificación no puede superar 1000 caracteres."),
-    fotocopiaCedula: z.array(z.instanceof(File)).optional(),
-    copiaPlano: z.array(z.instanceof(File)).optional(),
-    permisoMatricula: z.array(z.instanceof(File)).optional(),
-    permisoMunicipal: z.array(z.instanceof(File)).optional(),
+    fotocopiaCedula: z.array(z.instanceof(File)),
+    copiaPlano: z.array(z.instanceof(File)),
+    permisoMatricula: z.array(z.instanceof(File)),
+    permisoMunicipal: z.array(z.instanceof(File)),
   })
   .superRefine((data, ctx) => {
     if (data.UserId <= 0) {

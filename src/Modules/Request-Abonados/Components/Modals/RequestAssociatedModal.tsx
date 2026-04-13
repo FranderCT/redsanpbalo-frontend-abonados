@@ -32,7 +32,7 @@ type AssociatedState = {
   Name?: string;
 };
 
-type AssociatedDetailData = Record<string, unknown> & {
+type AssociatedDetailData = {
   RequestAssociatedFile?: RequestAssociatedFile[];
 };
 
@@ -324,7 +324,7 @@ export default function AssociatedDetailModal({
     return String(value);
   };
 
-  const filteredEntries = Object.entries(data).filter(
+  const filteredEntries = Object.entries(data as Record<string, unknown>).filter(
     ([key]) => !excludeFields.includes(key),
   );
 
