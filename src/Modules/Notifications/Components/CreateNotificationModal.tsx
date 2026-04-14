@@ -147,7 +147,7 @@ export default function CreateNotificationModal({
 
                   return (
                     <Field data-invalid={isInvalid} className="gap-2">
-                      <FieldLabel htmlFor={field.name}>Subject</FieldLabel>
+                      <FieldLabel htmlFor={field.name}>Asunto</FieldLabel>
                       <Input
                         id={field.name}
                         name={field.name}

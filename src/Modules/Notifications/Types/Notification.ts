@@ -16,7 +16,7 @@ export type NotificationFilter = "ALL" | "READ" | "UNREAD";
 export type CreateNotificationPayload = CreateNotificationModel;
 
 export const ALL_ROLES_OPTION_ID = -1;
-export const ALL_ROLES_OPTION_NAME = "Todos los roles";
+export const ALL_ROLES_OPTION_NAME = "TODOS LOS USUARIOS";
 
 export type NotificationApiResponse = {
   id?: string | number;

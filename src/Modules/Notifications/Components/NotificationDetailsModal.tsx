@@ -37,10 +37,10 @@ export default function NotificationDetailsModal({
         </DialogHeader>
 
         <div className="space-y-4 p-6">
-          <div className="space-y-1">
+          {/* <div className="space-y-1">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Destinatario</p>
             <p className="text-sm text-slate-700">{notification?.targetRoleName ?? "General"}</p>
-          </div>
+          </div> */}
 
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Descripcion</p>
           <p className="text-sm leading-relaxed text-slate-700">{notification?.description}</p>
