@@ -1,9 +1,9 @@
 import axios from "axios";
 
-const isDev = import.meta.env.DEV;
+// const isDev = import.meta.env.DEV;
 
 const apiAxios = axios.create({
-  baseURL: isDev ? "/api" : "https://asadasansanpablo-backend-bsesdx-6d8f1b-2-24-196-166.traefik.me",
+  baseURL: "http://localhost:3000/",
   timeout: 5000,
 });
 
