@@ -16,6 +16,7 @@ export const LIVE_REPORTS_ROLES: readonly Role[] = [Role.ADMIN, Role.BOD];
 
 const REPORTS_DASHBOARD_ROLES: readonly Role[] = [
   Role.ADMIN,
+  Role.BOD,
   Role.ASSOS,
   Role.PLMBR,
   Role.SUB,

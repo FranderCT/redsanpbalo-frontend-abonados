@@ -46,7 +46,10 @@ const ListReports = () => {
 
   const { activeRole } = useRole();
   const { UserProfile } = useGetUserProfile();
-  const isSubscriber = activeRole === Role.SUB;
+  const usesSubscriberReportsView =
+    activeRole === Role.SUB ||
+    activeRole === Role.ASSOS ||
+    activeRole === Role.PLMBR;
 
   const handleSearch = (txt: string) => {
     setSearch(txt);
@@ -137,13 +140,13 @@ const ListReports = () => {
     isLoading: isAdminLoading,
     isError: isAdminError,
     error: adminError,
-  } = useSearchReports(query, { enabled: !isSubscriber });
+  } = useSearchReports(query, { enabled: !usesSubscriberReportsView });
   const {
     reports: userReports,
     isLoading: isUserLoading,
     isError: isUserError,
     error: userError,
-  } = useGetReportsByUser(isSubscriber ? UserProfile?.Id : undefined);
+  } = useGetReportsByUser(usesSubscriberReportsView ? UserProfile?.Id : undefined);
 
   const subscriberData = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -238,10 +241,10 @@ const ListReports = () => {
     page,
   ]);
 
-  const data = isSubscriber ? subscriberData : adminData;
-  const isLoading = isSubscriber ? isUserLoading : isAdminLoading;
-  const isError = isSubscriber ? isUserError : isAdminError;
-  const error = isSubscriber ? userError : adminError;
+  const data = usesSubscriberReportsView ? subscriberData : adminData;
+  const isLoading = usesSubscriberReportsView ? isUserLoading : isAdminLoading;
+  const isError = usesSubscriberReportsView ? isUserError : isAdminError;
+  const error = usesSubscriberReportsView ? userError : adminError;
 
   const items = data?.data ?? [];
   const meta = data?.meta ?? {
@@ -260,10 +263,10 @@ const ListReports = () => {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <h1 className="text-lg sm:text-2xl font-bold text-[#091540] truncate">
-              {isSubscriber ? "Mis Reportes" : "Lista de Reportes"}
+              {usesSubscriberReportsView ? "Mis Reportes" : "Lista de Reportes"}
             </h1>
             <p className="text-xs sm:text-base text-[#091540]/70">
-              {isSubscriber
+              {usesSubscriberReportsView
                 ? "Gestione los reportes que has creado"
                 : "Gestione todos los reportes del sistema"}
             </p>
@@ -278,7 +281,7 @@ const ListReports = () => {
               <LayoutGrid className="size-3.5 sm:size-4 shrink-0 mr-1" />
               Lista
             </Button>
-            {!isSubscriber && (
+            {!usesSubscriberReportsView && (
               <>
                 <Button
                   variant={viewMode === "calendar" ? "default" : "outline"}
@@ -310,7 +313,7 @@ const ListReports = () => {
               </>
             )}
             <div className="col-span-2 sm:col-span-1 sm:flex sm:shrink-0">
-              {isSubscriber ? (
+              {usesSubscriberReportsView ? (
                 <Button className="w-full sm:w-auto" onClick={() => setIsCreateUserReportModalOpen(true)}>
                   Crear reporte
                 </Button>
@@ -360,11 +363,11 @@ const ListReports = () => {
       )}
 
       <div>
-        {!isSubscriber && viewMode === "locations" ? (
+        {!usesSubscriberReportsView && viewMode === "locations" ? (
           <ListReportLocationsView />
-        ) : !isSubscriber && viewMode === "types" ? (
+        ) : !usesSubscriberReportsView && viewMode === "types" ? (
           <ListReportTypesView />
-        ) : !isSubscriber && viewMode === "calendar" ? (
+        ) : !usesSubscriberReportsView && viewMode === "calendar" ? (
           <ReportsCalendar onViewDetails={handleViewDetails} />
         ) : isLoading ? (
           <div className="p-6 sm:p-8 text-center text-muted-foreground">
@@ -378,7 +381,7 @@ const ListReports = () => {
           <ReportsGrid
             reports={items}
             onViewDetails={handleViewDetails}
-            onEditReport={isSubscriber ? undefined : handleEditReport}
+            onEditReport={usesSubscriberReportsView ? undefined : handleEditReport}
             emptyText="No se encontraron reportes con los filtros aplicados."
           />
         )}
@@ -406,7 +409,7 @@ const ListReports = () => {
         />
       )}
 
-      {selectedEditReport && !isSubscriber && (
+      {selectedEditReport && !usesSubscriberReportsView && (
         <EditReportModal
           report={selectedEditReport}
           open={isEditModalOpen}
@@ -414,7 +417,7 @@ const ListReports = () => {
         />
       )}
 
-      {isSubscriber && (
+      {usesSubscriberReportsView && (
         <CreateReportUserModal
           open={isCreateUserReportModalOpen}
           setOpen={setIsCreateUserReportModalOpen}
