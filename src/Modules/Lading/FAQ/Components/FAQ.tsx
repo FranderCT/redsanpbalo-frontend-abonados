@@ -49,13 +49,13 @@ export function FAQ() {
             >
               <button
                 onClick={() => setActiveFaq(activeFaq === idx ? null : idx)}
-                className="w-full flex justify-between items-center text-left p-6 hover:bg-gray-50 transition-colors"
+                className="flex w-full items-start justify-between gap-4 p-6 text-left transition-colors hover:bg-gray-50"
               >
-                <span className="font-bold text-lg text-[#091540]">
+                <span className="min-w-0 flex-1 font-bold text-lg text-[#091540] break-words [overflow-wrap:anywhere]">
                   {faq.Question}
                 </span>
                 <Plus
-                  className={`text-[#005CAF] transition-transform duration-300 shrink-0 ml-4 ${
+                  className={`ml-4 shrink-0 text-[#005CAF] transition-transform duration-300 ${
                     activeFaq === idx ? "rotate-45" : ""
                   }`}
                 />
@@ -67,7 +67,7 @@ export function FAQ() {
                 }`}
               >
                 <div className="min-h-0 overflow-hidden">
-                  <p className="px-6 pb-6 text-[#404754] leading-relaxed">
+                  <p className="px-6 pb-6 text-[#404754] leading-relaxed break-words [overflow-wrap:anywhere]">
                     {faq.Answer}
                   </p>
                 </div>

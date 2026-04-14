@@ -27,8 +27,8 @@ export function CommentCard({ comment, onMarkAsRead, className = "" }: CommentCa
             </div>
 
             {/* Mensaje */}
-            <div className="prose max-w-none text-[#091540]">
-            <p className="leading-relaxed">{comment.Message}</p>
+            <div className="prose max-w-none min-w-0 text-[#091540]">
+            <p className="leading-relaxed break-words [overflow-wrap:anywhere]">{comment.Message}</p>
             </div>
 
             {/* Botón de acción */}

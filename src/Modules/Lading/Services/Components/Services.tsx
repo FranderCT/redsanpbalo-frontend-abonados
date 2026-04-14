@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  ArrowRight,
   HelpCircle,
   Droplets,
   Activity,
@@ -11,8 +10,11 @@ import {
   Wrench,
   FileText,
   Phone,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useGetAllServices } from "../Hooks/ServicesHooks";
+import { Button } from "@/Components/ui/button";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   "activity": Activity,
@@ -26,13 +28,46 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   "phone": Phone,
 };
 
+function useSlidesPerView() {
+  const getSlidesPerView = React.useCallback(() => {
+    if (typeof window === "undefined") return 4;
+    if (window.innerWidth >= 1024) return 4;
+    if (window.innerWidth >= 768) return 2;
+    return 1;
+  }, []);
+
+  const [slidesPerView, setSlidesPerView] = React.useState(getSlidesPerView);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setSlidesPerView(getSlidesPerView());
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, [getSlidesPerView]);
+
+  return slidesPerView;
+}
+
 export function Services() {
   const { services, isPending, error } = useGetAllServices();
+  const slidesPerView = useSlidesPerView();
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const list = services ?? [];
+  const hasCarousel = list.length > slidesPerView;
+  const maxIndex = Math.max(0, list.length - slidesPerView);
 
   const getIconComponent = (iconName?: string) => {
     if (!iconName) return Droplets;
     return ICON_MAP[iconName.toLowerCase()] || HelpCircle;
   };
+
+  React.useEffect(() => {
+    setCurrentIndex((prev) => Math.min(prev, maxIndex));
+  }, [maxIndex]);
 
   if (isPending) {
     return (
@@ -54,46 +89,110 @@ export function Services() {
     );
   }
 
-  const list = services ?? [];
+  const goToPrevious = () => {
+    setCurrentIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
+  };
 
   return (
     <section id="servicios" className="py-24 bg-white">
       <div className="container mx-auto px-6 md:px-12">
-        {/* Header */}
-        <div className="mb-16">
-          <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter mb-4 text-[#091540]">
-            Servicios Institucionales
-          </h2>
-          <div className="w-24 h-2 bg-[#005CAF]"></div>
+        <div className="mb-16 flex items-end justify-between gap-6">
+          <div>
+            <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter mb-4 text-[#091540]">
+              Servicios Institucionales
+            </h2>
+            <div className="w-24 h-2 bg-[#005CAF]"></div>
+          </div>
+
+          {hasCarousel ? (
+            <div className="hidden md:flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={goToPrevious}
+                disabled={currentIndex === 0}
+                aria-label="Ver servicios anteriores"
+                className="border-[#005CAF] text-[#005CAF] hover:bg-[#005CAF] hover:text-white"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={goToNext}
+                disabled={currentIndex === maxIndex}
+                aria-label="Ver más servicios"
+                className="border-[#005CAF] text-[#005CAF] hover:bg-[#005CAF] hover:text-white"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : null}
         </div>
 
-        {/* Grid */}
-        <div
-          className={`grid grid-cols-1 md:grid-cols-2 ${
-            list.length >= 4 ? "lg:grid-cols-4" : `lg:grid-cols-${Math.min(list.length, 3)}`
-          }`}
-        >
-          {list.map((service, idx) => {
-            const IconComponent = getIconComponent(service.Icon);
-            return (
-              <div
-                key={idx}
-                className="p-10 border border-[#c0c6d6] hover:bg-[#005CAF] group transition-colors cursor-pointer"
-              >
-                <IconComponent className="w-12 h-12 text-[#005CAF] group-hover:text-white mb-6 transition-colors" />
-                <h3 className="text-xl font-bold mb-4 text-[#091540] group-hover:text-white transition-colors">
-                  {service.Title}
-                </h3>
-                <p className="text-[#404754] group-hover:text-white/80 mb-6 transition-colors text-sm leading-relaxed">
-                  {service.Description}
-                </p>
-                <span className="inline-flex items-center text-[#005CAF] group-hover:text-white font-bold uppercase text-xs tracking-widest transition-colors">
-                  Ver más <ArrowRight className="ml-2 w-4 h-4" />
-                </span>
-              </div>
-            );
-          })}
+        <div className="overflow-hidden">
+          <div
+            className="flex transition-transform duration-300 ease-out"
+            style={{
+              transform: hasCarousel
+                ? `translateX(-${currentIndex * (100 / slidesPerView)}%)`
+                : "translateX(0)",
+            }}
+          >
+            {list.map((service, idx) => {
+              const IconComponent = getIconComponent(service.Icon);
+              return (
+                <div
+                  key={idx}
+                  className="min-w-0 shrink-0 basis-full px-0 md:basis-1/2 md:px-2 lg:basis-1/4"
+                >
+                  <article className="group flex h-full min-h-[320px] flex-col border border-[#c0c6d6] p-10 transition-colors hover:bg-[#005CAF]">
+                    <IconComponent className="mb-6 h-12 w-12 shrink-0 text-[#005CAF] transition-colors group-hover:text-white" />
+                    <h3 className="mb-4 min-w-0 text-xl font-bold text-[#091540] transition-colors break-words [overflow-wrap:anywhere] group-hover:text-white">
+                      {service.Title}
+                    </h3>
+                    <p className="min-w-0 text-sm leading-relaxed text-[#404754] transition-colors break-words [overflow-wrap:anywhere] group-hover:text-white/80">
+                      {service.Description}
+                    </p>
+                  </article>
+                </div>
+              );
+            })}
+          </div>
         </div>
+
+        {hasCarousel ? (
+          <div className="mt-6 flex items-center justify-center gap-2 md:hidden">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={goToPrevious}
+              disabled={currentIndex === 0}
+              aria-label="Ver servicios anteriores"
+              className="border-[#005CAF] text-[#005CAF] hover:bg-[#005CAF] hover:text-white"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={goToNext}
+              disabled={currentIndex === maxIndex}
+              aria-label="Ver más servicios"
+              className="border-[#005CAF] text-[#005CAF] hover:bg-[#005CAF] hover:text-white"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : null}
       </div>
     </section>
   );

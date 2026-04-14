@@ -26,8 +26,8 @@ export function CommentReadCard({
   })}`;
 
   return (
-    <Card className={`w-full transition-shadow hover:shadow-md ${className}`}>
-      <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-3">
+    <Card className={`w-full min-w-0 overflow-hidden transition-shadow hover:shadow-md ${className}`}>
+      <CardHeader className="flex flex-col items-stretch justify-between gap-3 space-y-0 pb-3 sm:flex-row sm:items-start">
         <div className="flex min-w-0 flex-1 items-start gap-3">
           <div
             className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
@@ -42,7 +42,7 @@ export function CommentReadCard({
               <Badge variant={comment.IsRead ? "secondary" : "default"}>
                 {comment.IsRead ? "Leído" : "Sin leer"}
               </Badge>
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span className="min-w-0 break-words [overflow-wrap:anywhere] flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock3 className="h-3.5 w-3.5" />
                 {formattedDate}
               </span>
@@ -58,7 +58,7 @@ export function CommentReadCard({
           onClick={() => !comment.IsRead && onToggleRead?.(comment.Id, !comment.IsRead)}
           disabled={comment.IsRead}
           title={comment.IsRead ? "Ya leído" : "Marcar como leído"}
-          className="shrink-0 gap-2"
+          className="w-full shrink-0 gap-2 whitespace-normal sm:w-auto"
         >
           {comment.IsRead ? <CheckCheck className="h-4 w-4" /> : <Check className="h-4 w-4" />}
           {comment.IsRead ? "Leído" : "Marcar leído"}
@@ -66,8 +66,8 @@ export function CommentReadCard({
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-          <p className="whitespace-pre-wrap break-words text-sm leading-6 text-[#091540]">
+        <div className="w-full max-w-full min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <p className="block w-full max-w-full min-w-0 whitespace-pre-wrap break-all text-sm leading-6 text-[#091540]">
             {comment.Message?.trim() || "Sin contenido disponible."}
           </p>
         </div>
