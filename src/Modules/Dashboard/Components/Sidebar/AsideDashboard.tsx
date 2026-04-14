@@ -105,6 +105,19 @@ const AsideDashboard = () => {
           />
         </Can>
 
+        <Can rule={{ any: [Role.ASSOS] }}>
+          <SidebarDropdown
+            icon={<FileText className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />}
+            label="Solicitudes"
+            items={[
+              { label: "Disponibilidad de Agua", onClick: () => navigate({ to: "/dashboard/requests/availability-water" }) },
+              { label: "Revisión de Medidor", onClick: () => navigate({ to: "/dashboard/requests/supervision-meter" }) },
+              { label: "Cambio de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-meter" }) },
+              { label: "Cambio Nombre de Medidor", onClick: () => navigate({ to: "/dashboard/requests/change-name-meter" }) },
+            ]}
+          />
+        </Can>
+
         <Can rule={{ any: [Role.ADMIN, Role.BOD] }}>
           <SidebarDropdown
             icon={<FileText className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />}
@@ -129,7 +142,7 @@ const AsideDashboard = () => {
           </button>
         </Can>
 
-        <Can rule={{ any: [Role.ADMIN, Role.BOD] }}>
+        <Can rule={{ any: [Role.BOD] }}>
           <button
             onClick={() => navigate({ to: "/dashboard/user-audit" })}
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
@@ -154,7 +167,7 @@ const AsideDashboard = () => {
           />
         </Can>
 
-        <Can rule={{ any: [Role.ADMIN, Role.SUB, Role.GUEST, Role.PLMBR] }}>
+        <Can rule={{ any: [Role.ADMIN, Role.BOD,Role.ASSOS,Role.SUB, Role.GUEST, Role.PLMBR] }}>
           <button
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
             onClick={() => navigate({ to: "/dashboard/notifications" })}
@@ -164,7 +177,7 @@ const AsideDashboard = () => {
           </button>
         </Can>
 
-        <Can rule={{ any: [Role.ADMIN, Role.ASSOS, Role.PLMBR, Role.SUB] }}>
+        <Can rule={{ any: [Role.ADMIN, Role.ASSOS, Role.PLMBR, Role.SUB,Role.BOD] }}>
           <button
             className="group relative z-10 flex w-full items-center gap-3 px-4 py-2 rounded-md text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring outline-none"
             onClick={() => navigate({ to: "/dashboard/reports" })}
@@ -194,7 +207,7 @@ const AsideDashboard = () => {
           </button>
         </Can>
 
-        <Can rule={{ any: [Role.ADMIN, Role.GUEST, Role.SUB] }}>
+        <Can rule={{ any: [Role.ADMIN, Role.BOD,Role.ASSOS,Role.SUB, Role.GUEST, Role.PLMBR] }}>
           <SidebarDropdown
             icon={<Settings className="size-[20px] transition-colors group-hover:text-sidebar-accent-foreground" />}
             label="Ajustes"
