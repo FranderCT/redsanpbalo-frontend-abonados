@@ -99,6 +99,11 @@ export async function updateCanCommentAvailWater(
   }
 }
 
+export async function getReqAvailWaterByUser(userId: number): Promise<ReqAvailWater[]> {
+  const { data } = await apiAxios.get<ReqAvailWater[]>(`${BASE}/user/${userId}`);
+  return data;
+}
+
 export async function deleteReqAvailWater(id: number): Promise<void> {
   try{
     await apiAxios.delete(`${BASE}/${id}`);

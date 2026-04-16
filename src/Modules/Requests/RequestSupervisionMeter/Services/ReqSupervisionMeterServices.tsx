@@ -80,6 +80,11 @@ export async function searchReqSupervisionMeter(
   }
 }
 
+export async function getReqSupervisionMeterByUser(userId: number): Promise<ReqSupervisionMeter[]> {
+  const { data } = await apiAxios.get<ReqSupervisionMeter[]>(`${BASE}/user/${userId}`);
+  return data;
+}
+
 // Detalle
 export async function getReqSupervisionMeterById(id: number): Promise<ReqSupervisionMeter> {
   try {

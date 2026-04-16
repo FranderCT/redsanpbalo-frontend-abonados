@@ -201,6 +201,11 @@ export async function searchReqChangeMeter(
   }
 }
 
+export async function getReqChangeMeterByUser(userId: number): Promise<ReqChangeMeter[]> {
+  const { data } = await apiAxios.get<ReqChangeMeter[]>(`${BASE}/user/${userId}`);
+  return data;
+}
+
 // Detalle
 export async function getReqChangeMeterById(id: number): Promise<ReqChangeMeter> {
   try {

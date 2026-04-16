@@ -3,7 +3,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { useEffect } from "react";
 
 import type { PaginatedResponse, PaginationMeta } from "../../../../assets/Dtos/PaginationCategory";
-import { createReqSupervisionMeter, deleteReqSupervisionMeter, getAllReqSupervisionMeter, getAllRequestStates, getReqSupervisionMeterById, searchReqSupervisionMeter, updateCanCommentSupervisionMeter, updateReqSupervisionMeter } from "../Services/ReqSupervisionMeterServices";
+import { createReqSupervisionMeter, deleteReqSupervisionMeter, getAllReqSupervisionMeter, getAllRequestStates, getReqSupervisionMeterById, getReqSupervisionMeterByUser, searchReqSupervisionMeter, updateCanCommentSupervisionMeter, updateReqSupervisionMeter } from "../Services/ReqSupervisionMeterServices";
 import type { newReqSupervisionMeter, ReqSupervisionMeter, ReqSupervisionMeterPaginationParams, UpdateReqSupervisionMeter } from "../Models/ReqSupervisionMeter";
 
 type LegacyMeta = {
@@ -167,3 +167,13 @@ export const useGetAllRequestStates = () => {
   });
   return { requestStates: data ?? [], isPending, error };
 }
+
+export const useGetReqSupervisionMeterByUser = (userId?: number) => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["request-supervision-meter", "user", userId],
+    queryFn: () => getReqSupervisionMeterByUser(userId as number),
+    enabled: typeof userId === "number" && userId > 0,
+    staleTime: 30_000,
+  });
+  return { requests: data ?? [], isLoading, isError, error };
+};

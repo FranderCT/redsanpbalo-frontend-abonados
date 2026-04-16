@@ -56,6 +56,11 @@ export async function searchReqChangeNameMeter(
   }
 }
 
+export async function getReqChangeNameMeterByUser(userId: number): Promise<ReqChangeNameMeter[]> {
+  const { data } = await apiAxios.get<ReqChangeNameMeter[]>(`${BASE}/user/${userId}`);
+  return data;
+}
+
 // Detalle
 export async function getReqChangeNameMeterById(id: number): Promise<ReqChangeNameMeter> {
   try {

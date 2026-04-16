@@ -1,6 +1,6 @@
 // Hooks/RequestAssociatedHooks.ts
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRequestAssociated, deleteRequestAssociated, getAllRequestAssociated, getAllRequestStates, getReqAssociatedFolderLink, getRequestAssociatedById, searchRequestAssociated, UpdateAssociatedReq, updateCanComment} from "../Services/ReqAssociatedServices";
+import { createRequestAssociated, deleteRequestAssociated, getAllRequestAssociated, getAllRequestStates, getReqAssociatedByUser, getReqAssociatedFolderLink, getRequestAssociatedById, searchRequestAssociated, UpdateAssociatedReq, updateCanComment} from "../Services/ReqAssociatedServices";
 import type { newReqAssociated, ReqAssociated, ReqAssociatedPaginationParams, ReqAssociatedResponse, UpdateReqAssociated } from "../Models/RequestAssociated";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
@@ -193,3 +193,13 @@ export const useUpdateCanComment = () => {
   });
 };
 
+
+export const useGetReqAssociatedByUser = (userId?: number) => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["request-associated", "user", userId],
+    queryFn: () => getReqAssociatedByUser(userId as number),
+    enabled: typeof userId === "number" && userId > 0,
+    staleTime: 30_000,
+  });
+  return { requests: data ?? [], isLoading, isError, error };
+};

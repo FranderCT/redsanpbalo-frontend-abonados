@@ -5,6 +5,7 @@ import {
   getAllReqChangeMeter,
   getAllRequestStates,
   getReqChangeMeterById,
+  getReqChangeMeterByUser,
   searchReqChangeMeter,
   UpdateReqChangeMeter,
   updateCanCommentChangeMeter,
@@ -126,4 +127,14 @@ export const useUpdateCanCommentChangeMeter = () => {
     },
     onError: (err) => console.error("Error actualizando CanComment", err),
   });
+};
+
+export const useGetReqChangeMeterByUser = (userId?: number) => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["request-change-meter", "user", userId],
+    queryFn: () => getReqChangeMeterByUser(userId as number),
+    enabled: typeof userId === "number" && userId > 0,
+    staleTime: 30_000,
+  });
+  return { requests: data ?? [], isLoading, isError, error };
 };

@@ -8,7 +8,7 @@ import type {
   ReqChangeNameLinkResponse,
 } from "../Models/RequestChangeNameMeter";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
-import { createReqChangeNameMeter, deleteReqChangeNameMeter, getAllReqChangeNameMeter, getAllRequestStates, getReqChangeNameFolderLink, getReqChangeNameMeterById, searchReqChangeNameMeter, updateReqChangeNameMeter, updateCanCommentChangeNameMeter } from "../Services/RequestChangeNameMeter";
+import { createReqChangeNameMeter, deleteReqChangeNameMeter, getAllReqChangeNameMeter, getAllRequestStates, getReqChangeNameFolderLink, getReqChangeNameMeterById, getReqChangeNameMeterByUser, searchReqChangeNameMeter, updateReqChangeNameMeter, updateCanCommentChangeNameMeter } from "../Services/RequestChangeNameMeter";
 
 // Listado simple
 export const useGetAllReqChangeNameMeter = () => {
@@ -149,3 +149,13 @@ export const useUpdateCanCommentChangeNameMeter = () => {
   });
 };
 
+
+export const useGetReqChangeNameMeterByUser = (userId?: number) => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["request-change-name-meter", "user", userId],
+    queryFn: () => getReqChangeNameMeterByUser(userId as number),
+    enabled: typeof userId === "number" && userId > 0,
+    staleTime: 30_000,
+  });
+  return { requests: data ?? [], isLoading, isError, error };
+};

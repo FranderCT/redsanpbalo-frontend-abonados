@@ -19,6 +19,11 @@ import { Separator } from "@/Components/ui/separator";
 import type { User } from "../../Models/User";
 import EditUserModal from "../ListUsersModals/EditUserModal";
 import UserReportsHistory from "./UserReportsHistory";
+import UserAvailWaterHistory from "./UserAvailWaterHistory";
+import UserChangeMeterHistory from "./UserChangeMeterHistory";
+import UserChangeNameMeterHistory from "./UserChangeNameMeterHistory";
+import UserSupervisionMeterHistory from "./UserSupervisionMeterHistory";
+import UserAssociatedHistory from "./UserAssociatedHistory";
 
 const DEFAULT_AVATAR = "/Image02.png";
 
@@ -234,8 +239,13 @@ const UserDetailCard = ({ user }: Props) => {
         </Card>
       </div>
 
-      {/* Historial de reportes */}
+      {/* Historial de actividad */}
       <UserReportsHistory userId={user.Id} />
+      <UserAvailWaterHistory userId={user.Id} />
+      <UserChangeMeterHistory userId={user.Id} />
+      <UserChangeNameMeterHistory userId={user.Id} />
+      <UserSupervisionMeterHistory userId={user.Id} />
+      <UserAssociatedHistory userId={user.Id} />
 
       {editOpen && (
         <EditUserModal

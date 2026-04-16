@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createReqAvailWater, deleteReqAvailWater, getAllReqAvailWater, getAllRequestStates, getReqAvailWaterById, getReqAvailWaterFolderLink, searchReqAvailWater, UpdateReqAvailWater, updateCanCommentAvailWater } from "../Services/ReqAvilWaterServices";
+import { createReqAvailWater, deleteReqAvailWater, getAllReqAvailWater, getAllRequestStates, getReqAvailWaterById, getReqAvailWaterByUser, getReqAvailWaterFolderLink, searchReqAvailWater, UpdateReqAvailWater, updateCanCommentAvailWater } from "../Services/ReqAvilWaterServices";
 import type { ReqAvailWater, ReqAvailWaterPaginationParams, ReqWaterLinkResponse, UpdateReqAvailabilityWater} from "../Models/ReqAvailWater";
 import type { PaginatedResponse } from "../../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
@@ -179,6 +179,16 @@ export function useReqAvailWaterFolderLink() {
     },
   });
 }
+
+export const useGetReqAvailWaterByUser = (userId?: number) => {
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["request-availability-water", "user", userId],
+    queryFn: () => getReqAvailWaterByUser(userId as number),
+    enabled: typeof userId === "number" && userId > 0,
+    staleTime: 30_000,
+  });
+  return { requests: data ?? [], isLoading, isError, error };
+};
 
 // Actualizar CanComment
 export const useUpdateCanCommentAvailWater = () => {

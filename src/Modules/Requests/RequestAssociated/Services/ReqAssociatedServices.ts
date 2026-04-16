@@ -155,6 +155,11 @@ export async function searchRequestAssociated(
   }
 }
 
+export async function getReqAssociatedByUser(userId: number): Promise<ReqAssociated[]> {
+  const { data } = await apiAxios.get<ReqAssociated[]>(`${BASE}/user/${userId}`);
+  return data;
+}
+
 // Detalle
 export async function getRequestAssociatedById(id: number): Promise<ReqAssociated> {
   try {
