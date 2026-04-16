@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Mail,
@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Separator } from "@/Components/ui/separator";
 import type { User } from "../../Models/User";
 import EditUserModal from "../ListUsersModals/EditUserModal";
+import UserReportsHistory from "./UserReportsHistory";
 
 const DEFAULT_AVATAR = "/Image02.png";
 
@@ -38,7 +39,6 @@ type Props = {
 };
 
 const UserDetailCard = ({ user }: Props) => {
-  const navigate = useNavigate();
   const [editOpen, setEditOpen] = useState(false);
 
   const fullName = [user.Name, user.Surname1, user.Surname2].filter(Boolean).join(" ");
@@ -233,6 +233,9 @@ const UserDetailCard = ({ user }: Props) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Historial de reportes */}
+      <UserReportsHistory userId={user.Id} />
 
       {editOpen && (
         <EditUserModal
