@@ -1,6 +1,14 @@
 
+export const TypeDNI = {
+  Cedula: 'Cedula',
+  Pasaporte: 'Pasaporte',
+  Otro: 'Otro',
+} as const;
+
+export type TypeDNI = typeof TypeDNI[keyof typeof TypeDNI];
 
 export interface RegisterUser{
+    TypeDNI: TypeDNI;
     IDcard:string;
     Name : string;
     Surname1 : string;
@@ -19,6 +27,7 @@ export type RegisterUserForm = RegisterUser & {
 };
 
 export const RegisterUserInitialState: RegisterUserForm = {
+  TypeDNI: TypeDNI.Cedula,
   IDcard: '',
   Name: '',
   Surname1: '',
@@ -34,6 +43,7 @@ export const RegisterUserInitialState: RegisterUserForm = {
 }
 
 export interface createAdminUser{
+    TypeDNI: TypeDNI;
     IDcard:string;
     Name : string;
     Surname1 : string;
@@ -51,6 +61,7 @@ export type createAdminUserForm = createAdminUser & {
 };
 
 export const AdminUserInitialState: createAdminUserForm = {
+  TypeDNI: TypeDNI.Cedula,
   IDcard: '',
   Name: '',
   Surname1: '',

@@ -10,7 +10,19 @@ import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
 import { Field, FieldGroup, FieldLabel } from "@/Components/ui/field";
-import { Mail, Phone, IdCard, UserCircle } from "lucide-react";
+import { Mail, Phone, IdCard, UserCircle, CreditCard } from "lucide-react";
+
+const ID_CARD_LABELS: Record<string, string> = {
+  Cedula: "Cédula",
+  Pasaporte: "N.º de pasaporte",
+  Otro: "N.º de identificación",
+};
+
+const TYPE_DNI_LABELS: Record<string, string> = {
+  Cedula: "Cédula",
+  Pasaporte: "Pasaporte",
+  Otro: "Otro",
+};
 import { useGetUserById } from "../../Hooks/UsersHooks";
 import type { User } from "../../Models/User";
 
@@ -119,11 +131,20 @@ export default function GetInfoUserModal({
                       </Field>
                       <Field className="gap-2">
                         <FieldLabel className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                          <IdCard className="h-4 w-4" />
-                          Cédula
+                          <CreditCard className="h-4 w-4" />
+                          Tipo de identificación
                         </FieldLabel>
                         <p className="text-sm font-medium text-foreground">
-                          {user.IDcard || "Sin cédula"}
+                          {TYPE_DNI_LABELS[user.TypeDNI ?? "Cedula"] ?? "Cédula"}
+                        </p>
+                      </Field>
+                      <Field className="gap-2">
+                        <FieldLabel className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          <IdCard className="h-4 w-4" />
+                          {ID_CARD_LABELS[user.TypeDNI ?? "Cedula"] ?? "Cédula"}
+                        </FieldLabel>
+                        <p className="text-sm font-medium text-foreground">
+                          {user.IDcard || "Sin identificación"}
                         </p>
                       </Field>
                       {user.Nis?.length ? (

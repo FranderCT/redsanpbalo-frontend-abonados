@@ -24,6 +24,12 @@ import {
 } from "@/Components/ui/dropdown-menu";
 import { Mail, Phone, IdCard, MoreVertical } from "lucide-react";
 
+const ID_CARD_LABELS: Record<string, string> = {
+  Cedula: "Cédula",
+  Pasaporte: "Pasaporte",
+  Otro: "ID",
+};
+
 type Props = {
   data: User[];
   total?: number;
@@ -110,9 +116,12 @@ export default function UsersCards({ data, total, page, pageCount, onPageChange 
                     <CardTitle className="truncate text-base font-semibold text-foreground">
                       {fullName || "—"}
                     </CardTitle>
-                    <CardDescription className="flex items-center gap-1 text-xs">
-                      <IdCard className="h-3 w-3" />
-                      <span className="truncate">{user.IDcard || "Sin cédula"}</span>
+                    <CardDescription className="flex items-center gap-1 text-xs flex-wrap">
+                      <IdCard className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{user.IDcard || "Sin identificación"}</span>
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
+                        {ID_CARD_LABELS[user.TypeDNI ?? "Cedula"] ?? "Cédula"}
+                      </Badge>
                     </CardDescription>
                   </div>
                   <Badge

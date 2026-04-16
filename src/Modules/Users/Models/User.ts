@@ -1,6 +1,7 @@
 import type { Roles } from "./Roles";
 export interface User {
   Id: number;
+  TypeDNI?: string;
   IDcard: string;
   Name: string;
   Surname1: string;

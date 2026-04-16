@@ -1,4 +1,16 @@
 import type { User } from "../../Models/User";
+
+const ID_CARD_LABELS: Record<string, string> = {
+  Cedula: "Cédula",
+  Pasaporte: "N.º de pasaporte",
+  Otro: "N.º de identificación",
+};
+
+const TYPE_DNI_LABELS: Record<string, string> = {
+  Cedula: "Cédula",
+  Pasaporte: "Pasaporte",
+  Otro: "Otro",
+};
 import {
   Card,
   CardContent,
@@ -62,7 +74,14 @@ const UserProfileDetails = ({ User }: Props) => {
           <ProfileField label="Correo" value={User?.Email} />
           <ProfileField label="Fecha de nacimiento" value={birthdateLabel} />
           <ProfileField label="Teléfono" value={User?.PhoneNumber} />
-          <ProfileField label="Cédula" value={User?.IDcard} />
+          <ProfileField
+            label="Tipo de identificación"
+            value={TYPE_DNI_LABELS[User?.TypeDNI ?? "Cedula"] ?? "Cédula"}
+          />
+          <ProfileField
+            label={ID_CARD_LABELS[User?.TypeDNI ?? "Cedula"] ?? "Cédula"}
+            value={User?.IDcard}
+          />
           <ProfileField label="NIS" value={nisLabel} />
           <div className="space-y-1.5">
             <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">

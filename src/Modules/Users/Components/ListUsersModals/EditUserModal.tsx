@@ -19,6 +19,18 @@ import {
 } from "@/Components/ui/field";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { useUpdateUser, useGetAllRoles } from "../../Hooks/UsersHooks";
+
+const ID_CARD_LABELS: Record<string, string> = {
+  Cedula: "Cédula",
+  Pasaporte: "N.º de pasaporte",
+  Otro: "N.º de identificación",
+};
+
+const TYPE_DNI_LABELS: Record<string, string> = {
+  Cedula: "Cédula",
+  Pasaporte: "Pasaporte",
+  Otro: "Otro",
+};
 import type { User } from "../../Models/User";
 import PhoneField from "../../../../Components/PhoneNumber/PhoneField";
 import { EditUserSchema } from "../../schemas/EditUserSchema";
@@ -123,7 +135,15 @@ export default function EditUserModal({ user, open, onClose, onSuccess }: Props)
                   </div>
                   <div>
                     <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-                      Cédula
+                      Tipo de identificación
+                    </dt>
+                    <dd className="mt-1 text-sm text-foreground break-words">
+                      {TYPE_DNI_LABELS[user?.TypeDNI ?? "Cedula"] ?? "Cédula"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                      {ID_CARD_LABELS[user?.TypeDNI ?? "Cedula"] ?? "Cédula"}
                     </dt>
                     <dd className="mt-1 text-sm text-foreground break-words">{user?.IDcard || "—"}</dd>
                   </div>

@@ -1,6 +1,6 @@
 import { useForm } from '@tanstack/react-form';
 import { useState } from 'react';
-import { RegisterUserInitialState } from '../Models/RegisterUser';
+import { RegisterUserInitialState, TypeDNI } from '../Models/RegisterUser';
 
 import { RegisterSchema } from '../schemas/RegisterSchemas';
 import { toast } from 'sonner';
@@ -18,6 +18,19 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/Components/ui/field';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/Components/ui/select';
+
+const ID_LABELS: Record<string, { label: string; placeholder: string }> = {
+  [TypeDNI.Cedula]:    { label: 'Cédula',                      placeholder: 'Ingresa tu cédula' },
+  [TypeDNI.Pasaporte]: { label: 'Número de pasaporte',          placeholder: 'Ingresa tu número de pasaporte' },
+  [TypeDNI.Otro]:      { label: 'Número de identificación',     placeholder: 'Ingresa tu número de identificación' },
+};
 
 const RegisterAbonados = () => {
   const [tempNis, setTempNis] = useState('');
@@ -28,10 +41,6 @@ const RegisterAbonados = () => {
     defaultValues: RegisterUserInitialState,
     validators: { onChange: RegisterSchema },
     onSubmit: async ({ value }) => {
-      if (value.Password !== value.ConfirmPassword) {
-        alert('Las contraseñas no coinciden');
-        return;
-      }
       try {
         const { IsAbonado, ...userData } = value;
         await createUserMutation.mutateAsync(userData);
@@ -50,7 +59,6 @@ const RegisterAbonados = () => {
     <div className="grid min-h-screen place-items-center bg-slate-100 p-4">
       <Card className="w-full max-w-2xl shadow-lg border border-slate-200">
         <CardHeader className="relative pb-3">
-          {/* Botón volver (arriba izquierda) */}
           <div className="flex absolute top-3 left-3">
             <Link
               to="/"
@@ -60,8 +68,7 @@ const RegisterAbonados = () => {
               <span>Volver</span>
             </Link>
           </div>
-          
-          {/* Logo centrado */}
+
           <div className="mt-8 flex justify-center items-center">
             <img
               src="src\assets\images\LogoRedSanPabloHG.png"
@@ -70,7 +77,6 @@ const RegisterAbonados = () => {
             />
           </div>
 
-          {/* Título centrado y más grande */}
           <CardTitle className="mt-4 text-center text-3xl font-extrabold tracking-tight text-slate-900">
             Crear cuenta
           </CardTitle>
@@ -86,145 +92,195 @@ const RegisterAbonados = () => {
             className="space-y-4"
           >
             <FieldGroup className="gap-4">
-              {/* Cédula */}
-              <form.Field name="IDcard">
-                {(field) => {
-                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+
+              {/* Tipo de identificación */}
+              <form.Field name="TypeDNI">
+                {(field) => (
+                  <Field className="gap-2">
+                    <FieldLabel htmlFor="type-dni">
+                      Tipo de identificación
+                    </FieldLabel>
+                    <Select
+                      value={field.state.value}
+                      onValueChange={(v) => {
+                        field.handleChange(v as TypeDNI);
+                        // Limpiar campos al cambiar tipo
+                        form.setFieldValue('IDcard', '');
+                        form.setFieldValue('Name', '');
+                        form.setFieldValue('Surname1', '');
+                        form.setFieldValue('Surname2', '');
+                      }}
+                    >
+                      <SelectTrigger id="type-dni" className="h-10">
+                        <SelectValue placeholder="Selecciona el tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={TypeDNI.Cedula}>Cédula</SelectItem>
+                        <SelectItem value={TypeDNI.Pasaporte}>Pasaporte</SelectItem>
+                        <SelectItem value={TypeDNI.Otro}>Otro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-slate-500">
+                      {field.state.value === TypeDNI.Cedula
+                        ? 'Tu nombre se cargará automáticamente al ingresar la cédula.'
+                        : 'Deberás ingresar tu nombre y apellidos manualmente.'}
+                    </p>
+                  </Field>
+                )}
+              </form.Field>
+
+              {/* IDcard + Nombre/Apellidos (condicional según TypeDNI) */}
+              <form.Subscribe selector={(s) => s.values.TypeDNI}>
+                {(typeDNI) => {
+                  const isCedula = typeDNI === TypeDNI.Cedula;
+                  const idMeta = ID_LABELS[typeDNI] ?? ID_LABELS[TypeDNI.Cedula];
+
                   return (
-                    <Field data-invalid={isInvalid} className="gap-2">
-                      <FieldLabel htmlFor="idcard">
-                        Cédula
-                      </FieldLabel>
-                      <Input
-                        id="idcard"
-                        placeholder="Ingresa tu cédula"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={async (e) => {
-                          const cedula = e.target.value;
-                          field.handleChange(cedula);
+                    <>
+                      {/* Número de identificación */}
+                      <form.Field name="IDcard">
+                        {(field) => {
+                          const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                          return (
+                            <Field data-invalid={isInvalid} className="gap-2">
+                              <FieldLabel htmlFor="idcard">
+                                {idMeta.label}
+                              </FieldLabel>
+                              <Input
+                                id="idcard"
+                                placeholder={idMeta.placeholder}
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={async (e) => {
+                                  const value = e.target.value;
+                                  field.handleChange(value);
 
-                          if (cedula.length >= 9) {
-                            try {
-                              const res = await fetch(`https://apis.gometa.org/cedulas/${cedula}`);
-                              if (!res.ok) throw new Error('No se encontró este número de cédula');
-                              const data = await res.json();
+                                  // Solo buscar en la API para cédulas costarricenses
+                                  if (isCedula && value.length >= 9) {
+                                    try {
+                                      const res = await fetch(`https://apis.gometa.org/cedulas/${value}`);
+                                      if (!res.ok) throw new Error('No se encontró este número de cédula');
+                                      const data = await res.json();
 
-                              if (data?.results && data.results.length > 0) {
-                                const person = data.results[0];
-                                const apellido1 = person.lastname1 || '';
-                                const apellido2 = person.lastname2 || '';
-                                const fn1 = (person.firstname || '').trim().replace(/\s+/g, ' ');
-                                const fn2 = (person.firstname2 || '').trim();
-                                const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                                const nombre = fn2 && new RegExp(`\\b${esc(fn2)}\\b`, 'i').test(fn1)
-                                  ? fn1
-                                  : [fn1, fn2].filter(Boolean).join(' ').trim();
+                                      if (data?.results && data.results.length > 0) {
+                                        const person = data.results[0];
+                                        const apellido1 = person.lastname1 || '';
+                                        const apellido2 = person.lastname2 || '';
+                                        const fn1 = (person.firstname || '').trim().replace(/\s+/g, ' ');
+                                        const fn2 = (person.firstname2 || '').trim();
+                                        const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                                        const nombre = fn2 && new RegExp(`\\b${esc(fn2)}\\b`, 'i').test(fn1)
+                                          ? fn1
+                                          : [fn1, fn2].filter(Boolean).join(' ').trim();
 
-                                form.setFieldValue('Name', nombre);
-                                form.setFieldValue('Surname1', apellido1);
-                                form.setFieldValue('Surname2', apellido2);
-                              }
-                            } catch (err) {
-                              console.warn('Error buscando cédula:', err);
-                              form.setFieldValue('Name', '');
-                              form.setFieldValue('Surname1', '');
-                              form.setFieldValue('Surname2', '');
-                            }
-                          }
+                                        form.setFieldValue('Name', nombre);
+                                        form.setFieldValue('Surname1', apellido1);
+                                        form.setFieldValue('Surname2', apellido2);
+                                      }
+                                    } catch (err) {
+                                      console.warn('Error buscando cédula:', err);
+                                      form.setFieldValue('Name', '');
+                                      form.setFieldValue('Surname1', '');
+                                      form.setFieldValue('Surname2', '');
+                                    }
+                                  }
+                                }}
+                                aria-invalid={isInvalid}
+                                className="h-10"
+                              />
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
                         }}
-                        aria-invalid={isInvalid}
-                        className="h-10"
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
+                      </form.Field>
+
+                      {/* Nombre */}
+                      <form.Field name="Name">
+                        {(field) => {
+                          const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                          return (
+                            <Field data-invalid={isInvalid} className="gap-2">
+                              <FieldLabel htmlFor="name">
+                                Nombre{!isCedula && <span className="text-red-500 ml-0.5">*</span>}
+                              </FieldLabel>
+                              <Input
+                                id="name"
+                                placeholder={isCedula ? 'Se cargará automáticamente' : 'Ingresa tu nombre'}
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(e) => field.handleChange(e.target.value)}
+                                disabled={isCedula}
+                                aria-invalid={isInvalid}
+                                className={`h-10 ${isCedula ? 'bg-slate-50 text-slate-500' : ''}`}
+                              />
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
+                        }}
+                      </form.Field>
+
+                      {/* Apellidos */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <form.Field name="Surname1">
+                          {(field) => {
+                            const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                            return (
+                              <Field data-invalid={isInvalid} className="gap-2">
+                                <FieldLabel htmlFor="surname1">
+                                  Apellido 1{!isCedula && <span className="text-red-500 ml-0.5">*</span>}
+                                </FieldLabel>
+                                <Input
+                                  id="surname1"
+                                  placeholder={isCedula ? 'Se cargará automáticamente' : 'Ingresa tu primer apellido'}
+                                  value={field.state.value}
+                                  onBlur={field.handleBlur}
+                                  onChange={(e) => field.handleChange(e.target.value)}
+                                  disabled={isCedula}
+                                  aria-invalid={isInvalid}
+                                  className={`h-10 ${isCedula ? 'bg-slate-50 text-slate-500' : ''}`}
+                                />
+                                {isInvalid && (
+                                  <FieldError errors={field.state.meta.errors} />
+                                )}
+                              </Field>
+                            );
+                          }}
+                        </form.Field>
+
+                        <form.Field name="Surname2">
+                          {(field) => {
+                            const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                            return (
+                              <Field data-invalid={isInvalid} className="gap-2">
+                                <FieldLabel htmlFor="surname2">
+                                  Apellido 2
+                                </FieldLabel>
+                                <Input
+                                  id="surname2"
+                                  placeholder={isCedula ? 'Se cargará automáticamente' : 'Ingresa tu segundo apellido (opcional)'}
+                                  value={field.state.value}
+                                  onBlur={field.handleBlur}
+                                  onChange={(e) => field.handleChange(e.target.value)}
+                                  disabled={isCedula}
+                                  aria-invalid={isInvalid}
+                                  className={`h-10 ${isCedula ? 'bg-slate-50 text-slate-500' : ''}`}
+                                />
+                                {isInvalid && (
+                                  <FieldError errors={field.state.meta.errors} />
+                                )}
+                              </Field>
+                            );
+                          }}
+                        </form.Field>
+                      </div>
+                    </>
                   );
                 }}
-              </form.Field>
-
-              {/* Nombre */}
-              <form.Field name="Name">
-                {(field) => {
-                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                  return (
-                    <Field data-invalid={isInvalid} className="gap-2">
-                      <FieldLabel htmlFor="name">
-                        Nombre
-                      </FieldLabel>
-                      <Input
-                        id="name"
-                        placeholder="Nombre"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        disabled
-                        aria-invalid={isInvalid}
-                        className="h-10"
-                      />
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  );
-                }}
-              </form.Field>
-
-              {/* Apellidos */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <form.Field name="Surname1">
-                  {(field) => {
-                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor="surname1">
-                          Apellido 1
-                        </FieldLabel>
-                        <Input
-                          id="surname1"
-                          placeholder="Apellido1"
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          disabled
-                          aria-invalid={isInvalid}
-                          className="h-10"
-                        />
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors} />
-                        )}
-                      </Field>
-                    );
-                  }}
-                </form.Field>
-
-                <form.Field name="Surname2">
-                  {(field) => {
-                    const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field data-invalid={isInvalid} className="gap-2">
-                        <FieldLabel htmlFor="surname2">
-                          Apellido 2
-                        </FieldLabel>
-                        <Input
-                          id="surname2"
-                          placeholder="Apellido2"
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          disabled
-                          aria-invalid={isInvalid}
-                          className="h-10"
-                        />
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors} />
-                        )}
-                      </Field>
-                    );
-                  }}
-                </form.Field>
-              </div>
+              </form.Subscribe>
 
               {/* Soy abonado */}
               <form.Field name="IsAbonado">
@@ -283,67 +339,65 @@ const RegisterAbonados = () => {
                         <Field data-invalid={isInvalid} className="gap-2">
                           <FieldLabel>NIS (Números de identificación)</FieldLabel>
 
-                        {/* Chips de NIS */}
-                        <div className="flex flex-wrap gap-2 min-h-[40px] p-3 bg-slate-50 border border-slate-200 rounded-md">
-                          {nisList.length === 0 && (
-                            <span className="text-xs text-gray-400">
-                              {isAbonado ? 'Agregue al menos un NIS' : 'Sin NIS asignados'}
-                            </span>
-                          )}
-                          {nisList.map((nis) => (
-                            <span
-                              key={nis}
-                              className="inline-flex items-center gap-2 bg-blue-700 text-white px-3 py-1 text-sm rounded"
-                            >
-                              {nis}
-                              <button
-                                type="button"
-                                onClick={() => removeNis(nis)}
-                                disabled={!isAbonado}
-                                className="hover:text-red-300 font-bold disabled:opacity-50"
-                                title="Eliminar NIS"
+                          <div className="flex flex-wrap gap-2 min-h-[40px] p-3 bg-slate-50 border border-slate-200 rounded-md">
+                            {nisList.length === 0 && (
+                              <span className="text-xs text-gray-400">
+                                {isAbonado ? 'Agregue al menos un NIS' : 'Sin NIS asignados'}
+                              </span>
+                            )}
+                            {nisList.map((nis) => (
+                              <span
+                                key={nis}
+                                className="inline-flex items-center gap-2 bg-blue-700 text-white px-3 py-1 text-sm rounded"
                               >
-                                ×
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-
-                        {/* Input para agregar NIS */}
-                        {isAbonado && (
-                          <div className="flex gap-2">
-                            <Input
-                              type="number"
-                              value={tempNis}
-                              onChange={(e) => setTempNis(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  e.preventDefault();
-                                  addNis();
-                                }
-                              }}
-                              placeholder="Ingresa un NIS y presiona Enter"
-                              className="flex-1 h-10"
-                            />
-                            <Button
-                              type="button"
-                              onClick={addNis}
-                              className="px-4 bg-blue-600 hover:bg-blue-700"
-                            >
-                              Agregar
-                            </Button>
+                                {nis}
+                                <button
+                                  type="button"
+                                  onClick={() => removeNis(nis)}
+                                  disabled={!isAbonado}
+                                  className="hover:text-red-300 font-bold disabled:opacity-50"
+                                  title="Eliminar NIS"
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))}
                           </div>
-                        )}
 
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors} />
-                        )}
-                      </Field>
-                    );
-                  }}
-                </form.Field>
-              )}
-            </form.Subscribe>
+                          {isAbonado && (
+                            <div className="flex gap-2">
+                              <Input
+                                type="number"
+                                value={tempNis}
+                                onChange={(e) => setTempNis(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    addNis();
+                                  }
+                                }}
+                                placeholder="Ingresa un NIS y presiona Enter"
+                                className="flex-1 h-10"
+                              />
+                              <Button
+                                type="button"
+                                onClick={addNis}
+                                className="px-4 bg-blue-600 hover:bg-blue-700"
+                              >
+                                Agregar
+                              </Button>
+                            </div>
+                          )}
+
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
+                  </form.Field>
+                )}
+              </form.Subscribe>
 
               {/* Email */}
               <form.Field name="Email">
@@ -523,7 +577,6 @@ const RegisterAbonados = () => {
             )}
           </form.Subscribe>
 
-          {/* Links abajo en fila */}
           <div className="flex w-full items-center justify-center text-sm">
             <span className="text-slate-600">¿Ya tienes una cuenta?{' '}</span>
             <Link
