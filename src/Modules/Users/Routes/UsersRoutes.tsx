@@ -22,6 +22,7 @@ import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
 import UserProfile from "../Pages/UserProfile/UserProfile";
 import EditProfile from "../Components/ProfileUser/EditProfileUser/EditProfile";
 import ListUsers from "../Pages/ListUsers";
+import UserDetailPage from "../Pages/UserDetail/UserDetailPage";
 import { createRoute, Outlet } from "@tanstack/react-router";
 
 
@@ -47,6 +48,12 @@ export const userProfileEditRoute = createRoute({
   getParentRoute: () => usersRoute,
   path: "edit",
   component: EditProfile,
+});
+
+export const userDetailRoute = createRoute({
+  getParentRoute: () => usersRoute,
+  path: "$userId",
+  component: UserDetailPage,
 });
 
 /*export const changeEmailRoute = createRoute({

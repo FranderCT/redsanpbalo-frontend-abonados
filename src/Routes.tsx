@@ -10,7 +10,7 @@ import {
 } from "./Modules/Dashboard/Routes/DashboardRoutes";
 import { materialRoute } from "./Modules/Materials/Routes/MaterialsRoutes";
 import { settingsRoute, changeEmailRoute, changePasswordRoute } from "./Modules/SettingsUser/Routes/SettingsRoute";
-import { usersRoute, userProfilewRoute, userProfileEditRoute, listUsersRoute } from "./Modules/Users/Routes/UsersRoutes";
+import { usersRoute, userProfilewRoute, userProfileEditRoute, listUsersRoute, userDetailRoute } from "./Modules/Users/Routes/UsersRoutes";
 import { categoryRoute } from "./Modules/Category/Routes/RoutesCategories";
 import { uniteMeasureRoute } from "./Modules/UnitMeasure/routes/RoutesUnitMeasures";
 import { productsRoutes } from "./Modules/Products/routes/ProductsRoutes";
@@ -57,7 +57,8 @@ export const routeTree = rootRoute.addChildren([
     usersRoute.addChildren([
       userProfilewRoute,
       userProfileEditRoute,
-      listUsersRoute
+      listUsersRoute,
+      userDetailRoute,
     ]),
     dashboardIndexRoute,
     materialRoute,

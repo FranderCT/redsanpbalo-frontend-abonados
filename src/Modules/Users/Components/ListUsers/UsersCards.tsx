@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import type { User } from "../../Models/User";
 import EditUserModal from "../ListUsersModals/EditUserModal";
-import GetInfoUserModal from "../ListUsersModals/GetInfoUserModal";
 import { DataPagination } from "@/Components/ui/data-pagination";
 import { useDeleteUser } from "../../Hooks/UsersHooks";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
@@ -40,7 +40,6 @@ type Props = {
 
 export default function UsersCards({ data, total, page, pageCount, onPageChange }: Props) {
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [getInfoUser, setGetInfoUser] = useState<User | null>(null);
   const [disableUser, setDisableUser] = useState<User | null>(null);
   const [isDisabling, setIsDisabling] = useState(false);
   const deleteUserMutation = useDeleteUser();
@@ -72,16 +71,6 @@ export default function UsersCards({ data, total, page, pageCount, onPageChange 
           onSuccess={() => setEditingUser(null)}
         />
       )}
-
-      {getInfoUser && (
-        <GetInfoUserModal
-          user={getInfoUser}
-          open={true}
-          onClose={() => setGetInfoUser(null)}
-          onSuccess={() => setGetInfoUser(null)}
-        />
-      )
-      }
 
       {data.length === 0 ? (
         <div className="flex items-center justify-center py-12">
@@ -153,13 +142,15 @@ export default function UsersCards({ data, total, page, pageCount, onPageChange 
 
                 <CardFooter className="flex flex-wrap items-center justify-between gap-2 border-t pt-3">
                   <div className="flex flex-1 flex-wrap gap-2">
-                    <Button
-                      variant="outline"
+                    <Link
+                      to="/dashboard/users/$userId"
+                      params={{ userId: String(user.Id) }}
                       className="flex-1 min-w-[130px]"
-                      onClick={() => setGetInfoUser(user)}
                     >
-                      Ver detalles
-                    </Button>
+                      <Button variant="outline" className="w-full">
+                        Ver detalles
+                      </Button>
+                    </Link>
                   </div>
                   <div className="flex items-center gap-1">
                     <DropdownMenu>
@@ -176,8 +167,13 @@ export default function UsersCards({ data, total, page, pageCount, onPageChange 
                         <DropdownMenuItem onClick={() => setEditingUser(user)}>
                           Editar usuario
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setGetInfoUser(user)}>
-                          Ver detalles
+                        <DropdownMenuItem asChild>
+                          <Link
+                            to="/dashboard/users/$userId"
+                            params={{ userId: String(user.Id) }}
+                          >
+                            Ver detalles
+                          </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           className="text-destructive focus:bg-destructive/10 focus:text-destructive"
