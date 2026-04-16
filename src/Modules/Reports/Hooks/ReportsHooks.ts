@@ -14,6 +14,7 @@ import type {
 } from "../Models/Report";
 import {
   getAllReports,
+  getReportById,
   getReportsByUser,
   searchReports,
   createReportByAdmin,
@@ -25,6 +26,17 @@ import {
   exportReportsExcel,
   changeReportState,
 } from "../Services/ReportSV";
+
+export const useGetReportById = (id: number) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["reports", "detail", id],
+    queryFn: () => getReportById(id),
+    enabled: id > 0,
+    staleTime: 30_000,
+  });
+  const report = data ? mapReportApiToListItem(data) : undefined;
+  return { report, isLoading, error };
+};
 
 export const useGetAllReports = () => {
   const { data, error, isLoading } = useQuery({

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import type {
   ReportListItem,
   ReportPaginationParams,
@@ -14,7 +15,6 @@ import ReportsGrid from "../Components/ReportsGrid";
 import ReportsCalendar from "../Components/ReportsCalendar";
 import ListReportLocationsView from "../Components/ListReportLocationsView";
 import ListReportTypesView from "../Components/ListReportTypesView";
-import GetInfoReportModal from "../Components/Modals/GetInfoReportModal";
 import CreateReportModal from "../Components/Modals/CreateReportModal";
 import CreateReportLocationModal from "../Components/Modals/CreateReportLocationModal";
 import CreateReportTypeModal from "../Components/Modals/CreateReportTypeModal";
@@ -27,6 +27,7 @@ import { Role } from "../../Users/Models/Roles";
 import { useGetUserProfile } from "../../Users/Hooks/UsersHooks";
 
 const ListReports = () => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(3);
   const [search, setSearch] = useState("");
@@ -38,8 +39,6 @@ const ListReports = () => {
   const [endDate, setEndDate] = useState<string>("");
 
   const [viewMode, setViewMode] = useState<"list" | "calendar" | "locations" | "types">("list");
-  const [selectedReport, setSelectedReport] = useState<ReportListItem | null>(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedEditReport, setSelectedEditReport] = useState<ReportListItem | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateUserReportModalOpen, setIsCreateUserReportModalOpen] = useState(false);
@@ -98,13 +97,7 @@ const ListReports = () => {
   };
 
   const handleViewDetails = (report: ReportListItem) => {
-    setSelectedReport(report);
-    setIsDetailModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsDetailModalOpen(false);
-    setSelectedReport(null);
+    navigate({ to: "/dashboard/reports/$reportId", params: { reportId: String(report.Id) } });
   };
 
   const handleEditReport = (report: ReportListItem) => {
@@ -399,14 +392,6 @@ const ListReports = () => {
             compact
           />
         </div>
-      )}
-
-      {selectedReport && (
-        <GetInfoReportModal
-          report={selectedReport}
-          open={isDetailModalOpen}
-          onClose={handleCloseModal}
-        />
       )}
 
       {selectedEditReport && !usesSubscriberReportsView && (
