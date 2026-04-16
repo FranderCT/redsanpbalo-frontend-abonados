@@ -135,15 +135,14 @@ export async function uploadReportPhoto(
 export async function assignUserInCharge(
   reportId: string,
   plumberUserId: number,
-  instructions = "Asignado desde el panel administrativo",
+  instructions?: string,
 ): Promise<ReportApi> {
   try {
+    const body: Record<string, unknown> = { plumberUserId };
+    if (instructions?.trim()) body.instructions = instructions.trim();
     const { data } = await apiAxios.post<ReportApi>(
       `${BASE_URL}/${reportId}/assignments`,
-      {
-        plumberUserId,
-        instructions,
-      },
+      body,
     );
     return data;
   } catch (error) {

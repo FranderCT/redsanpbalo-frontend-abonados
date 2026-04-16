@@ -8,11 +8,10 @@ import {
   MessageSquare,
   Pencil,
   User,
-  Wrench,
-  Clock,
   Hash,
   AlertCircle,
 } from "lucide-react";
+
 import { Badge } from "@/Components/ui/badge";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -20,6 +19,8 @@ import { Separator } from "@/Components/ui/separator";
 import type { ReportListItem, ReportStateValue } from "../../Models/Report";
 import ReportPhotoLightbox from "../ReportPhotoLightbox";
 import EditReportModal from "../Modals/EditReportModal";
+import AssignPlumberPanel from "./AssignPlumberPanel";
+import ChangeStatePanel from "./ChangeStatePanel";
 
 type Props = {
   report: ReportListItem;
@@ -195,100 +196,12 @@ const ReportDetailCard = ({ report }: Props) => {
           </CardContent>
         </Card>
 
-        {/* Fontanero asignado */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              <Wrench className="h-4 w-4" />
-              Fontanero asignado
-            </CardTitle>
-          </CardHeader>
-          <Separator />
-          <CardContent className="space-y-4 pt-4">
-            {report.AssignedPlumber ? (
-              <>
-                <div className="flex items-start gap-3">
-                  <User className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Nombre</p>
-                    <p className="mt-0.5 text-sm font-medium">
-                      {report.AssignedPlumber.FullName ?? report.AssignedPlumber.Name}
-                    </p>
-                  </div>
-                </div>
-                {report.AssignedPlumber.Email && (
-                  <div className="flex items-start gap-3">
-                    <Hash className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Correo</p>
-                      <p className="mt-0.5 truncate text-sm font-medium">{report.AssignedPlumber.Email}</p>
-                    </div>
-                  </div>
-                )}
-                {report.Instructions && (
-                  <div className="flex items-start gap-3">
-                    <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Instrucciones</p>
-                      <p className="mt-0.5 whitespace-pre-wrap text-sm font-medium">{report.Instructions}</p>
-                    </div>
-                  </div>
-                )}
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">Sin fontanero asignado</p>
-            )}
-          </CardContent>
-        </Card>
+        {/* Fontanero asignado — panel interactivo */}
+        <AssignPlumberPanel report={report} />
       </div>
 
-      {/* Historial de estados */}
-      {report.StateHistory && report.StateHistory.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              Historial de estados
-            </CardTitle>
-          </CardHeader>
-          <Separator />
-          <CardContent className="pt-4">
-            <ol className="space-y-4">
-              {report.StateHistory.map((entry) => (
-                <li key={entry.Id} className="flex gap-3">
-                  <div className="mt-1 flex h-2 w-2 shrink-0 items-center justify-center">
-                    <span className="block h-2 w-2 rounded-full bg-primary/60" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {entry.PreviousState && (
-                        <>
-                          <Badge variant={getStatusVariant(entry.PreviousState)} className="text-[10px]">
-                            {entry.PreviousState}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">→</span>
-                        </>
-                      )}
-                      <Badge variant={getStatusVariant(entry.NewState)} className="text-[10px]">
-                        {entry.NewState}
-                      </Badge>
-                    </div>
-                    {entry.ReasonChange && (
-                      <p className="mt-1 text-xs text-muted-foreground">{entry.ReasonChange}</p>
-                    )}
-                    <p className="mt-0.5 text-[11px] text-muted-foreground/70">
-                      {formatDate(entry.CreatedAt)}
-                      {entry.ChangedBy && (
-                        <> · {entry.ChangedBy.FullName ?? entry.ChangedBy.Name}</>
-                      )}
-                    </p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </CardContent>
-        </Card>
-      )}
+      {/* Estado + historial — panel interactivo */}
+      <ChangeStatePanel report={report} />
 
       {editOpen && (
         <EditReportModal
