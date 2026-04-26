@@ -1,7 +1,7 @@
 import apiAxios from "@/api/apiConfig";
 import io from "socket.io-client";
 
-const SOCKET_URL = apiAxios.defaults.baseURL ?? "https://api.redsanpbalo.cloud";
+const SOCKET_URL = apiAxios.defaults.baseURL ?? "https://api.redsanpablo.cloud";
 
 function getStoredToken() {
   const token = localStorage.getItem("token");

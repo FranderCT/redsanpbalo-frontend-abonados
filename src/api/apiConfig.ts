@@ -3,7 +3,7 @@ import axios from "axios";
 // const isDev = import.meta.env.DEV;
 
 const apiAxios = axios.create({
-  baseURL: "https://api.redsanpbalo.cloud",
+  baseURL: "https://api.redsanpablo.cloud",
   timeout: 5000,
 });
 
