@@ -5,23 +5,23 @@ import type { LegalSupplier, newLegalSupplier } from "../Models/LegalSupplier";
 import type { ProductPaginationParams } from "../../Products/Models/CreateProduct";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
+import { showApiErrorToast } from "@/core/api-error/showApiErrorToast";
 
 export const useCreateLegalSupplier = () =>{
     const qc = useQueryClient();
-    const mutation = useMutation({
-        mutationKey: ['legal-supplier'],
+
+    return useMutation({
         mutationFn: createLegalSupplier,
-        onSuccess: (res) => {
-            console.log(res);
+        onSuccess: () => {
             qc.invalidateQueries({queryKey: ['legal-supplier']});
-            toast.success('Proveedor jurídico creado con éxito', {duration: 3000, position: 'top-right'});
+            //toast.success('Proveedor jurídico creado con éxito', {duration: 3000, position: 'top-right'});
         },
         onError: (err) =>{
+            showApiErrorToast(err);
             console.error(err);
             toast.error('Error al crear el Proveedor', {duration: 3000, position: 'top-right'});
         }
-    })
-    return mutation;
+    });
 }
 
 
