@@ -1,7 +1,7 @@
 import apiAxios from "@/api/apiConfig";
 import io from "socket.io-client";
 
-const SOCKET_URL = apiAxios.defaults.baseURL ?? "http://localhost:3000/";
+const SOCKET_URL = apiAxios.defaults.baseURL ?? "https://api.redsanpbalo.cloud";
 
 function getStoredToken() {
   const token = localStorage.getItem("token");
