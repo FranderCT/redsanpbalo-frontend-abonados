@@ -18,10 +18,11 @@ import type { ReportListItem } from "../../Models/Report";
 
 type Props = {
   report: ReportListItem;
+  readOnly?: boolean;
 };
 
-const AssignPlumberPanel = ({ report }: Props) => {
-  const [isEditing, setIsEditing] = useState(!report.AssignedPlumber);
+const AssignPlumberPanel = ({ report, readOnly = false }: Props) => {
+  const [isEditing, setIsEditing] = useState(!readOnly && !report.AssignedPlumber);
   const [selectedPlumberId, setSelectedPlumberId] = useState<string>(
     report.PlumberUserId ? String(report.PlumberUserId) : "",
   );
@@ -68,7 +69,7 @@ const AssignPlumberPanel = ({ report }: Props) => {
             <Wrench className="h-4 w-4" />
             Fontanero asignado
           </CardTitle>
-          {!isEditing && (
+          {!readOnly && !isEditing && (
             <Button
               size="sm"
               variant="ghost"
@@ -125,7 +126,7 @@ const AssignPlumberPanel = ({ report }: Props) => {
         )}
 
         {/* Formulario de asignación */}
-        {isEditing && (
+        {isEditing && !readOnly && (
           <div className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">

@@ -21,6 +21,8 @@ import ReportPhotoLightbox from "../ReportPhotoLightbox";
 import EditReportModal from "../Modals/EditReportModal";
 import AssignPlumberPanel from "./AssignPlumberPanel";
 import ChangeStatePanel from "./ChangeStatePanel";
+import { useRole } from "../../../Auth/Components/RolesContext";
+import { Role } from "../../../Users/Models/Roles";
 
 type Props = {
   report: ReportListItem;
@@ -48,6 +50,8 @@ function getStatusVariant(
 
 const ReportDetailCard = ({ report }: Props) => {
   const [editOpen, setEditOpen] = useState(false);
+  const { activeRole } = useRole();
+  const isAdmin = activeRole === Role.ADMIN || activeRole === Role.BOD;
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-4 sm:p-6 lg:p-8">
@@ -61,10 +65,12 @@ const ReportDetailCard = ({ report }: Props) => {
           <ArrowLeft className="h-4 w-4" />
           Volver
         </Link>
-        <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>
-          <Pencil className="mr-1.5 h-3.5 w-3.5" />
-          Editar
-        </Button>
+        {isAdmin && (
+          <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>
+            <Pencil className="mr-1.5 h-3.5 w-3.5" />
+            Editar
+          </Button>
+        )}
       </div>
 
       {/* Hero card */}
@@ -197,13 +203,13 @@ const ReportDetailCard = ({ report }: Props) => {
         </Card>
 
         {/* Fontanero asignado — panel interactivo */}
-        <AssignPlumberPanel report={report} />
+        <AssignPlumberPanel report={report} readOnly={!isAdmin} />
       </div>
 
       {/* Estado + historial — panel interactivo */}
-      <ChangeStatePanel report={report} />
+      <ChangeStatePanel report={report} readOnly={!isAdmin} />
 
-      {editOpen && (
+      {isAdmin && editOpen && (
         <EditReportModal
           report={report}
           open={editOpen}

@@ -11,6 +11,7 @@ import type { ReportListItem, ReportStateValue } from "../../Models/Report";
 
 type Props = {
   report: ReportListItem;
+  readOnly?: boolean;
 };
 
 const ALLOWED_TRANSITIONS: Record<ReportStateValue, ReportStateValue[]> = {
@@ -44,7 +45,7 @@ function formatDate(d: Date | string) {
   });
 }
 
-const ChangeStatePanel = ({ report }: Props) => {
+const ChangeStatePanel = ({ report, readOnly = false }: Props) => {
   const [targetState, setTargetState] = useState<ReportStateValue | null>(null);
   const [reason, setReason] = useState("");
 
@@ -111,7 +112,7 @@ const ChangeStatePanel = ({ report }: Props) => {
             </Badge>
           </div>
 
-          {transitions.length > 0 && !targetState && (
+          {!readOnly && transitions.length > 0 && !targetState && (
             <div className="flex flex-wrap items-center gap-2 sm:ml-4">
               <span className="text-xs text-muted-foreground">Cambiar a →</span>
               {transitions.map((state) => (
@@ -129,7 +130,7 @@ const ChangeStatePanel = ({ report }: Props) => {
         </div>
 
         {/* Formulario de cambio de estado */}
-        {targetState && (
+        {!readOnly && targetState && (
           <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
             <div className="flex items-center gap-2 text-sm font-medium">
               <Badge variant={STATE_VARIANT[currentState] ?? "secondary"} className="text-[11px]">

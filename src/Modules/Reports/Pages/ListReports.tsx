@@ -19,7 +19,6 @@ import CreateReportModal from "../Components/Modals/CreateReportModal";
 import CreateReportLocationModal from "../Components/Modals/CreateReportLocationModal";
 import CreateReportTypeModal from "../Components/Modals/CreateReportTypeModal";
 import EditReportModal from "../Components/Modals/EditReportModal";
-import CreateReportUserModal from "../Components/Modals/CreateReportUserModal";
 import { Button } from "@/Components/ui/button";
 import { LayoutGrid, Calendar, MapPin, Tags } from "lucide-react";
 import { useRole } from "../../Auth/Components/RolesContext";
@@ -41,8 +40,6 @@ const ListReports = () => {
   const [viewMode, setViewMode] = useState<"list" | "calendar" | "locations" | "types">("list");
   const [selectedEditReport, setSelectedEditReport] = useState<ReportListItem | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isCreateUserReportModalOpen, setIsCreateUserReportModalOpen] = useState(false);
-
   const { activeRole } = useRole();
   const { UserProfile } = useGetUserProfile();
   const usesSubscriberReportsView =
@@ -305,19 +302,17 @@ const ListReports = () => {
                 </Button>
               </>
             )}
-            <div className="col-span-2 sm:col-span-1 sm:flex sm:shrink-0">
-              {usesSubscriberReportsView ? (
-                <Button className="w-full sm:w-auto" onClick={() => setIsCreateUserReportModalOpen(true)}>
-                  Crear reporte
-                </Button>
-              ) : viewMode === "locations" ? (
-                <CreateReportLocationModal />
-              ) : viewMode === "types" ? (
-                <CreateReportTypeModal />
-              ) : (
-                <CreateReportModal />
-              )}
-            </div>
+            {!usesSubscriberReportsView && (
+              <div className="col-span-2 sm:col-span-1 sm:flex sm:shrink-0">
+                {viewMode === "locations" ? (
+                  <CreateReportLocationModal />
+                ) : viewMode === "types" ? (
+                  <CreateReportTypeModal />
+                ) : (
+                  <CreateReportModal />
+                )}
+              </div>
+            )}
           </div>
         </div>
         <div className="border-b border-dashed border-gray-300 pt-2" />
@@ -402,12 +397,6 @@ const ListReports = () => {
         />
       )}
 
-      {usesSubscriberReportsView && (
-        <CreateReportUserModal
-          open={isCreateUserReportModalOpen}
-          setOpen={setIsCreateUserReportModalOpen}
-        />
-      )}
     </section>
   );
 };
