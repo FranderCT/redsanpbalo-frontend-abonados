@@ -1,30 +1,25 @@
-import { createRoute } from "@tanstack/react-router";
+import { createRoute, lazyRouteComponent } from "@tanstack/react-router";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
-import ListSuppliers from "../Pages/ListSuppliers";
-import NewSupplier from "../Pages/NewSupplier";
-import ViewSuppliers from "../Pages/ViewSuppliers";
-
 
 export const supplierRoute = createRoute({
-    getParentRoute:() => dashboardRoute,
-    path: 'supplier',
-})
+  getParentRoute: () => dashboardRoute,
+  path: "supplier",
+});
 
 export const listSupplierRoute = createRoute({
-    getParentRoute: () => supplierRoute,
-    path: '/',
-    component: ListSuppliers
-})
+  getParentRoute: () => supplierRoute,
+  path: "/",
+  component: lazyRouteComponent(() => import("../Pages/ListSuppliers")),
+});
 
 export const newSupplierRoute = createRoute({
-    getParentRoute: () => supplierRoute,
-    path: 'new-supplier',
-    component: NewSupplier
-})
-
+  getParentRoute: () => supplierRoute,
+  path: "new-supplier",
+  component: lazyRouteComponent(() => import("../Pages/NewSupplier")),
+});
 
 export const viewSuppliertRoute = createRoute({
   getParentRoute: () => supplierRoute,
   path: "$supplierId",
-  component: ViewSuppliers,
+  component: lazyRouteComponent(() => import("../Pages/ViewSuppliers")),
 });

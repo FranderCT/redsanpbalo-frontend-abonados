@@ -1,17 +1,17 @@
-import { createRoute } from "@tanstack/react-router";
-import ListReqChangeMeter from "../Pages/ListRequestChangeMeter";
+import { createRoute, lazyRouteComponent } from "@tanstack/react-router";
 import { requestsRoute } from "../../Routes/RequestRoutes";
-import { UserRequestChangeMeter } from "../Pages/UserRequestChangeMeter";
-
 
 export const requestUserChangeMeterRoute = createRoute({
-    getParentRoute: ()=> requestsRoute,
-    path: 'change-meter',
-    component: UserRequestChangeMeter
-})
+  getParentRoute: () => requestsRoute,
+  path: "change-meter",
+  component: lazyRouteComponent(
+    () => import("../Pages/UserRequestChangeMeter"),
+    "UserRequestChangeMeter"
+  ),
+});
 
 export const requestListChangeMeterRoute = createRoute({
-    getParentRoute : () => requestsRoute,
-    path : 'change-meter/admin',
-    component:  ListReqChangeMeter,
-})
+  getParentRoute: () => requestsRoute,
+  path: "change-meter/admin",
+  component: lazyRouteComponent(() => import("../Pages/ListRequestChangeMeter")),
+});

@@ -1,16 +1,14 @@
-import { createRoute } from "@tanstack/react-router";
-import ListReqSupervisionMeter from "../Pages/ListReqSupervisionMeter";
+import { createRoute, lazyRouteComponent } from "@tanstack/react-router";
 import { requestsRoute } from "../../Routes/RequestRoutes";
-import UserRequestSupervisionMeter from "../Pages/UserRequestSupervisionMeter";
 
 export const requestSupervisionUserRoute = createRoute({
-    getParentRoute: ()=> requestsRoute,
-    path: 'supervision-meter',
-    component: UserRequestSupervisionMeter
-})
+  getParentRoute: () => requestsRoute,
+  path: "supervision-meter",
+  component: lazyRouteComponent(() => import("../Pages/UserRequestSupervisionMeter")),
+});
 
 export const requestListSupervisionRoute = createRoute({
-    getParentRoute : () => requestsRoute,
-    path : 'supervision-meter/admin',
-    component: ListReqSupervisionMeter,
-})
+  getParentRoute: () => requestsRoute,
+  path: "supervision-meter/admin",
+  component: lazyRouteComponent(() => import("../Pages/ListReqSupervisionMeter")),
+});

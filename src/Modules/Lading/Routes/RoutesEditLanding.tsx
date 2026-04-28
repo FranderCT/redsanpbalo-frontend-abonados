@@ -1,33 +1,37 @@
-import { createRoute, Outlet } from "@tanstack/react-router";
+import { createRoute, Outlet, lazyRouteComponent } from "@tanstack/react-router";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
-import EditLanding from "../Components/EditLanding";
-import ListFAQs from "../FAQ/Pages/ListFAQs";
-import ListServices from "../Services/Pages/ListServices";
+import { lazy, Suspense } from "react";
 
-export const editLandingRoute = createRoute ({
-    getParentRoute : () => dashboardRoute,
-    path: 'edit-landing',
-    component: () => (
-      <EditLanding>
-        <Outlet />
-      </EditLanding>
-    ),
-})
+const EditLanding = lazy(() => import("../Components/EditLanding"));
+
+const EditLandingWrapper = () => (
+  <Suspense fallback={null}>
+    <EditLanding>
+      <Outlet />
+    </EditLanding>
+  </Suspense>
+);
+
+export const editLandingRoute = createRoute({
+  getParentRoute: () => dashboardRoute,
+  path: "edit-landing",
+  component: EditLandingWrapper,
+});
 
 export const editLandingIndexRoute = createRoute({
-    getParentRoute: () => editLandingRoute,
-    path: "/",
-    component: ListFAQs,
-})
+  getParentRoute: () => editLandingRoute,
+  path: "/",
+  component: lazyRouteComponent(() => import("../FAQ/Pages/ListFAQs")),
+});
 
 export const editLandingFaqRoute = createRoute({
-    getParentRoute: () => editLandingRoute,
-    path: "faq",
-    component: ListFAQs,
-})
+  getParentRoute: () => editLandingRoute,
+  path: "faq",
+  component: lazyRouteComponent(() => import("../FAQ/Pages/ListFAQs")),
+});
 
 export const editLandingServicesRoute = createRoute({
-    getParentRoute: () => editLandingRoute,
-    path: "services",
-    component: ListServices,
-})
+  getParentRoute: () => editLandingRoute,
+  path: "services",
+  component: lazyRouteComponent(() => import("../Services/Pages/ListServices")),
+});

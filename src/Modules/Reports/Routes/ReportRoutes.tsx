@@ -1,23 +1,20 @@
-import { createRoute, Outlet } from "@tanstack/react-router";
+import { createRoute, Outlet, lazyRouteComponent } from "@tanstack/react-router";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
-import ListReports from "../Pages/ListReports";
-import ReportDetailPage from "../Pages/ReportDetail/ReportDetailPage";
 
-// creemos la ruta con tasntack router
 export const reportRoutes = createRoute({
-    getParentRoute: () =>  dashboardRoute,
-    path: "reports",
-    component: () => <Outlet />,
-})
+  getParentRoute: () => dashboardRoute,
+  path: "reports",
+  component: Outlet,
+});
 
 export const reportIndexRoute = createRoute({
-    getParentRoute: () => reportRoutes,
-    path: "/",
-    component: ListReports,
-})
+  getParentRoute: () => reportRoutes,
+  path: "/",
+  component: lazyRouteComponent(() => import("../Pages/ListReports")),
+});
 
 export const reportDetailRoute = createRoute({
-    getParentRoute: () => reportRoutes,
-    path: "$reportId",
-    component: ReportDetailPage,
-})
+  getParentRoute: () => reportRoutes,
+  path: "$reportId",
+  component: lazyRouteComponent(() => import("../Pages/ReportDetail/ReportDetailPage")),
+});

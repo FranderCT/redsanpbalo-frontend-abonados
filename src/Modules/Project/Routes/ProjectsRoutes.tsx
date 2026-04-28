@@ -1,38 +1,33 @@
-import { createRoute } from "@tanstack/react-router";
+import { createRoute, lazyRouteComponent } from "@tanstack/react-router";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
-import ListProjects from "../Pages/ListProjects";
-import NewProject from "../Pages/NewProject";
-import ViewProject from "../Pages/ViewProject";
-import UpdateProjectContainer from "../components/UpdateProject/UpdateProjectContainer";
 
-
-
-export const projectRoute = createRoute ({
-    getParentRoute : () => dashboardRoute,
-    path: 'projects',
-})
+export const projectRoute = createRoute({
+  getParentRoute: () => dashboardRoute,
+  path: "projects",
+});
 
 export const listProjectRoute = createRoute({
-    getParentRoute: ()=> projectRoute,
-    path : '/',
-    component: ListProjects
-})
+  getParentRoute: () => projectRoute,
+  path: "/",
+  component: lazyRouteComponent(() => import("../Pages/ListProjects")),
+});
 
 export const createProjectRoute = createRoute({
-    getParentRoute: () => projectRoute,
-    path: 'new-project',
-    component: NewProject
-})
+  getParentRoute: () => projectRoute,
+  path: "new-project",
+  component: lazyRouteComponent(() => import("../Pages/NewProject")),
+});
 
-// /dashboard/projects/$projectId
 export const viewProjectRoute = createRoute({
   getParentRoute: () => projectRoute,
   path: "$projectId",
-  component: ViewProject,
+  component: lazyRouteComponent(() => import("../Pages/ViewProject")),
 });
 
 export const updateProjectRoute = createRoute({
-    getParentRoute: () => projectRoute,
-    path: '$projectId/edit',
-    component: UpdateProjectContainer
-})
+  getParentRoute: () => projectRoute,
+  path: "$projectId/edit",
+  component: lazyRouteComponent(
+    () => import("../components/UpdateProject/UpdateProjectContainer")
+  ),
+});

@@ -1,9 +1,8 @@
-import { createRoute } from "@tanstack/react-router";
+import { createRoute, lazyRouteComponent } from "@tanstack/react-router";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
-import ListMaterials from "../Pages/ListMaterials";
 
 export const materialRoute = createRoute({
   getParentRoute: () => dashboardRoute,
-  path: "materials", 
-  component: ListMaterials
+  path: "materials",
+  component: lazyRouteComponent(() => import("../Pages/ListMaterials")),
 });

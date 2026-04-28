@@ -1,63 +1,34 @@
-
-/*export const dashboardUserRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: 'dashboardUser',
-    component: DashboardLayout
-})
-
-export const profileRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: 'profile',
-    component: UserProfile
-})
-
-export const editProfileRoute = createRoute({
-    getParentRoute: () => rootRoute,
-    path: 'editprofile',
-    component: EditProfile
-})*/
-
-
+import { createRoute, Outlet, lazyRouteComponent } from "@tanstack/react-router";
 import { dashboardRoute } from "../../Dashboard/Routes/DashboardRoutes";
-import UserProfile from "../Pages/UserProfile/UserProfile";
-import EditProfile from "../Components/ProfileUser/EditProfileUser/EditProfile";
-import ListUsers from "../Pages/ListUsers";
-import UserDetailPage from "../Pages/UserDetail/UserDetailPage";
-import { createRoute, Outlet } from "@tanstack/react-router";
-
 
 export const usersRoute = createRoute({
   getParentRoute: () => dashboardRoute,
   path: "users",
-  component: ()=> <Outlet/>
+  component: Outlet,
 });
 
 export const listUsersRoute = createRoute({
-  getParentRoute: ()=> usersRoute,
-  path: '/',
-  component: ListUsers
-})
+  getParentRoute: () => usersRoute,
+  path: "/",
+  component: lazyRouteComponent(() => import("../Pages/ListUsers")),
+});
 
 export const userProfilewRoute = createRoute({
   getParentRoute: () => usersRoute,
   path: "profile",
-  component: UserProfile,
+  component: lazyRouteComponent(() => import("../Pages/UserProfile/UserProfile")),
 });
 
 export const userProfileEditRoute = createRoute({
   getParentRoute: () => usersRoute,
   path: "edit",
-  component: EditProfile,
+  component: lazyRouteComponent(
+    () => import("../Components/ProfileUser/EditProfileUser/EditProfile")
+  ),
 });
 
 export const userDetailRoute = createRoute({
   getParentRoute: () => usersRoute,
   path: "$userId",
-  component: UserDetailPage,
+  component: lazyRouteComponent(() => import("../Pages/UserDetail/UserDetailPage")),
 });
-
-/*export const changeEmailRoute = createRoute({
-  getParentRoute: () => usersRoute,
-  path : 'change-email',
-  component: EditEmailUser,
-})*/

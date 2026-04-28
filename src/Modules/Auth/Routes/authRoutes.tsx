@@ -1,34 +1,26 @@
-
-import { createRoute } from "@tanstack/react-router";
+import { createRoute, lazyRouteComponent } from "@tanstack/react-router";
 import { rootRoute } from "../../../Routes";
-import LoginUser from "../Pages/LoginUser";
-import ForgotPassword from "../Pages/ForgotPassword";
-import RegisterAbonados from "../Pages/RegisterAbonados";
-import ResetPassword from "../Pages/ResetPassword";
-
 
 export const loginRoute = createRoute({
-  getParentRoute : () => rootRoute,
-  path : 'login',
-  component: LoginUser
-})
+  getParentRoute: () => rootRoute,
+  path: "login",
+  component: lazyRouteComponent(() => import("../Pages/LoginUser")),
+});
 
 export const registerRoute = createRoute({
-  getParentRoute:() => rootRoute,
-  path: 'register',
-  component: RegisterAbonados
-})
+  getParentRoute: () => rootRoute,
+  path: "register",
+  component: lazyRouteComponent(() => import("../Pages/RegisterAbonados")),
+});
 
 export const forgotPasswordRoute = createRoute({
-  getParentRoute: ()=> rootRoute,
-  path : 'forgot-password',
-  component: ForgotPassword
-})
+  getParentRoute: () => rootRoute,
+  path: "forgot-password",
+  component: lazyRouteComponent(() => import("../Pages/ForgotPassword")),
+});
 
 export const resetPasswordRoute = createRoute({
-  getParentRoute: ()=> rootRoute,
-  path: 'reset-password',
-  component: ResetPassword
-})
-
-
+  getParentRoute: () => rootRoute,
+  path: "reset-password",
+  component: lazyRouteComponent(() => import("../Pages/ResetPassword")),
+});

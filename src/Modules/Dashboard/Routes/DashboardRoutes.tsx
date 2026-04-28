@@ -1,16 +1,12 @@
-import { createRoute, redirect } from "@tanstack/react-router";
+import { createRoute, lazyRouteComponent, redirect } from "@tanstack/react-router";
 import { rootRoute } from "../../../Routes";
 import { ValidateToken } from "../../Auth/Services/AuthServices";
-import PrincipalAdminDashboard from "../../DashboardPrincipal-Admin/Pages/PrincipalAdminDashboard";
-import PrincipalPlumberDashboard from "../../DashboardPrincipal-Abonado/Pages/PrincipalPlumberDashboard";
-import PrincipalUserDashboard from "../../DashboardPrincipal-Abonado/Pages/PrincipalUserDashboard";
-import DashboardLayout from "../Layouts/DashboardLayout";
 import { disconnectAppSocket } from "@/Sockets/appSocket";
 
 export const dashboardRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "dashboard",
-  component: DashboardLayout,
+  component: lazyRouteComponent(() => import("../Layouts/DashboardLayout")),
   beforeLoad: async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -37,23 +33,31 @@ export const dashboardIndexRoute = createRoute({
 export const dashboardAdminPrincipalRoute = createRoute({
   getParentRoute: () => dashboardRoute,
   path: "principal-admin",
-  component: PrincipalAdminDashboard,
+  component: lazyRouteComponent(
+    () => import("../../DashboardPrincipal-Admin/Pages/PrincipalAdminDashboard")
+  ),
 });
 
 export const dashboardBodPrincipalRoute = createRoute({
   getParentRoute: () => dashboardRoute,
   path: "principal-junta-directiva",
-  component: PrincipalAdminDashboard,
+  component: lazyRouteComponent(
+    () => import("../../DashboardPrincipal-Admin/Pages/PrincipalAdminDashboard")
+  ),
 });
 
 export const dashboardPlumberPrincipalRoute = createRoute({
   getParentRoute: () => dashboardRoute,
   path: "principal-fontanero",
-  component: PrincipalPlumberDashboard,
+  component: lazyRouteComponent(
+    () => import("../../DashboardPrincipal-Abonado/Pages/PrincipalPlumberDashboard")
+  ),
 });
 
 export const dashboardUserPrincipalRoute = createRoute({
   getParentRoute: () => dashboardRoute,
   path: "principal-user",
-  component: PrincipalUserDashboard,
+  component: lazyRouteComponent(
+    () => import("../../DashboardPrincipal-Abonado/Pages/PrincipalUserDashboard")
+  ),
 });
