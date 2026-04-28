@@ -3,16 +3,40 @@
 import { useForm } from "@tanstack/react-form";
 import { Mail, Send } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 import { useCreateComment } from "../Comment/Hooks/commentHooks";
+
+const FeedbackSchema = z.object({
+  Message: z
+    .string()
+    .trim()
+    .min(1, "El mensaje es requerido")
+    .max(300, "Máx. 300 caracteres"),
+});
+
+const getErrorMessage = (errors: unknown[]) => {
+  const error = errors[0];
+
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object" && "message" in error) {
+    return String(error.message);
+  }
+
+  return undefined;
+};
 
 export function Feedback() {
   const commentMutation = useCreateComment();
 
   const form = useForm({
     defaultValues: { Message: "" },
+    validators: {
+      onChange: FeedbackSchema,
+      onSubmit: FeedbackSchema,
+    },
     onSubmit: async ({ value }) => {
       try {
-        await commentMutation.mutateAsync(value);
+        await commentMutation.mutateAsync({ Message: value.Message.trim() });
         toast.success("Comentario enviado!", { position: "top-right", duration: 3000 });
         form.reset();
       } catch (error: any) {
@@ -62,36 +86,36 @@ export function Feedback() {
             >
               <form.Field
                 name="Message"
-                validators={{
-                  onChange: ({ value }) =>
-                    !value || value.trim().length === 0
-                      ? "El mensaje es requerido"
-                      : undefined,
-                }}
               >
-                {(field) => (
-                  <div className="space-y-2">
-                    <label className="block text-xs font-black uppercase tracking-widest text-[#404754]">
-                      Mensaje
-                    </label>
-                    <textarea
-                      id="feedback-message"
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Escriba aquí sus comentarios, sugerencias o inquietudes de forma anónima..."
-                      rows={6}
-                      disabled={form.state.isSubmitting}
-                      className="w-full bg-gray-50 border-b-2 border-transparent focus:border-[#005CAF] focus:ring-0 px-4 py-3 transition-all outline-none resize-none text-[#091540] placeholder:text-gray-400"
-                    />
-                    {field.state.meta.errors && (
-                      <p className="text-sm text-red-600">{field.state.meta.errors[0]}</p>
-                    )}
-                    <p className="text-xs text-[#404754]">
-                      Este mensaje será enviado de forma anónima.
-                    </p>
-                  </div>
-                )}
+                {(field) => {
+                  const errorMessage = getErrorMessage(field.state.meta.errors);
+
+                  return (
+                    <div className="space-y-2">
+                      <label className="block text-xs font-black uppercase tracking-widest text-[#404754]">
+                        Mensaje
+                      </label>
+                      <textarea
+                        id="feedback-message"
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        maxLength={300}
+                        placeholder="Escriba aquí sus comentarios, sugerencias o inquietudes de forma anónima..."
+                        rows={6}
+                        disabled={form.state.isSubmitting}
+                        className="w-full bg-gray-50 border-b-2 border-transparent focus:border-[#005CAF] focus:ring-0 px-4 py-3 transition-all outline-none resize-none text-[#091540] placeholder:text-gray-400"
+                      />
+                      {errorMessage && (
+                        <p className="text-sm text-red-600">{errorMessage}</p>
+                      )}
+                      <div className="flex items-center justify-between gap-4 text-xs text-[#404754]">
+                        <p>Este mensaje será enviado de forma anónima.</p>
+                        <span aria-live="polite">{field.state.value.length}/300</span>
+                      </div>
+                    </div>
+                  );
+                }}
               </form.Field>
 
               <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>

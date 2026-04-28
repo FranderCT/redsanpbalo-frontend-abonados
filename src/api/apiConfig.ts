@@ -2,8 +2,11 @@ import axios from "axios";
 
 // const isDev = import.meta.env.DEV;
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000";
+
 const apiAxios = axios.create({
-  baseURL: "https://api.redsanpablo.cloud",
+  baseURL: API_BASE_URL,
   timeout: 5000,
 });
 

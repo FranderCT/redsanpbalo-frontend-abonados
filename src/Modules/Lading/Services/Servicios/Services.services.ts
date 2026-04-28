@@ -19,10 +19,13 @@ type LegacyServiceResponse = {
     meta: LegacyServiceMeta;
 };
 
+type ServiceListResponse = Service[] | Pick<LegacyServiceResponse, "data">;
+
 export async function getAllServices(): Promise<Service[]> {
     try{
-        const {data} = await apiAxios.get<Service[]>(BASE)
-        return data;
+        const {data} = await apiAxios.get<ServiceListResponse>(BASE)
+        if (Array.isArray(data)) return data;
+        return Array.isArray(data.data) ? data.data : [];
     }catch(err){
         console.error("Error", err);
         return Promise.reject(err)
