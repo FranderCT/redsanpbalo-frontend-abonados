@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { Project } from "../../Models/Project";
-import LogoRedSanPabloHG from "../../../../assets/images/LogoRedSanPabloHG.png";
+const LogoRedSanPabloHG = "/LogoRedSanPabloHG.png";
 
 // Función para formatear fechas
 const formatDate = (d?: Date | string | null) => {

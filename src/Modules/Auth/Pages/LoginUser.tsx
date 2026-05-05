@@ -61,7 +61,7 @@ const LoginUser = () => {
           {/* Logo centrado */}
           <div className="mt-8 flex justify-center items-center">
             <img
-              src="src\assets\images\LogoRedSanPabloHG.png"
+              src="/LogoRedSanPabloHG.png"
               alt="Logo ASADA"
               className="h-15 w-auto object-contain"
             />

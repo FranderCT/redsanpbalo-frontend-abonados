@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import LogoRedSanPabloHG from "../../../../assets/images/LogoRedSanPabloHG.png";
+const LogoRedSanPabloHG = "/LogoRedSanPabloHG.png";
 import { getProjectStateBadgeClass } from "../../utils/projectStateTone";
 
 export interface Project {
