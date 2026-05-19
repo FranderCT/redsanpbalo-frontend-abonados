@@ -2,17 +2,21 @@ export function About() {
   return (
     <section id="sobre-nosotros" className="py-24 bg-white">
       <div className="container mx-auto px-6 md:px-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           {/* Image side */}
-          <div className="relative">
-            <div className="absolute -top-4 -left-4 w-24 h-24 bg-[#005CAF] z-0"></div>
-            <img
-              src="/ASADA-San Pablo.jpg"
-              alt="Instalaciones ASADA"
-              className="relative z-10 w-full h-[400px] md:h-[500px] object-cover shadow-2xl"
-              referrerPolicy="no-referrer"
-            />
-            <div className="absolute -bottom-8 -right-8 p-8 bg-[#005CAF] text-white z-20 hidden md:block">
+          <div className="relative max-w-[500px] mx-auto lg:mx-0">
+            <div className="absolute -top-4 -left-4 h-24 w-24 bg-[#005CAF] z-0" />
+            <div className="relative overflow-hidden rounded-none bg-slate-100 shadow-[0_28px_70px_rgba(9,21,64,0.22)] ring-1 ring-black/5">
+              <img
+                src="/Tubos.jpeg"
+                alt="Instalaciones ASADA"
+                className="relative z-10 h-[420px] w-full object-cover object-[center_60%]"
+                referrerPolicy="no-referrer"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#091540]/10 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-white/5 backdrop-blur-[0.8px] pointer-events-none" />
+            </div>
+            <div className="absolute -bottom-8 -right-8 hidden bg-[#005CAF] p-8 text-white z-20 md:block shadow-[0_18px_40px_rgba(9,21,64,0.22)]">
               <p className="text-4xl font-black">25+</p>
               <p className="text-xs uppercase tracking-widest">Años de Excelencia</p>
             </div>
