@@ -49,7 +49,7 @@ export default function ListUsers() {
   };
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="min-w-0 space-y-4 overflow-x-hidden p-4">
       <h1 className="text-2xl font-bold text-[#091540]">Lista de Usuarios</h1>
       <p className="text-[#091540]/70 text-md">Gestione todos los usuarios</p>
       <div className="border-b border-dashed border-gray-300 mb-8"></div>

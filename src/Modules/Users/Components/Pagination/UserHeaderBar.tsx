@@ -77,7 +77,7 @@ export default function UserHeaderBar({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+      <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <div className="relative flex-1 w-full min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
@@ -89,13 +89,13 @@ export default function UserHeaderBar({
             aria-label="Buscar usuarios"
           />
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="flex items-center gap-2">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end sm:gap-2 sm:flex-shrink-0">
+          <div className="flex items-center justify-between gap-2 sm:justify-start">
             <Label htmlFor="limit-select" className="text-sm text-muted-foreground whitespace-nowrap">
               Filas:
             </Label>
             <Select value={String(limit)} onValueChange={(v) => onLimitChange(Number(v))}>
-              <SelectTrigger id="limit-select" className="w-[72px]">
+              <SelectTrigger id="limit-select" className="w-[88px] sm:w-[72px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -109,7 +109,7 @@ export default function UserHeaderBar({
           </div>
           <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="default">
+              <Button variant="outline" size="default" className="w-full sm:w-auto">
                 <Filter className="h-4 w-4 mr-2" />
                 Filtros
               </Button>
@@ -146,7 +146,7 @@ export default function UserHeaderBar({
             </SheetContent>
           </Sheet>
 
-          {rightAction}
+          {rightAction ? <div className="w-full sm:w-auto">{rightAction}</div> : null}
         </div>
       </div>
     </div>

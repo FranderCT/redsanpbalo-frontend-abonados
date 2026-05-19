@@ -267,7 +267,7 @@ function mapAuditRecord(record: AuditUserRecord): AuditRecordView {
 
 function AuditFilterTabs({ activeFilter, onChange, tabs }: AuditFilterTabsProps) {
   return (
-    <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="flex w-full gap-2 overflow-x-auto pb-1 pr-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {tabs.map((tab) => {
         const active = activeFilter === tab;
         return (
@@ -275,7 +275,7 @@ function AuditFilterTabs({ activeFilter, onChange, tabs }: AuditFilterTabsProps)
             key={tab}
             type="button"
             onClick={() => onChange(tab)}
-            className={`shrink-0 px-4 py-2 text-xs font-semibold tracking-wide transition-colors md:text-sm ${
+            className={`shrink-0 whitespace-nowrap px-3 py-1.5 text-[11px] font-semibold tracking-wide transition-colors md:px-4 md:py-2 md:text-sm ${
               active
                 ? "bg-primary text-white"
                 : "border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -291,18 +291,19 @@ function AuditFilterTabs({ activeFilter, onChange, tabs }: AuditFilterTabsProps)
 
 function AuditItem({ record }: AuditItemProps) {
   return (
-    <article className="flex items-start gap-3 border border-slate-200 bg-white p-4 shadow-sm md:items-center md:gap-4 md:p-5">
+    <article className="flex min-w-0 items-start gap-3 border border-slate-200 bg-white p-4 shadow-sm md:items-center md:gap-4 md:p-5">
       <div className="mt-0.5 shrink-0 md:mt-0">
         {actionIcons[record.category]}
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-slate-900 md:text-base">{record.action}</p>
-        <p className="mt-1 text-xs text-slate-500 md:text-sm">Autor: {record.author}</p>
-        <p className="mt-1 text-xs text-slate-500 md:text-sm">Afectado: {record.objective}</p>
-        <div className="mt-2 flex items-center gap-1.5 text-[11px] font-medium text-slate-500 md:text-xs">
+        <p className="break-words text-sm font-semibold text-slate-900 md:text-base">{record.action}</p>
+        <p className="mt-1 break-words text-xs text-slate-500 md:text-sm">Autor: {record.author}</p>
+        <p className="mt-1 break-words text-xs text-slate-500 md:text-sm">Afectado: {record.objective}</p>
+        <p className="mt-1 break-words text-[11px] text-slate-500 md:text-xs">Origen: {record.source}</p>
+        <div className="mt-2 flex min-w-0 items-center gap-1.5 text-[11px] font-medium text-slate-500 md:text-xs">
           <Clock3 className="size-3.5" aria-hidden="true" />
-          <span>{record.timestamp}</span>
+          <span className="break-words">{record.timestamp}</span>
         </div>
       </div>
 
@@ -375,7 +376,7 @@ export default function AuditFeedSection({
   };
 
   return (
-    <section className="space-y-4 md:space-y-6">
+    <section className="min-w-0 space-y-4 md:space-y-6">
       <header className="space-y-2">
         <div>
           <h2 className="text-2xl font-bold text-[#091540]">{title}</h2>
@@ -399,7 +400,7 @@ export default function AuditFeedSection({
         </div>
       </section>
 
-      <section>
+      <section className="min-w-0">
         <AuditFilterTabs activeFilter={activeFilter} onChange={handleFilterChange} tabs={availableTabs} />
       </section>
 
@@ -422,8 +423,9 @@ export default function AuditFeedSection({
         )}
       </section>
 
-      <section>
-        <div className="border-t pt-4">
+      <section className="min-w-0">
+        <div className="min-w-0 border-t pt-4">
+          <div className="overflow-x-auto pb-1">
           <DataPagination
             page={currentPage}
             pageCount={pageCount}
@@ -433,6 +435,7 @@ export default function AuditFeedSection({
             labels={{ totalItems: "auditorias" }}
             compact
           />
+          </div>
         </div>
       </section>
     </section>

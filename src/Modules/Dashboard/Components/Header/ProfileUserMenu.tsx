@@ -47,13 +47,13 @@ export default function ProfileUserMenu({ setProfileOpen }: Props) {
           <button
             type="button"
             className={cn(
-              "flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-muted transition hover:ring-2 hover:ring-ring",
+              "flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-muted transition hover:ring-2 hover:ring-ring sm:h-12 sm:w-12 md:h-14 md:w-14",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             )}
             aria-label="Abrir menú de perfil"
           >
             {showFallbackIcon ? (
-              <User className="h-6 w-6 text-muted-foreground" />
+              <User className="h-5 w-5 text-muted-foreground sm:h-6 sm:w-6" />
             ) : (
               <img
                 src={photoSrc}

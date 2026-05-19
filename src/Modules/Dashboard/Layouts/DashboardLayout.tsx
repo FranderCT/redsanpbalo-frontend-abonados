@@ -66,7 +66,7 @@ const DashboardLayout = () => {
   }, [activeRole, navigate, pathname]);
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden relative">
+    <div className="relative flex h-screen overflow-x-clip bg-background">
       <aside className="hidden md:flex flex-col shrink-0 bg-sidebar border-r border-sidebar-border text-sidebar-foreground">
         <AsideDashboard />
       </aside>
@@ -87,10 +87,10 @@ const DashboardLayout = () => {
         />
       )}
 
-      <div className="flex flex-col flex-1">
+      <div className="flex min-w-0 flex-1 flex-col">
         <HeaderDashboard menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-        <main className="flex-1 overflow-y-auto bg-background">
+        <main className="min-w-0 flex-1 overflow-x-clip overflow-y-auto bg-background">
           <Outlet />
           <Can rule={{ any: [...LIVE_REPORTS_ROLES] }}>
             <LiveReports />

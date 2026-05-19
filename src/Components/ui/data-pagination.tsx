@@ -84,7 +84,7 @@ export function DataPagination({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
+        "min-w-0 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
         className
       )}
       role="navigation"
@@ -96,14 +96,14 @@ export function DataPagination({
           : `0 ${L.totalItems}`}
       </p>
 
-      <Pagination className="order-1 mx-0 w-full justify-center sm:order-2 sm:w-auto sm:justify-end ">
-        <PaginationContent className="flex flex-wrap justify-center gap-1">
+      <Pagination className="order-1 mx-0 min-w-0 w-full justify-center sm:order-2 sm:w-auto sm:justify-end ">
+        <PaginationContent className="flex min-w-0 flex-nowrap items-center justify-center gap-1 sm:flex-wrap">
           <PaginationItem>
             <Button
               variant="outline"
               size={compact ? "icon" : "default"}
               className={cn(
-                "h-9 gap-1",
+                "h-8 w-8 shrink-0 gap-1 sm:h-9 sm:w-9",
                 compact ? "sm:gap-1 sm:pl-2.5" : "pl-2.5"
               )}
               onClick={() => onPageChange(Math.max(1, page - 1))}
@@ -115,13 +115,19 @@ export function DataPagination({
             </Button>
           </PaginationItem>
 
+          <PaginationItem className="sm:hidden">
+            <div className="flex h-8 shrink-0 items-center rounded-md border px-2 text-xs text-muted-foreground">
+              {page}/{safePageCount}
+            </div>
+          </PaginationItem>
+
           {pageNumbers.map((p, i) =>
             p === "ellipsis" ? (
-              <PaginationItem key={`ellipsis-${i}`}>
+              <PaginationItem key={`ellipsis-${i}`} className="hidden sm:block">
                 <PaginationEllipsis />
               </PaginationItem>
             ) : (
-              <PaginationItem key={p}>
+              <PaginationItem key={p} className="hidden sm:block">
                 <Button
                   variant={page === p ? "outline" : "ghost"}
                   size="icon"
@@ -141,7 +147,7 @@ export function DataPagination({
               variant="outline"
               size={compact ? "icon" : "default"}
               className={cn(
-                "h-9 gap-1",
+                "h-8 w-8 shrink-0 gap-1 sm:h-9 sm:w-9",
                 compact ? "sm:gap-1 sm:pr-2.5" : "pr-2.5"
               )}
               onClick={() => onPageChange(Math.min(safePageCount, page + 1))}

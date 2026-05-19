@@ -64,7 +64,7 @@ export default function UsersCards({ data, total, page, pageCount, onPageChange 
   };
 
   return (
-    <div className="w-full space-y-4">
+    <div className="min-w-0 w-full space-y-4">
       {editingUser && (
         <EditUserModal
           user={editingUser}
@@ -104,12 +104,12 @@ export default function UsersCards({ data, total, page, pageCount, onPageChange 
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <CardTitle className="truncate text-base font-semibold text-foreground">
+                    <CardTitle className="break-words text-base font-semibold leading-snug text-foreground">
                       {fullName || "—"}
                     </CardTitle>
-                    <CardDescription className="flex items-center gap-1 text-xs flex-wrap">
+                    <CardDescription className="flex flex-wrap items-center gap-1 text-xs">
                       <IdCard className="h-3 w-3 shrink-0" />
-                      <span className="truncate">{user.IDcard || "Sin identificación"}</span>
+                      <span className="min-w-0 break-all">{user.IDcard || "Sin identificación"}</span>
                       <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 shrink-0">
                         {ID_CARD_LABELS[user.TypeDNI ?? "Cedula"] ?? "Cédula"}
                       </Badge>
@@ -124,19 +124,19 @@ export default function UsersCards({ data, total, page, pageCount, onPageChange 
                 </CardHeader>
 
                 <CardContent className="flex flex-1 flex-col gap-3 pt-0">
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex min-w-0 items-start gap-2 text-sm">
                     <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="truncate">{user.Email || "Sin correo"}</span>
+                    <span className="min-w-0 break-all">{user.Email || "Sin correo"}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex min-w-0 items-start gap-2 text-sm">
                     <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span className="truncate">{user.PhoneNumber || "Sin teléfono"}</span>
+                    <span className="min-w-0 break-words">{user.PhoneNumber || "Sin teléfono"}</span>
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="break-words text-xs text-muted-foreground">
                     <span className="font-medium text-foreground">NIS: </span>
                     {nisList.length > 0 ? nisList.join(", ") : "—"}
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="break-words text-xs text-muted-foreground">
                     <span className="font-medium text-foreground">Roles: </span>
                     {roles}
                   </div>
@@ -197,7 +197,7 @@ export default function UsersCards({ data, total, page, pageCount, onPageChange 
         </div>
       )}
 
-      <div className="border-t pt-4">
+      <div className="min-w-0 border-t pt-4">
         <DataPagination
           page={page}
           pageCount={pageCount}

@@ -9,10 +9,10 @@ export type HeaderDashboardProps = {
 
 const HeaderDashboard = ({ menuOpen, setMenuOpen }: HeaderDashboardProps) => {
   return (
-    <header className="h-16 bg-background border-b border-border px-6 flex items-center justify-between sticky top-0 z-30">
+    <header className="sticky top-0 z-30 flex h-16 min-w-0 items-center justify-between border-b border-border bg-background px-3 sm:px-4 md:px-6">
       {/* Botón hamburguesa mobile */}
       <button
-        className="md:hidden text-foreground hover:text-muted-foreground transition-colors"
+        className="shrink-0 text-foreground transition-colors hover:text-muted-foreground md:hidden"
         onClick={() => setMenuOpen(!menuOpen)}
         aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
       >
@@ -20,7 +20,7 @@ const HeaderDashboard = ({ menuOpen, setMenuOpen }: HeaderDashboardProps) => {
       </button>
 
       {/* Notificaciones + menú de perfil */}
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex min-w-0 shrink-0 items-center gap-1 sm:gap-2">
         <NotificationBell />
         <ProfileUserMenu />
       </div>
