@@ -10,7 +10,7 @@ export function About() {
               <img
                 src="/Tubos.jpeg"
                 alt="Instalaciones ASADA"
-                className="relative z-10 h-[420px] w-full object-cover object-[center_60%]"
+                className="relative z-10 w-full h-[400px] md:h-[500px] object-cover shadow-2xl"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#091540]/10 via-transparent to-transparent pointer-events-none" />
