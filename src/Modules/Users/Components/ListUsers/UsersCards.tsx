@@ -6,6 +6,8 @@ import { DataPagination } from "@/Components/ui/data-pagination";
 import { useDeleteUser } from "../../Hooks/UsersHooks";
 import InhabilityActionModal from "../../../../Components/Modals/InhabilyActionModal";
 import { toast } from "sonner";
+import { useRole } from "../../../Auth/Components/RolesContext";
+import { Role } from "../../Models/Roles";
 import {
   Card,
   CardContent,
@@ -39,6 +41,8 @@ type Props = {
 };
 
 export default function UsersCards({ data, total, page, pageCount, onPageChange }: Props) {
+  const { activeRole } = useRole();
+  const isJunta = activeRole === Role.BOD;
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [disableUser, setDisableUser] = useState<User | null>(null);
   const [isDisabling, setIsDisabling] = useState(false);
@@ -164,9 +168,11 @@ export default function UsersCards({ data, total, page, pageCount, onPageChange 
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setEditingUser(user)}>
-                          Editar usuario
-                        </DropdownMenuItem>
+                        {!isJunta && (
+                          <DropdownMenuItem onClick={() => setEditingUser(user)}>
+                            Editar usuario
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem asChild>
                           <Link
                             to="/dashboard/users/$userId"
@@ -175,12 +181,14 @@ export default function UsersCards({ data, total, page, pageCount, onPageChange 
                             Ver detalles
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                          onClick={() => setDisableUser(user)}
-                        >
-                          Inhabilitar usuario
-                        </DropdownMenuItem>
+                        {!isJunta && (
+                          <DropdownMenuItem
+                            className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                            onClick={() => setDisableUser(user)}
+                          >
+                            Inhabilitar usuario
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
