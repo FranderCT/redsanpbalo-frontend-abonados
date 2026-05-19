@@ -24,6 +24,7 @@ import { LayoutGrid, Calendar, MapPin, Tags } from "lucide-react";
 import { useRole } from "../../Auth/Components/RolesContext";
 import { Role } from "../../Users/Models/Roles";
 import { useGetUserProfile } from "../../Users/Hooks/UsersHooks";
+import { Can } from "../../Auth/Components/Can";
 
 const ListReports = () => {
   const navigate = useNavigate();
@@ -303,15 +304,17 @@ const ListReports = () => {
               </>
             )}
             {!usesSubscriberReportsView && (
-              <div className="col-span-2 sm:col-span-1 sm:flex sm:shrink-0">
-                {viewMode === "locations" ? (
-                  <CreateReportLocationModal />
-                ) : viewMode === "types" ? (
-                  <CreateReportTypeModal />
-                ) : (
-                  <CreateReportModal />
-                )}
-              </div>
+              <Can rule={{ none: [Role.BOD] }}>
+                <div className="col-span-2 sm:col-span-1 sm:flex sm:shrink-0">
+                  {viewMode === "locations" ? (
+                    <CreateReportLocationModal />
+                  ) : viewMode === "types" ? (
+                    <CreateReportTypeModal />
+                  ) : (
+                    <CreateReportModal />
+                  )}
+                </div>
+              </Can>
             )}
           </div>
         </div>
@@ -369,7 +372,7 @@ const ListReports = () => {
           <ReportsGrid
             reports={items}
             onViewDetails={handleViewDetails}
-            onEditReport={usesSubscriberReportsView ? undefined : handleEditReport}
+            onEditReport={(usesSubscriberReportsView || activeRole === Role.BOD) ? undefined : handleEditReport}
             emptyText="No se encontraron reportes con los filtros aplicados."
           />
         )}
@@ -389,7 +392,7 @@ const ListReports = () => {
         </div>
       )}
 
-      {selectedEditReport && !usesSubscriberReportsView && (
+      {selectedEditReport && !usesSubscriberReportsView && activeRole !== Role.BOD && (
         <EditReportModal
           report={selectedEditReport}
           open={isEditModalOpen}

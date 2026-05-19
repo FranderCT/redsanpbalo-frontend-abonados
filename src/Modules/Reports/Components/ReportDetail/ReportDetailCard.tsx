@@ -23,6 +23,7 @@ import AssignPlumberPanel from "./AssignPlumberPanel";
 import ChangeStatePanel from "./ChangeStatePanel";
 import { useRole } from "../../../Auth/Components/RolesContext";
 import { Role } from "../../../Users/Models/Roles";
+import { Can } from "../../../Auth/Components/Can";
 
 type Props = {
   report: ReportListItem;
@@ -51,7 +52,7 @@ function getStatusVariant(
 const ReportDetailCard = ({ report }: Props) => {
   const [editOpen, setEditOpen] = useState(false);
   const { activeRole } = useRole();
-  const isAdmin = activeRole === Role.ADMIN || activeRole === Role.BOD;
+  const isAdmin = activeRole === Role.ADMIN;
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-4 sm:p-6 lg:p-8">
@@ -65,12 +66,12 @@ const ReportDetailCard = ({ report }: Props) => {
           <ArrowLeft className="h-4 w-4" />
           Volver
         </Link>
-        {isAdmin && (
+        <Can rule={{ any: [Role.ADMIN] }}>
           <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>
             <Pencil className="mr-1.5 h-3.5 w-3.5" />
             Editar
           </Button>
-        )}
+        </Can>
       </div>
 
       {/* Hero card */}

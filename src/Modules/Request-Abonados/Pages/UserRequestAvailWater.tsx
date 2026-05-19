@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
+import { Can } from "../../Auth/Components/Can";
+import { Role } from "../../Users/Models/Roles";
 import { Upload, UserRound } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -83,7 +85,7 @@ function FileField({
 }
 
 export default function UserRequestAvailWater() {
-  const [viewMode, setViewMode] = useState<"create" | "list">("create");
+  const [viewMode, setViewMode] = useState<"create" | "list">("list");
   const createMutation = useCreateAvailabilityWaterRq();
   const { UserProfile } = useGetUserProfile();
   const [isUploading, setIsUploading] = useState(false);
@@ -237,14 +239,16 @@ export default function UserRequestAvailWater() {
           </div>
 
           <div className="inline-flex items-center self-start border border-slate-200 bg-slate-100 p-1 shadow-sm">
-            <button
-              type="button"
-              onClick={() => setViewMode("create")}
-              aria-pressed={viewMode === "create"}
-              className={`h-10 px-4 text-sm font-medium transition-all ${viewMode === "create" ? "bg-[#091540] text-white shadow" : "bg-transparent text-[#091540] hover:bg-white"}`}
-            >
-              Nueva solicitud
-            </button>
+            <Can rule={{ none: [Role.BOD] }}>
+              <button
+                type="button"
+                onClick={() => setViewMode("create")}
+                aria-pressed={viewMode === "create"}
+                className={`h-10 px-4 text-sm font-medium transition-all ${viewMode === "create" ? "bg-[#091540] text-white shadow" : "bg-transparent text-[#091540] hover:bg-white"}`}
+              >
+                Nueva solicitud
+              </button>
+            </Can>
             <button
               type="button"
               onClick={() => setViewMode("list")}
@@ -260,6 +264,7 @@ export default function UserRequestAvailWater() {
       {viewMode === "list" ? (
         <ListRequestAvailWaterUser />
       ) : (
+        <Can rule={{ none: [Role.BOD] }} fallback={<ListRequestAvailWaterUser />}>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -415,6 +420,7 @@ export default function UserRequestAvailWater() {
             )}
           </form.Subscribe>
         </form>
+        </Can>
       )}
     </div>
   );

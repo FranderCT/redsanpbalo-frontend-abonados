@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { useRole } from "../../../Auth/Components/RolesContext";
+import { Can } from "../../../Auth/Components/Can";
 import { Role } from "../../Models/Roles";
 import {
   ArrowLeft,
@@ -46,8 +46,6 @@ type Props = {
 };
 
 const UserDetailCard = ({ user }: Props) => {
-  const { activeRole } = useRole();
-  const isJunta = activeRole === Role.BOD;
   const [editOpen, setEditOpen] = useState(false);
 
   const fullName = [user.Name, user.Surname1, user.Surname2].filter(Boolean).join(" ");
@@ -73,12 +71,12 @@ const UserDetailCard = ({ user }: Props) => {
           <ArrowLeft className="h-4 w-4" />
           Volver
         </Link>
-        {!isJunta && (
+        <Can rule={{ none: [Role.BOD] }}>
           <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>
             <Pencil className="mr-1.5 h-3.5 w-3.5" />
             Editar
           </Button>
-        )}
+        </Can>
       </div>
 
       {/* Hero card */}

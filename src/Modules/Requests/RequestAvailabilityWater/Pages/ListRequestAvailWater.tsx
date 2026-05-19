@@ -18,6 +18,8 @@ import { useCreateAvailabilityWaterRq } from "../../../Request-Abonados/Hooks/Av
 import { uploadRequestAvailabilityWaterFile } from "../../../Upload-files/Services/ProjectFileServices";
 import { CreateAvailabilityWaterRequestSchema } from "../schemas/CreateAvailabilityWaterRequestSchema";
 import { uploadWithRetry } from "../utils/requestAvailabilityWaterUpload";
+import { Can } from "../../../Auth/Components/Can";
+import { Role } from "../../../Users/Models/Roles";
 
 const getFieldErrorMessage = (error: unknown) =>
   typeof error === "object" && error !== null && "message" in error
@@ -562,14 +564,16 @@ export default function ListReqAvailWater() {
           </div>
 
           <div className="inline-flex items-center self-start border border-slate-200 bg-slate-100 p-1 shadow-sm">
-            <button
-              type="button"
-              onClick={() => setViewMode("create")}
-              aria-pressed={viewMode === "create"}
-              className={`h-10 px-4 text-sm font-medium transition-all ${viewMode === "create" ? "bg-[#091540] text-white shadow" : "bg-transparent text-[#091540] hover:bg-white"}`}
-            >
-              Nueva solicitud
-            </button>
+            <Can rule={{ none: [Role.BOD] }}>
+              <button
+                type="button"
+                onClick={() => setViewMode("create")}
+                aria-pressed={viewMode === "create"}
+                className={`h-10 px-4 text-sm font-medium transition-all ${viewMode === "create" ? "bg-[#091540] text-white shadow" : "bg-transparent text-[#091540] hover:bg-white"}`}
+              >
+                Nueva solicitud
+              </button>
+            </Can>
             <button
               type="button"
               onClick={() => setViewMode("list")}
@@ -583,7 +587,36 @@ export default function ListReqAvailWater() {
       </section>
 
       {viewMode === "create" ? (
-        <CreateAvailabilityWaterAdminView onSuccess={() => setViewMode("list")} />
+        <Can
+          rule={{ none: [Role.BOD] }}
+          fallback={
+            <>
+              <ReqAvailWaterHeaderBar
+                limit={limit}
+                total={total}
+                search={search}
+                requestStateId={StateRequestId}
+                states={requestStates}
+                statesLoading={requestStatesLoading}
+                onStateRequestChange={handleStateRequestChange}
+                onLimitChange={(value) => { setLimit(value); setPage(1); }}
+                onSearchChange={handleSearchChange}
+                onCleanFilters={handleCleanFilters}
+              />
+              <div>
+                {isLoading ? (
+                  <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">Cargando solicitudes…</div>
+                ) : error ? (
+                  <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
+                ) : (
+                  <ReqAvailWaterCards data={rows} total={total} page={safePage} pageSize={limit} pageCount={pageCount} onPageChange={setPage} />
+                )}
+              </div>
+            </>
+          }
+        >
+          <CreateAvailabilityWaterAdminView onSuccess={() => setViewMode("list")} />
+        </Can>
       ) : (
         <>
           <ReqAvailWaterHeaderBar
@@ -594,32 +627,17 @@ export default function ListReqAvailWater() {
             states={requestStates}
             statesLoading={requestStatesLoading}
             onStateRequestChange={handleStateRequestChange}
-            onLimitChange={(value) => {
-              setLimit(value);
-              setPage(1);
-            }}
+            onLimitChange={(value) => { setLimit(value); setPage(1); }}
             onSearchChange={handleSearchChange}
             onCleanFilters={handleCleanFilters}
           />
-
           <div>
             {isLoading ? (
-              <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
-                Cargando solicitudes…
-              </div>
+              <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">Cargando solicitudes…</div>
             ) : error ? (
-              <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">
-                Ocurrió un error al cargar las solicitudes.
-              </div>
+              <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
             ) : (
-              <ReqAvailWaterCards
-                data={rows}
-                total={total}
-                page={safePage}
-                pageSize={limit}
-                pageCount={pageCount}
-                onPageChange={setPage}
-              />
+              <ReqAvailWaterCards data={rows} total={total} page={safePage} pageSize={limit} pageCount={pageCount} onPageChange={setPage} />
             )}
           </div>
         </>

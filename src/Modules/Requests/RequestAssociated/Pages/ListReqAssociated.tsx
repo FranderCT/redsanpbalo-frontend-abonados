@@ -20,6 +20,8 @@ import { useGetUserProfile } from "../../../Users/Hooks/UsersHooks";
 import { UploadAssociatedFiles } from "../../../Upload-files/Services/ProjectFileServices";
 import { CreateAssociatedRequestSchema } from "../schemas/CreateAssociatedRequestSchema";
 import { getAssociatedRequestPrimaryNis } from "../utils/associatedRequestForm";
+import { Can } from "../../../Auth/Components/Can";
+import { Role } from "../../../Users/Models/Roles";
 
 type RetryableError = {
   response?: {
@@ -472,14 +474,16 @@ export default function ListReqAssociated() {
           </div>
 
           <div className="inline-flex items-center self-start border border-slate-200 bg-slate-100 p-1 shadow-sm">
-            <button
-              type="button"
-              onClick={() => setViewMode("create")}
-              aria-pressed={viewMode === "create"}
-              className={`h-10 px-4 text-sm font-medium transition-all ${viewMode === "create" ? "bg-[#091540] text-white shadow" : "bg-transparent text-[#091540] hover:bg-white"}`}
-            >
-              Nueva solicitud
-            </button>
+            <Can rule={{ none: [Role.BOD] }}>
+              <button
+                type="button"
+                onClick={() => setViewMode("create")}
+                aria-pressed={viewMode === "create"}
+                className={`h-10 px-4 text-sm font-medium transition-all ${viewMode === "create" ? "bg-[#091540] text-white shadow" : "bg-transparent text-[#091540] hover:bg-white"}`}
+              >
+                Nueva solicitud
+              </button>
+            </Can>
             <button
               type="button"
               onClick={() => setViewMode("list")}
@@ -493,9 +497,38 @@ export default function ListReqAssociated() {
       </section>
 
       {viewMode === "create" ? (
-        <div className="space-y-6">
-          <CreateAssociatedRqAdminView onSuccess={() => setViewMode("list")} />
-        </div>
+        <Can
+          rule={{ none: [Role.BOD] }}
+          fallback={
+            <>
+              <ReqAssociatedHeaderBar
+                limit={meta.limit}
+                total={meta.total}
+                search={search}
+                requestStateId={StateRequestId}
+                states={requestStates}
+                statesLoading={requestStatesLoading}
+                onStateRequestChange={handleStateRequestChange}
+                onLimitChange={(l) => { setLimit(l); setPage(1); }}
+                onSearchChange={handleSearchChange}
+                onCleanFilters={handleCleanFilters}
+              />
+              <div className="flex flex-col">
+                {isLoading ? (
+                  <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">Cargando solicitudes…</div>
+                ) : error ? (
+                  <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
+                ) : (
+                  <ReqAssociatedCards data={filteredRows} total={meta.total} page={meta.page} pageCount={meta.pageCount} onPageChange={setPage} />
+                )}
+              </div>
+            </>
+          }
+        >
+          <div className="space-y-6">
+            <CreateAssociatedRqAdminView onSuccess={() => setViewMode("list")} />
+          </div>
+        </Can>
       ) : (
         <>
           <ReqAssociatedHeaderBar
@@ -506,31 +539,17 @@ export default function ListReqAssociated() {
             states={requestStates}
             statesLoading={requestStatesLoading}
             onStateRequestChange={handleStateRequestChange}
-            onLimitChange={(l) => {
-              setLimit(l);
-              setPage(1);
-            }}
+            onLimitChange={(l) => { setLimit(l); setPage(1); }}
             onSearchChange={handleSearchChange}
             onCleanFilters={handleCleanFilters}
           />
-
           <div className="flex flex-col">
             {isLoading ? (
-              <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
-                Cargando solicitudes…
-              </div>
+              <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">Cargando solicitudes…</div>
             ) : error ? (
-              <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">
-                Ocurrió un error al cargar las solicitudes.
-              </div>
+              <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
             ) : (
-              <ReqAssociatedCards
-                data={filteredRows}
-                total={meta.total}
-                page={meta.page}
-                pageCount={meta.pageCount}
-                onPageChange={setPage}
-              />
+              <ReqAssociatedCards data={filteredRows} total={meta.total} page={meta.page} pageCount={meta.pageCount} onPageChange={setPage} />
             )}
           </div>
         </>

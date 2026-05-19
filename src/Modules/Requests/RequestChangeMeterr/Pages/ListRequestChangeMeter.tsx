@@ -17,6 +17,8 @@ import ReqChangeMeterHeaderBar from "../Components/PaginationRequestChangeMeter/
 import ReqChangeMeterCards from "../Components/RequestChangeMeterCards/ReqChangeMeterCards";
 import { useCreateChangeMeterRequest } from "../../../Request-Abonados/Hooks/Change-Meter/ChangeMeterHooks";
 import { CreateChangeMeterRequestSchema } from "../schemas/CreateChangeMeterRequestSchema";
+import { Can } from "../../../Auth/Components/Can";
+import { Role } from "../../../Users/Models/Roles";
 
 type LegacyMeta = {
   page?: number;
@@ -406,14 +408,16 @@ export default function ListReqChangeMeter() {
           </div>
 
           <div className="inline-flex items-center self-start border border-slate-200 bg-slate-100 p-1 shadow-sm">
-            <button
-              type="button"
-              onClick={() => setViewMode("create")}
-              aria-pressed={viewMode === "create"}
-              className={`h-10 px-4 text-sm font-medium transition-all ${viewMode === "create" ? "bg-[#091540] text-white shadow" : "bg-transparent text-[#091540] hover:bg-white"}`}
-            >
-              Nueva solicitud
-            </button>
+            <Can rule={{ none: [Role.BOD] }}>
+              <button
+                type="button"
+                onClick={() => setViewMode("create")}
+                aria-pressed={viewMode === "create"}
+                className={`h-10 px-4 text-sm font-medium transition-all ${viewMode === "create" ? "bg-[#091540] text-white shadow" : "bg-transparent text-[#091540] hover:bg-white"}`}
+              >
+                Nueva solicitud
+              </button>
+            </Can>
             <button
               type="button"
               onClick={() => setViewMode("list")}
@@ -427,7 +431,36 @@ export default function ListReqChangeMeter() {
       </section>
 
       {viewMode === "create" ? (
-        <CreateChangeMeterAdminView onSuccess={() => setViewMode("list")} />
+        <Can
+          rule={{ none: [Role.BOD] }}
+          fallback={
+            <>
+              <ReqChangeMeterHeaderBar
+                limit={meta.limit}
+                total={meta.total}
+                search={search}
+                requestStateId={StateRequestId}
+                states={requestStates}
+                statesLoading={requestStatesLoading}
+                onStateRequestChange={handleStateRequestChange}
+                onLimitChange={(value) => { setLimit(value); setPage(1); }}
+                onSearchChange={handleSearchChange}
+                onCleanFilters={handleCleanFilters}
+              />
+              <div>
+                {isLoading ? (
+                  <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">Cargando solicitudes…</div>
+                ) : error ? (
+                  <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
+                ) : (
+                  <ReqChangeMeterCards data={rows} total={meta.total} page={meta.page} pageCount={meta.pageCount} onPageChange={setPage} />
+                )}
+              </div>
+            </>
+          }
+        >
+          <CreateChangeMeterAdminView onSuccess={() => setViewMode("list")} />
+        </Can>
       ) : (
         <>
           <ReqChangeMeterHeaderBar
@@ -438,31 +471,17 @@ export default function ListReqChangeMeter() {
             states={requestStates}
             statesLoading={requestStatesLoading}
             onStateRequestChange={handleStateRequestChange}
-            onLimitChange={(value) => {
-              setLimit(value);
-              setPage(1);
-            }}
+            onLimitChange={(value) => { setLimit(value); setPage(1); }}
             onSearchChange={handleSearchChange}
             onCleanFilters={handleCleanFilters}
           />
-
           <div>
             {isLoading ? (
-              <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">
-                Cargando solicitudes…
-              </div>
+              <div className="border border-slate-200 bg-white p-8 text-center text-slate-500 shadow-sm">Cargando solicitudes…</div>
             ) : error ? (
-              <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">
-                Ocurrió un error al cargar las solicitudes.
-              </div>
+              <div className="border border-red-200 bg-red-50 p-8 text-center text-red-600">Ocurrió un error al cargar las solicitudes.</div>
             ) : (
-              <ReqChangeMeterCards
-                data={rows}
-                total={meta.total}
-                page={meta.page}
-                pageCount={meta.pageCount}
-                onPageChange={setPage}
-              />
+              <ReqChangeMeterCards data={rows} total={meta.total} page={meta.page} pageCount={meta.pageCount} onPageChange={setPage} />
             )}
           </div>
         </>

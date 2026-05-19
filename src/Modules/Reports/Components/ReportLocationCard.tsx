@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu";
 import { Button } from "@/Components/ui/button";
+import { Can } from "../../Auth/Components/Can";
+import { Role } from "../../Users/Models/Roles";
 
 type Props = {
   reportLocation: ReportLocation;
@@ -42,24 +44,26 @@ export default function ReportLocationCard({
               )}
             </span>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-auto">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onSelect={() => setEditOpen(true)}>
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => setDeleteOpen(true)}
-                className="text-destructive focus:text-destructive"
-              >
-                Eliminar
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Can rule={{ none: [Role.BOD] }}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-auto">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onSelect={() => setEditOpen(true)}>
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => setDeleteOpen(true)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  Eliminar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </Can>
         </CardHeader>
       </Card>
 

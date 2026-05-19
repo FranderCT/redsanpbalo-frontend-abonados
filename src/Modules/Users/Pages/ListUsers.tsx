@@ -4,13 +4,11 @@ import type { User } from "../Models/User";
 import RegisterAbonadosModal from "../Components/ListUsersModals/AddUserModal";
 import { useGetAllUsersPaginate } from "../Hooks/UsersHooks";
 import UserHeaderBar from "../Components/Pagination/UserHeaderBar";
-import { useRole } from "../../Auth/Components/RolesContext";
+import { Can } from "../../Auth/Components/Can";
 import { Role } from "../Models/Roles";
 
 
 export default function ListUsers() {
-  const { activeRole } = useRole();
-  const isJunta = activeRole === Role.BOD;
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
@@ -65,7 +63,7 @@ export default function ListUsers() {
       onFilterClick={handleStateChange}
       onSearchChange={handleSearchChange}
       onCleanFilters={handleCleanFilters}
-      rightAction={isJunta ? null : <RegisterAbonadosModal />}
+      rightAction={<Can rule={{ none: [Role.BOD] }}><RegisterAbonadosModal /></Can>}
     />
 
       <div className="">
