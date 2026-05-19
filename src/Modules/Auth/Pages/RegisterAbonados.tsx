@@ -11,7 +11,11 @@ import { Input } from '@/Components/ui/input';
 import { Textarea } from '@/Components/ui/textarea';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/Components/ui/card';
-import { ChevronLeft } from 'lucide-react';
+import { Calendar } from '@/Components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/Components/ui/popover';
+import { ChevronLeft, Eye, EyeOff, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
 import {
   Field,
   FieldError,
@@ -36,6 +40,8 @@ const RegisterAbonados = () => {
   const [tempNis, setTempNis] = useState('');
   const createUserMutation = useCreateAbonado();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm({
     defaultValues: RegisterUserInitialState,
@@ -449,28 +455,41 @@ const RegisterAbonados = () => {
               <form.Field name="Birthdate">
                 {(field) => {
                   const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                  const selectedDate = field.state.value instanceof Date && !Number.isNaN(field.state.value.getTime())
+                    ? field.state.value
+                    : undefined;
                   return (
                     <Field data-invalid={isInvalid} className="gap-2">
                       <FieldLabel htmlFor="birthdate">
                         Fecha de nacimiento
                       </FieldLabel>
-                      <Input
-                        id="birthdate"
-                        type="date"
-                        value={
-                          field.state.value instanceof Date && !Number.isNaN(field.state.value.getTime())
-                            ? field.state.value.toISOString().slice(0, 10)
-                            : typeof field.state.value === 'string'
-                            ? field.state.value
-                            : ''
-                        }
-                        onBlur={field.handleBlur}
-                        onChange={(e) => {
-                          field.handleChange(new Date(e.target.value));
-                        }}
-                        aria-invalid={isInvalid}
-                        className="h-10"
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            id="birthdate"
+                            variant="outline"
+                            onBlur={field.handleBlur}
+                            aria-invalid={isInvalid}
+                            className={`h-10 w-full justify-start text-left font-normal ${!selectedDate ? 'text-muted-foreground' : ''}`}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {selectedDate
+                              ? format(selectedDate, 'dd/MM/yyyy', { locale: es })
+                              : 'DD/MM/YYYY'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[min(340px,90vw)] p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={(date) => field.handleChange(date ?? ('' as unknown as Date))}
+                            captionLayout="dropdown"
+                            startMonth={new Date(1920, 0)}
+                            endMonth={new Date()}
+                            className="[--cell-size:2.75rem] w-full"
+                          />
+                        </PopoverContent>
+                      </Popover>
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
                       )}
@@ -509,22 +528,40 @@ const RegisterAbonados = () => {
               {/* Contraseña */}
               <form.Field name="Password">
                 {(field) => {
-                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid} className="gap-2">
-                      <FieldLabel htmlFor="password">
-                        Contraseña
-                      </FieldLabel>
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        className="h-10"
-                      />
+                      <FieldLabel htmlFor="password">Contraseña</FieldLabel>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          className="h-10 pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 transition-colors hover:text-slate-700"
+                          aria-label={
+                            showPassword
+                              ? "Ocultar contraseña"
+                              : "Mostrar contraseña"
+                          }
+                          aria-pressed={showPassword}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
                       )}
@@ -536,22 +573,42 @@ const RegisterAbonados = () => {
               {/* Confirmar contraseña */}
               <form.Field name="ConfirmPassword">
                 {(field) => {
-                  const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
                   return (
                     <Field data-invalid={isInvalid} className="gap-2">
                       <FieldLabel htmlFor="confirm-password">
                         Confirmar contraseña
                       </FieldLabel>
-                      <Input
-                        id="confirm-password"
-                        type="password"
-                        placeholder="••••••••"
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        aria-invalid={isInvalid}
-                        className="h-10"
-                      />
+                      <div className="relative">
+                        <Input
+                          id="confirm-password"
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          aria-invalid={isInvalid}
+                          className="h-10 pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword((prev) => !prev)}
+                          className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-500 transition-colors hover:text-slate-700"
+                          aria-label={
+                            showConfirmPassword
+                              ? "Ocultar contraseña"
+                              : "Mostrar contraseña"
+                          }
+                          aria-pressed={showConfirmPassword}
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
                       )}
@@ -559,6 +616,7 @@ const RegisterAbonados = () => {
                   );
                 }}
               </form.Field>
+              
             </FieldGroup>
           </form>
         </CardContent>
