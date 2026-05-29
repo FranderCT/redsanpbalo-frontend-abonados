@@ -166,14 +166,14 @@ export default function CreateRequestSupervisionMeter2() {
         onClick={() => setOpen(true)}
         className="rounded-none bg-[#091540] text-white hover:bg-[#1789FC]"
       >
-        + Solicitar Supervisión de Medidor
+        + Solicitar revisión de Medidor
       </Button>
 
       <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && handleClose()}>
         <DialogContent className="max-h-[90vh] max-w-4xl overflow-hidden rounded-none border-slate-200 p-0">
           <DialogHeader className="border-b border-slate-200 px-8 py-6">
             <DialogTitle className="text-2xl text-[#091540]">
-              Solicitud de Supervisión de Medidor
+              Solicitud de revisión de Medidor
             </DialogTitle>
             <DialogDescription>
               Complete los datos del abonado y la justificación para registrar la solicitud.

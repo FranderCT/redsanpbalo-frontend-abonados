@@ -75,8 +75,8 @@ export default function UserRequestSupervisionMeter() {
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold tracking-tight">
               {viewMode === "create"
-                ? "Solicitud de supervisión de medidor"
-                : "Mis solicitudes de supervisión de medidor"}
+                ? "Solicitud de revisión de medidor"
+                : "Mis solicitudes de revisión de medidor"}
             </h1>
             <p className="text-sm text-[#091540]/70">
               {viewMode === "create"

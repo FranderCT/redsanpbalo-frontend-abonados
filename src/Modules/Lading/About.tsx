@@ -1,4 +1,20 @@
+"use client";
+
+import { useState, useEffect } from "react";
+
+const IMAGES = ["/ASADA-San Pablo.jpg", "/Tubos.jpeg"];
+
 export function About() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % IMAGES.length);
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section id="sobre-nosotros" className="py-24 bg-white">
       <div className="container mx-auto px-6 md:px-12">
@@ -8,7 +24,7 @@ export function About() {
             <div className="absolute -top-4 -left-4 h-24 w-24 bg-[#005CAF] z-0" />
             <div className="relative overflow-hidden rounded-none bg-slate-100 shadow-[0_28px_70px_rgba(9,21,64,0.22)] ring-1 ring-black/5">
               <img
-                src="/Tubos.jpeg"
+                src={IMAGES[currentImageIndex]}
                 alt="Instalaciones ASADA"
                 className="relative z-10 w-full h-[400px] md:h-[500px] object-cover shadow-2xl"
                 referrerPolicy="no-referrer"

@@ -40,10 +40,10 @@ export default function ListUsers() {
   const rows: User[] = data?.data ?? [];
   const rawMeta = data?.meta;
   const meta = {
-    limit: rawMeta?.itemsPerPage ?? limit,
-    total: rawMeta?.totalItems ?? 0,
-    page: rawMeta?.currentPage ?? 1,
-    pageCount: rawMeta?.totalPages ?? 1,
+    limit: rawMeta?.limit ?? limit,
+    total: rawMeta?.total ?? 0,
+    page: rawMeta?.page ?? page,
+    pageCount: rawMeta?.pageCount ?? 1,
     hasNextPage: rawMeta?.hasNextPage ?? false,
     hasPrevPage: rawMeta?.hasPrevPage ?? false,
   };

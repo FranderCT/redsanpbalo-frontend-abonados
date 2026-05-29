@@ -407,15 +407,6 @@ export default function UserRequestChangeNameMeter() {
           </Card>
 
           <div className="flex justify-end gap-3 border-t border-slate-200 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              className="rounded-none"
-              onClick={handleClose}
-              disabled={isUploading}
-            >
-              Cancelar
-            </Button>
             <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
                 <Button
@@ -427,6 +418,16 @@ export default function UserRequestChangeNameMeter() {
                 </Button>
               )}
             </form.Subscribe>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-none"
+              onClick={handleClose}
+              disabled={isUploading}
+            >
+              Cancelar
+            </Button>
+            
           </div>
         </form>
       )}

@@ -10,7 +10,7 @@ const Hero = () => {
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <img
-          src="public\ASADA_main.jpeg"
+          src="/Hero_image.jpg"
           alt="Fondo agua"
           className="w-full h-full object-cover"
           referrerPolicy="no-referrer"

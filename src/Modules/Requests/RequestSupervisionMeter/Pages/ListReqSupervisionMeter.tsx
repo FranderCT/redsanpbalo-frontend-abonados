@@ -101,12 +101,12 @@ export default function ListReqSupervisionMeter() {
           <div className="space-y-1">
             <h1 className="text-2xl font-semibold tracking-tight">
               {viewMode === "create"
-                ? "Nueva solicitud de supervisión de medidor"
-                : "Solicitudes de supervisión de medidor"}
+                ? "Nueva solicitud de revisión de medidor"
+                : "Solicitudes de revisión de medidor"}
             </h1>
             <p className="text-sm text-[#091540]/70">
               {viewMode === "create"
-                ? "Registre una nueva solicitud de supervisión de medidor."
+                ? "Registre una nueva solicitud de revisión de medidor."
                 : "Revise el listado, filtre resultados y gestione el estado de cada solicitud."}
             </p>
           </div>
