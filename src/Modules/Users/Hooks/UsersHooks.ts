@@ -165,7 +165,7 @@ export const useDeleteUserByID = () =>{
 }
 
 export function useGetAllUsersPaginate(params: UsersPaginationParams) {
-  const query = useQuery<PaginatedResponse<User>, Error>({
+  const { data: usersInfo, isLoading,isPending, error } = useQuery<PaginatedResponse<User>, Error>({
       queryKey: ["users", "paginated", params],
       queryFn: () => searchUsers(params),
       placeholderData: keepPreviousData,   // v5
@@ -173,22 +173,24 @@ export function useGetAllUsersPaginate(params: UsersPaginationParams) {
   });
   // ⬇️ Log en cada fetch/refetch exitoso
   useEffect(() => {
-      if (query.data) {
-      const res = query.data; // res: PaginatedResponse<Category>
-      console.log(
-          "[Users fetched]",
-          {
-          page: res.meta.currentPage,
-          limit: res.meta.itemsPerPage,
-          total: res.meta.totalItems,
-          pageCount: res.meta.totalPages,
-          params,
-          },
-          res.data // array de Category
-      );
+      if (usersInfo) {
+      const res = usersInfo; // res: PaginatedResponse<Category>
+      // console.log(
+      //     "[Users fetched]",
+      //     {
+      //     page: res.meta.currentPage,
+      //     limit: res.meta.itemsPerPage,
+      //     total: res.meta.totalItems,
+      //     pageCount: res.meta.totalPages,
+      //     params,
+      //     },
+      //     res.data // array de Category
+      // );
+      console.log(usersInfo.meta);
+      console.log("Page:" + usersInfo.meta.page);
       }
-  }, [query.data, params]);
-  return query;
+  }, [usersInfo, params]);
+  return { data: usersInfo, isLoading, isPending, error };
 }
 export const useGetUsersByRoleAdmin = () => {
   const { data: userAdmin = [], isPending, error } = useQuery({

@@ -178,11 +178,11 @@ export async function deteleUserById(id: number) : Promise<void>{
 
 export async function searchUsers(params: UsersPaginationParams) {
   try{
-    const { data } = await apiAxios.get<PaginatedResponse<User>>(`${BASE}/search`, {
+    const res = await apiAxios.get<PaginatedResponse<User>>(`${BASE}/search`, {
       params,
       headers: getRequiredAuthHeaders(),
     });
-    return data;
+    return res.data;
   }catch(err){
     console.error(err);
     return Promise.reject(err);
