@@ -30,3 +30,9 @@ export interface newLegalSupplier {
     IsActive? : boolean
 }
 
+export interface LegalSupplierPaginationParams {
+    page?: number;
+    limit?: number;
+    name?: string;
+    state?: string;
+}

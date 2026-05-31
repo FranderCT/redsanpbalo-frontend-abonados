@@ -29,6 +29,13 @@ export interface newPhysicalSupplier {
     Location?: string;
 }
 
+export interface PhysicalSupplierPaginationParams {
+    page?: number;
+    limit?: number;
+    name?: string;
+    state?: string;
+}
+
 // Payload para editar proveedor físico
 export interface UpdatePhysicalSupplierDto {
     IDcard?: string;

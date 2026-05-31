@@ -1,8 +1,11 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createPhysicalSupplier, deletePhysicalSupplier, editPhysicalSupplier, getAllPhysicalSupplier, getPhysicalSuppliers } from "../Services/PhysicalSupplier";
 import { toast } from "sonner";
-import type { ProductPaginationParams } from "../../Products/Models/CreateProduct";
-import type { UpdatePhysicalSupplierDto, PhysicalSupplier } from "../Models/PhysicalSupplier";
+import type {
+    PhysicalSupplier,
+    PhysicalSupplierPaginationParams,
+    UpdatePhysicalSupplierDto,
+} from "../Models/PhysicalSupplier";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
 
@@ -25,29 +28,28 @@ export const useCreatePhysicalSupplier = () =>{
 }
 
 
-export const useSearchPhysicalSupplier = (params: ProductPaginationParams) => {
+export const useSearchPhysicalSupplier = (params: PhysicalSupplierPaginationParams) => {
     const query = useQuery<PaginatedResponse<PhysicalSupplier>, Error>({
         queryKey: ["phySupplier", "search", params],
         queryFn: () => getAllPhysicalSupplier(params),
-        placeholderData: keepPreviousData,   // v5
+        placeholderData: keepPreviousData,
         staleTime: 30_000,
     });
 
-    // ⬇️ Log en cada fetch/refetch exitoso
     useEffect(() => {
         if (query.data) {
-        const res = query.data; // res: PaginatedResponse<Category>
-        console.log(
-            "[phySupplier fetched]",
-            {
-            page: res.meta.currentPage,
-            limit: res.meta.itemsPerPage,
-            total: res.meta.totalItems,
-            pageCount: res.meta.totalPages,
-            params,
-            },
-            res.data
-        );
+            const res = query.data;
+            console.log(
+                "[phySupplier fetched]",
+                {
+                    page: res.meta.page,
+                    limit: res.meta.limit,
+                    total: res.meta.total,
+                    pageCount: res.meta.pageCount,
+                    params,
+                },
+                res.data
+            );
         }
     }, [query.data, params]);
 

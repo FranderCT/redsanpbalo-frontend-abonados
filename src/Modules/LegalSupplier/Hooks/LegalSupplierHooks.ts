@@ -1,8 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createLegalSupplier, deleteLegalSupplier, editLegalSupplier, getAllLegalSupplier, getLegalSupplierById, getLegalSuppliers } from "../Services/LegalSupplierServices";
 import { toast } from "sonner";
-import type { LegalSupplier, newLegalSupplier } from "../Models/LegalSupplier";
-import type { ProductPaginationParams } from "../../Products/Models/CreateProduct";
+import type { LegalSupplier, LegalSupplierPaginationParams, newLegalSupplier } from "../Models/LegalSupplier";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
 import { useEffect } from "react";
 
@@ -25,29 +24,28 @@ export const useCreateLegalSupplier = () =>{
 }
 
 
-export const useSearchLegalSupplier = (params: ProductPaginationParams) => {
+export const useSearchLegalSupplier = (params: LegalSupplierPaginationParams) => {
     const query = useQuery<PaginatedResponse<LegalSupplier>, Error>({
         queryKey: ["legal-supplier", "search", params],
         queryFn: () => getAllLegalSupplier(params),
-        placeholderData: keepPreviousData,   // v5
+        placeholderData: keepPreviousData,
         staleTime: 30_000,
     });
 
-    // ⬇️ Log en cada fetch/refetch exitoso
     useEffect(() => {
         if (query.data) {
-        const res = query.data; // res: PaginatedResponse<Category>
-        console.log(
-            "[legal-supplier fetched]",
-            {
-            page: res.meta.currentPage,
-            limit: res.meta.itemsPerPage,
-            total: res.meta.totalItems,
-            pageCount: res.meta.totalPages,
-            params,
-            },
-            res.data
-        );
+            const res = query.data;
+            console.log(
+                "[legal-supplier fetched]",
+                {
+                    page: res.meta.page,
+                    limit: res.meta.limit,
+                    total: res.meta.total,
+                    pageCount: res.meta.pageCount,
+                    params,
+                },
+                res.data
+            );
         }
     }, [query.data, params]);
 
