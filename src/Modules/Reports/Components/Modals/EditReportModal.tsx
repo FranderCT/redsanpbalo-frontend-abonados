@@ -175,8 +175,8 @@ export default function EditReportModal({
         }
       }}
     >
-      <DialogContent className="flex max-h-[calc(100vh-2rem)] flex-col gap-0 overflow-hidden">
-        <DialogHeader className="space-y-1.5 border-b px-6 py-5">
+      <DialogContent className="flex w-[calc(100%-1rem)] max-w-3xl flex-col gap-0 overflow-hidden p-0 max-h-[min(800px,95dvh)]">
+        <DialogHeader className="shrink-0 space-y-1 border-b px-4 py-4 sm:px-6 sm:py-5">
           <DialogTitle>Editar reporte #{report.Id}</DialogTitle>
           <DialogDescription>
             Modifica la informacion del reporte segun sea necesario.
@@ -192,16 +192,16 @@ export default function EditReportModal({
         ) : (
           <form
             id="edit-report-form"
-            className="flex flex-1 min-h-0 flex-col gap-4"
+            className="flex min-h-0 flex-1 flex-col overflow-hidden"
             onSubmit={(e) => {
               e.preventDefault();
               form.handleSubmit();
             }}
           >
-            <div className="flex flex-1 min-h-0 flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-4">
               {/* Preview foto existente */}
               {report.PhotoUrl && (
-                <ReportPhotoLightbox src={report.PhotoUrl} thumbnailClass="h-40" />
+                <ReportPhotoLightbox src={report.PhotoUrl} thumbnailClass="h-32" />
               )}
 
               <FieldGroup className="gap-4">
@@ -461,21 +461,12 @@ export default function EditReportModal({
               </div>
             </div>
 
-            <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
+            <DialogFooter className="shrink-0 border-t bg-background px-4 py-4 sm:px-6 sm:py-4">
               <form.Subscribe
                 selector={(state) => [state.canSubmit, state.isSubmitting]}
               >
                 {([canSubmit, isSubmitting]) => (
-                  <div className="flex w-full flex-col-reverse items-center justify-between sm:flex-row-reverse">
-                    <DialogClose asChild>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full sm:w-auto"
-                      >
-                        Cancelar
-                      </Button>
-                    </DialogClose>
+                  <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <Button
                       type="submit"
                       form="edit-report-form"
@@ -484,6 +475,16 @@ export default function EditReportModal({
                     >
                       {isSubmitting ? "Actualizando..." : "Actualizar reporte"}
                     </Button>
+                    <DialogClose asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full sm:w-auto"
+                        disabled={isSubmitting}
+                      >
+                        Cancelar
+                      </Button>
+                    </DialogClose>
                   </div>
                 )}
               </form.Subscribe>

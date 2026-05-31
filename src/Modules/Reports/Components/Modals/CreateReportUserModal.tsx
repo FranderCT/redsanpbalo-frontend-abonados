@@ -351,7 +351,7 @@ export default function CreateReportUserModal({ open, setOpen }: Props) {
             <DialogFooter className="shrink-0 border-t bg-background px-4 py-4 sm:px-6 sm:py-4">
               <form.Subscribe selector={(state) => state.canSubmit}>
                 {(canSubmit) => (
-                  <div className="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <Button
                       type="submit"
                       form="create-report-user-form"
