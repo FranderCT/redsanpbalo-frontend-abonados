@@ -21,6 +21,7 @@ import {
 import { Label } from "@/Components/ui/label";
 import { Separator } from "@/Components/ui/separator";
 import { Badge } from "@/Components/ui/badge";
+import { formatCalendarDate } from "@/lib/formatCalendarDate";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -51,13 +52,7 @@ function ProfileField({
 const UserProfileDetails = ({ User }: Props) => {
   const nisLabel =
     User?.Nis && User.Nis.length > 0 ? User.Nis.join(", ") : "—";
-  const birthdateLabel = User?.Birthdate
-    ? new Date(User.Birthdate).toLocaleDateString("es-ES", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      })
-    : "—";
+  const birthdateLabel = formatCalendarDate(User?.Birthdate);
 
   return (
     <Card className="user-profile-details md:col-span-2 overflow-hidden border-border bg-card shadow-sm">
