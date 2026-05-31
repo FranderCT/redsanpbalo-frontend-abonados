@@ -44,6 +44,7 @@ export default function CreateReportModal() {
   const [open, setOpen] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [submitPhase, setSubmitPhase] = useState<"idle" | "creating" | "uploading">("idle");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const createReportMutation = useCreateReportByAdmin();
@@ -63,7 +64,14 @@ export default function CreateReportModal() {
         toast.error("No se pudo obtener la informacion del usuario");
         return;
       }
+      if (!photoFile) {
+        toast.error("Debes agregar una foto del reporte");
+        return;
+      }
+
+      let phase: "creating" | "uploading" = "creating";
       try {
+        setSubmitPhase("creating");
         const created = await createReportMutation.mutateAsync({
           ExactLocation: value.ExactLocation,
           Description: value.Description,
@@ -71,13 +79,23 @@ export default function CreateReportModal() {
           ReportLocationId: Number(value.ReportLocationId),
           ReportTypeId: Number(value.ReportTypeId),
         });
-        if (photoFile) {
-          await uploadPhotoMutation.mutateAsync({ reportId: created.Id, photo: photoFile });
-        }
+
+        setSubmitPhase("uploading");
+        phase = "uploading";
+        await uploadPhotoMutation.mutateAsync({ reportId: created.Id, photo: photoFile });
+
         toast.success("Reporte creado exitosamente");
         handleClose();
       } catch (error) {
-        showApiErrorToast(error);
+        if (phase === "uploading") {
+          toast.error(
+            "El reporte se creo pero no se pudo subir la foto. Editalo para intentar de nuevo.",
+          );
+        } else {
+          showApiErrorToast(error);
+        }
+      } finally {
+        setSubmitPhase("idle");
       }
     },
   });
@@ -107,10 +125,18 @@ export default function CreateReportModal() {
   function handleClose() {
     form.reset();
     removePhoto();
+    setSubmitPhase("idle");
     setOpen(false);
   }
 
   const isLoading = typesLoading || locationsLoading || profileLoading;
+  const isSubmitting = submitPhase !== "idle";
+  const submitLabel =
+    submitPhase === "creating"
+      ? "Creando reporte..."
+      : submitPhase === "uploading"
+        ? "Subiendo foto..."
+        : "Crear reporte";
   const ReportField = form.Field;
 
   return (
@@ -128,8 +154,8 @@ export default function CreateReportModal() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="flex max-h-[calc(100vh-2rem)] flex-col gap-0 overflow-hidden">
-        <DialogHeader className="space-y-1.5 border-b px-6 py-5">
+      <DialogContent className="flex w-[calc(100%-1rem)] max-w-3xl flex-col gap-0 overflow-hidden p-0 max-h-[min(800px,95dvh)]">
+        <DialogHeader className="shrink-0 space-y-1 border-b px-4 py-4 sm:px-6 sm:py-5">
           <DialogTitle>Crear nuevo reporte</DialogTitle>
           <DialogDescription>
             Completa la informacion del reporte para registrarlo en el sistema.
@@ -143,14 +169,14 @@ export default function CreateReportModal() {
         ) : (
           <form
             id="create-report-form"
-            className="flex flex-1 min-h-0 flex-col gap-4"
+            className="flex min-h-0 flex-1 flex-col overflow-hidden"
             onSubmit={(e) => {
               e.preventDefault();
               form.handleSubmit();
             }}
           >
-            <div className="flex flex-1 min-h-0 flex-col gap-2 overflow-y-auto overflow-x-hidden px-6 py-4">
-              <FieldGroup className="gap-4">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-4">
+            <FieldGroup className="gap-4">
 
                 {/* 1. Barrio */}
                 <ReportField
@@ -260,16 +286,13 @@ export default function CreateReportModal() {
 
                 {/* 5. Foto (opcional) */}
                 <Field className="gap-2">
-                  <FieldLabel>
-                    Foto del reporte{" "}
-                    <span className="text-xs font-normal text-muted-foreground">(opcional)</span>
-                  </FieldLabel>
+                  <FieldLabel>Foto del reporte</FieldLabel>
                   {photoPreview ? (
                     <div className="relative w-full overflow-hidden rounded-lg border">
                       <img
                         src={photoPreview}
                         alt="Vista previa"
-                        className="h-40 w-full object-cover"
+                        className="h-32 w-full object-cover"
                       />
                       <button
                         type="button"
@@ -283,7 +306,7 @@ export default function CreateReportModal() {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="flex h-32 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 text-muted-foreground transition-colors hover:border-muted-foreground/60 hover:bg-muted/40"
+                      className="flex h-28 w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 text-muted-foreground transition-colors hover:border-muted-foreground/60 hover:bg-muted/40"
                     >
                       <ImagePlus className="size-6" />
                       <span className="text-sm">Agregar foto del problema</span>
@@ -302,7 +325,7 @@ export default function CreateReportModal() {
               </FieldGroup>
 
               {UserProfile ? (
-                <div className="rounded-lg border bg-muted/40 px-4 py-3">
+                <div className="mt-4 rounded-lg border bg-muted/40 px-4 py-3">
                   <p className="text-sm font-medium text-foreground">
                     Reporte creado por {UserProfile.Name} {UserProfile.Surname1}
                   </p>
@@ -311,23 +334,28 @@ export default function CreateReportModal() {
               ) : null}
             </div>
 
-            <DialogFooter className="flex-row flex-wrap items-center justify-end gap-2 border-t px-6 py-4">
-              <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-                {([canSubmit, isSubmitting]) => (
-                  <div className="w-full flex flex-col-reverse sm:flex-row-reverse items-center justify-between">
-                    <DialogClose asChild>
-                      <Button type="button" variant="outline" className="w-full sm:w-auto">
-                        Cancelar
-                      </Button>
-                    </DialogClose>
+            <DialogFooter className="shrink-0 border-t bg-background px-4 py-4 sm:px-6 sm:py-4">
+              <form.Subscribe selector={(state) => state.canSubmit}>
+                {(canSubmit) => (
+                  <div className="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <Button
                       type="submit"
                       form="create-report-form"
-                      disabled={!canSubmit || isSubmitting}
+                      disabled={!canSubmit || isSubmitting || !photoFile}
                       className="w-full sm:w-auto"
                     >
-                      {isSubmitting ? "Creando reporte..." : "Crear reporte"}
+                      {submitLabel}
                     </Button>
+                    <DialogClose asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full sm:w-auto"
+                        disabled={isSubmitting}
+                      >
+                        Cancelar
+                      </Button>
+                    </DialogClose>
                   </div>
                 )}
               </form.Subscribe>

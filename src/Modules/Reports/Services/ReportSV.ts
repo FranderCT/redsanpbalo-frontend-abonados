@@ -124,6 +124,12 @@ export async function uploadReportPhoto(
     const { data } = await apiAxios.post<ReportApi>(
       `${BASE_URL}/${reportId}/photo`,
       formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        timeout: 60000,
+      },
     );
     return data;
   } catch (error) {
