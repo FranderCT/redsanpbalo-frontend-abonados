@@ -20,21 +20,20 @@ type ApiError = {
 };
 
 const buildChangeMeterPaginationMeta = (
-  page: number,
+ // page: number,
   limit: number,
-  totalItems: number
+  //totalItems: number
 ): PaginatedResponse<ReqChangeMeter>["meta"] => {
-  const safeLimit = Math.max(limit, 1);
-  const totalPages = Math.max(1, Math.ceil(totalItems / safeLimit));
+  //const safeLimit = Math.max(limit, 1);
+  //const totalPages = Math.max(1, Math.ceil(totalItems / safeLimit));
 
   return {
-    totalItems,
-    itemCount: 0,
-    itemsPerPage: safeLimit,
-    totalPages,
-    currentPage: page,
-    hasNextPage: page < totalPages,
-    hasPrevPage: page > 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+    limit: limit,
+    page: 1,
+    pageCount: 1,
+    total: 0,
   };
 };
 
@@ -81,13 +80,13 @@ const buildClientSideChangeMeterResponse = (
 ): PaginatedResponse<ReqChangeMeter> => {
   const start = (page - 1) * limit;
   const paginatedRows = rows.slice(start, start + limit);
-  const meta = buildChangeMeterPaginationMeta(page, limit, rows.length);
+  const meta = buildChangeMeterPaginationMeta(page);
 
   return {
     data: paginatedRows,
     meta: {
       ...meta,
-      itemCount: paginatedRows.length,
+      //itemCount: paginatedRows.length,
     },
   };
 };

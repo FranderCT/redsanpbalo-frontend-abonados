@@ -450,10 +450,10 @@ export default function ListReqAssociated() {
 
   const rawMeta = data?.meta as (PaginationMeta & LegacyMeta) | undefined;
   const meta = {
-    total: rawMeta?.totalItems ?? rawMeta?.total ?? 0,
-    page: rawMeta?.currentPage ?? rawMeta?.page ?? 1,
-    limit: rawMeta?.itemsPerPage ?? rawMeta?.limit ?? limit,
-    pageCount: rawMeta?.totalPages ?? rawMeta?.pageCount ?? 1,
+    total:rawMeta?.total ?? 0,
+    page:rawMeta?.page ?? 1,
+    limit:rawMeta?.limit ?? limit,
+    pageCount:rawMeta?.pageCount ?? 1,
     hasNextPage: rawMeta?.hasNextPage ?? false,
     hasPrevPage: rawMeta?.hasPrevPage ?? false,
   };

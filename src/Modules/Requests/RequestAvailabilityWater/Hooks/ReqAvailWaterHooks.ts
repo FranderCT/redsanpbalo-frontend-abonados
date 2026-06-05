@@ -64,10 +64,10 @@ export const useSearchReqAvailWater = (params: ReqAvailWaterPaginationParams) =>
       console.log(
         "[Requests fetched]",
         {
-          page: rawMeta.currentPage ?? rawMeta.page ?? page,
-          limit: rawMeta.itemsPerPage ?? rawMeta.limit ?? limit,
-          total: rawMeta.totalItems ?? rawMeta.total ?? res.data.length,
-          pageCount: rawMeta.totalPages ?? rawMeta.pageCount ?? 1,
+          page: rawMeta.page ?? rawMeta.page ?? page,
+          limit: rawMeta.limit ?? rawMeta.limit ?? limit,
+          total: rawMeta.total ?? rawMeta.total ?? res.data.length,
+          pageCount: rawMeta.pageCount ?? rawMeta.pageCount ?? 1,
           params: { page, limit, q, State, StateRequestId },
         },
         res.data

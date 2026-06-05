@@ -15,21 +15,19 @@ type ApiError = {
 };
 
 const buildAssociatedPaginationMeta = (
-  page: number,
   limit: number,
-  totalItems: number
+  //totalItems: number
 ): PaginatedResponse<ReqAssociated>["meta"] => {
-  const safeLimit = Math.max(limit, 1);
-  const totalPages = Math.max(1, Math.ceil(totalItems / safeLimit));
+  //const safeLimit = Math.max(limit, 1);
+  //const totalPages = Math.max(1, Math.ceil(totalItems / safeLimit));
 
   return {
-    totalItems,
-    itemCount: 0,
-    itemsPerPage: safeLimit,
-    totalPages,
-    currentPage: page,
-    hasNextPage: page < totalPages,
-    hasPrevPage: page > 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+    limit: limit,
+    page: 1,
+    pageCount: 1,
+    total: 0,
   };
 };
 
@@ -133,15 +131,14 @@ export async function searchRequestAssociated(
       const paginatedRows = normalizedRows.slice(start, start + normalizedLimit);
       const meta = buildAssociatedPaginationMeta(
         normalizedPage,
-        normalizedLimit,
-        normalizedRows.length
+        //normalizedLimit,
+        //normalizedRows.length
       );
 
       return {
         data: paginatedRows,
         meta: {
           ...meta,
-          itemCount: paginatedRows.length,
         },
       };
     }

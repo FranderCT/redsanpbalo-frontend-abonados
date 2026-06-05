@@ -57,9 +57,9 @@ export const useSearchReqSupervisionMeter = (params: ReqSupervisionMeterPaginati
       console.log("requestsupervision-meter.search query state", {
         source: "admin",
         params: { page, limit, UserName, StateRequestId, NIS, State },
-        total: meta.totalItems ?? meta.total ?? 0,
-        page: meta.currentPage ?? meta.page ?? page,
-        limit: meta.itemsPerPage ?? meta.limit ?? limit,
+        total: meta.total ?? 0,
+        page:  meta.page ?? page,
+        limit: meta.limit ?? limit,
         rows: Array.isArray(query.data.data) ? query.data.data.length : 0,
       });
     } else if (query.isFetching) {
