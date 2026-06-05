@@ -49,13 +49,15 @@ export default function ListReqChangeMeterUser() {
   const rows = useMemo<ReqChangeMeter[]>(() => data?.data ?? [], [data?.data]);
   const rawMeta = data?.meta as (PaginationMeta & LegacyMeta) | undefined;
   const meta = {
-    total: rawMeta?.totalItems ?? rawMeta?.total ?? 0,
-    page: rawMeta?.currentPage ?? rawMeta?.page ?? page,
-    limit: rawMeta?.itemsPerPage ?? rawMeta?.limit ?? limit,
+    total: rawMeta?.total ?? rawMeta?.total ?? 0,
+    page: rawMeta?.page ?? rawMeta?.page ?? page,
+    limit: rawMeta?.limit ?? rawMeta?.limit ?? limit,
     pageCount:
-      rawMeta?.totalPages ??
+      rawMeta?.page ??
       rawMeta?.pageCount ??
-      Math.ceil((rawMeta?.totalItems ?? rawMeta?.total ?? 0) / limit),
+      Math.ceil((rawMeta?.total ?? rawMeta?.total ?? 0) / limit),
+    hasNextPage: rawMeta?.hasNextPage ?? false,
+    hasPrevPage: rawMeta?.hasPrevPage ?? false,
   };
 
   return (

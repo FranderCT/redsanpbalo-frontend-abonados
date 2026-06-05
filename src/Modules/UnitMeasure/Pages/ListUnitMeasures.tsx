@@ -94,13 +94,12 @@ export default function ListUnitMeasures() {
 
   const rows: Unit[] = data?.data ?? [];
   const meta = data?.meta ?? {
-    totalItems: 0,
-    itemCount: 0,
-    itemsPerPage: limit,
-    totalPages: 1,
-    currentPage: 1,
     hasNextPage: false,
     hasPrevPage: false,
+    limit: limit,
+    page: 1,
+    pageCount: 1,
+    total: 0,
   };
 
   return (
@@ -114,8 +113,8 @@ export default function ListUnitMeasures() {
       </section>
 
       <UnitHeaderBar
-        limit={meta.itemsPerPage}
-        total={meta.totalItems}
+        limit={meta.limit}
+        total={meta.total}
         search={search}
         state={state}
         onLimitChange={(newLimit) => {
@@ -159,9 +158,9 @@ export default function ListUnitMeasures() {
             <Card className="border-none shadow-none">
               <CardContent className="pt-6">
                 <DataPagination
-                  page={meta.currentPage}
-                  pageCount={meta.totalPages}
-                  total={meta.totalItems}
+                  page={meta.page}
+                  pageCount={meta.pageCount}
+                  total={meta.total}
                   onPageChange={(nextPage) => {
                     startTransition(() => {
                       setPage(nextPage);

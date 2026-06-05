@@ -41,13 +41,12 @@ export default function ListFAQs() {
 
   const rows: FAQ[] = data?.data ?? [];
   const meta = data?.meta ?? {
-    totalItems: 0,
-    itemCount: 0,
-    itemsPerPage: limit,
-    totalPages: 1,
-    currentPage: 1,
     hasNextPage: false,
     hasPrevPage: false,
+    limit: limit,
+    page: 1,
+    pageCount: 1,
+    total: 0,
   };
 
   return (
@@ -60,8 +59,8 @@ export default function ListFAQs() {
       </section>
 
       <FAQHeaderBar
-        limit={meta.itemsPerPage}
-        total={meta.totalItems}
+        limit={meta.limit}
+        total={meta.total}
         search={search}
         state={state}
         onLimitChange={(l) => {
@@ -86,9 +85,9 @@ export default function ListFAQs() {
         ) : (
           <FAQCards
             data={rows}
-            total={meta.totalItems}
-            page={meta.currentPage}
-            pageCount={meta.totalPages}
+            total={meta.total}
+            page={meta.page}
+            pageCount={meta.pageCount}
             onPageChange={setPage}
           />
         )}

@@ -69,10 +69,10 @@ export function useGetMyReqAssociatedPaginated(params: MyReqAssociatedParams = {
       console.log(
         "[ASADA API] Mis solicitudes recibidas",
         {
-          page: res.meta.currentPage,
-          limit: res.meta.itemsPerPage,
-          total: res.meta.totalItems,
-          pageCount: res.meta.totalPages,
+          page: res.meta.page,
+          limit: res.meta.limit,
+          total: res.meta.total,
+          pageCount: res.meta.pageCount,
           params: { page, limit, StateRequestId, q },
         },
         res.data

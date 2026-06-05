@@ -94,13 +94,12 @@ export default function ListMaterials() {
 
   const rows: Material[] = data?.data ?? [];
   const meta = data?.meta ?? {
-    totalItems: 0,
-    itemCount: 0,
-    itemsPerPage: limit,
-    totalPages: 1,
-    currentPage: 1,
     hasNextPage: false,
     hasPrevPage: false,
+    limit: 0,
+    page: 0,
+    pageCount:0,
+    total:0,
   };
 
   return (
@@ -114,8 +113,8 @@ export default function ListMaterials() {
       </section>
 
       <MaterialHeaderBar
-        limit={meta.itemsPerPage}
-        total={meta.totalItems}
+        limit={meta.limit}
+        total={meta.total}
         search={search}
         state={state}
         onLimitChange={(newLimit) => {
@@ -159,9 +158,9 @@ export default function ListMaterials() {
             <Card className="border-none shadow-none">
               <CardContent className="pt-6">
                 <DataPagination
-                  page={meta.currentPage}
-                  pageCount={meta.totalPages}
-                  total={meta.totalItems}
+                  page={meta.page}
+                  pageCount={meta.pageCount}
+                  total={meta.total}
                   onPageChange={(nextPage) => {
                     startTransition(() => {
                       setPage(nextPage);

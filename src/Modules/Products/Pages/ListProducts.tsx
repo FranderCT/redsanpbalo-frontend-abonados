@@ -92,13 +92,12 @@ export default function ListProducts() {
 
   const rows: Product[] = data?.data ?? [];
   const meta = data?.meta ?? {
-    totalItems: 0,
-    itemCount: 0,
-    itemsPerPage: limit,
-    totalPages: 1,
-    currentPage: 1,
     hasNextPage: false,
     hasPrevPage: false,
+    limit: limit,
+    page: 1,
+    pageCount: 1,
+    total: 0,
   };
 
   return (
@@ -112,8 +111,8 @@ export default function ListProducts() {
       </section>
 
       <ProductHeaderBar
-        limit={meta.itemsPerPage}
-        total={meta.totalItems}
+        limit={meta.limit}
+        total={meta.total}
         search={search}
         state={state}
         onLimitChange={(value) => {
@@ -140,10 +139,10 @@ export default function ListProducts() {
         ) : (
           <ProductTable
             data={rows}
-            total={meta.totalItems}
-            page={meta.currentPage}
-            pageCount={meta.totalPages}
-            pageSize={meta.itemsPerPage}
+            total={meta.total}
+            page={meta.page}
+            pageCount={meta.pageCount}
+            pageSize={meta.limit}
             onPageChange={(nextPage) => {
               startTransition(() => {
                 setPage(nextPage);

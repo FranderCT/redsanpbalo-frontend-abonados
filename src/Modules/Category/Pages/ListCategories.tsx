@@ -10,13 +10,12 @@ import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory"
 const DEFAULT_LIMIT = 10;
 const DEFAULT_PAGE = 1;
 const EMPTY_META: PaginatedResponse<Category>["meta"] = {
-  totalItems: 0,
-  itemCount: 0,
-  itemsPerPage: DEFAULT_LIMIT,
-  totalPages: 1,
-  currentPage: 1,
   hasNextPage: false,
   hasPrevPage: false,
+  limit: DEFAULT_LIMIT,
+  page: DEFAULT_PAGE,
+  pageCount: 1,
+  total: 0,
 };
 
 type CategoryFiltersState = {
@@ -115,7 +114,7 @@ export default function ListCategories() {
   const { data, isLoading, error } = useSearchCategories(params);
 
   const rows: Category[] = data?.data ?? [];
-  const meta = data?.meta ?? { ...EMPTY_META, itemsPerPage: filters.limit };
+  const meta = data?.meta ?? { ...EMPTY_META, limit: filters.limit };
 
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -128,8 +127,8 @@ export default function ListCategories() {
       </section>
 
       <CategoryHeaderBar
-        limit={meta.itemsPerPage}
-        total={meta.totalItems}
+        limit={meta.limit}
+        total={meta.total}
         search={filters.search}
         state={filters.state}
         onLimitChange={(newLimit) => {
@@ -159,9 +158,9 @@ export default function ListCategories() {
         ) : (
           <CategoryCards
             data={rows}
-            total={meta.totalItems}
-            page={meta.currentPage}
-            pageCount={meta.totalPages}
+            total={meta.total}
+            page={meta.page}
+            pageCount={meta.pageCount}
             onPageChange={(page) => {
               setFilters((current) => ({
                 ...current,

@@ -43,11 +43,10 @@ export async function searchServices(
         return {
             data: data.data,
             meta: {
-                totalItems: data.meta.total,
-                itemCount: data.data.length,
-                itemsPerPage: data.meta.limit,
-                totalPages: data.meta.pageCount,
-                currentPage: data.meta.page,
+                limit: data.meta.limit,
+                page: data.meta.page,
+                total: data.meta.total,
+                pageCount: data.meta.pageCount,
                 hasNextPage: data.meta.hasNextPage,
                 hasPrevPage: data.meta.hasPrevPage,
             },

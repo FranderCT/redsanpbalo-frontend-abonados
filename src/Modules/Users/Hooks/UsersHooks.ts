@@ -1,7 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { PaginatedResponse } from "../../../assets/Dtos/PaginationCategory";
-import { useEffect } from "react";
 import type { UsersPaginationParams, User, UpdateUser } from "../Models/User";
 import { getUserProfile, updateUserProfile, updateUserEmail, getAllUsers, deleteUser, 
   createUserModal, getAllRoles, updateUser, getUserById, deteleUserById, searchUsers, 
@@ -171,25 +170,6 @@ export function useGetAllUsersPaginate(params: UsersPaginationParams) {
       placeholderData: keepPreviousData,   // v5
       staleTime: 30_000,
   });
-  // ⬇️ Log en cada fetch/refetch exitoso
-  useEffect(() => {
-      if (usersInfo) {
-      const res = usersInfo; // res: PaginatedResponse<Category>
-      // console.log(
-      //     "[Users fetched]",
-      //     {
-      //     page: res.meta.currentPage,
-      //     limit: res.meta.itemsPerPage,
-      //     total: res.meta.totalItems,
-      //     pageCount: res.meta.totalPages,
-      //     params,
-      //     },
-      //     res.data // array de Category
-      // );
-      console.log(usersInfo.meta);
-      console.log("Page:" + usersInfo.meta.page);
-      }
-  }, [usersInfo, params]);
   return { data: usersInfo, isLoading, isPending, error };
 }
 export const useGetUsersByRoleAdmin = () => {

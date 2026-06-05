@@ -90,13 +90,12 @@ export default function ListProjects() {
 
   const items = data?.data ?? [];
   const meta = data?.meta ?? {
-    totalItems: 0,
-    itemCount: 0,
-    itemsPerPage: limit,
-    totalPages: 1,
-    currentPage: 1,
     hasNextPage: false,
     hasPrevPage: false,
+    limit: limit,
+    page: 1,
+    pageCount: 1,
+    total: 0,
   };
 
   return (
@@ -106,8 +105,8 @@ export default function ListProjects() {
       <div className="border-b border-dashed border-gray-300 mb-4"></div>
 
       <ProjectHeaderBar
-        limit={meta.itemsPerPage}
-        total={meta.totalItems}
+        limit={meta.limit}
+        total={meta.total}
         search={search}
         projectStateId={projectStateId}
         states={projectStates ?? []}
@@ -150,10 +149,10 @@ export default function ListProjects() {
       <Card className="border-none shadow-none">
         <CardContent className="pt-2 sm:pt-6">
           <DataPagination
-            page={meta.currentPage}
-            pageCount={meta.totalPages}
-            total={meta.totalItems}
-            pageSize={meta.itemsPerPage}
+            page={meta.page}
+            pageCount={meta.pageCount}
+            total={meta.total}
+            pageSize={meta.limit}
             onPageChange={(nextPage) => {
               startTransition(() => {
                 setPage(nextPage);

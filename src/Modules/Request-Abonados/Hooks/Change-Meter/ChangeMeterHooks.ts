@@ -80,10 +80,10 @@ export function useGetMyReqChangeMeterPaginated(params: MyReqChangeMeterParams =
       console.log(
         "[ASADA API] Mis solicitudes recibidas",
         {
-          page: meta.currentPage ?? meta.page,
-          limit: meta.itemsPerPage ?? meta.limit,
-          total: meta.totalItems ?? meta.total,
-          pageCount: meta.totalPages ?? meta.pageCount,
+          page: meta.page,
+          limit: meta.limit,
+          total: meta.total,
+          pageCount: meta.pageCount,
           params: { page, limit, StateRequestId, q },
         },
         res.data

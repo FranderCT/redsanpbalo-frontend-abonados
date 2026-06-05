@@ -66,10 +66,10 @@ export const useSearchComments = (params: CommentPaginationParams) => {
         console.log(
             "[Comments fetched]",
             {
-            page: res.meta.currentPage,
-            limit: res.meta.itemsPerPage,
-            total: res.meta.totalItems,
-            pageCount: res.meta.totalPages,
+            page: res.meta.page,
+            limit: res.meta.limit,
+            total: res.meta.total,
+            pageCount: res.meta.pageCount,
             params,
             },
             res.data // array de Category
