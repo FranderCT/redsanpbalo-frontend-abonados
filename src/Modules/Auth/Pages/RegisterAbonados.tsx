@@ -434,21 +434,25 @@ const RegisterAbonados = () => {
 
               {/* Teléfono */}
               <form.Field name="PhoneNumber">
-                {(field) => (
-                  <div>
-                    <PhoneField
-                      value={field.state.value}
-                      onChange={(val) => field.handleChange(val ?? "")}
-                      defaultCountry="CR"
-                      required
-                      error={
-                        field.state.meta.isTouched && field.state.meta.errors[0]
-                          ? String(field.state.meta.errors[0])
-                          : undefined
-                      }
-                    />
-                  </div>
-                )}
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+
+                  return (
+                    <Field data-invalid={isInvalid} className="gap-2">
+                      <PhoneField
+                        value={field.state.value}
+                        onChange={(val) => field.handleChange(val ?? "")}
+                        defaultCountry="CR"
+                        required
+                        data-invalid={isInvalid}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
               </form.Field>
 
               {/* Fecha de nacimiento */}
