@@ -238,14 +238,27 @@ const ListReports = () => {
   const error = usesSubscriberReportsView ? userError : adminError;
 
   const items = data?.data ?? [];
-  const meta = data?.meta ?? {
-    totalItems: 0,
-    itemCount: 0,
-    itemsPerPage: limit,
-    totalPages: 1,
-    currentPage: 1,
-    hasNextPage: false,
-    hasPrevPage: false,
+  const rawMeta = (data?.meta ?? {}) as Partial<{
+    totalItems: number;
+    itemCount: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+    total: number;
+    limit: number;
+    pageCount: number;
+    page: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  }>;
+  const meta = {
+    totalItems: rawMeta.totalItems ?? rawMeta.total ?? items.length,
+    itemCount: rawMeta.itemCount ?? items.length,
+    itemsPerPage: rawMeta.itemsPerPage ?? rawMeta.limit ?? limit,
+    totalPages: rawMeta.totalPages ?? rawMeta.pageCount ?? 1,
+    currentPage: rawMeta.currentPage ?? rawMeta.page ?? page,
+    hasNextPage: rawMeta.hasNextPage ?? false,
+    hasPrevPage: rawMeta.hasPrevPage ?? false,
   };
 
   return (
@@ -378,10 +391,10 @@ const ListReports = () => {
         )}
       </div>
 
-      {viewMode === "list" && meta.totalPages > 0 && (
+      {viewMode === "list" && !isLoading && !isError && (
         <div className="pt-4 border-t border-border flex-shrink-0">
           <DataPagination
-            page={meta.currentPage}
+            page={page}
             pageCount={meta.totalPages}
             total={meta.totalItems}
             pageSize={meta.itemsPerPage}

@@ -46,22 +46,32 @@ function getPageRange(current: number, total: number): (number | "ellipsis")[] {
   if (total <= 7) {
     return Array.from({ length: total }, (_, i) => i + 1);
   }
-  const pages: (number | "ellipsis")[] = [];
-  const showLeft = current > 3;
-  const showRight = current < total - 2;
 
-  if (showLeft) pages.push(1, "ellipsis");
-  else for (let i = 1; i <= Math.min(3, total); i++) pages.push(i);
+  const pages: (number | "ellipsis")[] = [1];
 
-  if (showLeft && showRight) {
-    for (let i = current - 1; i <= current + 1; i++) {
-      if (i > 1 && i < total) pages.push(i);
-    }
-  } else if (showRight) {
-    for (let i = Math.max(1, total - 2); i <= total; i++) pages.push(i);
+  if (current > 4) {
+    pages.push("ellipsis");
   }
 
-  if (showRight && current < total - 2) pages.push("ellipsis", total);
+  if (current <= 4) {
+    for (let i = 2; i <= Math.min(4, total - 1); i++) {
+      pages.push(i);
+    }
+  } else if (current >= total - 3) {
+    for (let i = Math.max(2, total - 3); i <= total - 1; i++) {
+      pages.push(i);
+    }
+  } else {
+    for (let i = current - 1; i <= current + 1; i++) {
+      pages.push(i);
+    }
+  }
+
+  if (current < total - 3) {
+    pages.push("ellipsis");
+  }
+
+  pages.push(total);
   return pages;
 }
 
@@ -127,7 +137,7 @@ export function DataPagination({
                 <PaginationEllipsis />
               </PaginationItem>
             ) : (
-              <PaginationItem key={p} className="hidden sm:block">
+              <PaginationItem key={`page-${p}-${i}`} className="hidden sm:block">
                 <Button
                   variant={page === p ? "outline" : "ghost"}
                   size="icon"
