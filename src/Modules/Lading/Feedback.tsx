@@ -1,7 +1,7 @@
 "use client"
 
 import { useForm } from "@tanstack/react-form";
-import { Mail, Send } from "lucide-react";
+import { LoaderCircle, Mail, Send } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useCreateComment } from "../Comment/Hooks/commentHooks";
@@ -123,16 +123,18 @@ export function Feedback() {
                   <button
                     type="submit"
                     disabled={!canSubmit || isSubmitting}
+                    aria-label={isSubmitting ? "Enviando retroalimentación" : "Enviar retroalimentación"}
+                    aria-busy={isSubmitting}
                     className="w-full bg-[#091540] text-white py-4 font-black uppercase tracking-widest hover:bg-[#005CAF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
-                      "Enviando..."
+                      <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" />
                     ) : (
-                      <>
-                        <Send className="h-5 w-5" />
-                        Enviar Retroalimentación
-                      </>
+                      <Send className="h-5 w-5" aria-hidden="true" />
                     )}
+                    <span className="hidden md:inline">
+                      {isSubmitting ? "Enviando..." : "Enviar Retroalimentación"}
+                    </span>
                   </button>
                 )}
               </form.Subscribe>
