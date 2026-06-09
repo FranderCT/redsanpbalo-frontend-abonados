@@ -125,14 +125,10 @@ export function Feedback() {
                     disabled={!canSubmit || isSubmitting}
                     className="w-full bg-[#091540] text-white py-4 font-black uppercase tracking-widest hover:bg-[#005CAF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    {isSubmitting ? (
-                      "Enviando..."
-                    ) : (
-                      <>
-                        <Send className="h-5 w-5" />
-                        Enviar Retroalimentación
-                      </>
-                    )}
+                    <Send className="h-5 w-5" />
+                    <span className="hidden md:inline">
+                      {isSubmitting ? "Enviando..." : "Enviar Retroalimentación"}
+                    </span>
                   </button>
                 )}
               </form.Subscribe>
