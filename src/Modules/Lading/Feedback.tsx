@@ -1,7 +1,7 @@
 "use client"
 
 import { useForm } from "@tanstack/react-form";
-import { Mail, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useCreateComment } from "../Comment/Hooks/commentHooks";
@@ -61,17 +61,6 @@ export function Feedback() {
               con día. Utilice este formulario para enviarnos su retroalimentación
               de forma anónima.
             </p>
-            <div className="flex items-start gap-4">
-              <div className="bg-gray-100 p-3 shadow-sm text-[#005CAF]">
-                <Mail className="w-6 h-6" />
-              </div>
-              <div>
-                <h4 className="font-bold text-[#091540]">Respuesta Garantizada</h4>
-                <p className="text-sm text-[#404754]">
-                  Respondemos a todas las consultas en menos de 24 horas hábiles.
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Form side */}
@@ -123,14 +112,14 @@ export function Feedback() {
                   <button
                     type="submit"
                     disabled={!canSubmit || isSubmitting}
-                    className="w-full bg-[#091540] text-white py-4 font-black uppercase tracking-widest hover:bg-[#005CAF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full bg-[#091540] text-white py-4 font-black uppercase tracking-widest hover:bg-[#005CAF] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 md:py-4"
                   >
                     {isSubmitting ? (
-                      "Enviando..."
+                      <span className="hidden md:inline">Enviando...</span>
                     ) : (
                       <>
                         <Send className="h-5 w-5" />
-                        Enviar Retroalimentación
+                        <span className="hidden md:inline">Enviar Retroalimentación</span>
                       </>
                     )}
                   </button>

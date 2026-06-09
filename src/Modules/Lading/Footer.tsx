@@ -1,4 +1,4 @@
-import { Facebook, Globe, Instagram, Twitter } from "lucide-react";
+import { Facebook } from "lucide-react";
 import LogoRedSanPablo from "../../assets/images/LogoRedSanPabloHB.svg";
 
 export function Footer() {
@@ -25,27 +25,6 @@ export function Footer() {
                 aria-label="Facebook"
               >
                 <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 border border-white/10 flex items-center justify-center hover:bg-[#005CAF] hover:border-[#005CAF] transition-all"
-                aria-label="Twitter"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 border border-white/10 flex items-center justify-center hover:bg-[#005CAF] hover:border-[#005CAF] transition-all"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 border border-white/10 flex items-center justify-center hover:bg-[#005CAF] hover:border-[#005CAF] transition-all"
-                aria-label="Web"
-              >
-                <Globe className="w-5 h-5" />
               </a>
             </div>
           </div>
